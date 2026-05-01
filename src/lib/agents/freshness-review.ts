@@ -162,7 +162,7 @@ export async function runFreshnessReview(args: {
   const thresholdDays = args.thresholdDays ?? 90;
 
   const posts = walkMarkdown({ cwd, kind: "posts" });
-  const existingIds = new Set(readQueue().map((p) => p.id));
+  const existingIds = new Set(readQueue(cwd).map((p) => p.id));
 
   let scanned = 0;
   let flagged = 0;
@@ -214,7 +214,10 @@ export async function runFreshnessReview(args: {
         reasoning: draft.reasoning,
       };
 
-      const id = proposalId("freshness-review", "post-section-restamp", post.path, payload);
+      const id = proposalId("freshness-review", "post-section-restamp", post.path, {
+        lastVerifiedISO: stamp.lastVerifiedISO,
+        sectionAnchor: stamp.anchor,
+      });
 
       if (existingIds.has(id)) {
         deduped++;
@@ -230,7 +233,7 @@ export async function runFreshnessReview(args: {
         title: `Restamp ${post.slug}#${stamp.anchor}`,
         preview: `${post.slug} § ${stamp.headingText} — ${daysAgo} days since verified. ${draft.reasoning}`,
         payload,
-      });
+      }, cwd);
       existingIds.add(id);
       proposed++;
     }

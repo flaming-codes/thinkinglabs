@@ -109,19 +109,15 @@ describe("runTriageQuestions — main flows", () => {
     expect(existsSync(join(dir(), "submissions", "_invalid", "bad2.error.txt"))).toBe(true);
   });
 
-  it("--no-llm emits a proposal with relevanceScore null and suggestedAnswer empty", async () => {
+  it("--no-llm emits zero proposals for valid submissions", async () => {
     vi.doMock("../../src/lib/anthropic.ts", () => ({ runToolCall: vi.fn() }));
     const { runTriageQuestions } = await import("../../src/lib/agents/triage-questions.ts");
     writeFileSync(join(dir(), "submissions", "questions", "foo", "bar.json"), JSON.stringify(VALID_SUBMISSION));
     writeFileSync(join(dir(), "content", "questions", "foo.md"), QUESTION_MD);
     const summary = await runTriageQuestions({ cwd: dir(), nowISO: "2026-04-30T00:00:00.000Z", skipLLM: true });
-    expect(summary.proposed).toBe(1);
+    expect(summary.proposed).toBe(0);
     const { readQueue } = await import("../../src/lib/proposal-queue.ts");
-    const proposals = readQueue();
-    expect(proposals).toHaveLength(1);
-    const payload = proposals[0]?.payload as { relevanceScore: unknown; suggestedAnswer: unknown };
-    expect(payload.relevanceScore).toBeNull();
-    expect(payload.suggestedAnswer).toBe("");
+    expect(readQueue()).toHaveLength(0);
   });
 
   it("does not rescan files already in _accepted/", async () => {

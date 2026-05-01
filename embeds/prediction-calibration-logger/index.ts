@@ -1,6 +1,6 @@
-import { readFileSync } from "node:fs";
 import { z } from "zod";
 import { defineEmbeddedTool, type EmbeddedFallbackRow } from "../core.ts";
+import rawSnapshot from "./data.json";
 
 const SampleSchema = z.object({
   id: z.string().min(1),
@@ -27,8 +27,7 @@ export interface CalibrationLogSummary {
 
 /** Loads and validates the static calibration snapshot. */
 export function loadCalibrationLogSnapshot(): CalibrationLogSnapshot {
-  const raw: unknown = JSON.parse(readFileSync(new URL("./data.json", import.meta.url), "utf8"));
-  return SnapshotSchema.parse(raw);
+  return SnapshotSchema.parse(rawSnapshot);
 }
 
 /** Computes deterministic calibration summary values from static samples. */

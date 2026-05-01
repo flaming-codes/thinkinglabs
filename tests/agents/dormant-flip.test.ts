@@ -59,6 +59,17 @@ describe("runDormantFlip — pure function", () => {
     expect(readQueue()).toHaveLength(1);
   });
 
+  it("dedupes when only nowISO changes", async () => {
+    const { runDormantFlip } = await import("../../src/lib/agents/dormant-flip.ts");
+    const { readQueue } = await import("../../src/lib/proposal-queue.ts");
+    writeProject(join(root, "content", "projects"), "stale-proj", 100);
+    runDormantFlip({ cwd: root, nowISO: "2026-04-30T00:00:00.000Z", thresholdDays: 60 });
+    const second = runDormantFlip({ cwd: root, nowISO: "2026-05-02T00:00:00.000Z", thresholdDays: 60 });
+    expect(second.proposed).toBe(0);
+    expect(second.deduped).toBe(1);
+    expect(readQueue()).toHaveLength(1);
+  });
+
   it("skips projects with status: dormant", async () => {
     const { runDormantFlip } = await import("../../src/lib/agents/dormant-flip.ts");
     const { readQueue } = await import("../../src/lib/proposal-queue.ts");

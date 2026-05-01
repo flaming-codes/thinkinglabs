@@ -96,13 +96,16 @@ export async function runProposalsReview(args: {
   limit?: number;
   filter?: ReadonlyArray<ProposalSource>;
   dryRun?: boolean;
+  cwd?: string;
   io?: { input?: Readable; output?: Writable };
 }): Promise<ReviewRunSummary> {
   const limit = args.limit ?? 25;
   const filter = args.filter ?? [];
   const dryRun = args.dryRun ?? false;
+  const cwd = args.cwd ?? process.cwd();
+  const output = args.io?.output ?? process.stdout;
 
-  const allProposals = readQueue();
+  const allProposals = readQueue(cwd);
   const filtered = allProposals
     .filter((p) => filter.length === 0 || filter.includes(p.source))
     .slice(0, limit);
@@ -129,11 +132,11 @@ export async function runProposalsReview(args: {
         const handler = getHandler(p.type);
         const typed = { ...p, payload: handler.parse(p) };
         if (dryRun) {
-          process.stdout.write(`[dry-run] would accept: ${p.id}\n`);
+          output.write(`[dry-run] would accept: ${p.id}\n`);
         } else {
           const summary = await handler.apply(typed);
-          removeFromQueue(p.id);
-          process.stdout.write(`accepted: ${summary}\n`);
+          removeFromQueue(p.id, cwd);
+          output.write(`accepted: ${summary}\n`);
         }
         tally.accepted++;
         return "accepted";
@@ -146,11 +149,11 @@ export async function runProposalsReview(args: {
         const handler = getHandler(p.type);
         const typed = { ...p, payload: handler.parse(p) };
         if (dryRun) {
-          process.stdout.write(`[dry-run] would edit: ${p.id}\n`);
+          output.write(`[dry-run] would edit: ${p.id}\n`);
         } else {
           const summary = await handler.edit(typed);
-          removeFromQueue(p.id);
-          process.stdout.write(`edited: ${summary}\n`);
+          removeFromQueue(p.id, cwd);
+          output.write(`edited: ${summary}\n`);
         }
         tally.edited++;
         return "edited";
@@ -163,10 +166,10 @@ export async function runProposalsReview(args: {
         const handler = getHandler(p.type);
         const typed = { ...p, payload: handler.parse(p) };
         if (dryRun) {
-          process.stdout.write(`[dry-run] would reject: ${p.id}\n`);
+          output.write(`[dry-run] would reject: ${p.id}\n`);
         } else {
           if (handler.reject) await handler.reject(typed);
-          removeFromQueue(p.id);
+          removeFromQueue(p.id, cwd);
         }
         tally.rejected++;
         return "rejected";
@@ -176,7 +179,7 @@ export async function runProposalsReview(args: {
       key: "s",
       label: "skip",
       handle: (p) => {
-        if (dryRun) process.stdout.write(`[dry-run] would skip: ${p.id}\n`);
+        if (dryRun) output.write(`[dry-run] would skip: ${p.id}\n`);
         tally.skipped++;
         return Promise.resolve("skipped");
       },
@@ -184,7 +187,7 @@ export async function runProposalsReview(args: {
   ];
 
   await runReview(proposals, actions, args.io);
-  return { ...tally, queueSize: readQueue().length };
+  return { ...tally, queueSize: readQueue(cwd).length };
 }
 
 /** CLI entry point; thin wrapper around runProposalsReview that adds SIGINT handling and summary output. */

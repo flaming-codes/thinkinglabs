@@ -118,7 +118,7 @@ export async function runResolvePredictions(args: { cwd: string; nowISO: string;
   const rejectionMap = new Map(rejections.map((r) => [r.slug, r.predictionLastModified]));
 
   const now = new Date(nowISO).getTime();
-  const existingIds = new Set(readQueue().map((p) => p.id));
+  const existingIds = new Set(readQueue(cwd).map((p) => p.id));
 
   let proposed = 0;
   let deduped = 0;
@@ -179,7 +179,11 @@ export async function runResolvePredictions(args: { cwd: string; nowISO: string;
       resolvedOnISO: nowISO,
     };
 
-    const id = proposalId("resolve-predictions", "prediction-resolve", pred.path, payload);
+    const id = proposalId("resolve-predictions", "prediction-resolve", pred.path, {
+      madeISO,
+      prediction: String(pred.data["prediction"] ?? ""),
+      resolvesISO,
+    });
 
     if (existingIds.has(id)) {
       deduped++;
@@ -195,7 +199,7 @@ export async function runResolvePredictions(args: { cwd: string; nowISO: string;
       title: `Resolve prediction: ${pred.slug}`,
       preview: `${pred.slug} resolves as ${draft.resolution}. ${draft.reasoning}`,
       payload,
-    });
+    }, cwd);
     existingIds.add(id);
     proposed++;
   }

@@ -6,14 +6,17 @@ See `docs/architecture/ADR-009-proposal-confirmation-pattern.md` for the rationa
 
 ## Before you install
 
-### 1. Replace `__REPO_ROOT__`
+### 1. Copy plists and replace `__REPO_ROOT__`
 
-Every plist has `WorkingDirectory` set to `__REPO_ROOT__`. Replace it with the absolute path to this repo:
+Keep the tracked plist templates unchanged. Copy them into `~/Library/LaunchAgents`, then replace `__REPO_ROOT__` in the copies with the absolute path to this repo:
 
 ```sh
 REPO=$(pwd)
+mkdir -p ~/Library/LaunchAgents
 for f in scripts/launchd/com.tom.me.*.plist; do
-  sed -i '' "s|__REPO_ROOT__|$REPO|g" "$f"
+  dst="$HOME/Library/LaunchAgents/$(basename "$f")"
+  cp "$f" "$dst"
+  sed -i '' "s|__REPO_ROOT__|$REPO|g" "$dst"
 done
 ```
 
@@ -25,11 +28,13 @@ Three agents (`resolve-predictions`, `freshness-review`, `triage-questions`) cal
 launchctl setenv ANTHROPIC_API_KEY <your-key>
 ```
 
-This injects the variable into the launchd session; all five plists (and any future ones) pick it up without baking the key into any file. The setting persists until the next logout.
+This injects the variable into the launchd session; the plists inherit that environment without baking the key into any file. The setting persists until the next logout.
 
 For persistence across reboots, add the `launchctl setenv` call to a login item or a separate `launchd` plist loaded at login — do not put the key in these agent plists or commit it to git.
 
 The two non-LLM agents (`dormant-flip`, `review-decisions`) need no key.
+
+The plists invoke `/bin/zsh -lc` and source `~/.zshrc` before running `pnpm`, so nvm/asdf-style local Node installs are available without hard-coding a machine-specific pnpm path.
 
 ### 3. Create the log directory
 
@@ -39,7 +44,7 @@ mkdir -p ~/Library/Logs/me
 
 ## Install
 
-Bootstrap each plist into the GUI session (replace `<plist-path>` with the full path):
+Bootstrap each copied plist into the GUI session (replace `<plist-path>` with the full path):
 
 ```sh
 launchctl bootstrap gui/$(id -u) <plist-path>
@@ -48,8 +53,8 @@ launchctl bootstrap gui/$(id -u) <plist-path>
 Example for all five at once:
 
 ```sh
-for f in scripts/launchd/com.tom.me.*.plist; do
-  launchctl bootstrap gui/$(id -u) "$(pwd)/$f"
+for f in ~/Library/LaunchAgents/com.tom.me.*.plist; do
+  launchctl bootstrap gui/$(id -u) "$f"
 done
 ```
 

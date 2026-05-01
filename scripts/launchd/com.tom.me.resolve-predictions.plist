@@ -7,12 +7,9 @@
 
     <key>ProgramArguments</key>
     <array>
-        <string>/usr/bin/env</string>
-        <string>-i</string>
-        <string>HOME=/Users/tom</string>
-        <string>PATH=/usr/local/bin:/usr/bin:/bin</string>
-        <string>pnpm</string>
-        <string>resolve-predictions</string>
+        <string>/bin/zsh</string>
+        <string>-lc</string>
+        <string>source ~/.zshrc &gt;/dev/null 2&gt;&amp;1 || true; exec pnpm resolve-predictions</string>
     </array>
 
     <key>WorkingDirectory</key>

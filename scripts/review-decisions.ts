@@ -33,7 +33,7 @@ function parseArgs(argv: ReadonlyArray<string>): Args {
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
   const summary = runReviewDecisions({ cwd: args.cwd, nowISO: nowISO() });
-  const queueSize = readQueue().length;
+  const queueSize = readQueue(args.cwd).length;
   process.stdout.write(`scanned ${summary.scanned} decisions, proposed ${summary.proposed} (deduped ${summary.deduped}), queue size now ${queueSize}\n`);
 }
 

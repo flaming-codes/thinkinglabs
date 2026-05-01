@@ -16,6 +16,7 @@
     "build:llms-txt": "tsx scripts/build-llms-txt.ts",
     "build:index": "tsx scripts/build-index.ts",
     "brain-diff": "tsx scripts/brain-diff.ts",
+    "mcp:me": "tsx servers/me-mcp/cli.ts",
     "derive-claims": "tsx scripts/derive-claims.ts",
     "review-stale-claims": "tsx scripts/review-stale-claims.ts",
     "dormant-flip": "tsx scripts/dormant-flip.ts",

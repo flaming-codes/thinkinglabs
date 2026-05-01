@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { closeSync, openSync, unlinkSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { z } from "zod";
 import { readJsonState, writeJsonState } from "./json-state.ts";
@@ -46,14 +47,40 @@ const queuedProposalSchema = z.object({
 /** Zod schema for the entire queue file shape. */
 const queueFileSchema = z.object({ proposals: z.array(queuedProposalSchema) });
 
-/** Absolute path to the queue file; resolved from cwd so tests can override cwd. */
-function queuePath(): string {
-  return join(resolve(process.cwd()), ".proposal-queue.json");
+/** Absolute path to the queue file; resolved from the supplied repo root or process cwd. */
+function queuePath(cwd = process.cwd()): string {
+  return join(resolve(cwd), ".proposal-queue.json");
+}
+
+/** Exclusive lock file next to the queue so overlapping scheduled agents cannot lose writes. */
+function queueLockPath(cwd = process.cwd()): string {
+  return join(resolve(cwd), ".proposal-queue.lock");
+}
+
+/** Runs a synchronous queue mutation behind a short exclusive file lock. */
+function withQueueLock<T>(cwd: string | undefined, fn: () => T): T {
+  const lock = queueLockPath(cwd);
+  const started = Date.now();
+  let fd: number | null = null;
+  while (fd === null) {
+    try {
+      fd = openSync(lock, "wx");
+    } catch {
+      if (Date.now() - started > 5_000) throw new Error(`proposal-queue: timed out waiting for ${lock}`);
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 25);
+    }
+  }
+  try {
+    return fn();
+  } finally {
+    closeSync(fd);
+    try { unlinkSync(lock); } catch { /* lock already gone; nothing useful to recover */ }
+  }
 }
 
 /** Read all pending proposals in deterministic order (createdAt asc, id tiebreak). */
-export function readQueue(): ReadonlyArray<QueuedProposal> {
-  const raw = readJsonState<unknown>(queuePath(), { proposals: [] });
+export function readQueue(cwd?: string): ReadonlyArray<QueuedProposal> {
+  const raw = readJsonState<unknown>(queuePath(cwd), { proposals: [] });
   const parsed = queueFileSchema.safeParse(raw);
   if (!parsed.success) {
     process.stderr.write(`proposal-queue: malformed queue file, returning empty queue\n`);
@@ -66,20 +93,24 @@ export function readQueue(): ReadonlyArray<QueuedProposal> {
 }
 
 /** Append a proposal; idempotent on identical id (no duplicate entries). */
-export function enqueue(proposal: QueuedProposal): void {
-  const raw = readJsonState<unknown>(queuePath(), { proposals: [] });
-  const parsed = queueFileSchema.safeParse(raw);
-  const existing = parsed.success ? parsed.data.proposals : [];
-  if (existing.some((p) => p.id === proposal.id)) return;
-  writeJsonState(queuePath(), { proposals: [...existing, proposal] });
+export function enqueue(proposal: QueuedProposal, cwd?: string): void {
+  withQueueLock(cwd, () => {
+    const raw = readJsonState<unknown>(queuePath(cwd), { proposals: [] });
+    const parsed = queueFileSchema.safeParse(raw);
+    const existing = parsed.success ? parsed.data.proposals : [];
+    if (existing.some((p) => p.id === proposal.id)) return;
+    writeJsonState(queuePath(cwd), { proposals: [...existing, proposal] });
+  });
 }
 
 /** Remove one proposal by id; no-op if missing. */
-export function removeFromQueue(id: string): void {
-  const raw = readJsonState<unknown>(queuePath(), { proposals: [] });
-  const parsed = queueFileSchema.safeParse(raw);
-  if (!parsed.success) return;
-  writeJsonState(queuePath(), { proposals: parsed.data.proposals.filter((p) => p.id !== id) });
+export function removeFromQueue(id: string, cwd?: string): void {
+  withQueueLock(cwd, () => {
+    const raw = readJsonState<unknown>(queuePath(cwd), { proposals: [] });
+    const parsed = queueFileSchema.safeParse(raw);
+    if (!parsed.success) return;
+    writeJsonState(queuePath(cwd), { proposals: parsed.data.proposals.filter((p) => p.id !== id) });
+  });
 }
 
 /** Serialises a value to canonical JSON with object keys sorted for determinism across key-insertion orders. */

@@ -169,7 +169,7 @@ export async function runTriageQuestions(args: { cwd: string; nowISO: string; sk
 
   const rejections = readJsonState<string[]>(rejectionsPath(cwd), []);
   const rejectionSet = new Set(rejections);
-  const existingIds = new Set(readQueue().map((p) => p.id));
+  const existingIds = new Set(readQueue(cwd).map((p) => p.id));
 
   const files = findSubmissionFiles(cwd);
   let valid = 0;
@@ -217,30 +217,36 @@ export async function runTriageQuestions(args: { cwd: string; nowISO: string; sk
     const questionRaw = readFileSync(questionPath, "utf8");
     const { data: questionFm, content: questionBody } = matter(questionRaw);
 
+    if (skipLLM) {
+      continue;
+    }
+
     let draft: TriageDraft | null = null;
 
-    if (!skipLLM) {
-      draft = await runToolCall({
-        model: "claude-sonnet-4-6",
-        maxTokens: 1024,
-        systemPrompt: SYSTEM_PROMPT,
-        userPrompt: buildUserPrompt({
-          questionSlug: submission.questionSlug,
-          questionFrontmatter: questionFm as Record<string, unknown>,
-          questionBody,
-          submissionBody: submission.body,
-          responderCredentials: submission.responder.credentials,
-          responderName: submission.responder.name,
-        }),
-        tool: TRIAGE_TOOL,
-        schema: TriageDraft,
-      });
+    draft = await runToolCall({
+      model: "claude-sonnet-4-6",
+      maxTokens: 1024,
+      systemPrompt: SYSTEM_PROMPT,
+      userPrompt: buildUserPrompt({
+        questionSlug: submission.questionSlug,
+        questionFrontmatter: questionFm as Record<string, unknown>,
+        questionBody,
+        submissionBody: submission.body,
+        responderCredentials: submission.responder.credentials,
+        responderName: submission.responder.name,
+      }),
+      tool: TRIAGE_TOOL,
+      schema: TriageDraft,
+    });
 
-      if (draft && draft.relevanceScore < 0.4) {
-        moveTo(filePath, join(cwdResolved, "submissions", "_skipped"));
-        scoredBelow++;
-        continue;
-      }
+    if (!draft) {
+      continue;
+    }
+
+    if (draft.relevanceScore < 0.4) {
+      moveTo(filePath, join(cwdResolved, "submissions", "_skipped"));
+      scoredBelow++;
+      continue;
     }
 
     const relPath = relative(cwdResolved, filePath);
@@ -250,21 +256,24 @@ export async function runTriageQuestions(args: { cwd: string; nowISO: string; sk
       responder: submission.responder,
       submissionBody: submission.body,
       pointers: submission.pointers,
-      relevanceScore: draft ? draft.relevanceScore : null,
-      dedupeOf: draft ? draft.dedupeOf : null,
-      suggestedAnswer: draft ? draft.suggestedAnswer : "",
-      reasoning: draft ? draft.reasoning : "",
+      relevanceScore: draft.relevanceScore,
+      dedupeOf: draft.dedupeOf,
+      suggestedAnswer: draft.suggestedAnswer,
+      reasoning: draft.reasoning,
       receivedAt: submission.receivedAt,
     };
 
-    const id = proposalId("triage-questions", "question-answer-curate", questionPath, payload);
+    const id = proposalId("triage-questions", "question-answer-curate", questionPath, {
+      receivedAt: submission.receivedAt,
+      submissionPath: relPath,
+    });
     if (existingIds.has(id)) { deduped++; continue; }
 
     const responderLabel = submission.responder.affiliation
       ? `${submission.responder.name} (${submission.responder.affiliation})`
       : submission.responder.name;
 
-    const scoreLabel = draft ? ` (relevance ${draft.relevanceScore.toFixed(2)})` : " (no LLM score)";
+    const scoreLabel = ` (relevance ${draft.relevanceScore.toFixed(2)})`;
 
     enqueue({
       id,
@@ -273,9 +282,9 @@ export async function runTriageQuestions(args: { cwd: string; nowISO: string; sk
       createdAt: nowISO,
       target: questionPath,
       title: `Answer to ${submission.questionSlug} from ${responderLabel}`,
-      preview: `${submission.questionSlug}: answer from ${responderLabel}${scoreLabel}. ${draft?.reasoning ?? "Review and accept or reject."}`,
+      preview: `${submission.questionSlug}: answer from ${responderLabel}${scoreLabel}. ${draft.reasoning}`,
       payload,
-    });
+    }, cwd);
     proposed++;
   }
 

@@ -54,7 +54,7 @@ export function runDormantFlip(args: { cwd: string; nowISO: string; thresholdDay
   const rejections = readJsonState<RejectionEntry[]>(rejectionsPath(cwd), []);
   const rejectionMap = new Map(rejections.map((r) => [r.slug, r.lastTouchedISO]));
 
-  const existingIds = new Set(readQueue().map((p) => p.id));
+  const existingIds = new Set(readQueue(cwd).map((p) => p.id));
 
   let proposed = 0;
   let deduped = 0;
@@ -76,7 +76,7 @@ export function runDormantFlip(args: { cwd: string; nowISO: string; thresholdDay
     if (rejectedSnapshot !== undefined && rejectedSnapshot === lastTouchedISO) continue;
 
     const payload: DormantFlipPayload = { daysSinceTouched, thresholdDays, lastTouchedISO };
-    const id = proposalId("dormant-flip", "project-flip-dormant", project.path, payload);
+    const id = proposalId("dormant-flip", "project-flip-dormant", project.path, { lastTouchedISO, thresholdDays });
 
     if (existingIds.has(id)) { deduped++; continue; }
 
@@ -89,7 +89,7 @@ export function runDormantFlip(args: { cwd: string; nowISO: string; thresholdDay
       title: `Flip ${project.slug} dormant`,
       preview: `${project.slug} inactive for ${daysSinceTouched} days (threshold ${thresholdDays}). Proposed: set status = "dormant".`,
       payload,
-    });
+    }, cwd);
     proposed++;
   }
 

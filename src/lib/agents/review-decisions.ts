@@ -49,7 +49,7 @@ export function runReviewDecisions(args: { cwd: string; nowISO: string }): Revie
   const rejections = readJsonState<RejectionEntry[]>(rejectionsPath(cwd), []);
   const rejectionMap = new Map(rejections.map((r) => [r.slug, r.followUpOnISO]));
 
-  const existingIds = new Set(readQueue().map((p) => p.id));
+  const existingIds = new Set(readQueue(cwd).map((p) => p.id));
 
   let proposed = 0;
   let deduped = 0;
@@ -67,7 +67,7 @@ export function runReviewDecisions(args: { cwd: string; nowISO: string }): Revie
     const decisionTitle = typeof decision.data["decision"] === "string" ? decision.data["decision"] : decision.slug;
 
     const payload: DecisionFollowupPayload = { followUpOnISO, daysOverdue, decisionTitle };
-    const id = proposalId("review-decisions", "decision-followup-due", decision.path, payload);
+    const id = proposalId("review-decisions", "decision-followup-due", decision.path, { followUpOnISO });
 
     if (existingIds.has(id)) { deduped++; continue; }
 
@@ -80,7 +80,7 @@ export function runReviewDecisions(args: { cwd: string; nowISO: string }): Revie
       title: `Review decision: ${decision.slug}`,
       preview: `"${decisionTitle}" — follow_up_on was ${followUpOnISO.slice(0, 10)}, ${daysOverdue} days overdue. Open in editor to confirm or reverse.`,
       payload,
-    });
+    }, cwd);
     proposed++;
   }
 

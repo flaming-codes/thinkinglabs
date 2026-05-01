@@ -50,7 +50,7 @@ function parseArgs(argv: ReadonlyArray<string>): Args {
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
   const summary = runDormantFlip({ cwd: args.cwd, nowISO: nowISO(), thresholdDays: args.thresholdDays });
-  const queueSize = readQueue().length;
+  const queueSize = readQueue(args.cwd).length;
   process.stdout.write(`scanned ${summary.scanned} projects, proposed ${summary.proposed} (deduped ${summary.deduped}), queue size now ${queueSize}\n`);
 }
 

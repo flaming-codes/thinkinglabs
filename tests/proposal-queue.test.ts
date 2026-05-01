@@ -53,6 +53,18 @@ describe("proposal-queue", () => {
     expect(readQueue()).toHaveLength(1);
   });
 
+  it("honors an explicit cwd independent of process.cwd()", async () => {
+    const { enqueue, readQueue } = await import("../src/lib/proposal-queue.ts");
+    const explicit = mkdtempSync(join(tmpdir(), "proposal-explicit-"));
+    try {
+      enqueue(makeProposal(), explicit);
+      expect(readQueue(explicit)).toHaveLength(1);
+      expect(readQueue()).toHaveLength(0);
+    } finally {
+      rmSync(explicit, { recursive: true, force: true });
+    }
+  });
+
   it("enqueue with different ids preserves createdAt-asc sort order", async () => {
     const { enqueue, readQueue } = await import("../src/lib/proposal-queue.ts");
     const p1 = makeProposal({ id: "id-a", createdAt: "2026-01-03T00:00:00.000Z" });
