@@ -2,6 +2,8 @@
 import { getCollection } from "astro:content";
 import Base from "../../layouts/Base.astro";
 import { calibration } from "../../lib/calibration.ts";
+import EmbeddedTool from "../../components/EmbeddedTool.astro";
+import { predictionCalibrationLogger } from "../../../embeds/prediction-calibration-logger/index.ts";
 
 const all = await getCollection("predictions");
 const resolved = all.filter((p) => p.data.resolution === "true" || p.data.resolution === "false");
@@ -49,4 +51,6 @@ function radius(n: number): number { return n === 0 ? 0 : 4 + 6 * Math.sqrt(n / 
   ) : (
     <p class="meta">{resolved.length} resolved prediction{resolved.length === 1 ? "" : "s"}.</p>
   )}
+
+  <EmbeddedTool payload={predictionCalibrationLogger} />
 </Base>

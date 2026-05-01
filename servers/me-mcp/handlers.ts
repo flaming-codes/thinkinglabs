@@ -1,16 +1,31 @@
 import { z } from "zod";
 import { buildEntries, applyGenericGate, walkCommits } from "../../src/lib/brain-diff.ts";
 import type { Contact } from "../../src/schemas/contact.ts";
+import { existsSync, mkdirSync } from "node:fs";
+import { basename, join } from "node:path";
 import { loadContact, queryView } from "./store.ts";
+import { writeJsonState } from "../../src/lib/json-state.ts";
+import { submissionSchema } from "../../src/schemas/submission.ts";
+import { publicViewSchema } from "./types.ts";
 import type { QueryViewArgs, ToolTextResult } from "./types.ts";
 
+/** Zod raw-shape for the public query_view tool input. */
 export const queryViewInputSchema = {
-  view: z.enum(["thoughts", "claims", "projects", "decisions", "predictions", "inputs", "current_focus"]),
+  view: publicViewSchema,
   query: z.string().optional(),
   tags: z.array(z.string()).optional(),
   limit: z.number().int().min(1).max(50).optional(),
 };
 
+/** Zod raw-shape for open-question answer submission. */
+export const questionSubmitInputSchema = {
+  questionSlug: z.string().min(1),
+  responder: submissionSchema.shape.responder,
+  body: z.string().min(1),
+  pointers: z.array(z.string()).default([]),
+};
+
+/** Zod raw-shape for contact precheck input. */
 export const contactPrecheckInputSchema = {
   intent: z.string().min(1),
   message: z.string().optional(),
@@ -18,6 +33,7 @@ export const contactPrecheckInputSchema = {
   budget_eur: z.number().nonnegative().optional(),
 };
 
+/** Zod raw-shape for contact send input. */
 export const contactSendInputSchema = {
   from: z.string().min(3),
   subject: z.string().min(1),
@@ -26,16 +42,26 @@ export const contactSendInputSchema = {
   language: z.string().optional(),
 };
 
+/** Zod raw-shape for brain-diff subscription input. */
 export const subscribeBrainDiffInputSchema = {
   since: z.string().default("HEAD~20"),
   include_recent: z.boolean().default(false),
   site_url: z.url().default("https://tom.wild.as"),
 };
 
+/** Inferred input accepted by contact.precheck. */
 export type ContactPrecheckInput = z.infer<z.ZodObject<typeof contactPrecheckInputSchema>>;
+
+/** Inferred input accepted by contact.send. */
 export type ContactSendInput = z.infer<z.ZodObject<typeof contactSendInputSchema>>;
+
+/** Inferred input accepted by subscribe_brain_diff. */
 export type SubscribeBrainDiffInput = z.infer<z.ZodObject<typeof subscribeBrainDiffInputSchema>>;
 
+/** Inferred input accepted by question.submit. */
+export type QuestionSubmitInput = z.infer<z.ZodObject<typeof questionSubmitInputSchema>>;
+
+/** Per-request context shared by MCP tool handlers. */
 export interface HandlerContext {
   readonly repoRoot: string;
 }
@@ -88,6 +114,21 @@ export function handleSubscribeBrainDiff(ctx: HandlerContext, args: SubscribeBra
   }
 }
 
+/** Handler for the `question.submit` MCP intake tool. */
+export function handleQuestionSubmit(ctx: HandlerContext, args: QuestionSubmitInput): ToolTextResult {
+  const questionPath = join(ctx.repoRoot, "content", "questions", `${args.questionSlug}.md`);
+  if (!existsSync(questionPath)) return jsonToolResult({ accepted: false, reason: "unknown questionSlug", questionSlug: args.questionSlug }, true);
+  const receivedAt = new Date().toISOString();
+  const submission = submissionSchema.parse({ ...args, receivedAt });
+  const dir = join(ctx.repoRoot, "submissions", "questions", args.questionSlug);
+  mkdirSync(dir, { recursive: true });
+  const safeName = `${receivedAt.replace(/[:.]/g, "-")}-${slugPart(args.responder.name)}.json`;
+  const file = join(dir, safeName);
+  writeJsonState(file, submission);
+  return jsonToolResult({ accepted: true, file, triage: "queued", submission });
+}
+
+/** Contact policy classifier shared by precheck and send handlers. */
 export function precheckContact(contact: Contact, args: ContactPrecheckInput): { verdict: "same_day_reply" | "queued" | "decline"; reason: string; matched: string | null; advisory_rate: Contact["advisory_rate"]; channels: Contact["channels"] } {
   const text = `${args.intent} ${args.message ?? ""}`.toLowerCase();
   const decline = matchPolicy(text, contact.decline);
@@ -120,4 +161,8 @@ function jsonToolResult(value: unknown, isError = false): ToolTextResult {
 
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
+}
+
+function slugPart(value: string): string {
+  return basename(value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "anonymous");
 }

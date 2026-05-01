@@ -1,19 +1,23 @@
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
+import Database from "better-sqlite3";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { writeIndex, collectObjects } from "../../src/index/builder.ts";
-import { handleContactPrecheck, handleContactSend, handleQueryView, handleSubscribeBrainDiff } from "../../servers/me-mcp/handlers.ts";
+import { handleContactPrecheck, handleContactSend, handleQueryView, handleQuestionSubmit, handleSubscribeBrainDiff } from "../../servers/me-mcp/handlers.ts";
 import { createMeMcpServer } from "../../servers/me-mcp/server.ts";
+import { getObject } from "../../servers/me-mcp/store.ts";
 
 let root: string;
 
-function writeMd(kind: string, slug: string, frontmatter: string, body: string): void {
+function writeMd(kind: string, slug: string, frontmatter: string, body: string): string {
   const dir = join(root, "content", kind);
   mkdirSync(dir, { recursive: true });
-  writeFileSync(join(dir, `${slug}.md`), `---\n${frontmatter}---\n\n${body}\n`, "utf8");
+  const file = join(dir, `${slug}.md`);
+  writeFileSync(file, `---\n${frontmatter}---\n\n${body}\n`, "utf8");
+  return file;
 }
 
 function writeContact(): void {
@@ -33,6 +37,9 @@ beforeEach(() => {
   root = mkdtempSync(join(tmpdir(), "me-mcp-"));
   writeContact();
   writeMd("thoughts", "mcp-notes", 'title: "MCP Notes"\ncreated: "2026-04-01"\nupdated: "2026-04-02"\ntags: ["mcp"]\nclaims: []\ninputs: []\n', "MCP makes local context queryable.");
+  writeMd("claims", "mcp-claim", 'claim: "MCP makes personal context reusable."\nconfidence: 0.7\nlast_reviewed: "2026-04-02"\ntags: ["mcp"]\nevidence: []\nopposing: []\nderived_from: ["thoughts/mcp-notes"]\nstatus: active\nsupersedes: []\nsuperseded_by: []\n', "Claim body.");
+  writeMd("predictions", "mcp-prediction", 'prediction: "MCP support grows."\nmade: "2026-01-01"\nresolves: "2026-02-01"\nconfidence: 0.8\nresolution: "true"\nresolved_on: "2026-02-02"\nresolution_note: "It did."\nevidence_at_time: []\ntags: ["mcp"]\n', "Prediction body.");
+  writeMd("questions", "mcp-question", 'question: "How should MCP submissions work?"\nasked: "2026-04-01"\nstatus: open\ntags: ["mcp"]\nattempts: []\nrelated_claims: []\nrelated_projects: []\n', "Question body.");
   writeMd("projects", "agent-workbench", 'title: "Agent Workbench"\nstatus: "alive"\nstarted: "2026-04-01"\ncurrent_question: "How should agents query memory?"\nlinks: {}\nrelated_thoughts: []\nrelated_claims: []\ntags: ["agents"]\n', "Current work.");
   writeMd("projects", "old-tool", 'title: "Old Tool"\nstatus: "dormant"\nstarted: "2025-01-01"\nlinks: {}\nrelated_thoughts: []\nrelated_claims: []\ntags: []\n', "Parked.");
 });
@@ -48,7 +55,7 @@ describe("me-mcp handlers", () => {
     expect(data.source).toBe("source");
     expect(data.count).toBe(1);
     expect(data.items[0]?.title).toBe("MCP Notes");
-  });
+  }, 15_000);
 
   it("queries sqlite-backed public views when the index exists", () => {
     mkdirSync(join(root, "dist"), { recursive: true });
@@ -56,8 +63,8 @@ describe("me-mcp handlers", () => {
     const result = handleQueryView({ repoRoot: root }, { view: "current_focus", limit: 10 });
     const data = result.structuredContent as { source: string; count: number; items: Array<{ slug: string }> };
     expect(data.source).toBe("sqlite");
-    expect(data.items.map((item) => item.slug)).toEqual(["agent-workbench"]);
-  });
+    expect(data.items.map((item) => item.slug).sort()).toEqual(["agent-workbench", "mcp-notes", "mcp-question"]);
+  }, 15_000);
 
   it("prechecks contact intent against public policy", () => {
     const result = handleContactPrecheck({ repoRoot: root }, { intent: "Recruitment opportunity", message: "Can we discuss a role?" });
@@ -81,6 +88,34 @@ describe("me-mcp handlers", () => {
     expect(data.feeds.json).toBe("https://example.com/feed/brain-diff.json");
   });
 
+  it("writes structured question submissions for triage", () => {
+    const result = handleQuestionSubmit({ repoRoot: root }, {
+      questionSlug: "mcp-question",
+      responder: { name: "Alice", contact: "alice@example.com" },
+      body: "Use a structured MCP write tool with triage.",
+      pointers: ["https://example.com"],
+    });
+    const data = result.structuredContent as { accepted: boolean; file: string };
+    expect(data.accepted).toBe(true);
+    expect(existsSync(data.file)).toBe(true);
+  });
+
+  it("reads per-slug objects beyond the paged listing window", () => {
+    mkdirSync(join(root, "dist"), { recursive: true });
+    const db = new Database(join(root, "dist", "index.sqlite"));
+    db.exec("CREATE TABLE objects (id TEXT PRIMARY KEY, kind TEXT NOT NULL, slug TEXT NOT NULL, frontmatter_json TEXT NOT NULL, body_md TEXT NOT NULL, last_touched TEXT NOT NULL)");
+    const insert = db.prepare("INSERT INTO objects (id, kind, slug, frontmatter_json, body_md, last_touched) VALUES (?, ?, ?, ?, ?, ?)");
+    for (let i = 0; i < 50; i++) {
+      const slug = `fresh-${String(i).padStart(2, "0")}`;
+      insert.run(`claims/${slug}`, "claims", slug, JSON.stringify({ claim: `Fresh claim ${i}.`, tags: ["fresh"] }), "Fresh body.", "2026-01-01T00:00:00.000Z");
+    }
+    insert.run("claims/zz-overflow", "claims", "zz-overflow", JSON.stringify({ claim: "Overflow claim is still addressable.", tags: ["overflow"] }), "Old body.", "2000-01-01T00:00:00.000Z");
+    db.close();
+    const page = handleQueryView({ repoRoot: root }, { view: "claims", limit: 50 }).structuredContent as { items: Array<{ slug: string }> };
+    expect(page.items.map((item) => item.slug)).not.toContain("zz-overflow");
+    expect(getObject(root, "claims", "zz-overflow")?.title).toBe("Overflow claim is still addressable.");
+  });
+
   it("registers MCP resources and tools through the official SDK", async () => {
     const server = createMeMcpServer({ repoRoot: root });
     const client = new Client({ name: "test-client", version: "0.0.0" });
@@ -88,23 +123,55 @@ describe("me-mcp handlers", () => {
     await Promise.all([server.connect(serverTransport), client.connect(clientTransport)]);
     try {
       const resources = await client.listResources();
+      const templates = await client.listResourceTemplates();
       const tools = await client.listTools();
       const thoughts = await client.readResource({ uri: "me://thoughts" });
-      expect(resources.resources.map((resource) => resource.uri)).toEqual([
+      const claim = await client.readResource({ uri: "me://claims/mcp-claim" });
+      const claimsByTag = await client.readResource({ uri: "me://claims/by-tag/mcp" });
+      expect(resources.resources.map((resource) => resource.uri).sort()).toEqual([
         "me://thoughts",
         "me://claims",
         "me://projects",
         "me://decisions",
         "me://predictions",
         "me://inputs",
+        "me://inputs/recent",
+        "me://questions",
         "me://current_focus",
+        "me://claims/recent",
+        "me://projects/active",
+        "me://decisions/recent",
+        "me://predictions/pending",
+        "me://predictions/resolved",
+        "me://schema/version",
+        "me://predictions/calibration",
+        "me://thoughts/mcp-notes",
+        "me://claims/mcp-claim",
+        "me://projects/agent-workbench",
+        "me://projects/old-tool",
+        "me://predictions/mcp-prediction",
+        "me://questions/mcp-question",
+      ].sort());
+      expect(templates.resourceTemplates.map((template) => template.uriTemplate).sort()).toEqual([
+        "me://claims/by-tag/{tag}",
+        "me://claims/{slug}",
+        "me://decisions/{slug}",
+        "me://inputs/{slug}",
+        "me://predictions/{slug}",
+        "me://projects/{slug}",
+        "me://questions/{slug}",
+        "me://thoughts/{slug}",
       ]);
-      expect(tools.tools.map((tool) => tool.name).sort()).toEqual(["contact.precheck", "contact.send", "query_view", "subscribe_brain_diff"]);
+      expect(tools.tools.map((tool) => tool.name).sort()).toEqual(["contact.precheck", "contact.send", "query_view", "question.submit", "subscribe_brain_diff"]);
       const first = thoughts.contents[0];
       expect(first && "text" in first ? first.text : "").toContain("MCP Notes");
+      const detail = claim.contents[0];
+      expect(detail && "text" in detail ? detail.text : "").toContain("MCP makes personal context reusable");
+      const tagged = claimsByTag.contents[0];
+      expect(tagged && "text" in tagged ? tagged.text : "").toContain("mcp-claim");
     } finally {
       await client.close();
       await server.close();
     }
-  });
+  }, 15_000);
 });

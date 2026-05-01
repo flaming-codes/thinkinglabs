@@ -87,8 +87,8 @@ function lintRoots(root: string, dirs: ReadonlyArray<string>): Violation[] {
 describe("JSDoc and comment lint", () => {
   const root = resolve(import.meta.dirname, "..");
 
-  it("accepts source and script comments", () => {
-    expect(lintRoots(root, ["src", "scripts"])).toEqual([]);
+  it("accepts source, script, server, and embed comments", () => {
+    expect(lintRoots(root, ["src", "scripts", "servers", "embeds"])).toEqual([]);
   });
 
   it("catches each violation type in the fixture", () => {

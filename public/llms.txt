@@ -45,11 +45,13 @@
 - [Decisions JSON](/api/decisions.json): All decisions as JSON.
 - [Questions JSON](/api/questions.json): All open questions as JSON.
 - [Posts JSON](/api/posts.json): All posts as JSON.
+- [Prediction calibration embed JSON](/api/embed/prediction-calibration-logger.json): Static payload for the local calibration embedded tool.
 
 ## Data files
 
 - [Contact JSON](/contact.json): Structured contact surface.
 - [llms.txt](/llms.txt): Agent-readable surface index.
+- [Personal MCP server](mcp://stdio/pnpm%20mcp:me): Stdio MCP entrypoint exposing public resources and tools from this repo.
 
 ## Feeds
 
