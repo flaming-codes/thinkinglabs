@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { closeSync, openSync, unlinkSync } from "node:fs";
+import { closeSync, openSync, readFileSync, statSync, unlinkSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { z } from "zod";
 import { readJsonState, writeJsonState } from "./json-state.ts";
@@ -57,24 +57,70 @@ function queueLockPath(cwd = process.cwd()): string {
   return join(resolve(cwd), ".proposal-queue.lock");
 }
 
-/** Runs a synchronous queue mutation behind a short exclusive file lock. */
+/** Lock files older than this are treated as orphaned (e.g. crashed agent) and forcibly cleared. */
+const STALE_LOCK_MS = 30_000;
+
+/** Reads the pid stamped into a lock file; returns null on missing/unreadable/non-numeric content. */
+function readLockPid(lock: string): number | null {
+  try {
+    const raw = readFileSync(lock, "utf8").trim();
+    const pid = Number.parseInt(raw, 10);
+    return Number.isFinite(pid) && pid > 0 ? pid : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Returns true when a numeric pid still maps to a running process on this host. */
+function isProcessAlive(pid: number): boolean {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (e) {
+    const code = (e as NodeJS.ErrnoException).code;
+    return code === "EPERM";
+  }
+}
+
+/** Best-effort removal of a stale or orphaned lock; tolerates concurrent unlink races. */
+function clearStaleLock(lock: string): void {
+  try {
+    const stat = statSync(lock);
+    const ageMs = Date.now() - stat.mtimeMs;
+    const pid = readLockPid(lock);
+    const ownerAlive = pid !== null && isProcessAlive(pid);
+    if (!ownerAlive || ageMs > STALE_LOCK_MS) {
+      try { unlinkSync(lock); } catch { /* raced with another cleaner */ }
+    }
+  } catch { /* lock file vanished between attempts */ }
+}
+
+/** Runs a synchronous queue mutation behind a short exclusive file lock with crash recovery. */
 function withQueueLock<T>(cwd: string | undefined, fn: () => T): T {
   const lock = queueLockPath(cwd);
   const started = Date.now();
   let fd: number | null = null;
+  let attempts = 0;
   while (fd === null) {
     try {
       fd = openSync(lock, "wx");
+      try { writeFileSync(fd, String(process.pid)); } catch { /* pid stamp is advisory */ }
     } catch {
-      if (Date.now() - started > 5_000) throw new Error(`proposal-queue: timed out waiting for ${lock}`);
+      attempts++;
+      const waited = Date.now() - started;
+      if (waited > 5_000) {
+        clearStaleLock(lock);
+        throw new Error(`proposal-queue: timed out waiting for ${lock}`);
+      }
+      if (attempts % 10 === 0) clearStaleLock(lock);
       Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 25);
     }
   }
   try {
     return fn();
   } finally {
-    closeSync(fd);
-    try { unlinkSync(lock); } catch { /* lock already gone; nothing useful to recover */ }
+    try { closeSync(fd); } catch { /* fd may have been closed by signal handler */ }
+    try { unlinkSync(lock); } catch { /* lock already gone */ }
   }
 }
 

@@ -100,6 +100,34 @@ describe("me-mcp handlers", () => {
     expect(existsSync(data.file)).toBe(true);
   });
 
+  it("rejects path-traversal slugs in question submissions", () => {
+    const before = existsSync(join(root, "submissions"));
+    for (const slug of ["../escaped", "../../etc", "evil/../../tmp", "..", "./.", "Has Spaces", "UPPER"]) {
+      const result = handleQuestionSubmit({ repoRoot: root }, {
+        questionSlug: slug,
+        responder: { name: "Mallory", contact: "m@example.com" },
+        body: "attempt",
+        pointers: [],
+      });
+      const data = result.structuredContent as { accepted: boolean; reason: string };
+      expect(result.isError).toBe(true);
+      expect(data.accepted).toBe(false);
+      expect(data.reason).toMatch(/questionSlug|unknown/);
+    }
+    // No directories were created outside the intended submissions/ tree.
+    expect(existsSync(join(root, "submissions", "questions", ".."))).toBe(false);
+    if (!before) expect(existsSync(join(root, "submissions"))).toBe(false);
+  });
+
+  it("returns a structured error when subscribe_brain_diff fails to walk history", () => {
+    // No git history: walkCommits will throw.
+    const result = handleSubscribeBrainDiff({ repoRoot: root }, { since: "HEAD~1", include_recent: true, site_url: "https://example.com" });
+    const data = result.structuredContent as { subscribed: boolean; reason?: string };
+    expect(result.isError).toBe(true);
+    expect(data.subscribed).toBe(false);
+    expect(typeof data.reason).toBe("string");
+  });
+
   it("reads per-slug objects beyond the paged listing window", () => {
     mkdirSync(join(root, "dist"), { recursive: true });
     const db = new Database(join(root, "dist", "index.sqlite"));

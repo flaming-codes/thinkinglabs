@@ -74,14 +74,31 @@ export function createMeMcpServer(options: MeMcpServerOptions = {}): McpServer {
   return server;
 }
 
+/** Slug pattern accepted on detail resource URIs; lowercase kebab, 1-100 chars. */
+const RESOURCE_SLUG = /^[a-z0-9](?:[a-z0-9-]{0,98}[a-z0-9])?$/;
+
+/** Tag pattern accepted on claims-by-tag URIs; allows alnum and a couple of separators. */
+const RESOURCE_TAG = /^[a-z0-9][a-z0-9_.-]{0,63}$/;
+
+function jsonResource(uri: string, value: unknown): { contents: Array<{ uri: string; mimeType: string; text: string }> } {
+  return { contents: [{ uri, mimeType: "application/json", text: JSON.stringify(value, null, 2) }] };
+}
+
+function resourceError(uri: string, reason: string, extra: Record<string, unknown> = {}): { contents: Array<{ uri: string; mimeType: string; text: string }> } {
+  return jsonResource(uri, { error: reason, ...extra });
+}
+
 function registerViewResource(server: McpServer, repoRoot: string, view: PublicView, uri: string): void {
   server.registerResource(view, uri, {
     title: `me:${view}`,
     description: `Public ${view} view from the personal repo.`,
     mimeType: "application/json",
   }, () => {
-    const value = queryView(repoRoot, { view, limit: 50 });
-    return { contents: [{ uri, mimeType: "application/json", text: JSON.stringify(value, null, 2) }] };
+    try {
+      return jsonResource(uri, queryView(repoRoot, { view, limit: 50 }));
+    } catch (error) {
+      return resourceError(uri, error instanceof Error ? error.message : String(error), { view });
+    }
   });
 }
 
@@ -91,30 +108,47 @@ function registerClaimsByTagResource(server: McpServer, repoRoot: string): void 
     description: "Claims filtered by one tag.",
     mimeType: "application/json",
   }, (_uri, variables) => {
-    const tag = String(variables["tag"] ?? "");
-    const value = queryView(repoRoot, { view: "claims_by_tag", tags: [tag], limit: 50 });
-    return { contents: [{ uri: `me://claims/by-tag/${tag}`, mimeType: "application/json", text: JSON.stringify(value, null, 2) }] };
+    const tag = String(variables["tag"] ?? "").toLowerCase();
+    const uri = `me://claims/by-tag/${tag}`;
+    if (!RESOURCE_TAG.test(tag)) return resourceError(uri, "invalid tag", { tag });
+    try {
+      return jsonResource(uri, queryView(repoRoot, { view: "claims_by_tag", tags: [tag], limit: 50 }));
+    } catch (error) {
+      return resourceError(uri, error instanceof Error ? error.message : String(error), { tag });
+    }
   });
 }
 
 function registerDetailResource(server: McpServer, repoRoot: string, kind: typeof DETAIL_KINDS[number]): void {
   server.registerResource(`${kind}-detail`, new ResourceTemplate(`me://${kind}/{slug}`, {
-    list: () => ({
-      resources: queryView(repoRoot, { view: kind, limit: 50 }).items.map((item) => ({
-        uri: `me://${kind}/${item.slug}`,
-        name: item.id,
-        title: item.title,
-        mimeType: "application/json",
-      })),
-    }),
+    list: () => {
+      try {
+        return {
+          resources: queryView(repoRoot, { view: kind, limit: 50 }).items.map((item) => ({
+            uri: `me://${kind}/${item.slug}`,
+            name: item.id,
+            title: item.title,
+            mimeType: "application/json",
+          })),
+        };
+      } catch {
+        return { resources: [] };
+      }
+    },
   }), {
     title: `me:${kind}/{slug}`,
     description: `Single ${kind} object by slug.`,
     mimeType: "application/json",
   }, (_uri, variables) => {
     const slug = String(variables["slug"] ?? "");
-    const value = getObject(repoRoot, kind, slug);
-    return { contents: [{ uri: `me://${kind}/${slug}`, mimeType: "application/json", text: JSON.stringify(value ?? { error: "not found", kind, slug }, null, 2) }] };
+    const uri = `me://${kind}/${slug}`;
+    if (!RESOURCE_SLUG.test(slug)) return resourceError(uri, "invalid slug", { kind, slug });
+    try {
+      const value = getObject(repoRoot, kind, slug);
+      return jsonResource(uri, value ?? { error: "not found", kind, slug });
+    } catch (error) {
+      return resourceError(uri, error instanceof Error ? error.message : String(error), { kind, slug });
+    }
   });
 }
 
@@ -123,9 +157,7 @@ function registerSchemaVersionResource(server: McpServer): void {
     title: "me:schema/version",
     description: "MCP schema version for consumers that pin contracts.",
     mimeType: "application/json",
-  }, () => ({
-    contents: [{ uri: "me://schema/version", mimeType: "application/json", text: JSON.stringify({ schema_version: "0.1.0", public_only: true, auth: "disabled" }, null, 2) }],
-  }));
+  }, () => jsonResource("me://schema/version", { schema_version: "0.1.0", public_only: true, auth: "disabled" }));
 }
 
 function registerCalibrationResource(server: McpServer, repoRoot: string): void {
@@ -133,7 +165,11 @@ function registerCalibrationResource(server: McpServer, repoRoot: string): void 
     title: "me:predictions/calibration",
     description: "Calibration data derived from resolved predictions.",
     mimeType: "application/json",
-  }, () => ({
-    contents: [{ uri: "me://predictions/calibration", mimeType: "application/json", text: JSON.stringify(predictionCalibration(repoRoot), null, 2) }],
-  }));
+  }, () => {
+    try {
+      return jsonResource("me://predictions/calibration", predictionCalibration(repoRoot));
+    } catch (error) {
+      return resourceError("me://predictions/calibration", error instanceof Error ? error.message : String(error));
+    }
+  });
 }

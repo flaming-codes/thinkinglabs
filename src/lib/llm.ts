@@ -49,6 +49,8 @@ export interface ToolCallArgs<T> {
   readonly maxTokens: number;
   readonly systemPrompt: string;
   readonly userPrompt: string;
+  /** Per-call timeout in milliseconds; defaults to LLM_TIMEOUT_MS or 60s. */
+  readonly timeoutMs?: number;
   readonly tool: {
     readonly name: string;
     readonly description: string;
@@ -56,28 +58,55 @@ export interface ToolCallArgs<T> {
   };
 }
 
+/** Default timeout (ms) for one LLM call; overridable per-call or via LLM_TIMEOUT_MS. */
+const DEFAULT_TIMEOUT_MS = (() => {
+  const raw = Number.parseInt(process.env["LLM_TIMEOUT_MS"] ?? "", 10);
+  return Number.isFinite(raw) && raw > 0 ? raw : 60_000;
+})();
+
+/** Wraps a promise with a hard timeout that surfaces a typed error. */
+async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, label: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(`${label}: timed out after ${timeoutMs}ms`)), timeoutMs);
+  });
+  try {
+    return await Promise.race([promise, timeout]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
 /** Runs one forced tool call; returns the typed parsed result, or null on empty / non-matching response. */
 export async function runToolCall<T>(args: ToolCallArgs<T>): Promise<T | null> {
   if (!isLLMAvailable()) throw new Error(`${apiKeyName()} is not set`);
-  const result = await generateText({
-    model: modelFor(args.tier),
-    maxOutputTokens: args.maxTokens,
-    system: args.systemPrompt,
-    prompt: args.userPrompt,
-    tools: {
-      [args.tool.name]: tool({
-        description: args.tool.description,
-        inputSchema: args.tool.schema,
-      }),
-    },
-    toolChoice: { type: "tool", toolName: args.tool.name },
-    maxRetries: 2,
-  });
+  const timeoutMs = args.timeoutMs ?? DEFAULT_TIMEOUT_MS;
+  const result = await withTimeout(
+    generateText({
+      model: modelFor(args.tier),
+      maxOutputTokens: args.maxTokens,
+      system: args.systemPrompt,
+      prompt: args.userPrompt,
+      tools: {
+        [args.tool.name]: tool({
+          description: args.tool.description,
+          inputSchema: args.tool.schema,
+        }),
+      },
+      toolChoice: { type: "tool", toolName: args.tool.name },
+      maxRetries: 2,
+    }),
+    timeoutMs,
+    `runToolCall(${args.tool.name})`,
+  );
   const call = result.toolCalls.find((c) => c.toolName === args.tool.name);
-  if (!call) return null;
+  if (!call) {
+    process.stderr.write(`runToolCall(${args.tool.name}): no matching tool call in response\n`);
+    return null;
+  }
   const parsed = args.tool.schema.safeParse(call.input);
   if (!parsed.success) {
-    process.stderr.write(`runToolCall: Zod validation failed — ${parsed.error.message}\n`);
+    process.stderr.write(`runToolCall(${args.tool.name}): Zod validation failed — ${parsed.error.message}\n`);
     return null;
   }
   return parsed.data;

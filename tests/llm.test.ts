@@ -183,3 +183,49 @@ describe("runToolCall — Ollama provider (LLM_PROVIDER=ollama)", () => {
     expect(isLLMAvailable()).toBe(true);
   });
 });
+
+describe("runToolCall — timeout handling", () => {
+  it("rejects with a timeout error when generateText hangs past timeoutMs", async () => {
+    vi.doMock("ai", () => ({
+      generateText: vi.fn(() => new Promise(() => { /* never resolves */ })),
+      tool: (def: unknown) => def,
+    }));
+    vi.doMock("@ai-sdk/openai", () => ({
+      openai: (id: string) => ({ __provider: "openai", modelId: id }),
+      createOpenAI: () => (id: string) => ({ __provider: "ollama", modelId: id }),
+    }));
+    const { runToolCall } = await import("../src/lib/llm.ts");
+    const schema = z.object({ score: z.number() });
+    await expect(runToolCall({
+      tier: "balanced",
+      maxTokens: 64,
+      systemPrompt: "sys",
+      userPrompt: "usr",
+      timeoutMs: 25,
+      tool: { name: "t", description: "d", schema },
+    })).rejects.toThrow(/timed out after 25ms/);
+  });
+
+  it("respects LLM_TIMEOUT_MS as the per-call default", async () => {
+    process.env["LLM_TIMEOUT_MS"] = "30";
+    vi.resetModules();
+    vi.doMock("ai", () => ({
+      generateText: vi.fn(() => new Promise(() => { /* never resolves */ })),
+      tool: (def: unknown) => def,
+    }));
+    vi.doMock("@ai-sdk/openai", () => ({
+      openai: (id: string) => ({ __provider: "openai", modelId: id }),
+      createOpenAI: () => (id: string) => ({ __provider: "ollama", modelId: id }),
+    }));
+    const { runToolCall } = await import("../src/lib/llm.ts");
+    const schema = z.object({ score: z.number() });
+    await expect(runToolCall({
+      tier: "balanced",
+      maxTokens: 64,
+      systemPrompt: "sys",
+      userPrompt: "usr",
+      tool: { name: "t", description: "d", schema },
+    })).rejects.toThrow(/timed out after 30ms/);
+    delete process.env["LLM_TIMEOUT_MS"];
+  });
+});

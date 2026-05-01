@@ -1,4 +1,4 @@
-import { mkdtempSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, rmSync, utimesSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -104,5 +104,19 @@ describe("proposal-queue", () => {
     const result = readQueue();
     stderrSpy.mockRestore();
     expect(result).toEqual([]);
+  });
+
+  it("recovers from a stale lock left behind by a dead pid", async () => {
+    const { enqueue, readQueue } = await import("../src/lib/proposal-queue.ts");
+    const dir = process.cwd();
+    const lockPath = join(dir, ".proposal-queue.lock");
+    // Stamp the lock with a pid that almost certainly does not exist on this host.
+    writeFileSync(lockPath, "999999999", "utf8");
+    // Backdate it past the stale-lock threshold (30s).
+    const oldTime = (Date.now() - 60_000) / 1000;
+    utimesSync(lockPath, oldTime, oldTime);
+    enqueue(makeProposal({ id: "after-stale-lock" }));
+    expect(readQueue()).toHaveLength(1);
+    expect(existsSync(lockPath)).toBe(false);
   });
 });

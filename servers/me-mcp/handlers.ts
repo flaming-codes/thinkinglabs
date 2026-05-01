@@ -68,32 +68,43 @@ export interface HandlerContext {
 
 /** Handler for the `query_view` MCP tool. */
 export function handleQueryView(ctx: HandlerContext, args: QueryViewArgs): ToolTextResult {
-  const result = queryView(ctx.repoRoot, args);
-  return jsonToolResult(result);
+  try {
+    return jsonToolResult(queryView(ctx.repoRoot, args));
+  } catch (error) {
+    return jsonToolResult({ view: args.view, source: "error", count: 0, items: [], reason: errorMessage(error) }, true);
+  }
 }
 
 /** Handler for the `contact.precheck` MCP tool. */
 export function handleContactPrecheck(ctx: HandlerContext, args: ContactPrecheckInput): ToolTextResult {
-  const contact = loadContact(ctx.repoRoot);
-  return jsonToolResult(precheckContact(contact, args));
+  try {
+    const contact = loadContact(ctx.repoRoot);
+    return jsonToolResult(precheckContact(contact, args));
+  } catch (error) {
+    return jsonToolResult({ verdict: "decline", reason: `precheck failed: ${errorMessage(error)}`, matched: null }, true);
+  }
 }
 
 /** Handler for the `contact.send` MCP tool. */
 export function handleContactSend(ctx: HandlerContext, args: ContactSendInput): ToolTextResult {
-  const contact = loadContact(ctx.repoRoot);
-  const precheck = precheckContact(contact, { intent: args.intent, message: args.message, language: args.language });
-  const email = contact.channels.find((channel) => channel.type === "email");
-  const result = {
-    accepted: precheck.verdict !== "decline",
-    sent: false,
-    delivery: "client_handoff",
-    reason: precheck.reason,
-    to: email?.type === "email" ? email.address : null,
-    subject: args.subject,
-    from: args.from,
-    precheck,
-  };
-  return jsonToolResult(result, precheck.verdict === "decline");
+  try {
+    const contact = loadContact(ctx.repoRoot);
+    const precheck = precheckContact(contact, { intent: args.intent, message: args.message, language: args.language });
+    const email = contact.channels.find((channel) => channel.type === "email");
+    const result = {
+      accepted: precheck.verdict !== "decline",
+      sent: false,
+      delivery: "client_handoff",
+      reason: precheck.reason,
+      to: email?.type === "email" ? email.address : null,
+      subject: args.subject,
+      from: args.from,
+      precheck,
+    };
+    return jsonToolResult(result, precheck.verdict === "decline");
+  } catch (error) {
+    return jsonToolResult({ accepted: false, sent: false, reason: `send failed: ${errorMessage(error)}` }, true);
+  }
 }
 
 /** Handler for the `subscribe_brain_diff` MCP tool. */
@@ -110,22 +121,32 @@ export function handleSubscribeBrainDiff(ctx: HandlerContext, args: SubscribeBra
     const recent = applyGenericGate(buildEntries(walkCommits({ since: args.since, cwd: ctx.repoRoot })));
     return jsonToolResult({ subscribed: true, feeds, since: args.since, recent });
   } catch (error) {
-    return jsonToolResult({ subscribed: true, feeds, since: args.since, recent: [], warning: errorMessage(error) });
+    return jsonToolResult({ subscribed: false, feeds, since: args.since, reason: errorMessage(error) }, true);
   }
 }
 
+/** Slug pattern accepted by submission writers; mirrors the content-collection naming convention. */
+const SAFE_SLUG = /^[a-z0-9](?:[a-z0-9-]{0,98}[a-z0-9])?$/;
+
 /** Handler for the `question.submit` MCP intake tool. */
 export function handleQuestionSubmit(ctx: HandlerContext, args: QuestionSubmitInput): ToolTextResult {
+  if (!SAFE_SLUG.test(args.questionSlug)) {
+    return jsonToolResult({ accepted: false, reason: "questionSlug must match [a-z0-9-] (1-100 chars, no leading/trailing dash)", questionSlug: args.questionSlug }, true);
+  }
   const questionPath = join(ctx.repoRoot, "content", "questions", `${args.questionSlug}.md`);
   if (!existsSync(questionPath)) return jsonToolResult({ accepted: false, reason: "unknown questionSlug", questionSlug: args.questionSlug }, true);
-  const receivedAt = new Date().toISOString();
-  const submission = submissionSchema.parse({ ...args, receivedAt });
-  const dir = join(ctx.repoRoot, "submissions", "questions", args.questionSlug);
-  mkdirSync(dir, { recursive: true });
-  const safeName = `${receivedAt.replace(/[:.]/g, "-")}-${slugPart(args.responder.name)}.json`;
-  const file = join(dir, safeName);
-  writeJsonState(file, submission);
-  return jsonToolResult({ accepted: true, file, triage: "queued", submission });
+  try {
+    const receivedAt = new Date().toISOString();
+    const submission = submissionSchema.parse({ ...args, receivedAt });
+    const dir = join(ctx.repoRoot, "submissions", "questions", args.questionSlug);
+    mkdirSync(dir, { recursive: true });
+    const safeName = `${receivedAt.replace(/[:.]/g, "-")}-${slugPart(args.responder.name)}.json`;
+    const file = join(dir, safeName);
+    writeJsonState(file, submission);
+    return jsonToolResult({ accepted: true, file, triage: "queued", submission });
+  } catch (error) {
+    return jsonToolResult({ accepted: false, reason: errorMessage(error), questionSlug: args.questionSlug }, true);
+  }
 }
 
 /** Contact policy classifier shared by precheck and send handlers. */
@@ -144,10 +165,14 @@ function verdict(kind: "same_day_reply" | "queued" | "decline", matched: string,
   return { verdict: kind, reason: `Matched contact policy: ${matched}`, matched, advisory_rate: contact.advisory_rate, channels: contact.channels };
 }
 
+/** Caps the haystack the matcher inspects so a hostile message cannot force quadratic scans. */
+const MATCH_TEXT_CAP = 8_000;
+
 function matchPolicy(text: string, entries: ReadonlyArray<string>): string | null {
+  const haystack = text.length > MATCH_TEXT_CAP ? text.slice(0, MATCH_TEXT_CAP) : text;
   return entries.find((entry) => {
     const terms = entry.toLowerCase().split(/[^a-z0-9]+/).filter((term) => term.length >= 4);
-    return terms.length > 0 && terms.some((term) => text.includes(term));
+    return terms.length > 0 && terms.some((term) => haystack.includes(term));
   }) ?? null;
 }
 
