@@ -2,6 +2,7 @@
 import { resolve } from "node:path";
 import { nowISO } from "../src/lib/clock.ts";
 import { runTriageQuestions } from "../src/lib/agents/triage-questions.ts";
+import { isLLMAvailable, apiKeyName } from "../src/lib/llm.ts";
 
 /** CLI args shape. */
 interface Args {
@@ -35,8 +36,8 @@ function parseArgs(argv: ReadonlyArray<string>): Args {
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
   let skipLLM = args.noLLM;
-  if (!skipLLM && !process.env["OPENAI_API_KEY"]) {
-    process.stderr.write("triage-questions: OPENAI_API_KEY not set, running with --no-llm\n");
+  if (!skipLLM && !isLLMAvailable()) {
+    process.stderr.write(`triage-questions: ${apiKeyName()} not set, running with --no-llm\n`);
     skipLLM = true;
   }
   const summary = await runTriageQuestions({ cwd: args.cwd, nowISO: nowISO(), skipLLM });

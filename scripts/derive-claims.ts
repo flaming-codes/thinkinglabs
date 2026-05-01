@@ -10,6 +10,7 @@ import { patchFrontmatter } from "../src/lib/frontmatter.ts";
 import { readJsonState, writeJsonState } from "../src/lib/json-state.ts";
 import { runReview, type ReviewActionDef, type ReviewProposal } from "../src/lib/review-cli.ts";
 import { claimSchema } from "../src/schemas/claim.ts";
+import { isLLMAvailable, apiKeyName } from "../src/lib/llm.ts";
 
 /** CLI args shape. */
 interface Args {
@@ -142,10 +143,10 @@ async function mergeIntoExistingClaim(claimPath: string, proposal: ClaimProposal
 /** CLI entry point. */
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
-  if (!args.noLlm && !process.env["OPENAI_API_KEY"]) {
-    process.stderr.write("OPENAI_API_KEY missing; falling back to --no-llm mode.\n");
+  if (!args.noLlm && !isLLMAvailable()) {
+    process.stderr.write(`${apiKeyName()} missing; falling back to --no-llm mode.\n`);
   }
-  const effectiveNoLlm = args.noLlm || !process.env["OPENAI_API_KEY"];
+  const effectiveNoLlm = args.noLlm || !isLLMAvailable();
 
   const state = readJsonState<DerivationState>(STATE_FILE, {});
   const rejections = readJsonState<RejectionStore>(REJECTIONS_FILE, []);

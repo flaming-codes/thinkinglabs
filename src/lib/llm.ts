@@ -1,19 +1,46 @@
 import { generateText, tool, type LanguageModel } from "ai";
-import { openai } from "@ai-sdk/openai";
+import { createOpenAI, openai } from "@ai-sdk/openai";
 import { z } from "zod";
 
 /** Provider-agnostic capability tier; mapped to a concrete model id at call time. */
 export type ModelTier = "fast" | "balanced" | "deep";
 
-/** Env-overridable tier → model-id map. To swap providers, change the factory in modelFor. */
-const MODEL_IDS: Record<ModelTier, string> = {
-  fast: process.env["LLM_MODEL_FAST"] ?? "gpt-4.1-mini",
+/** Active provider. Set LLM_PROVIDER=ollama to route through Ollama's cloud endpoint. */
+const PROVIDER = process.env["LLM_PROVIDER"] ?? "openai";
+
+/** OpenAI model ids per tier. */
+const OPENAI_IDS: Record<ModelTier, string> = {
+  fast:     process.env["LLM_MODEL_FAST"]     ?? "gpt-4.1-mini",
   balanced: process.env["LLM_MODEL_BALANCED"] ?? "gpt-4.1",
-  deep: process.env["LLM_MODEL_DEEP"] ?? "gpt-4.1",
+  deep:     process.env["LLM_MODEL_DEEP"]     ?? "gpt-4.1",
 };
 
+/** Ollama model ids per tier — all default to glm-5.1:cloud (OpenAI-compat cloud endpoint). */
+const OLLAMA_IDS: Record<ModelTier, string> = {
+  fast:     process.env["LLM_OLLAMA_MODEL_FAST"]     ?? "glm-5.1:cloud",
+  balanced: process.env["LLM_OLLAMA_MODEL_BALANCED"] ?? "glm-5.1:cloud",
+  deep:     process.env["LLM_OLLAMA_MODEL_DEEP"]     ?? "glm-5.1:cloud",
+};
+
+const ollamaProvider = createOpenAI({
+  baseURL: process.env["OLLAMA_BASE_URL"] ?? "https://ollama.com/v1",
+  apiKey:  process.env["OLLAMA_API_KEY"]  ?? "",
+});
+
 function modelFor(tier: ModelTier): LanguageModel {
-  return openai(MODEL_IDS[tier]);
+  return PROVIDER === "ollama"
+    ? ollamaProvider(OLLAMA_IDS[tier])
+    : openai(OPENAI_IDS[tier]);
+}
+
+/** The env-var name that must be set for the active provider. */
+export function apiKeyName(): string {
+  return PROVIDER === "ollama" ? "OLLAMA_API_KEY" : "OPENAI_API_KEY";
+}
+
+/** Returns true when the required API key for the active provider is present. */
+export function isLLMAvailable(): boolean {
+  return Boolean(process.env[apiKeyName()]);
 }
 
 /** One forced tool-use call; AI SDK validates output against the Zod schema, we re-narrow to T. */
@@ -31,7 +58,7 @@ export interface ToolCallArgs<T> {
 
 /** Runs one forced tool call; returns the typed parsed result, or null on empty / non-matching response. */
 export async function runToolCall<T>(args: ToolCallArgs<T>): Promise<T | null> {
-  if (!process.env["OPENAI_API_KEY"]) throw new Error("OPENAI_API_KEY is not set");
+  if (!isLLMAvailable()) throw new Error(`${apiKeyName()} is not set`);
   const result = await generateText({
     model: modelFor(args.tier),
     maxOutputTokens: args.maxTokens,

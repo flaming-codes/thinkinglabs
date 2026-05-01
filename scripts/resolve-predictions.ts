@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import { nowISO } from "../src/lib/clock.ts";
 import "../src/lib/agents/resolve-predictions.ts";
 import { runResolvePredictions } from "../src/lib/agents/resolve-predictions.ts";
+import { isLLMAvailable, apiKeyName } from "../src/lib/llm.ts";
 
 /** CLI args shape. */
 interface Args {
@@ -38,10 +39,11 @@ function parseArgs(argv: ReadonlyArray<string>): Args {
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
 
-  const skipLLM = args.noLLM || (!process.env["OPENAI_API_KEY"] && (() => {
-    process.stderr.write("resolve-predictions: OPENAI_API_KEY not set, running with --no-llm\n");
-    return true;
-  })());
+  let skipLLM = args.noLLM;
+  if (!skipLLM && !isLLMAvailable()) {
+    process.stderr.write(`resolve-predictions: ${apiKeyName()} not set, running with --no-llm\n`);
+    skipLLM = true;
+  }
 
   const summary = await runResolvePredictions({ cwd: args.cwd, nowISO: nowISO(), skipLLM: Boolean(skipLLM) });
 

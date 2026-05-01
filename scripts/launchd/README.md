@@ -20,19 +20,40 @@ for f in scripts/launchd/com.tom.me.*.plist; do
 done
 ```
 
-### 2. Set `OPENAI_API_KEY`
+### 2. Set the LLM API key
 
-Three agents (`resolve-predictions`, `freshness-review`, `triage-questions`) call the OpenAI API via the Vercel AI SDK. The key must be available in the launchd environment. The recommended approach keeps the key out of version control entirely:
+Three agents (`resolve-predictions`, `freshness-review`, `triage-questions`) call an LLM via the Vercel AI SDK. The key must be available in the launchd environment. The recommended approach keeps the key out of version control entirely:
 
+**OpenAI (default):**
 ```sh
 launchctl setenv OPENAI_API_KEY <your-key>
 ```
 
-This injects the variable into the launchd session; the plists inherit that environment without baking the key into any file. The setting persists until the next logout.
+**Ollama cloud (optional — set `LLM_PROVIDER=ollama` to activate):**
+```sh
+launchctl setenv LLM_PROVIDER ollama
+launchctl setenv OLLAMA_API_KEY <your-ollama-key>
+```
 
-For persistence across reboots, add the `launchctl setenv` call to a login item or a separate `launchd` plist loaded at login — do not put the key in these agent plists or commit it to git.
+This injects variables into the launchd session; the plists inherit that environment without baking keys into any file. Settings persist until the next logout.
+
+For persistence across reboots, add the `launchctl setenv` calls to a login item or a separate `launchd` plist loaded at login — do not put keys in these agent plists or commit them to git.
 
 The two non-LLM agents (`dormant-flip`, `review-decisions`) need no key.
+
+#### Optional overrides
+
+| Var | Default | Purpose |
+|---|---|---|
+| `LLM_PROVIDER` | `openai` | Switch provider: `openai` or `ollama` |
+| `LLM_MODEL_FAST` | `gpt-4.1-mini` | OpenAI fast-tier model |
+| `LLM_MODEL_BALANCED` | `gpt-4.1` | OpenAI balanced-tier model |
+| `LLM_MODEL_DEEP` | `gpt-4.1` | OpenAI deep-tier model |
+| `OLLAMA_API_KEY` | — | Ollama cloud API key |
+| `OLLAMA_BASE_URL` | `https://ollama.com/v1` | Override for local daemon (`http://localhost:11434/v1`) |
+| `LLM_OLLAMA_MODEL_FAST` | `glm-5.1:cloud` | Ollama fast-tier model |
+| `LLM_OLLAMA_MODEL_BALANCED` | `glm-5.1:cloud` | Ollama balanced-tier model |
+| `LLM_OLLAMA_MODEL_DEEP` | `glm-5.1:cloud` | Ollama deep-tier model |
 
 The plists invoke `/bin/zsh -lc` and source `~/.zshrc` before running `pnpm`, so nvm/asdf-style local Node installs are available without hard-coding a machine-specific pnpm path.
 

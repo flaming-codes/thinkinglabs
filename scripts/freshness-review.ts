@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import { nowISO } from "../src/lib/clock.ts";
 import "../src/lib/agents/freshness-review.ts";
 import { runFreshnessReview } from "../src/lib/agents/freshness-review.ts";
+import { isLLMAvailable, apiKeyName } from "../src/lib/llm.ts";
 
 /** CLI args shape. */
 interface Args {
@@ -51,10 +52,11 @@ function parseArgs(argv: ReadonlyArray<string>): Args {
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
 
-  const skipLLM = args.noLLM || (!process.env["OPENAI_API_KEY"] && (() => {
-    process.stderr.write("freshness-review: OPENAI_API_KEY not set, running with --no-llm\n");
-    return true;
-  })());
+  let skipLLM = args.noLLM;
+  if (!skipLLM && !isLLMAvailable()) {
+    process.stderr.write(`freshness-review: ${apiKeyName()} not set, running with --no-llm\n`);
+    skipLLM = true;
+  }
 
   const summary = await runFreshnessReview({
     cwd: args.cwd,
