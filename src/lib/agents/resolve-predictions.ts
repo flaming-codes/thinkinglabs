@@ -93,15 +93,20 @@ function buildUserPrompt(
     `evidence_at_time: ${JSON.stringify(predData["evidence_at_time"] ?? [])}`,
   ].join("\n");
 
-  const inputsText = recentInputs.length > 0
-    ? `\n\nRecent inputs from the prediction window:\n${recentInputs.map((i) => `[input/${i.slug}]\n${i.content.slice(0, 600)}`).join("\n\n---\n\n")}`
-    : "";
+  const inputsText =
+    recentInputs.length > 0
+      ? `\n\nRecent inputs from the prediction window:\n${recentInputs.map((i) => `[input/${i.slug}]\n${i.content.slice(0, 600)}`).join("\n\n---\n\n")}`
+      : "";
 
   return `Prediction:\n${ctx}${inputsText}`;
 }
 
 /** Walk predictions dir, call LLM for each pending+overdue prediction, enqueue proposals. */
-export async function runResolvePredictions(args: { cwd: string; nowISO: string; skipLLM: boolean }): Promise<ResolvePredictionsSummary> {
+export async function runResolvePredictions(args: {
+  cwd: string;
+  nowISO: string;
+  skipLLM: boolean;
+}): Promise<ResolvePredictionsSummary> {
   const { cwd, nowISO, skipLLM } = args;
   const predictions = walkMarkdown({ cwd, kind: "predictions" });
   const inputs = walkMarkdown({ cwd, kind: "inputs" });
@@ -141,7 +146,11 @@ export async function runResolvePredictions(args: { cwd: string; nowISO: string;
         const t = new Date(consumedISO).getTime();
         return t >= new Date(madeISO).getTime() && t <= new Date(resolvesISO).getTime();
       })
-      .sort((a, b) => new Date(rawToISO(b.data["consumed"])).getTime() - new Date(rawToISO(a.data["consumed"])).getTime())
+      .sort(
+        (a, b) =>
+          new Date(rawToISO(b.data["consumed"])).getTime() -
+          new Date(rawToISO(a.data["consumed"])).getTime(),
+      )
       .slice(0, 10);
 
     if (skipLLM) {
@@ -158,7 +167,9 @@ export async function runResolvePredictions(args: { cwd: string; nowISO: string;
     });
 
     if (!draft) {
-      process.stderr.write(`resolve-predictions: LLM returned no result for ${pred.slug}, skipping\n`);
+      process.stderr.write(
+        `resolve-predictions: LLM returned no result for ${pred.slug}, skipping\n`,
+      );
       skippedDueToLLM++;
       continue;
     }
@@ -181,16 +192,19 @@ export async function runResolvePredictions(args: { cwd: string; nowISO: string;
       continue;
     }
 
-    enqueue({
-      id,
-      source: "resolve-predictions",
-      type: "prediction-resolve",
-      createdAt: nowISO,
-      target: pred.path,
-      title: `Resolve prediction: ${pred.slug}`,
-      preview: `${pred.slug} resolves as ${draft.resolution}. ${draft.reasoning}`,
-      payload,
-    }, cwd);
+    enqueue(
+      {
+        id,
+        source: "resolve-predictions",
+        type: "prediction-resolve",
+        createdAt: nowISO,
+        target: pred.path,
+        title: `Resolve prediction: ${pred.slug}`,
+        preview: `${pred.slug} resolves as ${draft.resolution}. ${draft.reasoning}`,
+        payload,
+      },
+      cwd,
+    );
     existingIds.add(id);
     proposed++;
   }
@@ -231,7 +245,8 @@ const handler = {
     try {
       const raw = readFileSync(proposal.target, "utf8");
       const { data } = matter(raw);
-      predictionLastModified = rawToISO(data["updated"]) || rawToISO(data["made"]) || new Date().toISOString();
+      predictionLastModified =
+        rawToISO(data["updated"]) || rawToISO(data["made"]) || new Date().toISOString();
     } catch {
       predictionLastModified = new Date().toISOString();
     }

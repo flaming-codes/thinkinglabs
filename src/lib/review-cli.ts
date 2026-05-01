@@ -26,7 +26,7 @@ function readKey(input: Readable): Promise<string> {
   return new Promise((resolve) => {
     function onData(chunk: Buffer | string): void {
       input.off("data", onData);
-      resolve(typeof chunk === "string" ? chunk[0] ?? "" : String.fromCharCode(chunk[0] ?? 0));
+      resolve(typeof chunk === "string" ? (chunk[0] ?? "") : String.fromCharCode(chunk[0] ?? 0));
     }
     input.once("data", onData);
   });
@@ -44,7 +44,8 @@ export async function runReview<P, R>(
   if (proposals.length === 0) return results;
 
   const prompt = renderPrompt(actions as ReadonlyArray<ReviewActionDef<unknown, unknown>>);
-  const isRaw = "setRawMode" in input && typeof (input as NodeJS.ReadStream).setRawMode === "function";
+  const isRaw =
+    "setRawMode" in input && typeof (input as NodeJS.ReadStream).setRawMode === "function";
   if (isRaw) (input as NodeJS.ReadStream).setRawMode(true);
   input.resume();
 

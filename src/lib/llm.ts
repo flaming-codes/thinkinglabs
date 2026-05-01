@@ -10,27 +10,25 @@ const PROVIDER = process.env["LLM_PROVIDER"] ?? "openai";
 
 /** OpenAI model ids per tier. */
 const OPENAI_IDS: Record<ModelTier, string> = {
-  fast:     process.env["LLM_MODEL_FAST"]     ?? "gpt-4.1-mini",
+  fast: process.env["LLM_MODEL_FAST"] ?? "gpt-4.1-mini",
   balanced: process.env["LLM_MODEL_BALANCED"] ?? "gpt-4.1",
-  deep:     process.env["LLM_MODEL_DEEP"]     ?? "gpt-4.1",
+  deep: process.env["LLM_MODEL_DEEP"] ?? "gpt-4.1",
 };
 
 /** Ollama model ids per tier — all default to glm-5.1:cloud (OpenAI-compat cloud endpoint). */
 const OLLAMA_IDS: Record<ModelTier, string> = {
-  fast:     process.env["LLM_OLLAMA_MODEL_FAST"]     ?? "glm-5.1:cloud",
+  fast: process.env["LLM_OLLAMA_MODEL_FAST"] ?? "glm-5.1:cloud",
   balanced: process.env["LLM_OLLAMA_MODEL_BALANCED"] ?? "glm-5.1:cloud",
-  deep:     process.env["LLM_OLLAMA_MODEL_DEEP"]     ?? "glm-5.1:cloud",
+  deep: process.env["LLM_OLLAMA_MODEL_DEEP"] ?? "glm-5.1:cloud",
 };
 
 const ollamaProvider = createOpenAI({
   baseURL: process.env["OLLAMA_BASE_URL"] ?? "https://ollama.com/v1",
-  apiKey:  process.env["OLLAMA_API_KEY"]  ?? "",
+  apiKey: process.env["OLLAMA_API_KEY"] ?? "",
 });
 
 function modelFor(tier: ModelTier): LanguageModel {
-  return PROVIDER === "ollama"
-    ? ollamaProvider(OLLAMA_IDS[tier])
-    : openai(OPENAI_IDS[tier]);
+  return PROVIDER === "ollama" ? ollamaProvider(OLLAMA_IDS[tier]) : openai(OPENAI_IDS[tier]);
 }
 
 /** The env-var name that must be set for the active provider. */
@@ -68,7 +66,10 @@ const DEFAULT_TIMEOUT_MS = (() => {
 async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, label: string): Promise<T> {
   let timer: ReturnType<typeof setTimeout> | undefined;
   const timeout = new Promise<never>((_, reject) => {
-    timer = setTimeout(() => reject(new Error(`${label}: timed out after ${timeoutMs}ms`)), timeoutMs);
+    timer = setTimeout(
+      () => reject(new Error(`${label}: timed out after ${timeoutMs}ms`)),
+      timeoutMs,
+    );
   });
   try {
     return await Promise.race([promise, timeout]);
@@ -106,7 +107,9 @@ export async function runToolCall<T>(args: ToolCallArgs<T>): Promise<T | null> {
   }
   const parsed = args.tool.schema.safeParse(call.input);
   if (!parsed.success) {
-    process.stderr.write(`runToolCall(${args.tool.name}): Zod validation failed — ${parsed.error.message}\n`);
+    process.stderr.write(
+      `runToolCall(${args.tool.name}): Zod validation failed — ${parsed.error.message}\n`,
+    );
     return null;
   }
   return parsed.data;

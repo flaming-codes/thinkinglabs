@@ -78,7 +78,9 @@ function extractSectionBody(markdown: string, headingText: string): string {
   for (let i = 0; i < lines.length; i++) {
     const m = headingRe.exec(lines[i]!);
     if (!m) continue;
-    const text = lines[i]!.replace(/\s*\{[^{}]*\}\s*$/, "").replace(/^#{1,6}\s+/, "").trim();
+    const text = lines[i]!.replace(/\s*\{[^{}]*\}\s*$/, "")
+      .replace(/^#{1,6}\s+/, "")
+      .trim();
     if (start === -1) {
       if (text === headingText) {
         depth = m[1]!.length;
@@ -103,7 +105,9 @@ function recentBrainDiffSince(cwd: string, sinceISO: string): string {
   for (const dir of trackedDirs) {
     const absDir = join(cwd, dir);
     if (!existsSync(absDir)) continue;
-    for (const f of readdirSync(absDir).filter((n) => n.endsWith(".md")).slice(0, 20)) {
+    for (const f of readdirSync(absDir)
+      .filter((n) => n.endsWith(".md"))
+      .slice(0, 20)) {
       const history = walkFileHistory(cwd, `${dir}/${f}`);
       for (const entry of history) {
         if (new Date(entry.isoDate).getTime() > since && entry.subject) {
@@ -141,7 +145,6 @@ function buildUserPrompt(
 
   return `${context}${diffText}`;
 }
-
 
 /** Scan posts for red-state sections, emit proposals for each stale section. */
 export async function runFreshnessReview(args: {
@@ -184,12 +187,20 @@ export async function runFreshnessReview(args: {
         tier: "balanced",
         maxTokens: 768,
         systemPrompt: SYSTEM_PROMPT,
-        userPrompt: buildUserPrompt(post.slug, stamp.headingText, sectionBody, stamp.lastVerifiedISO, brainDiff),
+        userPrompt: buildUserPrompt(
+          post.slug,
+          stamp.headingText,
+          sectionBody,
+          stamp.lastVerifiedISO,
+          brainDiff,
+        ),
         tool: FLAG_TOOL,
       });
 
       if (!draft) {
-        process.stderr.write(`freshness-review: LLM returned no result for ${post.slug}#${stamp.anchor}, skipping\n`);
+        process.stderr.write(
+          `freshness-review: LLM returned no result for ${post.slug}#${stamp.anchor}, skipping\n`,
+        );
         skippedDueToLLM++;
         continue;
       }
@@ -215,16 +226,19 @@ export async function runFreshnessReview(args: {
         continue;
       }
 
-      enqueue({
-        id,
-        source: "freshness-review",
-        type: "post-section-restamp",
-        createdAt: nowISO,
-        target: post.path,
-        title: `Restamp ${post.slug}#${stamp.anchor}`,
-        preview: `${post.slug} § ${stamp.headingText} — ${daysAgo} days since verified. ${draft.reasoning}`,
-        payload,
-      }, cwd);
+      enqueue(
+        {
+          id,
+          source: "freshness-review",
+          type: "post-section-restamp",
+          createdAt: nowISO,
+          target: post.path,
+          title: `Restamp ${post.slug}#${stamp.anchor}`,
+          preview: `${post.slug} § ${stamp.headingText} — ${daysAgo} days since verified. ${draft.reasoning}`,
+          payload,
+        },
+        cwd,
+      );
       existingIds.add(id);
       proposed++;
     }

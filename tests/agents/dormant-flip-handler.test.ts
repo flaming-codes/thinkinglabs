@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "nod
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import matter from "gray-matter";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 /** Writes a minimal alive project file; returns the absolute path. */
 function writeProject(dir: string, slug: string): string {
@@ -16,8 +16,14 @@ function writeProject(dir: string, slug: string): string {
 }
 
 /** Builds a minimal project-flip-dormant QueuedProposal. */
-function makeProposal(target: string): import("../../src/lib/proposal-queue.ts").QueuedProposal & { payload: import("../../src/lib/agents/dormant-flip.ts").DormantFlipPayload } {
-  const payload = { daysSinceTouched: 100, thresholdDays: 60, lastTouchedISO: "2025-12-01T00:00:00.000Z" };
+function makeProposal(target: string): import("../../src/lib/proposal-queue.ts").QueuedProposal & {
+  payload: import("../../src/lib/agents/dormant-flip.ts").DormantFlipPayload;
+} {
+  const payload = {
+    daysSinceTouched: 100,
+    thresholdDays: 60,
+    lastTouchedISO: "2025-12-01T00:00:00.000Z",
+  };
   return {
     id: "test-dormant-flip-id",
     source: "dormant-flip",
@@ -98,20 +104,36 @@ describe("dormant-flip handler", () => {
     const { readQueue } = await import("../../src/lib/proposal-queue.ts");
 
     writeProject(projectsDir, "future-dormant");
-    const summary1 = runDormantFlip({ cwd: root, nowISO: "2026-04-30T00:00:00.000Z", thresholdDays: 60 });
+    const summary1 = runDormantFlip({
+      cwd: root,
+      nowISO: "2026-04-30T00:00:00.000Z",
+      thresholdDays: 60,
+    });
     expect(summary1.proposed).toBe(1);
 
     const queue = readQueue();
     const proposal = queue[0]!;
-    const typed = { ...proposal, payload: { daysSinceTouched: 100, thresholdDays: 60, lastTouchedISO: (proposal.payload as { lastTouchedISO: string }).lastTouchedISO } };
+    const typed = {
+      ...proposal,
+      payload: {
+        daysSinceTouched: 100,
+        thresholdDays: 60,
+        lastTouchedISO: (proposal.payload as { lastTouchedISO: string }).lastTouchedISO,
+      },
+    };
     const handler = getHandler("project-flip-dormant");
     if (handler.reject) await handler.reject(typed);
 
     vi.spyOn(process, "cwd").mockReturnValue(root);
     const { enqueue: _e, readQueue: _r } = await import("../../src/lib/proposal-queue.ts");
-    void _e; void _r;
+    void _e;
+    void _r;
 
-    const summary2 = runDormantFlip({ cwd: root, nowISO: "2026-04-30T00:00:00.000Z", thresholdDays: 60 });
+    const summary2 = runDormantFlip({
+      cwd: root,
+      nowISO: "2026-04-30T00:00:00.000Z",
+      thresholdDays: 60,
+    });
     expect(summary2.proposed).toBe(0);
   });
 });

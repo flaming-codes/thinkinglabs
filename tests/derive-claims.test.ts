@@ -1,6 +1,10 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import matter from "gray-matter";
-import { proposalToClaimFile, proposeClaimsForThought, type ClaimProposal } from "../src/lib/derive-claims.ts";
+import {
+  proposalToClaimFile,
+  proposeClaimsForThought,
+  type ClaimProposal,
+} from "../src/lib/derive-claims.ts";
 import { rejectionHash } from "../scripts/derive-claims.ts";
 import { claimSchema } from "../src/schemas/claim.ts";
 
@@ -16,18 +20,26 @@ const SAMPLE_PROPOSAL: ClaimProposal = {
 
 describe("proposalToClaimFile", () => {
   it("produces a valid markdown file with correct frontmatter fields", () => {
-    const { slug, markdown } = proposalToClaimFile(SAMPLE_PROPOSAL, "journalism-2026", "2026-04-30T00:00:00.000Z");
+    const { slug, markdown } = proposalToClaimFile(
+      SAMPLE_PROPOSAL,
+      "journalism-2026",
+      "2026-04-30T00:00:00.000Z",
+    );
     expect(slug).toBe("journalism-commodity-collapse");
     expect(markdown).toContain("claim:");
     expect(markdown).toContain("confidence: 0.7");
     expect(markdown).toContain("derived_from:");
     expect(markdown).toContain("thoughts/journalism-2026");
     expect(markdown).toContain("last_reviewed:");
-    expect(markdown).toContain("status: \"active\"");
+    expect(markdown).toContain('status: "active"');
   });
 
   it("uses the suggestedSlug as the file slug", () => {
-    const { slug } = proposalToClaimFile(SAMPLE_PROPOSAL, "any-thought", "2026-04-30T00:00:00.000Z");
+    const { slug } = proposalToClaimFile(
+      SAMPLE_PROPOSAL,
+      "any-thought",
+      "2026-04-30T00:00:00.000Z",
+    );
     expect(slug).toBe("journalism-commodity-collapse");
   });
 
@@ -41,9 +53,7 @@ describe("proposalToClaimFile", () => {
     const proposal: ClaimProposal = {
       claim: "Hyperlocal: investigative journalism survives.",
       confidence: 0.7,
-      evidence: [
-        { url: "https://example.com/x?q=1&y=2", note: "Pew study: 2024 trends." },
-      ],
+      evidence: [{ url: "https://example.com/x?q=1&y=2", note: "Pew study: 2024 trends." }],
       opposing: [
         "Counter: this ignores the role of platforms.",
         "What about #independent newsletters?",
@@ -114,7 +124,7 @@ describe("proposeClaimsForThought", () => {
     expect(proposalWithMerge.mergeCandidates[0]?.slug).toBe("existing-slug");
     const { slug, markdown } = proposalToClaimFile(proposalWithMerge, "t", "2026-01-01T00:00:00Z");
     expect(slug).toBe("test-slug");
-    expect(markdown).toContain("claim: \"Test.\"");
+    expect(markdown).toContain('claim: "Test."');
   });
 });
 

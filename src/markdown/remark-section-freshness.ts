@@ -5,7 +5,8 @@ import { visit } from "unist-util-visit";
 const ATTR_RE = /\s*\{([^{}]*)\}\s*$/;
 
 /** One `key="value"` pair inside the brace; tolerates straight + curly quotes (smartypants rewrites `"` to `“”` upstream). */
-const PAIR_RE = /(?:#([A-Za-z0-9_-]+)|([a-zA-Z][\w-]*)\s*=\s*["“]([^"”]*)["”]|([a-zA-Z][\w-]*)\s*=\s*['‘]([^'’]*)['’])/g;
+const PAIR_RE =
+  /(?:#([A-Za-z0-9_-]+)|([a-zA-Z][\w-]*)\s*=\s*["“]([^"”]*)["”]|([a-zA-Z][\w-]*)\s*=\s*['‘]([^'’]*)['’])/g;
 
 /** Returns parsed attrs and the cleaned trailing-text remainder; null when no `{...}` block is present. */
 function parseAttrs(text: string): { attrs: Record<string, string>; head: string } | null {

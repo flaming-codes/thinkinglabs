@@ -1,4 +1,5 @@
 # ADR-010 — Personal MCP server resource and tool taxonomy
+
 - **Status**: Accepted
 - **Date**: 2026-05-01
 - **Supersedes**: —

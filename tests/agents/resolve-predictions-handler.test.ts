@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "nod
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import matter from "gray-matter";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 /** Writes a minimal pending prediction file; returns the absolute path. */
 function writePrediction(dir: string, slug: string): string {
@@ -19,7 +19,9 @@ function writePrediction(dir: string, slug: string): string {
 function makeProposal(
   target: string,
   resolution: "true" | "false" | "ambiguous" = "true",
-): import("../../src/lib/proposal-queue.ts").QueuedProposal & { payload: import("../../src/lib/agents/resolve-predictions.ts").PredictionResolvePayload } {
+): import("../../src/lib/proposal-queue.ts").QueuedProposal & {
+  payload: import("../../src/lib/agents/resolve-predictions.ts").PredictionResolvePayload;
+} {
   const payload = {
     resolution,
     resolution_note: "Prediction resolved correctly.",

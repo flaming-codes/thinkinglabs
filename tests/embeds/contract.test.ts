@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { assertEmbedContract } from "../../embeds/core.ts";
 import { embeddedToolIds, embeddedTools, findEmbeddedTool } from "../../embeds/index.ts";
 
@@ -25,8 +25,11 @@ describe("embedded scoped agent contracts", () => {
   it("rejects endpoint drift", () => {
     const tool = findEmbeddedTool("prediction-calibration-logger");
     expect(tool).toBeDefined();
-    expect(() => assertEmbedContract({ ...tool!.contract, scope: { ...tool!.contract.scope, endpoint: "/api/embed/other.json" } })).toThrow(
-      "Embed endpoint must match id",
-    );
+    expect(() =>
+      assertEmbedContract({
+        ...tool!.contract,
+        scope: { ...tool!.contract.scope, endpoint: "/api/embed/other.json" },
+      }),
+    ).toThrow("Embed endpoint must match id");
   });
 });

@@ -30,7 +30,13 @@ function parseArgs(argv: ReadonlyArray<string>): Args {
   let limit = 25;
   const filter: ProposalSource[] = [];
   let dryRun = false;
-  const validSources = new Set<string>(["dormant-flip", "review-decisions", "resolve-predictions", "freshness-review", "triage-questions"]);
+  const validSources = new Set<string>([
+    "dormant-flip",
+    "review-decisions",
+    "resolve-predictions",
+    "freshness-review",
+    "triage-questions",
+  ]);
 
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i]!;
@@ -40,26 +46,30 @@ function parseArgs(argv: ReadonlyArray<string>): Args {
       const next = argv[i + 1];
       if (!next) throw Object.assign(new Error("--limit requires a value"), { exitCode: 2 });
       const n = Number(next);
-      if (!Number.isFinite(n) || n < 1) throw Object.assign(new Error(`invalid --limit: ${next}`), { exitCode: 2 });
+      if (!Number.isFinite(n) || n < 1)
+        throw Object.assign(new Error(`invalid --limit: ${next}`), { exitCode: 2 });
       limit = n;
       i++;
     } else if (a.startsWith("--limit=")) {
       const n = Number(a.slice("--limit=".length));
-      if (!Number.isFinite(n) || n < 1) throw Object.assign(new Error(`invalid --limit value`), { exitCode: 2 });
+      if (!Number.isFinite(n) || n < 1)
+        throw Object.assign(new Error(`invalid --limit value`), { exitCode: 2 });
       limit = n;
     } else if (a === "--filter") {
       const next = argv[i + 1];
       if (!next) throw Object.assign(new Error("--filter requires a value"), { exitCode: 2 });
       for (const s of next.split(",")) {
         const trimmed = s.trim();
-        if (!validSources.has(trimmed)) throw Object.assign(new Error(`unknown source: ${trimmed}`), { exitCode: 2 });
+        if (!validSources.has(trimmed))
+          throw Object.assign(new Error(`unknown source: ${trimmed}`), { exitCode: 2 });
         filter.push(trimmed as ProposalSource);
       }
       i++;
     } else if (a.startsWith("--filter=")) {
       for (const s of a.slice("--filter=".length).split(",")) {
         const trimmed = s.trim();
-        if (!validSources.has(trimmed)) throw Object.assign(new Error(`unknown source: ${trimmed}`), { exitCode: 2 });
+        if (!validSources.has(trimmed))
+          throw Object.assign(new Error(`unknown source: ${trimmed}`), { exitCode: 2 });
         filter.push(trimmed as ProposalSource);
       }
     } else {
@@ -115,7 +125,10 @@ export async function runProposalsReview(args: {
   if (filtered.length === 0) return { ...tally, queueSize: allProposals.length };
 
   const missing = unregisteredTypes(filtered);
-  if (missing.length > 0) throw Object.assign(new Error(`no handler registered for type(s): ${missing.join(", ")}`), { exitCode: 2 });
+  if (missing.length > 0)
+    throw Object.assign(new Error(`no handler registered for type(s): ${missing.join(", ")}`), {
+      exitCode: 2,
+    });
 
   const proposals: ReviewProposal<QueuedProposal>[] = filtered.map((p) => ({
     id: p.id,
@@ -195,7 +208,9 @@ async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
 
   const initialQueue = readQueue();
-  const filtered = initialQueue.filter((p) => args.filter.length === 0 || args.filter.includes(p.source));
+  const filtered = initialQueue.filter(
+    (p) => args.filter.length === 0 || args.filter.includes(p.source),
+  );
 
   if (filtered.length === 0) {
     process.stdout.write(`0 proposals\n`);
@@ -204,7 +219,9 @@ async function main(): Promise<void> {
 
   const missing = unregisteredTypes(filtered.slice(0, args.limit));
   if (missing.length > 0) {
-    process.stderr.write(`review-proposals: no handler registered for type(s): ${missing.join(", ")}\n`);
+    process.stderr.write(
+      `review-proposals: no handler registered for type(s): ${missing.join(", ")}\n`,
+    );
     process.exit(2);
   }
 
@@ -220,7 +237,11 @@ async function main(): Promise<void> {
   };
   process.once("SIGINT", handleSignal);
 
-  const summary = await runProposalsReview({ limit: args.limit, filter: args.filter, dryRun: args.dryRun });
+  const summary = await runProposalsReview({
+    limit: args.limit,
+    filter: args.filter,
+    dryRun: args.dryRun,
+  });
   tally.accepted = summary.accepted;
   tally.edited = summary.edited;
   tally.rejected = summary.rejected;

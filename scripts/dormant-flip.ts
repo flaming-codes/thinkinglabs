@@ -32,12 +32,14 @@ function parseArgs(argv: ReadonlyArray<string>): Args {
       const next = argv[i + 1];
       if (!next) throw Object.assign(new Error("--threshold requires a value"), { exitCode: 2 });
       const n = Number(next);
-      if (!Number.isFinite(n) || n < 1) throw Object.assign(new Error(`invalid --threshold: ${next}`), { exitCode: 2 });
+      if (!Number.isFinite(n) || n < 1)
+        throw Object.assign(new Error(`invalid --threshold: ${next}`), { exitCode: 2 });
       thresholdDays = n;
       i++;
     } else if (a.startsWith("--threshold=")) {
       const n = Number(a.slice("--threshold=".length));
-      if (!Number.isFinite(n) || n < 1) throw Object.assign(new Error(`invalid --threshold value`), { exitCode: 2 });
+      if (!Number.isFinite(n) || n < 1)
+        throw Object.assign(new Error(`invalid --threshold value`), { exitCode: 2 });
       thresholdDays = n;
     } else {
       throw Object.assign(new Error(`unknown arg: ${a}`), { exitCode: 2 });
@@ -49,9 +51,15 @@ function parseArgs(argv: ReadonlyArray<string>): Args {
 /** CLI entry point. */
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
-  const summary = runDormantFlip({ cwd: args.cwd, nowISO: nowISO(), thresholdDays: args.thresholdDays });
+  const summary = runDormantFlip({
+    cwd: args.cwd,
+    nowISO: nowISO(),
+    thresholdDays: args.thresholdDays,
+  });
   const queueSize = readQueue(args.cwd).length;
-  process.stdout.write(`scanned ${summary.scanned} projects, proposed ${summary.proposed} (deduped ${summary.deduped}), queue size now ${queueSize}\n`);
+  process.stdout.write(
+    `scanned ${summary.scanned} projects, proposed ${summary.proposed} (deduped ${summary.deduped}), queue size now ${queueSize}\n`,
+  );
 }
 
 main().catch((e: unknown) => {

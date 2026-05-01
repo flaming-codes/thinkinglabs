@@ -42,7 +42,13 @@ export async function scoreCommitFiles(
   const out = new Map<string, { score: number; summary: string }>();
   for (const c of commits) {
     for (const f of c.files) {
-      const s = await runToolCall({ tier: "fast", maxTokens: 256, systemPrompt: SYSTEM_PROMPT, userPrompt: fileContext(f), tool: TOOL });
+      const s = await runToolCall({
+        tier: "fast",
+        maxTokens: 256,
+        systemPrompt: SYSTEM_PROMPT,
+        userPrompt: fileContext(f),
+        tool: TOOL,
+      });
       if (s) out.set(`${c.sha}:${f.path}`, s);
     }
   }

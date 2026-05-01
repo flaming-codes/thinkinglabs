@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { parseClaimHistory } from "../src/lib/claim-history.ts";
 import type { FileHistoryEntry } from "../src/lib/git.ts";
 
@@ -30,9 +30,27 @@ describe("parseClaimHistory", () => {
   it("returns typed snapshots for valid entries, oldest-first", () => {
     const result = parseClaimHistory([v1, v2, v3]);
     expect(result).toHaveLength(3);
-    expect(result[0]).toMatchObject({ sha: "aaa1", confidence: 0.5, evidenceCount: 0, opposingCount: 0, status: "active" });
-    expect(result[1]).toMatchObject({ sha: "bbb2", confidence: 0.65, evidenceCount: 1, opposingCount: 0, status: "active" });
-    expect(result[2]).toMatchObject({ sha: "ccc3", confidence: 0.8, evidenceCount: 2, opposingCount: 1, status: "deprecated" });
+    expect(result[0]).toMatchObject({
+      sha: "aaa1",
+      confidence: 0.5,
+      evidenceCount: 0,
+      opposingCount: 0,
+      status: "active",
+    });
+    expect(result[1]).toMatchObject({
+      sha: "bbb2",
+      confidence: 0.65,
+      evidenceCount: 1,
+      opposingCount: 0,
+      status: "active",
+    });
+    expect(result[2]).toMatchObject({
+      sha: "ccc3",
+      confidence: 0.8,
+      evidenceCount: 2,
+      opposingCount: 1,
+      status: "deprecated",
+    });
   });
 
   it("skips entries whose frontmatter lacks a numeric confidence", () => {

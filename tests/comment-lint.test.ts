@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import ts from "typescript";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 
 interface Violation {
   readonly file: string;
@@ -24,18 +24,22 @@ function tsFiles(root: string): string[] {
 }
 
 function exported(node: ts.Node): boolean {
-  return Boolean(ts.canHaveModifiers(node) && ts.getModifiers(node)?.some((m) => m.kind === ts.SyntaxKind.ExportKeyword));
+  return Boolean(
+    ts.canHaveModifiers(node) &&
+    ts.getModifiers(node)?.some((m) => m.kind === ts.SyntaxKind.ExportKeyword),
+  );
 }
 
 function exportedDeclarations(sf: ts.SourceFile): ts.Node[] {
-  return sf.statements.filter((node) =>
-    (ts.isFunctionDeclaration(node) ||
-      ts.isInterfaceDeclaration(node) ||
-      ts.isTypeAliasDeclaration(node) ||
-      ts.isClassDeclaration(node) ||
-      ts.isEnumDeclaration(node) ||
-      ts.isVariableStatement(node)) &&
-    exported(node),
+  return sf.statements.filter(
+    (node) =>
+      (ts.isFunctionDeclaration(node) ||
+        ts.isInterfaceDeclaration(node) ||
+        ts.isTypeAliasDeclaration(node) ||
+        ts.isClassDeclaration(node) ||
+        ts.isEnumDeclaration(node) ||
+        ts.isVariableStatement(node)) &&
+      exported(node),
   );
 }
 
@@ -64,8 +68,10 @@ function lintFile(file: string, root: string): Violation[] {
       violations.push({ file: rel, message: "single-line comments are not allowed" });
     }
     if (range.kind === ts.SyntaxKind.MultiLineCommentTrivia) {
-      if (comment.includes("\n")) violations.push({ file: rel, message: "block comments must be single-line" });
-      if (/@param\b|@returns\b/.test(comment)) violations.push({ file: rel, message: "JSDoc tags are not allowed" });
+      if (comment.includes("\n"))
+        violations.push({ file: rel, message: "block comments must be single-line" });
+      if (/@param\b|@returns\b/.test(comment))
+        violations.push({ file: rel, message: "JSDoc tags are not allowed" });
     }
   }
   for (const node of exportedDeclarations(sf)) {
@@ -74,7 +80,10 @@ function lintFile(file: string, root: string): Violation[] {
     const leading = ranges.filter((r) => r.end <= start);
     const docs = leading.filter((r) => text.slice(r.pos, r.end).startsWith("/**"));
     if (docs.length !== 1 || leading.length !== 1) {
-      violations.push({ file: rel, message: "exported declarations need exactly one leading JSDoc block" });
+      violations.push({
+        file: rel,
+        message: "exported declarations need exactly one leading JSDoc block",
+      });
     }
   }
   return violations;
@@ -92,7 +101,9 @@ describe("JSDoc and comment lint", () => {
   });
 
   it("catches each violation type in the fixture", () => {
-    const messages = lintFile(resolve(root, "tests/fixtures/lint/bad.ts"), root).map((v) => v.message);
+    const messages = lintFile(resolve(root, "tests/fixtures/lint/bad.ts"), root).map(
+      (v) => v.message,
+    );
     expect(messages).toContain("single-line comments are not allowed");
     expect(messages).toContain("block comments must be single-line");
     expect(messages).toContain("JSDoc tags are not allowed");

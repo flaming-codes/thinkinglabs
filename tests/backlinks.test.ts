@@ -2,7 +2,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import matter from "gray-matter";
-import { describe, expect, it, afterEach } from "vitest";
+import { describe, expect, it, afterEach } from "vite-plus/test";
 import { addClaimBacklink } from "../src/lib/backlinks.ts";
 
 let tmpDir: string | null = null;
@@ -15,7 +15,10 @@ function setup(content: string): string {
 }
 
 afterEach(() => {
-  if (tmpDir) { rmSync(tmpDir, { recursive: true, force: true }); tmpDir = null; }
+  if (tmpDir) {
+    rmSync(tmpDir, { recursive: true, force: true });
+    tmpDir = null;
+  }
 });
 
 describe("addClaimBacklink", () => {

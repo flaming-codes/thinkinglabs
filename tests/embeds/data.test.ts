@@ -1,6 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { findEmbeddedTool } from "../../embeds/index.ts";
-import { loadCalibrationLogSnapshot, summarizeCalibrationLog } from "../../embeds/prediction-calibration-logger/index.ts";
+import {
+  loadCalibrationLogSnapshot,
+  summarizeCalibrationLog,
+} from "../../embeds/prediction-calibration-logger/index.ts";
 
 describe("prediction calibration logger data", () => {
   it("loads static JSON with deterministic sample ids", () => {

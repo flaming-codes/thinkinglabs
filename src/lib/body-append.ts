@@ -12,7 +12,11 @@ export function appendSection(filePath: string, heading: string, sectionBody: st
 }
 
 /** Rewrites the `last_verified` attribute on the given heading to `newDateISO`; preserves frontmatter and other content. */
-export function restampSectionVerified(filePath: string, headingText: string, newDateISO: string): void {
+export function restampSectionVerified(
+  filePath: string,
+  headingText: string,
+  newDateISO: string,
+): void {
   const raw = readFileSync(filePath, "utf8");
   const parsed = matter(raw);
   const lines = parsed.content.split("\n");
@@ -20,9 +24,14 @@ export function restampSectionVerified(filePath: string, headingText: string, ne
   const newDate = newDateISO.slice(0, 10);
   for (let i = 0; i < lines.length; i++) {
     if (!headingRe.test(lines[i]!)) continue;
-    const text = lines[i]!.replace(/\s*\{[^{}]*\}\s*$/, "").replace(/^#{1,6}\s+/, "").trim();
+    const text = lines[i]!.replace(/\s*\{[^{}]*\}\s*$/, "")
+      .replace(/^#{1,6}\s+/, "")
+      .trim();
     if (text !== headingText) continue;
-    lines[i] = lines[i]!.replace(/last_verified\s*=\s*["“][^"”]*["”]/, `last_verified="${newDate}"`);
+    lines[i] = lines[i]!.replace(
+      /last_verified\s*=\s*["“][^"”]*["”]/,
+      `last_verified="${newDate}"`,
+    );
     break;
   }
   writeFileSync(filePath, matter.stringify(lines.join("\n"), parsed.data), "utf8");
@@ -37,7 +46,9 @@ export function deprecateSectionCallout(filePath: string, headingText: string): 
   const callout = "> **Deprecated.** This section may no longer be accurate. Review pending.";
   for (let i = 0; i < lines.length; i++) {
     if (!headingRe.test(lines[i]!)) continue;
-    const text = lines[i]!.replace(/\s*\{[^{}]*\}\s*$/, "").replace(/^#{1,6}\s+/, "").trim();
+    const text = lines[i]!.replace(/\s*\{[^{}]*\}\s*$/, "")
+      .replace(/^#{1,6}\s+/, "")
+      .trim();
     if (text !== headingText) continue;
     let probe = i + 1;
     while (probe < lines.length && lines[probe] === "") probe++;

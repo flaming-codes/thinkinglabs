@@ -46,7 +46,11 @@ function rejectionsPath(cwd: string): string {
 }
 
 /** Walks projects, enqueues flip proposals for alive projects past the dormancy threshold; dedupes via proposalId. */
-export function runDormantFlip(args: { cwd: string; nowISO: string; thresholdDays: number }): DormantFlipSummary {
+export function runDormantFlip(args: {
+  cwd: string;
+  nowISO: string;
+  thresholdDays: number;
+}): DormantFlipSummary {
   const { cwd, nowISO, thresholdDays } = args;
   const projects = walkMarkdown({ cwd, kind: "projects" });
   const alive = projects.filter((p) => p.data["status"] === "alive");
@@ -66,7 +70,11 @@ export function runDormantFlip(args: { cwd: string; nowISO: string; thresholdDay
     if (!lastTouchedISO && typeof fmISO === "string") lastTouchedISO = fmISO;
     if (!lastTouchedISO && fmISO instanceof Date) lastTouchedISO = fmISO.toISOString();
     if (!lastTouchedISO) {
-      try { lastTouchedISO = statSync(project.path).mtime.toISOString(); } catch { lastTouchedISO = null; }
+      try {
+        lastTouchedISO = statSync(project.path).mtime.toISOString();
+      } catch {
+        lastTouchedISO = null;
+      }
     }
 
     const daysSinceTouched = lastTouchedISO ? daysBetween(lastTouchedISO, nowISO) : thresholdDays;
@@ -76,20 +84,29 @@ export function runDormantFlip(args: { cwd: string; nowISO: string; thresholdDay
     if (rejectedSnapshot !== undefined && rejectedSnapshot === lastTouchedISO) continue;
 
     const payload: DormantFlipPayload = { daysSinceTouched, thresholdDays, lastTouchedISO };
-    const id = proposalId("dormant-flip", "project-flip-dormant", project.path, { lastTouchedISO, thresholdDays });
+    const id = proposalId("dormant-flip", "project-flip-dormant", project.path, {
+      lastTouchedISO,
+      thresholdDays,
+    });
 
-    if (existingIds.has(id)) { deduped++; continue; }
+    if (existingIds.has(id)) {
+      deduped++;
+      continue;
+    }
 
-    enqueue({
-      id,
-      source: "dormant-flip",
-      type: "project-flip-dormant",
-      createdAt: nowISO,
-      target: project.path,
-      title: `Flip ${project.slug} dormant`,
-      preview: `${project.slug} inactive for ${daysSinceTouched} days (threshold ${thresholdDays}). Proposed: set status = "dormant".`,
-      payload,
-    }, cwd);
+    enqueue(
+      {
+        id,
+        source: "dormant-flip",
+        type: "project-flip-dormant",
+        createdAt: nowISO,
+        target: project.path,
+        title: `Flip ${project.slug} dormant`,
+        preview: `${project.slug} inactive for ${daysSinceTouched} days (threshold ${thresholdDays}). Proposed: set status = "dormant".`,
+        payload,
+      },
+      cwd,
+    );
     proposed++;
   }
 
@@ -105,7 +122,9 @@ const handler = {
   },
   async apply(proposal: QueuedProposal & { payload: DormantFlipPayload }): Promise<string> {
     if (!proposal.target) throw new Error("dormant-flip apply: missing target path");
-    await patchFrontmatter(proposal.target, (data) => { data["status"] = "dormant"; });
+    await patchFrontmatter(proposal.target, (data) => {
+      data["status"] = "dormant";
+    });
     return `${proposal.target} → status: dormant`;
   },
   async edit(proposal: QueuedProposal & { payload: DormantFlipPayload }): Promise<string> {

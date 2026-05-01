@@ -157,7 +157,9 @@ export function writeIndex(objects: ReadonlyArray<IndexedObject>, outFile: strin
   const insertObject = db.prepare(
     "INSERT INTO objects (id, kind, slug, frontmatter_json, body_md, last_touched) VALUES (?, ?, ?, ?, ?, ?)",
   );
-  const insertLink = db.prepare("INSERT OR IGNORE INTO links (from_id, to_id, kind) VALUES (?, ?, ?)");
+  const insertLink = db.prepare(
+    "INSERT OR IGNORE INTO links (from_id, to_id, kind) VALUES (?, ?, ?)",
+  );
   const insertTag = db.prepare("INSERT OR IGNORE INTO tags (object_id, tag) VALUES (?, ?)");
   const insertFts = db.prepare(
     "INSERT INTO objects_fts (id, title, body, tags) VALUES (?, ?, ?, ?)",
@@ -179,7 +181,12 @@ export function writeIndex(objects: ReadonlyArray<IndexedObject>, outFile: strin
     }
     for (const o of rows) {
       const fm = JSON.parse(o.frontmatter_json) as Record<string, unknown>;
-      const titleSource = (fm["title"] ?? fm["claim"] ?? fm["question"] ?? fm["decision"] ?? fm["prediction"] ?? "") as string;
+      const titleSource = (fm["title"] ??
+        fm["claim"] ??
+        fm["question"] ??
+        fm["decision"] ??
+        fm["prediction"] ??
+        "") as string;
       insertFts.run(o.id, titleSource, o.body_md, o.tags.join(" "));
     }
   });

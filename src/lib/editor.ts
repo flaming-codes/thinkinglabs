@@ -11,7 +11,8 @@ export async function editInEditor(initial: string, suffix?: string): Promise<st
   try {
     writeFileSync(file, initial, "utf8");
     const result = spawnSync(editor, [file], { stdio: "inherit" });
-    if (result.status !== 0) throw new Error(`Editor '${editor}' exited with status ${result.status ?? "unknown"}`);
+    if (result.status !== 0)
+      throw new Error(`Editor '${editor}' exited with status ${result.status ?? "unknown"}`);
     return readFileSync(file, "utf8");
   } finally {
     rmSync(dir, { recursive: true, force: true });

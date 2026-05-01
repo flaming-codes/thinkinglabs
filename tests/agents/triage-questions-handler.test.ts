@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import matter from "gray-matter";
 
 /** Minimal question file content. */
@@ -53,7 +53,8 @@ describe("triage-questions handler — apply", () => {
 
   it("appends the answer section to the question body and sets status to partial", async () => {
     vi.doMock("../../src/lib/llm.ts", () => ({ runToolCall: vi.fn() }));
-    const { QuestionAnswerCuratePayload } = await import("../../src/lib/agents/triage-questions.ts");
+    const { QuestionAnswerCuratePayload } =
+      await import("../../src/lib/agents/triage-questions.ts");
     const { getHandler } = await import("../../src/lib/proposal-dispatch.ts");
     const questionPath = join(dir(), "content", "questions", "foo.md");
     const submissionPath = join(dir(), "submissions", "questions", "foo", "bar.json");
@@ -82,7 +83,8 @@ describe("triage-questions handler — apply", () => {
 
   it("moves the submission file to _accepted/ after apply", async () => {
     vi.doMock("../../src/lib/llm.ts", () => ({ runToolCall: vi.fn() }));
-    const { QuestionAnswerCuratePayload } = await import("../../src/lib/agents/triage-questions.ts");
+    const { QuestionAnswerCuratePayload } =
+      await import("../../src/lib/agents/triage-questions.ts");
     const { getHandler } = await import("../../src/lib/proposal-dispatch.ts");
     const questionPath = join(dir(), "content", "questions", "foo.md");
     const submissionPath = join(dir(), "submissions", "questions", "foo", "bar.json");
@@ -111,7 +113,8 @@ describe("triage-questions handler — edit", () => {
   it("opens editor and on save validates the question file", async () => {
     vi.doMock("../../src/lib/llm.ts", () => ({ runToolCall: vi.fn() }));
     vi.stubEnv("EDITOR", "cat");
-    const { QuestionAnswerCuratePayload } = await import("../../src/lib/agents/triage-questions.ts");
+    const { QuestionAnswerCuratePayload } =
+      await import("../../src/lib/agents/triage-questions.ts");
     const { getHandler } = await import("../../src/lib/proposal-dispatch.ts");
     const questionPath = join(dir(), "content", "questions", "foo.md");
     const submissionPath = join(dir(), "submissions", "questions", "foo", "bar.json");
@@ -139,7 +142,8 @@ describe("triage-questions handler — reject", () => {
 
   it("moves submission to _rejected/ and writes to the rejections JSON", async () => {
     vi.doMock("../../src/lib/llm.ts", () => ({ runToolCall: vi.fn() }));
-    const { QuestionAnswerCuratePayload } = await import("../../src/lib/agents/triage-questions.ts");
+    const { QuestionAnswerCuratePayload } =
+      await import("../../src/lib/agents/triage-questions.ts");
     const { getHandler } = await import("../../src/lib/proposal-dispatch.ts");
     const questionPath = join(dir(), "content", "questions", "foo.md");
     const submissionPath = join(dir(), "submissions", "questions", "foo", "bar.json");
@@ -159,7 +163,9 @@ describe("triage-questions handler — reject", () => {
     await handler.reject!(typed);
     expect(existsSync(submissionPath)).toBe(false);
     expect(existsSync(join(dir(), "submissions", "_rejected", "foo", "bar.json"))).toBe(true);
-    const rejections = JSON.parse(readFileSync(join(dir(), ".triage-questions-rejections.json"), "utf8")) as string[];
+    const rejections = JSON.parse(
+      readFileSync(join(dir(), ".triage-questions-rejections.json"), "utf8"),
+    ) as string[];
     expect(rejections).toContain("bar");
   });
 });

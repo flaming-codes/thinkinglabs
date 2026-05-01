@@ -2,7 +2,9 @@ import type { EmbeddedToolPayload } from "./core.ts";
 import { predictionCalibrationLogger } from "./prediction-calibration-logger/index.ts";
 
 /** Registry of every embedded scoped agent exposed by the site. */
-export const embeddedTools = [predictionCalibrationLogger] as const satisfies readonly EmbeddedToolPayload[];
+export const embeddedTools = [
+  predictionCalibrationLogger,
+] as const satisfies readonly EmbeddedToolPayload[];
 
 /** Stable ids for static path generation and contract tests. */
 export const embeddedToolIds = embeddedTools.map((tool) => tool.contract.id);

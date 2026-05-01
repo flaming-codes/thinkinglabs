@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import {
   applyGenericGate,
   buildEntries,
@@ -18,68 +18,104 @@ function fd(p: Partial<FileDiff> & { path: string; status: "A" | "M" | "D" }): F
 
 describe("classify", () => {
   it("new claim", () => {
-    expect(classify(fd({ path: "content/claims/foo.md", status: "A", newFrontmatter: { claim: "x", confidence: 0.5 } }))).toBe("new-claim");
+    expect(
+      classify(
+        fd({
+          path: "content/claims/foo.md",
+          status: "A",
+          newFrontmatter: { claim: "x", confidence: 0.5 },
+        }),
+      ),
+    ).toBe("new-claim");
   });
 
   it("claim revised", () => {
-    expect(classify(fd({
-      path: "content/claims/foo.md",
-      status: "M",
-      oldFrontmatter: { confidence: 0.5 },
-      newFrontmatter: { confidence: 0.7 },
-    }))).toBe("claim-revised");
+    expect(
+      classify(
+        fd({
+          path: "content/claims/foo.md",
+          status: "M",
+          oldFrontmatter: { confidence: 0.5 },
+          newFrontmatter: { confidence: 0.7 },
+        }),
+      ),
+    ).toBe("claim-revised");
   });
 
   it("claim deprecated", () => {
-    expect(classify(fd({
-      path: "content/claims/foo.md",
-      status: "M",
-      oldFrontmatter: { status: "active" },
-      newFrontmatter: { status: "deprecated" },
-    }))).toBe("claim-deprecated");
+    expect(
+      classify(
+        fd({
+          path: "content/claims/foo.md",
+          status: "M",
+          oldFrontmatter: { status: "active" },
+          newFrontmatter: { status: "deprecated" },
+        }),
+      ),
+    ).toBe("claim-deprecated");
   });
 
   it("decision reversed via status flip", () => {
-    expect(classify(fd({
-      path: "content/decisions/foo.md",
-      status: "M",
-      oldFrontmatter: { status: "standing" },
-      newFrontmatter: { status: "reversed" },
-    }))).toBe("decision-reversed");
+    expect(
+      classify(
+        fd({
+          path: "content/decisions/foo.md",
+          status: "M",
+          oldFrontmatter: { status: "standing" },
+          newFrontmatter: { status: "reversed" },
+        }),
+      ),
+    ).toBe("decision-reversed");
   });
 
   it("decision reversed via new file with reverses", () => {
-    expect(classify(fd({
-      path: "content/decisions/bar.md",
-      status: "A",
-      newFrontmatter: { reverses: ["decisions/foo"] },
-    }))).toBe("decision-reversed");
+    expect(
+      classify(
+        fd({
+          path: "content/decisions/bar.md",
+          status: "A",
+          newFrontmatter: { reverses: ["decisions/foo"] },
+        }),
+      ),
+    ).toBe("decision-reversed");
   });
 
   it("prediction resolved", () => {
-    expect(classify(fd({
-      path: "content/predictions/x.md",
-      status: "M",
-      oldFrontmatter: { resolution: "pending" },
-      newFrontmatter: { resolution: "true" },
-    }))).toBe("prediction-resolved");
+    expect(
+      classify(
+        fd({
+          path: "content/predictions/x.md",
+          status: "M",
+          oldFrontmatter: { resolution: "pending" },
+          newFrontmatter: { resolution: "true" },
+        }),
+      ),
+    ).toBe("prediction-resolved");
   });
 
   it("thought substantively updated", () => {
-    expect(classify(fd({ path: "content/thoughts/x.md", status: "M" }))).toBe("thought-substantively-updated");
+    expect(classify(fd({ path: "content/thoughts/x.md", status: "M" }))).toBe(
+      "thought-substantively-updated",
+    );
   });
 
   it("project status changed", () => {
-    expect(classify(fd({
-      path: "content/projects/x.md",
-      status: "M",
-      oldFrontmatter: { status: "alive" },
-      newFrontmatter: { status: "dormant" },
-    }))).toBe("project-status-changed");
+    expect(
+      classify(
+        fd({
+          path: "content/projects/x.md",
+          status: "M",
+          oldFrontmatter: { status: "alive" },
+          newFrontmatter: { status: "dormant" },
+        }),
+      ),
+    ).toBe("project-status-changed");
   });
 
   it("post section reverified", () => {
-    expect(classify(fd({ path: "content/posts/x.md", status: "M" }))).toBe("post-section-reverified");
+    expect(classify(fd({ path: "content/posts/x.md", status: "M" }))).toBe(
+      "post-section-reverified",
+    );
   });
 
   it("untracked falls through to other", () => {
@@ -87,12 +123,16 @@ describe("classify", () => {
   });
 
   it("project edits without status change are 'other'", () => {
-    expect(classify(fd({
-      path: "content/projects/x.md",
-      status: "M",
-      oldFrontmatter: { status: "alive" },
-      newFrontmatter: { status: "alive" },
-    }))).toBe("other");
+    expect(
+      classify(
+        fd({
+          path: "content/projects/x.md",
+          status: "M",
+          oldFrontmatter: { status: "alive" },
+          newFrontmatter: { status: "alive" },
+        }),
+      ),
+    ).toBe("other");
   });
 });
 
@@ -119,8 +159,19 @@ describe("formatters", () => {
   });
 
   it("formatJson includes kind and entries", () => {
-    const e: FeedEntry = { sha: "abc", isoDate: "2026-04-30T00:00:00Z", path: "claims/x.md", type: "new-claim", title: "claims/x", score: null, summary: null };
-    const obj = JSON.parse(formatJson([e], "claims-revised")) as { kind: string; entries: FeedEntry[] };
+    const e: FeedEntry = {
+      sha: "abc",
+      isoDate: "2026-04-30T00:00:00Z",
+      path: "claims/x.md",
+      type: "new-claim",
+      title: "claims/x",
+      score: null,
+      summary: null,
+    };
+    const obj = JSON.parse(formatJson([e], "claims-revised")) as {
+      kind: string;
+      entries: FeedEntry[];
+    };
     expect(obj.kind).toBe("claims-revised");
     expect(obj.entries[0]?.title).toBe("claims/x");
   });
@@ -139,17 +190,28 @@ describe("formatters", () => {
 });
 
 describe("specialized predicates and gate", () => {
-  const commits: ReadonlyArray<CommitDiff> = [{
-    sha: "deadbeef",
-    isoDate: "2026-04-30T00:00:00Z",
-    subject: "mixed batch",
-    files: [
-      fd({ path: "content/claims/a.md", status: "A", newFrontmatter: { claim: "x" } }),
-      fd({ path: "content/predictions/p.md", status: "M", oldFrontmatter: { resolution: "pending" }, newFrontmatter: { resolution: "true" } }),
-      fd({ path: "content/decisions/d.md", status: "A", newFrontmatter: { reverses: ["decisions/old"] } }),
-      fd({ path: "content/thoughts/t.md", status: "M" }),
-    ],
-  }];
+  const commits: ReadonlyArray<CommitDiff> = [
+    {
+      sha: "deadbeef",
+      isoDate: "2026-04-30T00:00:00Z",
+      subject: "mixed batch",
+      files: [
+        fd({ path: "content/claims/a.md", status: "A", newFrontmatter: { claim: "x" } }),
+        fd({
+          path: "content/predictions/p.md",
+          status: "M",
+          oldFrontmatter: { resolution: "pending" },
+          newFrontmatter: { resolution: "true" },
+        }),
+        fd({
+          path: "content/decisions/d.md",
+          status: "A",
+          newFrontmatter: { reverses: ["decisions/old"] },
+        }),
+        fd({ path: "content/thoughts/t.md", status: "M" }),
+      ],
+    },
+  ];
 
   const scored = new Map<string, { score: number; summary: string }>([
     ["deadbeef:content/claims/a.md", { score: 8, summary: "new" }],

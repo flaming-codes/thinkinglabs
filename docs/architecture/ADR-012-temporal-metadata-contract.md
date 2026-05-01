@@ -1,4 +1,5 @@
 # ADR-012 — Temporal metadata contract (last_touched, last_reviewed, last_verified)
+
 - **Status**: Accepted
 - **Date**: 2026-05-01
 - **Supersedes**: —
@@ -12,9 +13,9 @@ Three different timestamps shape how the system reasons about content age, fresh
 
 **`last_touched` is git-derived, never hand-edited.** `lastTouchedSync(path, repoRoot)` runs `git log -1 --format=%cI -- <path>` and returns the committer-date in ISO-8601 with offset. When git is unavailable (shallow clones missing the file's first commit, untracked working-copy files, brand-new files staged but not committed, or test fixtures executing outside a repo) the function falls back to `statSync(path).mtime.toISOString()`. The fallback is intentional — a freshly-created file with no commits should still appear in `last_touched DESC` ordering rather than disappearing.
 
-**Renames preserve history.** `git log --follow` is *not* used; the bare `git log` walks the file path as-is, so a renamed file's `last_touched` advances to the rename commit. This is correct: a rename is a meaningful touch. Consumers needing pre-rename history must walk it explicitly via `walkFileHistory`.
+**Renames preserve history.** `git log --follow` is _not_ used; the bare `git log` walks the file path as-is, so a renamed file's `last_touched` advances to the rename commit. This is correct: a rename is a meaningful touch. Consumers needing pre-rename history must walk it explicitly via `walkFileHistory`.
 
-**Shallow clones are a known limitation.** CI checkouts use `fetch-depth: 0` (`.github/workflows/ci.yml:24,53`) so the entire history is available; the brain-diff job depends on this. Other shallow checkouts will see truncated `last_touched` values, falling back to mtime where the commit is unreachable. This is acceptable: the only consumer that *requires* deep history is the brain-diff feed pipeline, which is already deep-cloned.
+**Shallow clones are a known limitation.** CI checkouts use `fetch-depth: 0` (`.github/workflows/ci.yml:24,53`) so the entire history is available; the brain-diff job depends on this. Other shallow checkouts will see truncated `last_touched` values, falling back to mtime where the commit is unreachable. This is acceptable: the only consumer that _requires_ deep history is the brain-diff feed pipeline, which is already deep-cloned.
 
 **`last_reviewed` is a claim-level frontmatter field, hand-edited or written by the `review-stale-claims` agent's accepted proposals.** It expresses "when did the human last reaffirm this claim?", not "when did the file change?". Schemas enforce ISO-date format via `isoDate` (`src/schemas/_base.ts`). The freshness/stale-claim agents threshold on `now - last_reviewed`, never on `last_touched`.
 
@@ -26,9 +27,9 @@ Three different timestamps shape how the system reasons about content age, fresh
 
 The three timestamps are orthogonal and serve distinct purposes; mixing them is a bug. Renderers and agents must pick the right one for the question they're asking:
 
-- *"How recent is this file in the git tree?"* → `last_touched`
-- *"When did the human last vouch for this claim?"* → `last_reviewed`
-- *"When did the author last re-read this paragraph?"* → `last_verified`
+- _"How recent is this file in the git tree?"_ → `last_touched`
+- _"When did the human last vouch for this claim?"_ → `last_reviewed`
+- _"When did the author last re-read this paragraph?"_ → `last_verified`
 
 Adding a new temporal field requires explicit naming, an ADR amendment or successor, and a clear answer to the question above. Reusing `last_touched` for editorial intent is forbidden — the field is mechanical and the renderer treats it as ground truth.
 

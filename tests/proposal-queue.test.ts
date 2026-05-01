@@ -1,7 +1,7 @@
 import { existsSync, mkdtempSync, rmSync, utimesSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import { writeJsonState } from "../src/lib/json-state.ts";
 
 /** Stubs process.cwd() to the given dir so queue functions resolve to it. */
@@ -19,7 +19,9 @@ function useTmpDir(): { getDir: () => string } {
 }
 
 /** Builds a minimal valid QueuedProposal. */
-function makeProposal(overrides: Partial<import("../src/lib/proposal-queue.ts").QueuedProposal> = {}): import("../src/lib/proposal-queue.ts").QueuedProposal {
+function makeProposal(
+  overrides: Partial<import("../src/lib/proposal-queue.ts").QueuedProposal> = {},
+): import("../src/lib/proposal-queue.ts").QueuedProposal {
   return {
     id: "test-id-1",
     source: "dormant-flip",
@@ -89,8 +91,14 @@ describe("proposal-queue", () => {
 
   it("proposalId is deterministic across runs and across object-key permutations of payload", async () => {
     const { proposalId } = await import("../src/lib/proposal-queue.ts");
-    const id1 = proposalId("dormant-flip", "project-flip-dormant", "content/projects/foo.md", { b: 2, a: 1 });
-    const id2 = proposalId("dormant-flip", "project-flip-dormant", "content/projects/foo.md", { a: 1, b: 2 });
+    const id1 = proposalId("dormant-flip", "project-flip-dormant", "content/projects/foo.md", {
+      b: 2,
+      a: 1,
+    });
+    const id2 = proposalId("dormant-flip", "project-flip-dormant", "content/projects/foo.md", {
+      a: 1,
+      b: 2,
+    });
     expect(id1).toBe(id2);
     expect(typeof id1).toBe("string");
     expect(id1).toHaveLength(64);

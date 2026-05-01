@@ -2,7 +2,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import matter from "gray-matter";
-import { describe, expect, it, afterEach } from "vitest";
+import { describe, expect, it, afterEach } from "vite-plus/test";
 import { patchFrontmatter } from "../src/lib/frontmatter.ts";
 import { claimSchema } from "../src/schemas/claim.ts";
 
@@ -17,13 +17,18 @@ function setup(content: string): string {
 }
 
 afterEach(() => {
-  if (tmpDir) { rmSync(tmpDir, { recursive: true, force: true }); tmpDir = null; }
+  if (tmpDir) {
+    rmSync(tmpDir, { recursive: true, force: true });
+    tmpDir = null;
+  }
 });
 
 describe("patchFrontmatter", () => {
   it("bumps a single field", async () => {
-    const file = setup("---\ntitle: Test\nlast_reviewed: \"2026-01-01\"\n---\nbody\n");
-    await patchFrontmatter(file, (data) => { data["last_reviewed"] = "2026-04-30"; });
+    const file = setup('---\ntitle: Test\nlast_reviewed: "2026-01-01"\n---\nbody\n');
+    await patchFrontmatter(file, (data) => {
+      data["last_reviewed"] = "2026-04-30";
+    });
     const parsed = matter(readFileSync(file, "utf8"));
     expect(parsed.data["last_reviewed"]).toBe("2026-04-30");
     expect(parsed.data["title"]).toBe("Test");
@@ -47,13 +52,13 @@ describe("patchFrontmatter", () => {
   it("round-trips through claimSchema.parse after a last_reviewed bump", async () => {
     const initial = [
       "---",
-      "claim: \"AI will change journalism.\"",
+      'claim: "AI will change journalism."',
       "confidence: 0.7",
       "evidence: []",
       "opposing: []",
       "derived_from: []",
-      "last_reviewed: \"2026-01-01\"",
-      "status: \"active\"",
+      'last_reviewed: "2026-01-01"',
+      'status: "active"',
       "supersedes: []",
       "superseded_by: []",
       "tags: []",
@@ -61,7 +66,9 @@ describe("patchFrontmatter", () => {
       "",
     ].join("\n");
     const file = setup(initial);
-    await patchFrontmatter(file, (data) => { data["last_reviewed"] = "2026-04-30"; });
+    await patchFrontmatter(file, (data) => {
+      data["last_reviewed"] = "2026-04-30";
+    });
     const { data } = matter(readFileSync(file, "utf8"));
     const validated = claimSchema.parse(data);
     expect(validated.last_reviewed).toBe("2026-04-30");
@@ -70,7 +77,9 @@ describe("patchFrontmatter", () => {
 
   it("preserves body content across patches", async () => {
     const file = setup("---\ntitle: Test\n---\nHello world.\n");
-    await patchFrontmatter(file, (data) => { data["title"] = "Updated"; });
+    await patchFrontmatter(file, (data) => {
+      data["title"] = "Updated";
+    });
     const parsed = matter(readFileSync(file, "utf8"));
     expect(parsed.content.trim()).toBe("Hello world.");
   });

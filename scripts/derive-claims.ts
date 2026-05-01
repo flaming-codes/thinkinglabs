@@ -4,7 +4,11 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSy
 import { join, resolve } from "node:path";
 import matter from "gray-matter";
 import { addClaimBacklink } from "../src/lib/backlinks.ts";
-import { proposeClaimsForThought, proposalToClaimFile, type ClaimProposal } from "../src/lib/derive-claims.ts";
+import {
+  proposeClaimsForThought,
+  proposalToClaimFile,
+  type ClaimProposal,
+} from "../src/lib/derive-claims.ts";
 import { editInEditor } from "../src/lib/editor.ts";
 import { patchFrontmatter } from "../src/lib/frontmatter.ts";
 import { readJsonState, writeJsonState } from "../src/lib/json-state.ts";
@@ -52,9 +56,13 @@ export function rejectionHash(thoughtSlug: string, claimText: string): string {
   return createHash("sha256").update(`${thoughtSlug}\0${claimText}`).digest("hex").slice(0, 16);
 }
 
-
 /** Loads all existing claims from content/claims/ for merge-candidate input. */
-function loadExistingClaims(): Array<{ slug: string; claim: string; confidence: number; tags: ReadonlyArray<string> }> {
+function loadExistingClaims(): Array<{
+  slug: string;
+  claim: string;
+  confidence: number;
+  tags: ReadonlyArray<string>;
+}> {
   if (!existsSync(CLAIMS_DIR)) return [];
   return readdirSync(CLAIMS_DIR)
     .filter((f) => f.endsWith(".md"))
@@ -63,7 +71,8 @@ function loadExistingClaims(): Array<{ slug: string; claim: string; confidence: 
         const parsed = matter(readFileSync(join(CLAIMS_DIR, f), "utf8"));
         const slug = f.slice(0, -3);
         const claim = typeof parsed.data["claim"] === "string" ? parsed.data["claim"] : "";
-        const confidence = typeof parsed.data["confidence"] === "number" ? parsed.data["confidence"] : 0;
+        const confidence =
+          typeof parsed.data["confidence"] === "number" ? parsed.data["confidence"] : 0;
         const tags = Array.isArray(parsed.data["tags"]) ? (parsed.data["tags"] as string[]) : [];
         return [{ slug, claim, confidence, tags }];
       } catch {
@@ -100,8 +109,12 @@ function parseArgs(argv: ReadonlyArray<string>): Args {
 /** Resolves a slug-or-path to a full path inside THOUGHTS_DIR; throws with exit code 2 semantics. */
 function resolveThoughtPath(slugOrPath: string): string {
   if (slugOrPath.endsWith(".md") && existsSync(slugOrPath)) return resolve(slugOrPath);
-  const candidate = join(THOUGHTS_DIR, slugOrPath.endsWith(".md") ? slugOrPath : `${slugOrPath}.md`);
-  if (!existsSync(candidate)) throw Object.assign(new Error(`thought not found: ${slugOrPath}`), { exitCode: 2 });
+  const candidate = join(
+    THOUGHTS_DIR,
+    slugOrPath.endsWith(".md") ? slugOrPath : `${slugOrPath}.md`,
+  );
+  if (!existsSync(candidate))
+    throw Object.assign(new Error(`thought not found: ${slugOrPath}`), { exitCode: 2 });
   return candidate;
 }
 
@@ -124,16 +137,25 @@ function collectThoughtPaths(args: Args, state: DerivationState): string[] {
 }
 
 /** Merges evidence and opposing from a proposal into an existing claim file. */
-async function mergeIntoExistingClaim(claimPath: string, proposal: ClaimProposal, nowISO: string, dryRun: boolean): Promise<void> {
+async function mergeIntoExistingClaim(
+  claimPath: string,
+  proposal: ClaimProposal,
+  nowISO: string,
+  dryRun: boolean,
+): Promise<void> {
   if (dryRun) {
     process.stdout.write(`[dry-run] would merge evidence into ${claimPath}\n`);
     return;
   }
   await patchFrontmatter(claimPath, (data) => {
-    const ev: Array<{ url?: string; note?: string }> = Array.isArray(data["evidence"]) ? (data["evidence"] as Array<{ url?: string; note?: string }>) : [];
+    const ev: Array<{ url?: string; note?: string }> = Array.isArray(data["evidence"])
+      ? (data["evidence"] as Array<{ url?: string; note?: string }>)
+      : [];
     for (const e of proposal.evidence) ev.push(e);
     const opp: string[] = Array.isArray(data["opposing"]) ? (data["opposing"] as string[]) : [];
-    for (const o of proposal.opposing) { if (!opp.includes(o)) opp.push(o); }
+    for (const o of proposal.opposing) {
+      if (!opp.includes(o)) opp.push(o);
+    }
     data["evidence"] = ev;
     data["opposing"] = opp;
     data["last_reviewed"] = nowISO.slice(0, 10);
@@ -182,7 +204,10 @@ async function main(): Promise<void> {
 
     if (candidates.length === 0) {
       if (!args.dryRun) {
-        state[slug] = { lastProcessedAt: nowISO, lastModifiedSeen: statSync(thoughtPath).mtime.toISOString() };
+        state[slug] = {
+          lastProcessedAt: nowISO,
+          lastModifiedSeen: statSync(thoughtPath).mtime.toISOString(),
+        };
       }
       continue;
     }
@@ -225,14 +250,18 @@ async function main(): Promise<void> {
             try {
               parsed = matter(edited);
             } catch (err) {
-              process.stderr.write(`YAML parse error: ${(err as Error).message}\nRe-opening editor...\n`);
+              process.stderr.write(
+                `YAML parse error: ${(err as Error).message}\nRe-opening editor...\n`,
+              );
               continue;
             }
             const result = claimSchema.safeParse(parsed.data);
             if (result.success) {
               valid = true;
             } else {
-              process.stderr.write(`Validation error: ${result.error.message}\nRe-opening editor...\n`);
+              process.stderr.write(
+                `Validation error: ${result.error.message}\nRe-opening editor...\n`,
+              );
             }
           }
           const claimPath = join(CLAIMS_DIR, `${cSlug}.md`);
@@ -261,7 +290,9 @@ async function main(): Promise<void> {
         key: "d",
         label: "defer",
         handle: (payload) => {
-          const existing = deferrals.findIndex((d) => d.thoughtSlug === slug && d.proposal.claim === payload.claim);
+          const existing = deferrals.findIndex(
+            (d) => d.thoughtSlug === slug && d.proposal.claim === payload.claim,
+          );
           if (existing === -1) deferrals.push({ thoughtSlug: slug, proposal: payload });
           if (!args.dryRun) writeJsonState(DEFERRALS_FILE, deferrals);
           tally.deferred++;
@@ -274,7 +305,9 @@ async function main(): Promise<void> {
         handle: async (payload) => {
           let targetSlug: string;
           if (payload.mergeCandidates.length > 0) {
-            process.stdout.write(`Merge candidates:\n${payload.mergeCandidates.map((c, i) => `  ${i + 1}. ${c.slug} — ${c.reason}`).join("\n")}\nEnter slug to merge into: `);
+            process.stdout.write(
+              `Merge candidates:\n${payload.mergeCandidates.map((c, i) => `  ${i + 1}. ${c.slug} — ${c.reason}`).join("\n")}\nEnter slug to merge into: `,
+            );
             targetSlug = payload.mergeCandidates[0]!.slug;
           } else {
             process.stdout.write("Enter slug of existing claim to merge into: ");
@@ -296,15 +329,18 @@ async function main(): Promise<void> {
     await runReview(proposals, actions);
 
     if (!args.dryRun) {
-      state[slug] = { lastProcessedAt: nowISO, lastModifiedSeen: statSync(thoughtPath).mtime.toISOString() };
+      state[slug] = {
+        lastProcessedAt: nowISO,
+        lastModifiedSeen: statSync(thoughtPath).mtime.toISOString(),
+      };
       writeJsonState(STATE_FILE, state);
     }
   }
 
   process.stdout.write(
     `processed ${thoughtPaths.length} thoughts, ${totalProposals} proposals, ` +
-    `${tally.accepted} accepted, ${tally.edited} edited, ${tally.rejected} rejected, ` +
-    `${tally.deferred} deferred, ${tally.merged} merged\n`,
+      `${tally.accepted} accepted, ${tally.edited} edited, ${tally.rejected} rejected, ` +
+      `${tally.deferred} deferred, ${tally.merged} merged\n`,
   );
 }
 

@@ -14,14 +14,18 @@ export interface Bucket {
 }
 
 /** Direction-correct: a prediction with confidence ≥ 0.5 is correct iff resolution=true; below 0.5 the inverse. */
-export function isDirectionallyCorrect(p: Pick<Prediction, "confidence" | "resolution">): boolean | null {
+export function isDirectionallyCorrect(
+  p: Pick<Prediction, "confidence" | "resolution">,
+): boolean | null {
   if (p.resolution === "true") return p.confidence >= 0.5;
   if (p.resolution === "false") return p.confidence < 0.5;
   return null;
 }
 
 /** Bucketed calibration over all resolved predictions; ambiguous and pending are filtered out upstream. */
-export function calibration(predictions: ReadonlyArray<Pick<Prediction, "confidence" | "resolution">>): ReadonlyArray<Bucket> {
+export function calibration(
+  predictions: ReadonlyArray<Pick<Prediction, "confidence" | "resolution">>,
+): ReadonlyArray<Bucket> {
   const buckets: { low: number; high: number; mid: number; total: number; correct: number }[] = [];
   for (let i = 0; i < 10; i++) {
     const low = i * BUCKET_WIDTH;

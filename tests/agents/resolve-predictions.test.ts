@@ -1,7 +1,7 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 /** Fixed "now" ISO for determinism. */
 const NOW_ISO = "2026-04-30T00:00:00.000Z";
@@ -32,7 +32,7 @@ function makeTempTree(): string {
 }
 
 /** Mock runToolCall to return a canned resolution draft. */
-function mockRunToolCall(vi: typeof import("vitest")["vi"]): void {
+function mockRunToolCall(vi: (typeof import("vitest"))["vi"]): void {
   vi.doMock("../../src/lib/llm.ts", () => ({
     runToolCall: vi.fn().mockResolvedValue({
       resolution: "true",
@@ -75,7 +75,12 @@ describe("runResolvePredictions — pure function", () => {
     mockRunToolCall(vi);
     const { runResolvePredictions } = await import("../../src/lib/agents/resolve-predictions.ts");
     const { readQueue } = await import("../../src/lib/proposal-queue.ts");
-    writePrediction(join(root, "content", "predictions"), "future-pred", "pending", RESOLVED_FUTURE);
+    writePrediction(
+      join(root, "content", "predictions"),
+      "future-pred",
+      "pending",
+      RESOLVED_FUTURE,
+    );
     const summary = await runResolvePredictions({ cwd: root, nowISO: NOW_ISO, skipLLM: false });
     expect(summary.scanned).toBe(0);
     expect(summary.proposed).toBe(0);

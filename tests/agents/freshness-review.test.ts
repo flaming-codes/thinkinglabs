@@ -1,7 +1,7 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 /** Fixed "now" ISO for determinism (2026-04-30). */
 const NOW_ISO = "2026-04-30T00:00:00.000Z";
@@ -41,7 +41,7 @@ function writePostNoStamps(dir: string, slug: string): void {
 }
 
 /** Mock runToolCall to return a canned freshness review draft. */
-function mockRunToolCall(vi: typeof import("vitest")["vi"]): void {
+function mockRunToolCall(vi: (typeof import("vitest"))["vi"]): void {
   vi.doMock("../../src/lib/llm.ts", () => ({
     runToolCall: vi.fn().mockResolvedValue({
       whatMayHaveChanged: "The tooling landscape may have changed.",
@@ -147,7 +147,12 @@ describe("runFreshnessReview — pure function", () => {
       `---\ntitle: amber\ncreated: 2026-01-01\nupdated: 2026-01-01\ntags: []\nrelated_claims: []\nrelated_thoughts: []\n---\n\n## Amber {#amber last_verified="2026-03-11"}\n\nContent.\n`,
       "utf8",
     );
-    const summary = await runFreshnessReview({ cwd: root, nowISO: NOW_ISO, skipLLM: false, thresholdDays: 45 });
+    const summary = await runFreshnessReview({
+      cwd: root,
+      nowISO: NOW_ISO,
+      skipLLM: false,
+      thresholdDays: 45,
+    });
     expect(summary.flagged).toBe(1);
     expect(readQueue()).toHaveLength(1);
   });

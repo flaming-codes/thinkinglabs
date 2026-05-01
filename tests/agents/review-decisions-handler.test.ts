@@ -1,7 +1,7 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 /** Writes a minimal standing decision file; returns the absolute path. */
 function writeDecision(dir: string, slug: string): string {
@@ -15,8 +15,14 @@ function writeDecision(dir: string, slug: string): string {
 }
 
 /** Builds a minimal decision-followup-due QueuedProposal. */
-function makeProposal(target: string): import("../../src/lib/proposal-queue.ts").QueuedProposal & { payload: import("../../src/lib/agents/review-decisions.ts").DecisionFollowupPayload } {
-  const payload = { followUpOnISO: "2026-01-01", daysOverdue: 119, decisionTitle: "Use test-decision" };
+function makeProposal(target: string): import("../../src/lib/proposal-queue.ts").QueuedProposal & {
+  payload: import("../../src/lib/agents/review-decisions.ts").DecisionFollowupPayload;
+} {
+  const payload = {
+    followUpOnISO: "2026-01-01",
+    daysOverdue: 119,
+    decisionTitle: "Use test-decision",
+  };
   return {
     id: "test-review-decision-id",
     source: "review-decisions",
@@ -109,7 +115,11 @@ describe("review-decisions handler", () => {
 
     const queue = readQueue();
     const entry = queue[0]!;
-    const typed = { ...entry, payload: entry.payload as import("../../src/lib/agents/review-decisions.ts").DecisionFollowupPayload };
+    const typed = {
+      ...entry,
+      payload:
+        entry.payload as import("../../src/lib/agents/review-decisions.ts").DecisionFollowupPayload,
+    };
     const handler = getHandler("decision-followup-due");
     if (handler.reject) await handler.reject(typed);
 

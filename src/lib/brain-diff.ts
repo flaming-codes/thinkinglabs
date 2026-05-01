@@ -45,12 +45,21 @@ export interface FeedEntry {
 }
 
 /** Tracked path prefixes; ordering matches the kind names so classify() can pattern-match cheaply. */
-const TRACKED_PREFIXES = ["claims/", "decisions/", "predictions/", "thoughts/", "projects/", "posts/"] as const;
+const TRACKED_PREFIXES = [
+  "claims/",
+  "decisions/",
+  "predictions/",
+  "thoughts/",
+  "projects/",
+  "posts/",
+] as const;
 
 /** True iff `path` is one of the tracked content kinds; pure so the walker, classifier, and predicates share it. */
 export function isTrackedPath(path: string): boolean {
-  return TRACKED_PREFIXES.some((p) => path.startsWith(`content/${p}`)) ||
-    TRACKED_PREFIXES.some((p) => path.startsWith(p));
+  return (
+    TRACKED_PREFIXES.some((p) => path.startsWith(`content/${p}`)) ||
+    TRACKED_PREFIXES.some((p) => path.startsWith(p))
+  );
 }
 
 /** Strips a leading `content/` so callers can match on `claims/foo.md` regardless of repo layout. */
@@ -59,7 +68,11 @@ function tracked(path: string): string {
 }
 
 /** Reads any field that may have changed between old/new frontmatter; null when both are absent. */
-function fmChanged(o: Record<string, unknown> | undefined, n: Record<string, unknown> | undefined, key: string): boolean {
+function fmChanged(
+  o: Record<string, unknown> | undefined,
+  n: Record<string, unknown> | undefined,
+  key: string,
+): boolean {
   return JSON.stringify(o?.[key]) !== JSON.stringify(n?.[key]);
 }
 
@@ -69,7 +82,10 @@ export function classify(file: FileDiff): EntryType {
   if (p.startsWith("claims/")) {
     if (file.status === "A") return "new-claim";
     if (file.status === "M") {
-      if (file.newFrontmatter?.["status"] === "deprecated" && file.oldFrontmatter?.["status"] !== "deprecated") {
+      if (
+        file.newFrontmatter?.["status"] === "deprecated" &&
+        file.oldFrontmatter?.["status"] !== "deprecated"
+      ) {
         return "claim-deprecated";
       }
       return "claim-revised";
@@ -80,17 +96,28 @@ export function classify(file: FileDiff): EntryType {
       const reverses = file.newFrontmatter?.["reverses"];
       if (Array.isArray(reverses) && reverses.length > 0) return "decision-reversed";
     }
-    if (file.status === "M" && file.newFrontmatter?.["status"] === "reversed" && file.oldFrontmatter?.["status"] !== "reversed") {
+    if (
+      file.status === "M" &&
+      file.newFrontmatter?.["status"] === "reversed" &&
+      file.oldFrontmatter?.["status"] !== "reversed"
+    ) {
       return "decision-reversed";
     }
   }
   if (p.startsWith("predictions/") && file.status === "M") {
-    if (fmChanged(file.oldFrontmatter, file.newFrontmatter, "resolution") && file.newFrontmatter?.["resolution"] !== "pending") {
+    if (
+      fmChanged(file.oldFrontmatter, file.newFrontmatter, "resolution") &&
+      file.newFrontmatter?.["resolution"] !== "pending"
+    ) {
       return "prediction-resolved";
     }
   }
   if (p.startsWith("thoughts/") && file.status === "M") return "thought-substantively-updated";
-  if (p.startsWith("projects/") && file.status === "M" && fmChanged(file.oldFrontmatter, file.newFrontmatter, "status")) {
+  if (
+    p.startsWith("projects/") &&
+    file.status === "M" &&
+    fmChanged(file.oldFrontmatter, file.newFrontmatter, "status")
+  ) {
     return "project-status-changed";
   }
   if (p.startsWith("posts/") && file.status === "M") return "post-section-reverified";
@@ -132,9 +159,18 @@ function isRefLike(s: string): boolean {
 }
 
 /** Walks commits since `since` (a ref or date), yielding only tracked-content changes. */
-export function walkCommits({ since, cwd = process.cwd() }: { since: string; cwd?: string }): CommitDiff[] {
+export function walkCommits({
+  since,
+  cwd = process.cwd(),
+}: {
+  since: string;
+  cwd?: string;
+}): CommitDiff[] {
   const args = isRefLike(since) ? [`${since}..HEAD`] : [`--since=${since}`];
-  const log = git(["log", ...args, "--pretty=format:%H\t%cI\t%s", "--name-status", "--reverse"], cwd);
+  const log = git(
+    ["log", ...args, "--pretty=format:%H\t%cI\t%s", "--name-status", "--reverse"],
+    cwd,
+  );
   const lines = log.split("\n");
   const out: CommitDiff[] = [];
   let current: { sha: string; isoDate: string; subject: string; files: FileDiff[] } | null = null;
@@ -166,7 +202,12 @@ export function walkCommits({ since, cwd = process.cwd() }: { since: string; cwd
 
 /** XML-escape; only the five characters that matter inside element text. */
 function xmlEscape(s: string): string {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
 }
 
 /** Title an entry from its path; the renderer picks `<kind>/<slug>` so atom and json titles agree. */
@@ -175,7 +216,10 @@ function titleFor(file: FileDiff): string {
 }
 
 /** Assemble the user-visible title from path + commit; consumed by both formatters. */
-export function buildEntries(commits: ReadonlyArray<CommitDiff>, scored?: ReadonlyMap<string, { score: number; summary: string }>): FeedEntry[] {
+export function buildEntries(
+  commits: ReadonlyArray<CommitDiff>,
+  scored?: ReadonlyMap<string, { score: number; summary: string }>,
+): FeedEntry[] {
   const out: FeedEntry[] = [];
   for (const c of commits) {
     for (const f of c.files) {
@@ -198,7 +242,8 @@ export function buildEntries(commits: ReadonlyArray<CommitDiff>, scored?: Readon
 /** Generic feed predicate-by-type; specialized JSONs share this shape so adding a feed is one entry. */
 export const FEED_PREDICATES = {
   "predictions-resolved": (e: FeedEntry) => e.type === "prediction-resolved",
-  "claims-revised": (e: FeedEntry) => e.type === "claim-revised" || e.type === "new-claim" || e.type === "claim-deprecated",
+  "claims-revised": (e: FeedEntry) =>
+    e.type === "claim-revised" || e.type === "new-claim" || e.type === "claim-deprecated",
   "decisions-reversed": (e: FeedEntry) => e.type === "decision-reversed",
 } as const;
 
@@ -216,7 +261,10 @@ export function formatJson(entries: ReadonlyArray<FeedEntry>, kind = "brain-diff
 }
 
 /** Build an RFC 4287 atom feed; minimal but valid (id, title, updated; per-entry id/title/summary/link). */
-export function formatAtom(entries: ReadonlyArray<FeedEntry>, opts: { siteUrl?: string } = {}): string {
+export function formatAtom(
+  entries: ReadonlyArray<FeedEntry>,
+  opts: { siteUrl?: string } = {},
+): string {
   const site = opts.siteUrl ?? "https://tom.wild.as";
   const updated = entries[0]?.isoDate ?? buildNowISO();
   const head = [

@@ -1,4 +1,5 @@
 # ADR-011 — Embedded scoped agents
+
 - **Status**: Accepted
 - **Date**: 2026-05-01
 - **Supersedes**: —

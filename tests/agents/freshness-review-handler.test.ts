@@ -1,7 +1,7 @@
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 /** Writes a minimal post with one stamped section; returns the absolute path. */
 function writePost(dir: string, slug: string): string {
@@ -18,7 +18,9 @@ function writePost(dir: string, slug: string): string {
 function makeProposal(
   target: string,
   recommendation: "confirm-still-true" | "revise" | "deprecate" = "confirm-still-true",
-): import("../../src/lib/proposal-queue.ts").QueuedProposal & { payload: import("../../src/lib/agents/freshness-review.ts").PostSectionRestampPayload } {
+): import("../../src/lib/proposal-queue.ts").QueuedProposal & {
+  payload: import("../../src/lib/agents/freshness-review.ts").PostSectionRestampPayload;
+} {
   const payload = {
     postSlug: "test-post",
     sectionAnchor: "old",

@@ -45,7 +45,11 @@ async function main(): Promise<void> {
     skipLLM = true;
   }
 
-  const summary = await runResolvePredictions({ cwd: args.cwd, nowISO: nowISO(), skipLLM: Boolean(skipLLM) });
+  const summary = await runResolvePredictions({
+    cwd: args.cwd,
+    nowISO: nowISO(),
+    skipLLM: Boolean(skipLLM),
+  });
 
   process.stdout.write(
     `scanned ${summary.scanned} items, proposed ${summary.proposed} (deduped ${summary.deduped}), skipped ${summary.skippedDueToLLM} (no LLM)\n`,

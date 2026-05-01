@@ -20,8 +20,6 @@
     "min_engagement": "2 hours"
   },
   "fastest_no": "Reply with `intent: decline-check` and the agent will tell you whether to bother sending the full inquiry.",
-  "channels": [
-    { "type": "email", "address": "tom@wild.as" }
-  ],
+  "channels": [{ "type": "email", "address": "tom@wild.as" }],
   "languages": ["en", "de"]
 }

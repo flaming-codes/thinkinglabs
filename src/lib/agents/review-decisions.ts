@@ -44,7 +44,9 @@ function rejectionsPath(cwd: string): string {
 export function runReviewDecisions(args: { cwd: string; nowISO: string }): ReviewDecisionsSummary {
   const { cwd, nowISO } = args;
   const decisions = walkMarkdown({ cwd, kind: "decisions" });
-  const standing = decisions.filter((d) => d.data["status"] === "standing" || d.data["status"] === undefined);
+  const standing = decisions.filter(
+    (d) => d.data["status"] === "standing" || d.data["status"] === undefined,
+  );
 
   const rejections = readJsonState<RejectionEntry[]>(rejectionsPath(cwd), []);
   const rejectionMap = new Map(rejections.map((r) => [r.slug, r.followUpOnISO]));
@@ -57,30 +59,40 @@ export function runReviewDecisions(args: { cwd: string; nowISO: string }): Revie
   for (const decision of standing) {
     const followUpRaw = decision.data["follow_up_on"];
     if (!followUpRaw) continue;
-    const followUpOnISO = followUpRaw instanceof Date ? followUpRaw.toISOString() : String(followUpRaw);
+    const followUpOnISO =
+      followUpRaw instanceof Date ? followUpRaw.toISOString() : String(followUpRaw);
     if (followUpOnISO > nowISO) continue;
 
     const rejectedSnapshot = rejectionMap.get(decision.slug);
     if (rejectedSnapshot !== undefined && rejectedSnapshot === followUpOnISO) continue;
 
     const daysOverdue = daysBetween(followUpOnISO, nowISO);
-    const decisionTitle = typeof decision.data["decision"] === "string" ? decision.data["decision"] : decision.slug;
+    const decisionTitle =
+      typeof decision.data["decision"] === "string" ? decision.data["decision"] : decision.slug;
 
     const payload: DecisionFollowupPayload = { followUpOnISO, daysOverdue, decisionTitle };
-    const id = proposalId("review-decisions", "decision-followup-due", decision.path, { followUpOnISO });
+    const id = proposalId("review-decisions", "decision-followup-due", decision.path, {
+      followUpOnISO,
+    });
 
-    if (existingIds.has(id)) { deduped++; continue; }
+    if (existingIds.has(id)) {
+      deduped++;
+      continue;
+    }
 
-    enqueue({
-      id,
-      source: "review-decisions",
-      type: "decision-followup-due",
-      createdAt: nowISO,
-      target: decision.path,
-      title: `Review decision: ${decision.slug}`,
-      preview: `"${decisionTitle}" — follow_up_on was ${followUpOnISO.slice(0, 10)}, ${daysOverdue} days overdue. Open in editor to confirm or reverse.`,
-      payload,
-    }, cwd);
+    enqueue(
+      {
+        id,
+        source: "review-decisions",
+        type: "decision-followup-due",
+        createdAt: nowISO,
+        target: decision.path,
+        title: `Review decision: ${decision.slug}`,
+        preview: `"${decisionTitle}" — follow_up_on was ${followUpOnISO.slice(0, 10)}, ${daysOverdue} days overdue. Open in editor to confirm or reverse.`,
+        payload,
+      },
+      cwd,
+    );
     proposed++;
   }
 
@@ -88,7 +100,9 @@ export function runReviewDecisions(args: { cwd: string; nowISO: string }): Revie
 }
 
 /** Opens the decision file in $EDITOR; apply ≡ edit since the only meaningful action is a human review. */
-async function openInEditor(proposal: QueuedProposal & { payload: DecisionFollowupPayload }): Promise<string> {
+async function openInEditor(
+  proposal: QueuedProposal & { payload: DecisionFollowupPayload },
+): Promise<string> {
   if (!proposal.target) throw new Error("review-decisions: missing target path");
   const raw = readFileSync(proposal.target, "utf8");
   const edited = await editInEditor(raw, ".md");

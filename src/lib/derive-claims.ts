@@ -33,7 +33,9 @@ export interface ProposeClaimsArgs {
 const proposalItemSchema = z.object({
   claim: z.string().min(1),
   confidence: z.number().min(0).max(1),
-  evidence: z.array(z.object({ url: z.string().optional(), note: z.string().optional() })).default([]),
+  evidence: z
+    .array(z.object({ url: z.string().optional(), note: z.string().optional() }))
+    .default([]),
   opposing: z.array(z.string()).default([]),
   reasoning: z.string().default(""),
   suggestedSlug: z.string().min(1),
@@ -77,16 +79,25 @@ const TOOL = {
 /** Builds the user-turn prompt including existing claims for merge detection. */
 function buildUserPrompt(args: ProposeClaimsArgs): string {
   const fm = JSON.stringify(args.thoughtFrontmatter, null, 2);
-  const existing = args.existingClaims.length > 0
-    ? `\n\nExisting claims (for merge detection):\n${args.existingClaims.map((c) => `- slug: ${c.slug}\n  claim: ${c.claim}\n  confidence: ${c.confidence}\n  tags: ${c.tags.join(", ")}`).join("\n")}`
-    : "";
+  const existing =
+    args.existingClaims.length > 0
+      ? `\n\nExisting claims (for merge detection):\n${args.existingClaims.map((c) => `- slug: ${c.slug}\n  claim: ${c.claim}\n  confidence: ${c.confidence}\n  tags: ${c.tags.join(", ")}`).join("\n")}`
+      : "";
   return `Thought slug: ${args.thoughtSlug}\nFrontmatter:\n${fm}\n\nBody:\n${args.thoughtBody}${existing}`;
 }
 
 /** Generates 3–10 proposals for one thought; returns [] when LLM is skipped. */
-export async function proposeClaimsForThought(args: ProposeClaimsArgs): Promise<ReadonlyArray<ClaimProposal>> {
+export async function proposeClaimsForThought(
+  args: ProposeClaimsArgs,
+): Promise<ReadonlyArray<ClaimProposal>> {
   if (args.skipLLM) return [];
-  const result = await runToolCall({ tier: "balanced", maxTokens: 4096, systemPrompt: SYSTEM_PROMPT, userPrompt: buildUserPrompt(args), tool: TOOL });
+  const result = await runToolCall({
+    tier: "balanced",
+    maxTokens: 4096,
+    systemPrompt: SYSTEM_PROMPT,
+    userPrompt: buildUserPrompt(args),
+    tool: TOOL,
+  });
   if (!result) return [];
   return result.proposals as ReadonlyArray<ClaimProposal>;
 }
@@ -120,7 +131,9 @@ export function proposalToClaimFile(
         for (const item of v as Record<string, string>[]) {
           const entries = Object.entries(item).filter(([, val]) => val !== undefined);
           if (entries.length > 0) {
-            lines.push(`  - ` + entries.map(([ik, iv]) => `${ik}: ${JSON.stringify(iv)}`).join("\n    "));
+            lines.push(
+              `  - ` + entries.map(([ik, iv]) => `${ik}: ${JSON.stringify(iv)}`).join("\n    "),
+            );
           }
         }
       } else {

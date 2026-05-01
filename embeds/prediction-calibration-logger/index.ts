@@ -33,12 +33,14 @@ export function loadCalibrationLogSnapshot(): CalibrationLogSnapshot {
 /** Computes deterministic calibration summary values from static samples. */
 export function summarizeCalibrationLog(snapshot: CalibrationLogSnapshot): CalibrationLogSummary {
   const sampleCount = snapshot.samples.length;
-  const averageConfidence = snapshot.samples.reduce((sum, sample) => sum + sample.confidence, 0) / sampleCount;
+  const averageConfidence =
+    snapshot.samples.reduce((sum, sample) => sum + sample.confidence, 0) / sampleCount;
   const hitRate = snapshot.samples.filter((sample) => sample.resolved).length / sampleCount;
-  const brierScore = snapshot.samples.reduce((sum, sample) => {
-    const outcome = sample.resolved ? 1 : 0;
-    return sum + (sample.confidence - outcome) ** 2;
-  }, 0) / sampleCount;
+  const brierScore =
+    snapshot.samples.reduce((sum, sample) => {
+      const outcome = sample.resolved ? 1 : 0;
+      return sum + (sample.confidence - outcome) ** 2;
+    }, 0) / sampleCount;
   return { sampleCount, averageConfidence, hitRate, brierScore };
 }
 
@@ -48,7 +50,9 @@ export function percent(value: number): string {
 }
 
 /** Builds the no-JS fallback rows for the local calibration logger. */
-export function calibrationFallbackRows(snapshot: CalibrationLogSnapshot): readonly EmbeddedFallbackRow[] {
+export function calibrationFallbackRows(
+  snapshot: CalibrationLogSnapshot,
+): readonly EmbeddedFallbackRow[] {
   const summary = summarizeCalibrationLog(snapshot);
   return [
     { label: "Static sample", value: `${summary.sampleCount} logged predictions` },
@@ -67,7 +71,8 @@ export const predictionCalibrationLogger = defineEmbeddedTool({
     title: "Prediction calibration logger",
     kind: "local-prediction-calibration-logger",
     version: 1,
-    summary: "Log a local confidence estimate against a static calibration sample without sending data anywhere.",
+    summary:
+      "Log a local confidence estimate against a static calibration sample without sending data anywhere.",
     scope: {
       endpoint: "/api/embed/prediction-calibration-logger.json",
       storageKey: "me.embed.prediction-calibration-logger.v1",

@@ -1,7 +1,7 @@
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { collectObjects, writeIndex } from "../src/index/builder.ts";
 import { KINDS } from "../src/schemas/index.ts";
 
@@ -14,9 +14,9 @@ function buildOnce(contentRoot: string, repoRoot: string, outFile: string): Buff
 
 describe("index builder", () => {
   it("produces byte-identical output for the same content twice", () => {
-      const root = mkdtempSync(join(tmpdir(), "me-index-"));
-      try {
-        const content = join(root, "content");
+    const root = mkdtempSync(join(tmpdir(), "me-index-"));
+    try {
+      const content = join(root, "content");
       for (const k of KINDS) {
         mkdirSync(join(content, k), { recursive: true });
       }

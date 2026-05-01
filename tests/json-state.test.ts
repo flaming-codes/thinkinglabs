@@ -1,13 +1,16 @@
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { describe, expect, it, afterEach } from "vitest";
+import { describe, expect, it, afterEach } from "vite-plus/test";
 import { readJsonState, writeJsonState } from "../src/lib/json-state.ts";
 
 let tmpDir: string | null = null;
 
 afterEach(() => {
-  if (tmpDir) { rmSync(tmpDir, { recursive: true, force: true }); tmpDir = null; }
+  if (tmpDir) {
+    rmSync(tmpDir, { recursive: true, force: true });
+    tmpDir = null;
+  }
 });
 
 /** Returns a path inside a fresh temp directory. */

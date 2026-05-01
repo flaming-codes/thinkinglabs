@@ -12,7 +12,9 @@ export interface ClaimHistoryEntry {
 }
 
 /** Parse walkFileHistory output into typed snapshots; entries with unparsable frontmatter are silently skipped — partial history is better than a render crash. */
-export function parseClaimHistory(entries: ReadonlyArray<FileHistoryEntry>): ReadonlyArray<ClaimHistoryEntry> {
+export function parseClaimHistory(
+  entries: ReadonlyArray<FileHistoryEntry>,
+): ReadonlyArray<ClaimHistoryEntry> {
   const out: ClaimHistoryEntry[] = [];
   for (const e of entries) {
     try {

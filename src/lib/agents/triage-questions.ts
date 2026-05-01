@@ -1,4 +1,11 @@
-import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  renameSync,
+  writeFileSync,
+} from "node:fs";
 import { basename, join, relative, resolve } from "node:path";
 import matter from "gray-matter";
 import { z } from "zod";
@@ -118,7 +125,9 @@ function buildUserPrompt(args: {
   responderName: string;
 }): string {
   const fm = JSON.stringify(args.questionFrontmatter, null, 2);
-  const creds = args.responderCredentials ? `\nResponder credentials: ${args.responderCredentials}` : "";
+  const creds = args.responderCredentials
+    ? `\nResponder credentials: ${args.responderCredentials}`
+    : "";
   return `Question slug: ${args.questionSlug}
 Question frontmatter:
 ${fm}
@@ -154,7 +163,11 @@ function moveToAccepted(cwd: string, submissionPath: string, questionSlug: strin
 }
 
 /** Walks submissions, triages each one, enqueues proposals; returns a summary tally. */
-export async function runTriageQuestions(args: { cwd: string; nowISO: string; skipLLM: boolean }): Promise<TriageQuestionsSummary> {
+export async function runTriageQuestions(args: {
+  cwd: string;
+  nowISO: string;
+  skipLLM: boolean;
+}): Promise<TriageQuestionsSummary> {
   const { cwd, nowISO, skipLLM } = args;
   const cwdResolved = resolve(cwd);
 
@@ -181,7 +194,11 @@ export async function runTriageQuestions(args: { cwd: string; nowISO: string; sk
     } catch (e) {
       const invalidDir = join(cwdResolved, "submissions", "_invalid");
       moveTo(filePath, invalidDir);
-      writeFileSync(join(invalidDir, `${submissionId}.error.txt`), `JSON parse error: ${String(e)}`, "utf8");
+      writeFileSync(
+        join(invalidDir, `${submissionId}.error.txt`),
+        `JSON parse error: ${String(e)}`,
+        "utf8",
+      );
       invalidMoved++;
       continue;
     }
@@ -190,7 +207,11 @@ export async function runTriageQuestions(args: { cwd: string; nowISO: string; sk
     if (!parsed.success) {
       const invalidDir = join(cwdResolved, "submissions", "_invalid");
       moveTo(filePath, invalidDir);
-      writeFileSync(join(invalidDir, `${submissionId}.error.txt`), `Validation error: ${parsed.error.message}`, "utf8");
+      writeFileSync(
+        join(invalidDir, `${submissionId}.error.txt`),
+        `Validation error: ${parsed.error.message}`,
+        "utf8",
+      );
       invalidMoved++;
       continue;
     }
@@ -257,7 +278,10 @@ export async function runTriageQuestions(args: { cwd: string; nowISO: string; sk
       receivedAt: submission.receivedAt,
       submissionPath: relPath,
     });
-    if (existingIds.has(id)) { deduped++; continue; }
+    if (existingIds.has(id)) {
+      deduped++;
+      continue;
+    }
 
     const responderLabel = submission.responder.affiliation
       ? `${submission.responder.name} (${submission.responder.affiliation})`
@@ -265,20 +289,31 @@ export async function runTriageQuestions(args: { cwd: string; nowISO: string; sk
 
     const scoreLabel = ` (relevance ${draft.relevanceScore.toFixed(2)})`;
 
-    enqueue({
-      id,
-      source: "triage-questions",
-      type: "question-answer-curate",
-      createdAt: nowISO,
-      target: questionPath,
-      title: `Answer to ${submission.questionSlug} from ${responderLabel}`,
-      preview: `${submission.questionSlug}: answer from ${responderLabel}${scoreLabel}. ${draft.reasoning}`,
-      payload,
-    }, cwd);
+    enqueue(
+      {
+        id,
+        source: "triage-questions",
+        type: "question-answer-curate",
+        createdAt: nowISO,
+        target: questionPath,
+        title: `Answer to ${submission.questionSlug} from ${responderLabel}`,
+        preview: `${submission.questionSlug}: answer from ${responderLabel}${scoreLabel}. ${draft.reasoning}`,
+        payload,
+      },
+      cwd,
+    );
     proposed++;
   }
 
-  return { scanned: files.length, valid, invalidMoved, orphanedMoved, scoredBelow, proposed, deduped };
+  return {
+    scanned: files.length,
+    valid,
+    invalidMoved,
+    orphanedMoved,
+    scoredBelow,
+    proposed,
+    deduped,
+  };
 }
 
 /** Handler registered at module load for the review-proposals CLI. */
@@ -288,7 +323,9 @@ const handler = {
   parse(proposal: QueuedProposal): QuestionAnswerCuratePayload {
     return QuestionAnswerCuratePayload.parse(proposal.payload);
   },
-  async apply(proposal: QueuedProposal & { payload: QuestionAnswerCuratePayload }): Promise<string> {
+  async apply(
+    proposal: QueuedProposal & { payload: QuestionAnswerCuratePayload },
+  ): Promise<string> {
     if (!proposal.target) throw new Error("triage-questions apply: missing target path");
     const { payload } = proposal;
     const cwd = resolve(process.cwd());
@@ -296,7 +333,9 @@ const handler = {
     const heading = answerHeading(payload.responder.name, payload.receivedAt);
     const body = answerSectionBody(payload.suggestedAnswer, payload.pointers);
     appendSection(proposal.target, heading, body);
-    await patchFrontmatter(proposal.target, (data) => { data["status"] = "partial"; });
+    await patchFrontmatter(proposal.target, (data) => {
+      data["status"] = "partial";
+    });
     if (existsSync(submissionAbs)) moveToAccepted(cwd, submissionAbs, payload.questionSlug);
     return `appended answer from ${payload.responder.name} to ${proposal.target}`;
   },

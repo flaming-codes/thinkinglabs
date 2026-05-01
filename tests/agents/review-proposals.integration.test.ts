@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { PassThrough } from "node:stream";
 import matter from "gray-matter";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { runDormantFlip } from "../../src/lib/agents/dormant-flip.ts";
 import { runProposalsReview } from "../../scripts/review-proposals.ts";
 import { readQueue } from "../../src/lib/proposal-queue.ts";
@@ -60,7 +60,10 @@ describe("dormant-flip + review-proposals round-trip (integration)", () => {
         const projectPath = writeProject(join(root, "content", "projects"), "stale-proj", 100);
 
         execFileSync("git", ["init"], { cwd: root, stdio: "ignore" });
-        execFileSync("git", ["config", "user.email", "test@test.com"], { cwd: root, stdio: "ignore" });
+        execFileSync("git", ["config", "user.email", "test@test.com"], {
+          cwd: root,
+          stdio: "ignore",
+        });
         execFileSync("git", ["config", "user.name", "Test"], { cwd: root, stdio: "ignore" });
         execFileSync("git", ["add", "."], { cwd: root, stdio: "ignore" });
         const pastDate = new Date(Date.now() - 100 * 86_400_000).toISOString();
@@ -109,7 +112,10 @@ describe("dormant-flip + review-proposals round-trip (integration)", () => {
         const projectPath = writeProject(join(root, "content", "projects"), "stale-project", 100);
 
         execFileSync("git", ["init"], { cwd: root, stdio: "ignore" });
-        execFileSync("git", ["config", "user.email", "test@test.com"], { cwd: root, stdio: "ignore" });
+        execFileSync("git", ["config", "user.email", "test@test.com"], {
+          cwd: root,
+          stdio: "ignore",
+        });
         execFileSync("git", ["config", "user.name", "Test"], { cwd: root, stdio: "ignore" });
         execFileSync("git", ["add", "."], { cwd: root, stdio: "ignore" });
         const pastDate = new Date(Date.now() - 100 * 86_400_000).toISOString();
@@ -119,24 +125,28 @@ describe("dormant-flip + review-proposals round-trip (integration)", () => {
           env: { ...process.env, GIT_AUTHOR_DATE: pastDate, GIT_COMMITTER_DATE: pastDate },
         });
 
-        const flipResult = spawnSync(
-          "tsx",
-          [DORMANT_FLIP_SCRIPT, "--threshold", "60"],
-          { cwd: root, encoding: "utf8", timeout: 30_000 },
-        );
+        const flipResult = spawnSync("tsx", [DORMANT_FLIP_SCRIPT, "--threshold", "60"], {
+          cwd: root,
+          encoding: "utf8",
+          timeout: 30_000,
+        });
         expect(flipResult.status).toBe(0);
         expect(flipResult.stdout).toMatch(/proposed [1-9]/);
 
-        const queueRaw = JSON.parse(readFileSync(join(root, ".proposal-queue.json"), "utf8")) as { proposals: unknown[] };
+        const queueRaw = JSON.parse(readFileSync(join(root, ".proposal-queue.json"), "utf8")) as {
+          proposals: unknown[];
+        };
         expect(queueRaw.proposals).toHaveLength(1);
 
-        const dryRunResult = spawnSync(
-          "tsx",
-          [REVIEW_SCRIPT, "--dry-run"],
-          { cwd: root, encoding: "utf8", timeout: 30_000 },
-        );
+        const dryRunResult = spawnSync("tsx", [REVIEW_SCRIPT, "--dry-run"], {
+          cwd: root,
+          encoding: "utf8",
+          timeout: 30_000,
+        });
         expect(dryRunResult.status).toBe(0);
-        const queueAfterDryRun = JSON.parse(readFileSync(join(root, ".proposal-queue.json"), "utf8")) as { proposals: unknown[] };
+        const queueAfterDryRun = JSON.parse(
+          readFileSync(join(root, ".proposal-queue.json"), "utf8"),
+        ) as { proposals: unknown[] };
         expect(queueAfterDryRun.proposals).toHaveLength(1);
 
         const { data } = matter(readFileSync(projectPath, "utf8"));

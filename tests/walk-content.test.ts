@@ -1,12 +1,14 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 import { walkMarkdown } from "../src/lib/walk-content.ts";
 
 /** Creates a minimal markdown file at the given path. */
 function writeMarkdown(path: string, fm: Record<string, unknown>, body: string): void {
-  const fmLines = Object.entries(fm).map(([k, v]) => `${k}: ${JSON.stringify(v)}`).join("\n");
+  const fmLines = Object.entries(fm)
+    .map(([k, v]) => `${k}: ${JSON.stringify(v)}`)
+    .join("\n");
   writeFileSync(path, `---\n${fmLines}\n---\n${body}`, "utf8");
 }
 
@@ -75,7 +77,11 @@ describe("walkMarkdown", () => {
   it("returns correct path, data, and content fields", () => {
     const dir = join(tmpDir, "content", "thoughts");
     mkdirSync(dir, { recursive: true });
-    writeMarkdown(join(dir, "my-thought.md"), { title: "My Thought", tags: ["a"] }, "the body text");
+    writeMarkdown(
+      join(dir, "my-thought.md"),
+      { title: "My Thought", tags: ["a"] },
+      "the body text",
+    );
 
     const entries = walkMarkdown({ cwd: tmpDir, kind: "thoughts" });
     expect(entries).toHaveLength(1);

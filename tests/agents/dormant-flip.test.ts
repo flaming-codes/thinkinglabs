@@ -1,7 +1,7 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 /** Writes a minimal alive project frontmatter file into the temp tree. */
 function writeProject(dir: string, slug: string, daysAgo: number, status = "alive"): void {
@@ -64,7 +64,11 @@ describe("runDormantFlip — pure function", () => {
     const { readQueue } = await import("../../src/lib/proposal-queue.ts");
     writeProject(join(root, "content", "projects"), "stale-proj", 100);
     runDormantFlip({ cwd: root, nowISO: "2026-04-30T00:00:00.000Z", thresholdDays: 60 });
-    const second = runDormantFlip({ cwd: root, nowISO: "2026-05-02T00:00:00.000Z", thresholdDays: 60 });
+    const second = runDormantFlip({
+      cwd: root,
+      nowISO: "2026-05-02T00:00:00.000Z",
+      thresholdDays: 60,
+    });
     expect(second.proposed).toBe(0);
     expect(second.deduped).toBe(1);
     expect(readQueue()).toHaveLength(1);

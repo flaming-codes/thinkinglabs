@@ -30,6 +30,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm clean
       - run: pnpm typecheck
+      - run: pnpm check
       - run: pnpm build
         if: matrix.content-shape == 'empty'
       - run: pnpm build:fixtures

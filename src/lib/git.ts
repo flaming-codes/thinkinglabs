@@ -36,13 +36,21 @@ export function lastTouchedSync(filePath: string, cwd: string): string | null {
 
 /** Run `git` with the given args from `cwd`; returns stdout and lets non-zero exits throw. */
 export function git(args: ReadonlyArray<string>, cwd: string): string {
-  return execFileSync("git", args as string[], { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+  return execFileSync("git", args as string[], {
+    cwd,
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+  });
 }
 
 /** Read file content at a given commit, returning null when the path did not exist there. */
 export function showAt(cwd: string, ref: string, path: string): string | null {
   try {
-    return execFileSync("git", ["show", `${ref}:${path}`], { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
+    return execFileSync("git", ["show", `${ref}:${path}`], {
+      cwd,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    });
   } catch {
     return null;
   }
@@ -58,7 +66,10 @@ export interface FileHistoryEntry {
 }
 
 /** Walk every commit that touched `repoRelativePath`, oldest-first; returns [] on any git error so new/untracked files are silent. */
-export function walkFileHistory(cwd: string, repoRelativePath: string): ReadonlyArray<FileHistoryEntry> {
+export function walkFileHistory(
+  cwd: string,
+  repoRelativePath: string,
+): ReadonlyArray<FileHistoryEntry> {
   let log: string;
   try {
     log = execFileSync(
@@ -81,7 +92,9 @@ export function walkFileHistory(cwd: string, repoRelativePath: string): Readonly
     const subject = line.slice(second + 1).trim();
     const content = showAt(cwd, sha, repoRelativePath);
     if (content === null) continue;
-    const entry: FileHistoryEntry = subject ? { sha, isoDate, content, subject } : { sha, isoDate, content };
+    const entry: FileHistoryEntry = subject
+      ? { sha, isoDate, content, subject }
+      : { sha, isoDate, content };
     entries.push(entry);
   }
   return entries;

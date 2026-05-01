@@ -5,7 +5,8 @@ import { embeddedTools, findEmbeddedTool } from "../../../../embeds/index.ts";
 export const prerender = true;
 
 /** Generates one JSON path for each registered embedded scoped agent. */
-export const getStaticPaths: GetStaticPaths = () => embeddedTools.map((tool) => ({ params: { id: tool.contract.id } }));
+export const getStaticPaths: GetStaticPaths = () =>
+  embeddedTools.map((tool) => ({ params: { id: tool.contract.id } }));
 
 /** Returns the public static JSON payload for one embedded scoped agent. */
 export const GET: APIRoute = ({ params }) => {

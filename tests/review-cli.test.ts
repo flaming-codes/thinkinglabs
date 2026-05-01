@@ -1,5 +1,5 @@
 import { PassThrough } from "node:stream";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { runReview, type ReviewActionDef, type ReviewProposal } from "../src/lib/review-cli.ts";
 
 function makeProposal(id: string): ReviewProposal<string> {
@@ -42,7 +42,10 @@ describe("runReview", () => {
     const chunks: string[] = [];
     output.on("data", (d: Buffer) => chunks.push(d.toString()));
 
-    setTimeout(() => { input.write("x"); setTimeout(() => input.write("a"), 10); }, 0);
+    setTimeout(() => {
+      input.write("x");
+      setTimeout(() => input.write("a"), 10);
+    }, 0);
 
     const results = await runReview(proposals, makeActions(), { input, output });
     expect(results).toEqual(["accepted:payload-1"]);

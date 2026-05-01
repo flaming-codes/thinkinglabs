@@ -35,8 +35,20 @@ export interface QueuedProposal {
 /** Zod schema for QueuedProposal; validates the queue file at the system edge. */
 const queuedProposalSchema = z.object({
   id: z.string(),
-  source: z.enum(["dormant-flip", "review-decisions", "resolve-predictions", "freshness-review", "triage-questions"]),
-  type: z.enum(["project-flip-dormant", "decision-followup-due", "prediction-resolve", "post-section-restamp", "question-answer-curate"]),
+  source: z.enum([
+    "dormant-flip",
+    "review-decisions",
+    "resolve-predictions",
+    "freshness-review",
+    "triage-questions",
+  ]),
+  type: z.enum([
+    "project-flip-dormant",
+    "decision-followup-due",
+    "prediction-resolve",
+    "post-section-restamp",
+    "question-answer-curate",
+  ]),
   createdAt: z.string(),
   target: z.string().nullable(),
   title: z.string(),
@@ -90,9 +102,15 @@ function clearStaleLock(lock: string): void {
     const pid = readLockPid(lock);
     const ownerAlive = pid !== null && isProcessAlive(pid);
     if (!ownerAlive || ageMs > STALE_LOCK_MS) {
-      try { unlinkSync(lock); } catch { /* raced with another cleaner */ }
+      try {
+        unlinkSync(lock);
+      } catch {
+        /* raced with another cleaner */
+      }
     }
-  } catch { /* lock file vanished between attempts */ }
+  } catch {
+    /* lock file vanished between attempts */
+  }
 }
 
 /** Runs a synchronous queue mutation behind a short exclusive file lock with crash recovery. */
@@ -104,7 +122,11 @@ function withQueueLock<T>(cwd: string | undefined, fn: () => T): T {
   while (fd === null) {
     try {
       fd = openSync(lock, "wx");
-      try { writeFileSync(fd, String(process.pid)); } catch { /* pid stamp is advisory */ }
+      try {
+        writeFileSync(fd, String(process.pid));
+      } catch {
+        /* pid stamp is advisory */
+      }
     } catch {
       attempts++;
       const waited = Date.now() - started;
@@ -119,8 +141,16 @@ function withQueueLock<T>(cwd: string | undefined, fn: () => T): T {
   try {
     return fn();
   } finally {
-    try { closeSync(fd); } catch { /* fd may have been closed by signal handler */ }
-    try { unlinkSync(lock); } catch { /* lock already gone */ }
+    try {
+      closeSync(fd);
+    } catch {
+      /* fd may have been closed by signal handler */
+    }
+    try {
+      unlinkSync(lock);
+    } catch {
+      /* lock already gone */
+    }
   }
 }
 
@@ -172,7 +202,12 @@ function canonicalJson(value: unknown): string {
 }
 
 /** Pure helper computing the deterministic id from canonical JSON of the proposal identity fields. */
-export function proposalId(source: ProposalSource, type: ProposalType, target: string | null, payload: unknown): string {
+export function proposalId(
+  source: ProposalSource,
+  type: ProposalType,
+  target: string | null,
+  payload: unknown,
+): string {
   const canonical = canonicalJson({ payload, source, target, type });
   return createHash("sha256").update(canonical).digest("hex");
 }

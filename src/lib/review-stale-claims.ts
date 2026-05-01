@@ -7,7 +7,11 @@ import { runToolCall } from "./llm.ts";
 import { walkMarkdown } from "./walk-content.ts";
 
 /** Reasons a claim might be flagged for review; the union is closed so consumers can switch exhaustively. */
-export type StaleReason = "past-threshold" | "evidence-shift" | "contradicting-thought" | "deprecation-candidate";
+export type StaleReason =
+  | "past-threshold"
+  | "evidence-shift"
+  | "contradicting-thought"
+  | "deprecation-candidate";
 
 /** A flagged claim plus its diagnostic context; payload of a ReviewProposal in the CLI. */
 export interface StaleFlag {
@@ -17,7 +21,11 @@ export interface StaleFlag {
   readonly daysSinceReview: number;
   readonly reasons: ReadonlyArray<StaleReason>;
   readonly notes: ReadonlyArray<string>;
-  readonly relatedNewerObjects: ReadonlyArray<{ kind: "thought" | "post" | "input"; slug: string; touchedISO: string }>;
+  readonly relatedNewerObjects: ReadonlyArray<{
+    kind: "thought" | "post" | "input";
+    slug: string;
+    touchedISO: string;
+  }>;
 }
 
 /** Args accepted by detectStaleClaims. */
@@ -74,7 +82,12 @@ function sharesTag(a: ReadonlyArray<string>, b: ReadonlyArray<string>): boolean 
 /** Calls the LLM to detect whether newer objects shifted the evidential picture for the claim. */
 async function callShiftDetection(
   claimData: Record<string, unknown>,
-  newerObjects: ReadonlyArray<{ kind: "thought" | "post" | "input"; slug: string; touchedISO: string; content: string }>,
+  newerObjects: ReadonlyArray<{
+    kind: "thought" | "post" | "input";
+    slug: string;
+    touchedISO: string;
+    content: string;
+  }>,
 ): Promise<{ shifted: boolean; reasoning: string; contradicts: boolean }> {
   const claimContext = [
     `claim: ${String(claimData["claim"] ?? "")}`,
@@ -86,13 +99,22 @@ async function callShiftDetection(
     .map((o) => `[${o.kind}/${o.slug} — last touched ${o.touchedISO}]\n${o.content.slice(0, 800)}`)
     .join("\n\n---\n\n");
   const userMessage = `Claim:\n${claimContext}\n\nNewer related objects:\n${newerContext}`;
-  const result = await runToolCall({ tier: "balanced", maxTokens: 256, systemPrompt: SHIFT_SYSTEM_PROMPT, userPrompt: userMessage, tool: SHIFT_TOOL });
-  if (!result) return { shifted: false, reasoning: "LLM returned no tool call", contradicts: false };
+  const result = await runToolCall({
+    tier: "balanced",
+    maxTokens: 256,
+    systemPrompt: SHIFT_SYSTEM_PROMPT,
+    userPrompt: userMessage,
+    tool: SHIFT_TOOL,
+  });
+  if (!result)
+    return { shifted: false, reasoning: "LLM returned no tool call", contradicts: false };
   return result;
 }
 
 /** Scans the claims directory and returns flags; LLM is consulted only when shiftDetection is on. */
-export async function detectStaleClaims(args: DetectStaleClaimsArgs): Promise<ReadonlyArray<StaleFlag>> {
+export async function detectStaleClaims(
+  args: DetectStaleClaimsArgs,
+): Promise<ReadonlyArray<StaleFlag>> {
   const { cwd, nowISO, thresholdDays, skipLLM } = args;
 
   const claims = walkMarkdown({ cwd, kind: "claims" });
@@ -101,7 +123,10 @@ export async function detectStaleClaims(args: DetectStaleClaimsArgs): Promise<Re
   const inputs = walkMarkdown({ cwd, kind: "inputs" });
 
   /** Resolve last-touched ISO for a content object, falling back to git. */
-  async function touchedISO(obj: { path: string; data: Record<string, unknown> }): Promise<string | null> {
+  async function touchedISO(obj: {
+    path: string;
+    data: Record<string, unknown>;
+  }): Promise<string | null> {
     const fm = obj.data["last_touched"] ?? obj.data["updated"] ?? obj.data["consumed"];
     if (typeof fm === "string") return fm;
     if (fm instanceof Date) return fm.toISOString();
@@ -113,7 +138,8 @@ export async function detectStaleClaims(args: DetectStaleClaimsArgs): Promise<Re
   for (const claim of claims) {
     const lastReviewedRaw = claim.data["last_reviewed"];
     if (!lastReviewedRaw) continue;
-    const lastReviewedISO = lastReviewedRaw instanceof Date ? lastReviewedRaw.toISOString() : String(lastReviewedRaw);
+    const lastReviewedISO =
+      lastReviewedRaw instanceof Date ? lastReviewedRaw.toISOString() : String(lastReviewedRaw);
     const daysSinceReview = daysBetween(lastReviewedISO, nowISO);
 
     const claimTags = tagsOf(claim.data);
@@ -121,7 +147,12 @@ export async function detectStaleClaims(args: DetectStaleClaimsArgs): Promise<Re
     const status = typeof claim.data["status"] === "string" ? claim.data["status"] : "active";
 
     /** Collect related newer objects: share a tag OR appear in derived_from. */
-    const candidates: Array<{ kind: "thought" | "post" | "input"; slug: string; touchedISO: string; content: string }> = [];
+    const candidates: Array<{
+      kind: "thought" | "post" | "input";
+      slug: string;
+      touchedISO: string;
+      content: string;
+    }> = [];
 
     const kindDirs: Array<{ kind: "thought" | "post" | "input"; entries: typeof thoughts }> = [
       { kind: "thought", entries: thoughts },
@@ -137,7 +168,12 @@ export async function detectStaleClaims(args: DetectStaleClaimsArgs): Promise<Re
         const objTags = tagsOf(obj.data);
         const isLinked = derivedFrom.some((ref) => ref.includes(obj.slug));
         if (!sharesTag(claimTags, objTags) && !isLinked) continue;
-        candidates.push({ kind, slug: obj.slug, touchedISO: touched, content: readFileSync(obj.path, "utf8") });
+        candidates.push({
+          kind,
+          slug: obj.slug,
+          touchedISO: touched,
+          content: readFileSync(obj.path, "utf8"),
+        });
       }
     }
 
@@ -166,10 +202,22 @@ export async function detectStaleClaims(args: DetectStaleClaimsArgs): Promise<Re
       }
     }
 
-    if (daysSinceReview > 180 && relatedNewer.length === 0 && status === "active" && !reasons.includes("past-threshold")) {
+    if (
+      daysSinceReview > 180 &&
+      relatedNewer.length === 0 &&
+      status === "active" &&
+      !reasons.includes("past-threshold")
+    ) {
       reasons.push("deprecation-candidate");
-      notes.push("Claim has not been reviewed in over 180 days with no related newer content — may be forgotten.");
-    } else if (daysSinceReview > 180 && relatedNewer.length === 0 && status === "active" && reasons.length > 0) {
+      notes.push(
+        "Claim has not been reviewed in over 180 days with no related newer content — may be forgotten.",
+      );
+    } else if (
+      daysSinceReview > 180 &&
+      relatedNewer.length === 0 &&
+      status === "active" &&
+      reasons.length > 0
+    ) {
       reasons.push("deprecation-candidate");
       notes.push("No related newer objects; may be forgotten.");
     }
@@ -182,7 +230,11 @@ export async function detectStaleClaims(args: DetectStaleClaimsArgs): Promise<Re
         daysSinceReview,
         reasons,
         notes,
-        relatedNewerObjects: relatedNewer.map(({ kind, slug, touchedISO }) => ({ kind, slug, touchedISO })),
+        relatedNewerObjects: relatedNewer.map(({ kind, slug, touchedISO }) => ({
+          kind,
+          slug,
+          touchedISO,
+        })),
       });
     }
   }

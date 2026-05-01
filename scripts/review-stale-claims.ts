@@ -32,7 +32,6 @@ type DeferralStore = Array<{ slug: string; deferredAt: string }>;
 const ROOT = resolve(process.cwd());
 const DEFERRALS_FILE = join(ROOT, ".stale-review-deferrals.json");
 
-
 /** Parses CLI args from process.argv. */
 function parseArgs(argv: ReadonlyArray<string>): Args {
   let thresholdDays = 90;
@@ -49,23 +48,27 @@ function parseArgs(argv: ReadonlyArray<string>): Args {
       const next = argv[i + 1];
       if (!next) throw Object.assign(new Error("--threshold requires a value"), { exitCode: 2 });
       const n = Number(next);
-      if (!Number.isFinite(n) || n < 1) throw Object.assign(new Error(`invalid --threshold: ${next}`), { exitCode: 2 });
+      if (!Number.isFinite(n) || n < 1)
+        throw Object.assign(new Error(`invalid --threshold: ${next}`), { exitCode: 2 });
       thresholdDays = n;
       i++;
     } else if (a.startsWith("--threshold=")) {
       const n = Number(a.slice("--threshold=".length));
-      if (!Number.isFinite(n) || n < 1) throw Object.assign(new Error(`invalid --threshold value`), { exitCode: 2 });
+      if (!Number.isFinite(n) || n < 1)
+        throw Object.assign(new Error(`invalid --threshold value`), { exitCode: 2 });
       thresholdDays = n;
     } else if (a === "--limit") {
       const next = argv[i + 1];
       if (!next) throw Object.assign(new Error("--limit requires a value"), { exitCode: 2 });
       const n = Number(next);
-      if (!Number.isFinite(n) || n < 1) throw Object.assign(new Error(`invalid --limit: ${next}`), { exitCode: 2 });
+      if (!Number.isFinite(n) || n < 1)
+        throw Object.assign(new Error(`invalid --limit: ${next}`), { exitCode: 2 });
       limit = n;
       i++;
     } else if (a.startsWith("--limit=")) {
       const n = Number(a.slice("--limit=".length));
-      if (!Number.isFinite(n) || n < 1) throw Object.assign(new Error(`invalid --limit value`), { exitCode: 2 });
+      if (!Number.isFinite(n) || n < 1)
+        throw Object.assign(new Error(`invalid --limit value`), { exitCode: 2 });
       limit = n;
     } else {
       throw Object.assign(new Error(`unknown arg: ${a}`), { exitCode: 2 });
@@ -84,7 +87,8 @@ function buildPreview(flag: StaleFlag): string {
   for (const note of flag.notes) lines.push(`  - ${note}`);
   if (flag.relatedNewerObjects.length > 0) {
     lines.push(`related newer objects (${flag.relatedNewerObjects.length}):`);
-    for (const o of flag.relatedNewerObjects.slice(0, 5)) lines.push(`  - ${o.kind}/${o.slug} (${o.touchedISO.slice(0, 10)})`);
+    for (const o of flag.relatedNewerObjects.slice(0, 5))
+      lines.push(`  - ${o.kind}/${o.slug} (${o.touchedISO.slice(0, 10)})`);
   }
   return lines.join("\n");
 }
@@ -126,7 +130,9 @@ async function main(): Promise<void> {
       label: "confirm-still-true",
       handle: async (flag) => {
         if (!args.dryRun) {
-          await patchFrontmatter(flag.path, (data) => { data["last_reviewed"] = nowISO.slice(0, 10); });
+          await patchFrontmatter(flag.path, (data) => {
+            data["last_reviewed"] = nowISO.slice(0, 10);
+          });
         } else {
           process.stdout.write(`[dry-run] would bump last_reviewed on ${flag.slug}\n`);
         }
@@ -147,22 +153,32 @@ async function main(): Promise<void> {
           try {
             parsed = matter(edited);
           } catch (err) {
-            process.stderr.write(`YAML parse error: ${(err as Error).message}\nRe-opening editor...\n`);
+            process.stderr.write(
+              `YAML parse error: ${(err as Error).message}\nRe-opening editor...\n`,
+            );
             continue;
           }
           const result = claimSchema.safeParse(parsed.data);
           if (result.success) {
             valid = true;
           } else {
-            process.stderr.write(`Validation error: ${result.error.message}\nRe-opening editor...\n`);
+            process.stderr.write(
+              `Validation error: ${result.error.message}\nRe-opening editor...\n`,
+            );
           }
         }
         if (!args.dryRun) {
           const parsedEdited = matter(edited);
           const lastReviewed = parsedEdited.data["last_reviewed"];
-          if (!lastReviewed || lastReviewed === flag.lastReviewedISO || String(lastReviewed) === flag.lastReviewedISO.slice(0, 10)) {
+          if (
+            !lastReviewed ||
+            lastReviewed === flag.lastReviewedISO ||
+            String(lastReviewed) === flag.lastReviewedISO.slice(0, 10)
+          ) {
             writeFileSync(flag.path, edited, "utf8");
-            await patchFrontmatter(flag.path, (data) => { data["last_reviewed"] = nowISO.slice(0, 10); });
+            await patchFrontmatter(flag.path, (data) => {
+              data["last_reviewed"] = nowISO.slice(0, 10);
+            });
           } else {
             writeFileSync(flag.path, edited, "utf8");
           }
@@ -190,11 +206,15 @@ async function main(): Promise<void> {
             if (result.success) {
               writeFileSync(flag.path, afterEdit, "utf8");
             } else {
-              process.stderr.write(`Validation error after deprecation edit — keeping status flip only.\n`);
+              process.stderr.write(
+                `Validation error after deprecation edit — keeping status flip only.\n`,
+              );
             }
           }
         } else {
-          process.stdout.write(`[dry-run] would set status=deprecated and bump last_reviewed on ${flag.slug}\n`);
+          process.stdout.write(
+            `[dry-run] would set status=deprecated and bump last_reviewed on ${flag.slug}\n`,
+          );
         }
         tally.deprecated++;
         return "deprecated";

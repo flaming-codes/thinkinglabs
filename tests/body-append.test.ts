@@ -2,13 +2,17 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import matter from "gray-matter";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 import { appendSection } from "../src/lib/body-append.ts";
 
 describe("appendSection", () => {
   let dir = "";
-  beforeEach(() => { dir = mkdtempSync(join(tmpdir(), "body-append-")); });
-  afterEach(() => { rmSync(dir, { recursive: true, force: true }); });
+  beforeEach(() => {
+    dir = mkdtempSync(join(tmpdir(), "body-append-"));
+  });
+  afterEach(() => {
+    rmSync(dir, { recursive: true, force: true });
+  });
 
   it("appends a heading and body section to an existing file", () => {
     const file = join(dir, "test.md");

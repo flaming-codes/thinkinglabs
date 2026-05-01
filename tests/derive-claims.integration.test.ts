@@ -2,7 +2,7 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 
 /** Resolves whether `git` is callable. */
 function gitAvailable(): boolean {
@@ -22,11 +22,11 @@ describe.runIf(gitAvailable())("derive-claims CLI (integration, --no-llm --dry-r
       mkdirSync(join(root, "content", "claims"), { recursive: true });
 
       const script = join(process.cwd(), "scripts", "derive-claims.ts");
-      const result = spawnSync(
-        "tsx",
-        [script, "--no-llm", "--dry-run", "--all"],
-        { cwd: root, encoding: "utf8", timeout: 30_000 },
-      );
+      const result = spawnSync("tsx", [script, "--no-llm", "--dry-run", "--all"], {
+        cwd: root,
+        encoding: "utf8",
+        timeout: 30_000,
+      });
 
       expect(result.status).toBe(0);
       expect(result.stdout).toContain("0 accepted");
@@ -50,11 +50,11 @@ describe.runIf(gitAvailable())("derive-claims CLI (integration, --no-llm --dry-r
       );
 
       const script = join(process.cwd(), "scripts", "derive-claims.ts");
-      const result = spawnSync(
-        "tsx",
-        [script, "--no-llm", "--dry-run", "--all"],
-        { cwd: root, encoding: "utf8", timeout: 30_000 },
-      );
+      const result = spawnSync("tsx", [script, "--no-llm", "--dry-run", "--all"], {
+        cwd: root,
+        encoding: "utf8",
+        timeout: 30_000,
+      });
 
       expect(result.status).toBe(0);
       expect(result.stdout).toContain("0 proposals");

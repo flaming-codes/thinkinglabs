@@ -2,7 +2,7 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 
 /** Resolves whether `git` is callable. */
 function gitAvailable(): boolean {
@@ -20,7 +20,11 @@ describe.runIf(gitAvailable())("review-stale-claims CLI (integration, --no-llm -
     try {
       mkdirSync(join(root, "content", "claims"), { recursive: true });
       const script = join(process.cwd(), "scripts", "review-stale-claims.ts");
-      const result = spawnSync("tsx", [script, "--no-llm", "--dry-run"], { cwd: root, encoding: "utf8", timeout: 30_000 });
+      const result = spawnSync("tsx", [script, "--no-llm", "--dry-run"], {
+        cwd: root,
+        encoding: "utf8",
+        timeout: 30_000,
+      });
       expect(result.status).toBe(0);
       expect(result.stdout).toContain("0 flags");
     } finally {
@@ -35,11 +39,15 @@ describe.runIf(gitAvailable())("review-stale-claims CLI (integration, --no-llm -
       /** Write a claim with last_reviewed >90 days ago relative to today. */
       writeFileSync(
         join(root, "content", "claims", "old-claim.md"),
-        "---\nclaim: \"Test.\"\nconfidence: 0.5\nlast_reviewed: \"2020-01-01\"\nstatus: \"active\"\n---\nBody.\n",
+        '---\nclaim: "Test."\nconfidence: 0.5\nlast_reviewed: "2020-01-01"\nstatus: "active"\n---\nBody.\n',
         "utf8",
       );
       const script = join(process.cwd(), "scripts", "review-stale-claims.ts");
-      const result = spawnSync("tsx", [script, "--no-llm", "--dry-run"], { cwd: root, encoding: "utf8", timeout: 30_000 });
+      const result = spawnSync("tsx", [script, "--no-llm", "--dry-run"], {
+        cwd: root,
+        encoding: "utf8",
+        timeout: 30_000,
+      });
       expect(result.status).toBe(0);
       /** No deferral file should be written in dry-run mode. */
       expect(!existsSync(join(root, ".stale-review-deferrals.json"))).toBe(true);

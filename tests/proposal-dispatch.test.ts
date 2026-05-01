@@ -1,14 +1,19 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import { z } from "zod";
 import type { ProposalHandler } from "../src/lib/proposal-dispatch.ts";
 import type { QueuedProposal } from "../src/lib/proposal-queue.ts";
 
 /** Builds a minimal stub handler for the given type. */
-function makeHandler(type: import("../src/lib/proposal-queue.ts").ProposalType, tag = "v1"): ProposalHandler<{ tag: string }> {
+function makeHandler(
+  type: import("../src/lib/proposal-queue.ts").ProposalType,
+  tag = "v1",
+): ProposalHandler<{ tag: string }> {
   return {
     type,
     payloadSchema: z.object({ tag: z.string() }),
-    parse: (p: QueuedProposal) => ({ tag: String((p.payload as Record<string, unknown>)["tag"] ?? tag) }),
+    parse: (p: QueuedProposal) => ({
+      tag: String((p.payload as Record<string, unknown>)["tag"] ?? tag),
+    }),
     apply: async () => `applied-${tag}`,
     edit: async () => `edited-${tag}`,
   };

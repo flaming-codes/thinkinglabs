@@ -11,6 +11,10 @@ export function projectFilePath(id: string): string {
 export async function projectLastTouched(id: string): Promise<string> {
   const file = projectFilePath(id);
   const fromGit = await lastTouched(file);
-  const iso = fromGit ?? (await stat(file).then((s) => s.mtime.toISOString()).catch(() => null));
+  const iso =
+    fromGit ??
+    (await stat(file)
+      .then((s) => s.mtime.toISOString())
+      .catch(() => null));
   return iso ? iso.slice(0, 10) : "—";
 }

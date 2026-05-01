@@ -26,7 +26,9 @@ export function registerHandler<P>(handler: ProposalHandler<P>): void {
     return;
   }
   if (existing === (handler as ProposalHandler<unknown>)) return;
-  throw new Error(`proposal-dispatch: handler for type "${handler.type}" is already registered with a different implementation`);
+  throw new Error(
+    `proposal-dispatch: handler for type "${handler.type}" is already registered with a different implementation`,
+  );
 }
 
 /** Look up a handler; throws when the type has no registered handler (mis-wired agent). */

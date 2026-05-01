@@ -1,4 +1,5 @@
 # ADR-009 — Proposal/confirmation pattern for unattended agents
+
 - **Status**: Accepted
 - **Date**: 2026-04-30
 - **Supersedes**: —
