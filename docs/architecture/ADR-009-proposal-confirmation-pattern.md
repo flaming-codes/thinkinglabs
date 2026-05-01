@@ -16,9 +16,9 @@ Agents emit typed `QueuedProposal` objects into `.proposal-queue.json` at the re
 
 Per-agent rejection memory lives in `.<agent>-rejections.json` files at the repo root, all gitignored. The optional `reject` hook records a snapshot of the relevant identity field so the same proposal is not re-enqueued unless the underlying content changes. `freshness-review` is the exception: its reject hook is a no-op. Staleness is continuous rather than event-driven; rejection memory would suppress accurate flags, so "reject" deliberately means "not now", not "never".
 
-`dormant-flip` and `review-decisions` are pure deterministic scanners with no SDK dependency. `resolve-predictions`, `freshness-review`, and `triage-questions` call `runToolCall` (the M4.5 SDK choke-point) behind a `skipLLM` flag. When `ANTHROPIC_API_KEY` is absent the CLI sets `skipLLM = true` and produces zero proposals — scan logic runs, LLM calls do not.
+`dormant-flip` and `review-decisions` are pure deterministic scanners with no SDK dependency. `resolve-predictions`, `freshness-review`, and `triage-questions` call `runToolCall` (the M4.5 SDK choke-point) behind a `skipLLM` flag. When `OPENAI_API_KEY` is absent the CLI sets `skipLLM = true` and produces zero proposals — scan logic runs, LLM calls do not.
 
-**Scheduling: launchd, not CI cron.** State files live in the repo working tree and are gitignored. A CI clean checkout resets them on every run, causing rejected proposals to recur indefinitely. launchd preserves the working tree between invocations, keeping rejection memory intact. LLM-mediated agents additionally require `ANTHROPIC_API_KEY` locally. The CI workflow (build, typecheck, tests, brain-diff) is unaffected; agents are not CI concerns.
+**Scheduling: launchd, not CI cron.** State files live in the repo working tree and are gitignored. A CI clean checkout resets them on every run, causing rejected proposals to recur indefinitely. launchd preserves the working tree between invocations, keeping rejection memory intact. LLM-mediated agents additionally require `OPENAI_API_KEY` locally. The CI workflow (build, typecheck, tests, brain-diff) is unaffected; agents are not CI concerns.
 
 ## Consequences
 
@@ -28,7 +28,7 @@ Every agent scan is idempotent and non-destructive. The queue accumulates until 
 
 - `freshness-review` does not persist rejections. "Reject" means "not now", not "never".
 - State files are local-only. Moving the repo resets rejection memory; rejected proposals may recur once.
-- LLM agents fall back to `--no-llm` (zero proposals) when `ANTHROPIC_API_KEY` is absent.
+- LLM agents fall back to `--no-llm` (zero proposals) when `OPENAI_API_KEY` is absent.
 
 ## Alternatives considered
 

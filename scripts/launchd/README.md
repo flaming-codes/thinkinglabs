@@ -20,12 +20,12 @@ for f in scripts/launchd/com.tom.me.*.plist; do
 done
 ```
 
-### 2. Set `ANTHROPIC_API_KEY`
+### 2. Set `OPENAI_API_KEY`
 
-Three agents (`resolve-predictions`, `freshness-review`, `triage-questions`) call the Anthropic API. The key must be available in the launchd environment. The recommended approach keeps the key out of version control entirely:
+Three agents (`resolve-predictions`, `freshness-review`, `triage-questions`) call the OpenAI API via the Vercel AI SDK. The key must be available in the launchd environment. The recommended approach keeps the key out of version control entirely:
 
 ```sh
-launchctl setenv ANTHROPIC_API_KEY <your-key>
+launchctl setenv OPENAI_API_KEY <your-key>
 ```
 
 This injects the variable into the launchd session; the plists inherit that environment without baking the key into any file. The setting persists until the next logout.

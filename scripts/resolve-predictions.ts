@@ -38,8 +38,8 @@ function parseArgs(argv: ReadonlyArray<string>): Args {
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
 
-  const skipLLM = args.noLLM || (!process.env["ANTHROPIC_API_KEY"] && (() => {
-    process.stderr.write("resolve-predictions: ANTHROPIC_API_KEY not set, running with --no-llm\n");
+  const skipLLM = args.noLLM || (!process.env["OPENAI_API_KEY"] && (() => {
+    process.stderr.write("resolve-predictions: OPENAI_API_KEY not set, running with --no-llm\n");
     return true;
   })());
 

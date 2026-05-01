@@ -1,9 +1,6 @@
 import { z } from "zod";
 import { classify, type CommitDiff, type FileDiff } from "./brain-diff.ts";
-import { runToolCall } from "./anthropic.ts";
-
-/** Haiku 4.5 — picked for cost; brain-diff substantiveness is a coarse classification with a one-sentence summary. */
-const MODEL = "claude-haiku-4-5-20251001";
+import { runToolCall } from "./llm.ts";
 
 /** Body diffs are truncated to keep per-call tokens bounded; substantiveness rarely needs more than the first ~1.5KB. */
 const BODY_LIMIT = 1500;
@@ -11,7 +8,7 @@ const BODY_LIMIT = 1500;
 /** Tool I/O contract; validated at the system edge so a malformed model response fails fast with a clear error. */
 const SCORE_SCHEMA = z.object({ score: z.number().min(0).max(10), summary: z.string().min(1) });
 
-/** System prompt is reused across calls; prompt-cached so the cost of repeated invocations collapses. */
+/** System prompt is reused across calls; provider auto-caches above ~1k tokens so repeated invocations collapse in cost. */
 const SYSTEM_PROMPT = `You score per-file changes in a personal-knowledge git repo for substantiveness.
 
 Score 0–10:
@@ -23,18 +20,11 @@ Score 0–10:
 Write a single-sentence summary in present tense (e.g., "Confidence on commodity-collapse claim raised from 0.6 to 0.7").
 Call the extract_substantiveness tool exactly once.`;
 
-/** Tool definition; Anthropic tool-use guarantees the response shape so we don't parse free-text. */
+/** Tool definition; forced tool-use guarantees the response shape so we don't parse free-text. */
 const TOOL = {
   name: "extract_substantiveness",
   description: "Return the substantiveness score and a one-sentence summary for a file diff.",
-  input_schema: {
-    type: "object" as const,
-    properties: {
-      score: { type: "number" as const, minimum: 0, maximum: 10 },
-      summary: { type: "string" as const },
-    },
-    required: ["score", "summary"],
-  },
+  schema: SCORE_SCHEMA,
 };
 
 /** Render a compact context string for the LLM; classify() label is included so the model can rely on the typed dispatch. */
@@ -52,7 +42,7 @@ export async function scoreCommitFiles(
   const out = new Map<string, { score: number; summary: string }>();
   for (const c of commits) {
     for (const f of c.files) {
-      const s = await runToolCall({ model: MODEL, maxTokens: 256, systemPrompt: SYSTEM_PROMPT, userPrompt: fileContext(f), tool: TOOL, schema: SCORE_SCHEMA });
+      const s = await runToolCall({ tier: "fast", maxTokens: 256, systemPrompt: SYSTEM_PROMPT, userPrompt: fileContext(f), tool: TOOL });
       if (s) out.set(`${c.sha}:${f.path}`, s);
     }
   }

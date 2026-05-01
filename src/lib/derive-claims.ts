@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { runToolCall } from "./anthropic.ts";
+import { runToolCall } from "./llm.ts";
 
 /** Rough proposal an LLM emits before reviewer judgment; payload of a ReviewProposal. */
 export interface ClaimProposal {
@@ -67,38 +67,11 @@ Skip rhetorical flourishes, metaphors, and statements too compressed to stand al
 
 Call extract_claim_proposals exactly once.`;
 
-/** Tool definition; same Anthropic tool-use pattern as brain-diff-score. */
+/** Tool definition; forced tool-use guarantees the response shape so we don't parse free-text. */
 const TOOL = {
   name: "extract_claim_proposals",
   description: "Return an array of atomic claim proposals extracted from the thought.",
-  input_schema: {
-    type: "object" as const,
-    properties: {
-      proposals: {
-        type: "array" as const,
-        items: {
-          type: "object" as const,
-          properties: {
-            claim: { type: "string" as const },
-            confidence: { type: "number" as const, minimum: 0, maximum: 1 },
-            evidence: {
-              type: "array" as const,
-              items: { type: "object" as const, properties: { url: { type: "string" as const }, note: { type: "string" as const } } },
-            },
-            opposing: { type: "array" as const, items: { type: "string" as const } },
-            reasoning: { type: "string" as const },
-            suggestedSlug: { type: "string" as const },
-            mergeCandidates: {
-              type: "array" as const,
-              items: { type: "object" as const, properties: { slug: { type: "string" as const }, reason: { type: "string" as const } }, required: ["slug", "reason"] },
-            },
-          },
-          required: ["claim", "confidence", "suggestedSlug"],
-        },
-      },
-    },
-    required: ["proposals"],
-  },
+  schema: toolResponseSchema,
 };
 
 /** Builds the user-turn prompt including existing claims for merge detection. */
@@ -113,7 +86,7 @@ function buildUserPrompt(args: ProposeClaimsArgs): string {
 /** Generates 3–10 proposals for one thought; returns [] when LLM is skipped. */
 export async function proposeClaimsForThought(args: ProposeClaimsArgs): Promise<ReadonlyArray<ClaimProposal>> {
   if (args.skipLLM) return [];
-  const result = await runToolCall({ model: "claude-sonnet-4-6", maxTokens: 4096, systemPrompt: SYSTEM_PROMPT, userPrompt: buildUserPrompt(args), tool: TOOL, schema: toolResponseSchema });
+  const result = await runToolCall({ tier: "balanced", maxTokens: 4096, systemPrompt: SYSTEM_PROMPT, userPrompt: buildUserPrompt(args), tool: TOOL });
   if (!result) return [];
   return result.proposals as ReadonlyArray<ClaimProposal>;
 }

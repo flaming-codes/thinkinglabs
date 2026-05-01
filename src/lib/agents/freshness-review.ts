@@ -2,7 +2,7 @@ import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import matter from "gray-matter";
 import { z } from "zod";
-import { runToolCall } from "../anthropic.ts";
+import { runToolCall } from "../llm.ts";
 import { nowISO } from "../clock.ts";
 import { walkMarkdown } from "../walk-content.ts";
 import { deprecateSectionCallout, restampSectionVerified } from "../body-append.ts";
@@ -64,15 +64,7 @@ Do not write the revision itself; recommend only. Call flag_section_freshness ex
 const FLAG_TOOL = {
   name: "flag_section_freshness",
   description: "Draft a freshness flag for a stale post section.",
-  input_schema: {
-    type: "object" as const,
-    properties: {
-      whatMayHaveChanged: { type: "string" as const },
-      recommend: { type: "string" as const, enum: ["confirm-still-true", "revise", "deprecate"] },
-      reasoning: { type: "string" as const },
-    },
-    required: ["whatMayHaveChanged", "recommend", "reasoning"],
-  },
+  schema: FreshnessReviewDraft,
 };
 
 /** Extract the body of the section starting at the given heading, up to the next same-or-shallower heading. */
@@ -189,12 +181,11 @@ export async function runFreshnessReview(args: {
       const brainDiff = recentBrainDiffSince(cwd, stamp.lastVerifiedISO);
 
       const draft = await runToolCall({
-        model: "claude-sonnet-4-6",
+        tier: "balanced",
         maxTokens: 768,
         systemPrompt: SYSTEM_PROMPT,
         userPrompt: buildUserPrompt(post.slug, stamp.headingText, sectionBody, stamp.lastVerifiedISO, brainDiff),
         tool: FLAG_TOOL,
-        schema: FreshnessReviewDraft,
       });
 
       if (!draft) {

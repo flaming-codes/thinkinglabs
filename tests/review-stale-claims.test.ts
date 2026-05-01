@@ -66,7 +66,7 @@ describe("detectStaleClaims — pure logic", () => {
   });
 
   it("with mocked LLM returning shifted=true the flag carries evidence-shift", async () => {
-    vi.doMock("../src/lib/anthropic.ts", () => ({
+    vi.doMock("../src/lib/llm.ts", () => ({
       runToolCall: async () => ({ shifted: true, contradicts: false, reasoning: "New evidence found." }),
     }));
     const { detectStaleClaims } = await import("../src/lib/review-stale-claims.ts");
@@ -78,7 +78,7 @@ describe("detectStaleClaims — pure logic", () => {
     const flag = flags.find((f) => f.slug === "shifting-claim");
     expect(flag).toBeDefined();
     expect(flag!.reasons).toContain("evidence-shift");
-    vi.doUnmock("../src/lib/anthropic.ts");
+    vi.doUnmock("../src/lib/llm.ts");
   });
 
   it("orders flags by daysSinceReview descending", async () => {

@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { z } from "zod";
 import { daysBetween } from "./clock.ts";
 import { lastTouched } from "./git.ts";
-import { runToolCall } from "./anthropic.ts";
+import { runToolCall } from "./llm.ts";
 import { walkMarkdown } from "./walk-content.ts";
 
 /** Reasons a claim might be flagged for review; the union is closed so consumers can switch exhaustively. */
@@ -52,15 +52,7 @@ Return your answer via the detect_claim_shift tool exactly once:
 const SHIFT_TOOL = {
   name: "detect_claim_shift",
   description: "Decide whether newer related objects shift the evidential picture for the claim.",
-  input_schema: {
-    type: "object" as const,
-    properties: {
-      shifted: { type: "boolean" as const },
-      contradicts: { type: "boolean" as const },
-      reasoning: { type: "string" as const },
-    },
-    required: ["shifted", "reasoning"],
-  },
+  schema: shiftSchema,
 };
 
 /** Extract string tags from a frontmatter data object. */
@@ -79,7 +71,7 @@ function sharesTag(a: ReadonlyArray<string>, b: ReadonlyArray<string>): boolean 
   return a.some((t) => setB.has(t));
 }
 
-/** Calls Claude to detect whether newer objects shifted the evidential picture for the claim. */
+/** Calls the LLM to detect whether newer objects shifted the evidential picture for the claim. */
 async function callShiftDetection(
   claimData: Record<string, unknown>,
   newerObjects: ReadonlyArray<{ kind: "thought" | "post" | "input"; slug: string; touchedISO: string; content: string }>,
@@ -94,7 +86,7 @@ async function callShiftDetection(
     .map((o) => `[${o.kind}/${o.slug} — last touched ${o.touchedISO}]\n${o.content.slice(0, 800)}`)
     .join("\n\n---\n\n");
   const userMessage = `Claim:\n${claimContext}\n\nNewer related objects:\n${newerContext}`;
-  const result = await runToolCall({ model: "claude-sonnet-4-6", maxTokens: 256, systemPrompt: SHIFT_SYSTEM_PROMPT, userPrompt: userMessage, tool: SHIFT_TOOL, schema: shiftSchema });
+  const result = await runToolCall({ tier: "balanced", maxTokens: 256, systemPrompt: SHIFT_SYSTEM_PROMPT, userPrompt: userMessage, tool: SHIFT_TOOL });
   if (!result) return { shifted: false, reasoning: "LLM returned no tool call", contradicts: false };
   return result;
 }

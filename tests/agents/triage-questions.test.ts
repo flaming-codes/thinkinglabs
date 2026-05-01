@@ -44,7 +44,7 @@ describe("runTriageQuestions — main flows", () => {
   const { dir } = useTmpDir();
 
   it("emits 1 proposal when LLM returns relevance 0.8", async () => {
-    vi.doMock("../../src/lib/anthropic.ts", () => ({
+    vi.doMock("../../src/lib/llm.ts", () => ({
       runToolCall: vi.fn().mockResolvedValue({
         relevanceScore: 0.8,
         dedupeOf: null,
@@ -62,7 +62,7 @@ describe("runTriageQuestions — main flows", () => {
   });
 
   it("moves submission to _skipped and emits 0 proposals when relevance 0.2", async () => {
-    vi.doMock("../../src/lib/anthropic.ts", () => ({
+    vi.doMock("../../src/lib/llm.ts", () => ({
       runToolCall: vi.fn().mockResolvedValue({
         relevanceScore: 0.2,
         dedupeOf: null,
@@ -80,7 +80,7 @@ describe("runTriageQuestions — main flows", () => {
   });
 
   it("moves submission to _orphaned when question file is missing", async () => {
-    vi.doMock("../../src/lib/anthropic.ts", () => ({ runToolCall: vi.fn() }));
+    vi.doMock("../../src/lib/llm.ts", () => ({ runToolCall: vi.fn() }));
     const { runTriageQuestions } = await import("../../src/lib/agents/triage-questions.ts");
     writeFileSync(join(dir(), "submissions", "questions", "foo", "bar.json"), JSON.stringify(VALID_SUBMISSION));
     const summary = await runTriageQuestions({ cwd: dir(), nowISO: "2026-04-30T00:00:00.000Z", skipLLM: false });
@@ -90,7 +90,7 @@ describe("runTriageQuestions — main flows", () => {
   });
 
   it("moves malformed submission to _invalid with .error.txt and emits 0 proposals", async () => {
-    vi.doMock("../../src/lib/anthropic.ts", () => ({ runToolCall: vi.fn() }));
+    vi.doMock("../../src/lib/llm.ts", () => ({ runToolCall: vi.fn() }));
     const { runTriageQuestions } = await import("../../src/lib/agents/triage-questions.ts");
     writeFileSync(join(dir(), "submissions", "questions", "foo", "bad.json"), "{ not valid json ]]]");
     const summary = await runTriageQuestions({ cwd: dir(), nowISO: "2026-04-30T00:00:00.000Z", skipLLM: false });
@@ -101,7 +101,7 @@ describe("runTriageQuestions — main flows", () => {
   });
 
   it("moves submission with missing required fields to _invalid", async () => {
-    vi.doMock("../../src/lib/anthropic.ts", () => ({ runToolCall: vi.fn() }));
+    vi.doMock("../../src/lib/llm.ts", () => ({ runToolCall: vi.fn() }));
     const { runTriageQuestions } = await import("../../src/lib/agents/triage-questions.ts");
     writeFileSync(join(dir(), "submissions", "questions", "foo", "bad2.json"), JSON.stringify({ questionSlug: "foo" }));
     const summary = await runTriageQuestions({ cwd: dir(), nowISO: "2026-04-30T00:00:00.000Z", skipLLM: false });
@@ -110,7 +110,7 @@ describe("runTriageQuestions — main flows", () => {
   });
 
   it("--no-llm emits zero proposals for valid submissions", async () => {
-    vi.doMock("../../src/lib/anthropic.ts", () => ({ runToolCall: vi.fn() }));
+    vi.doMock("../../src/lib/llm.ts", () => ({ runToolCall: vi.fn() }));
     const { runTriageQuestions } = await import("../../src/lib/agents/triage-questions.ts");
     writeFileSync(join(dir(), "submissions", "questions", "foo", "bar.json"), JSON.stringify(VALID_SUBMISSION));
     writeFileSync(join(dir(), "content", "questions", "foo.md"), QUESTION_MD);
@@ -121,7 +121,7 @@ describe("runTriageQuestions — main flows", () => {
   });
 
   it("does not rescan files already in _accepted/", async () => {
-    vi.doMock("../../src/lib/anthropic.ts", () => ({ runToolCall: vi.fn() }));
+    vi.doMock("../../src/lib/llm.ts", () => ({ runToolCall: vi.fn() }));
     const { runTriageQuestions } = await import("../../src/lib/agents/triage-questions.ts");
     mkdirSync(join(dir(), "submissions", "_accepted", "foo"), { recursive: true });
     writeFileSync(join(dir(), "submissions", "_accepted", "foo", "bar.json"), JSON.stringify(VALID_SUBMISSION));

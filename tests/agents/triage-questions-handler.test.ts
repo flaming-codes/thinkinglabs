@@ -52,7 +52,7 @@ describe("triage-questions handler — apply", () => {
   const { dir } = useTmpDir();
 
   it("appends the answer section to the question body and sets status to partial", async () => {
-    vi.doMock("../../src/lib/anthropic.ts", () => ({ runToolCall: vi.fn() }));
+    vi.doMock("../../src/lib/llm.ts", () => ({ runToolCall: vi.fn() }));
     const { QuestionAnswerCuratePayload } = await import("../../src/lib/agents/triage-questions.ts");
     const { getHandler } = await import("../../src/lib/proposal-dispatch.ts");
     const questionPath = join(dir(), "content", "questions", "foo.md");
@@ -81,7 +81,7 @@ describe("triage-questions handler — apply", () => {
   });
 
   it("moves the submission file to _accepted/ after apply", async () => {
-    vi.doMock("../../src/lib/anthropic.ts", () => ({ runToolCall: vi.fn() }));
+    vi.doMock("../../src/lib/llm.ts", () => ({ runToolCall: vi.fn() }));
     const { QuestionAnswerCuratePayload } = await import("../../src/lib/agents/triage-questions.ts");
     const { getHandler } = await import("../../src/lib/proposal-dispatch.ts");
     const questionPath = join(dir(), "content", "questions", "foo.md");
@@ -109,7 +109,7 @@ describe("triage-questions handler — edit", () => {
   const { dir } = useTmpDir();
 
   it("opens editor and on save validates the question file", async () => {
-    vi.doMock("../../src/lib/anthropic.ts", () => ({ runToolCall: vi.fn() }));
+    vi.doMock("../../src/lib/llm.ts", () => ({ runToolCall: vi.fn() }));
     vi.stubEnv("EDITOR", "cat");
     const { QuestionAnswerCuratePayload } = await import("../../src/lib/agents/triage-questions.ts");
     const { getHandler } = await import("../../src/lib/proposal-dispatch.ts");
@@ -138,7 +138,7 @@ describe("triage-questions handler — reject", () => {
   const { dir } = useTmpDir();
 
   it("moves submission to _rejected/ and writes to the rejections JSON", async () => {
-    vi.doMock("../../src/lib/anthropic.ts", () => ({ runToolCall: vi.fn() }));
+    vi.doMock("../../src/lib/llm.ts", () => ({ runToolCall: vi.fn() }));
     const { QuestionAnswerCuratePayload } = await import("../../src/lib/agents/triage-questions.ts");
     const { getHandler } = await import("../../src/lib/proposal-dispatch.ts");
     const questionPath = join(dir(), "content", "questions", "foo.md");

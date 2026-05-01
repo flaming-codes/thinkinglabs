@@ -142,10 +142,10 @@ async function mergeIntoExistingClaim(claimPath: string, proposal: ClaimProposal
 /** CLI entry point. */
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
-  if (!args.noLlm && !process.env["ANTHROPIC_API_KEY"]) {
-    process.stderr.write("ANTHROPIC_API_KEY missing; falling back to --no-llm mode.\n");
+  if (!args.noLlm && !process.env["OPENAI_API_KEY"]) {
+    process.stderr.write("OPENAI_API_KEY missing; falling back to --no-llm mode.\n");
   }
-  const effectiveNoLlm = args.noLlm || !process.env["ANTHROPIC_API_KEY"];
+  const effectiveNoLlm = args.noLlm || !process.env["OPENAI_API_KEY"];
 
   const state = readJsonState<DerivationState>(STATE_FILE, {});
   const rejections = readJsonState<RejectionStore>(REJECTIONS_FILE, []);

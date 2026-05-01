@@ -33,9 +33,9 @@ function parseArgs(argv: ReadonlyArray<string>): Args {
 /** CLI entry: walk commits, optionally score, emit five feed files. */
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
-  const useLlm = !args.noLlm && Boolean(process.env["ANTHROPIC_API_KEY"]);
-  if (!args.noLlm && !process.env["ANTHROPIC_API_KEY"]) {
-    process.stderr.write("ANTHROPIC_API_KEY missing; falling back to --no-llm mode.\n");
+  const useLlm = !args.noLlm && Boolean(process.env["OPENAI_API_KEY"]);
+  if (!args.noLlm && !process.env["OPENAI_API_KEY"]) {
+    process.stderr.write("OPENAI_API_KEY missing; falling back to --no-llm mode.\n");
   }
   const commits = walkCommits({ since: args.since });
   const scored = useLlm ? await scoreCommitFiles(commits) : undefined;

@@ -2,7 +2,7 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, writeFile
 import { basename, join, relative, resolve } from "node:path";
 import matter from "gray-matter";
 import { z } from "zod";
-import { runToolCall } from "../anthropic.ts";
+import { runToolCall } from "../llm.ts";
 import { appendSection } from "../body-append.ts";
 import { editInEditor } from "../editor.ts";
 import { patchFrontmatter } from "../frontmatter.ts";
@@ -101,20 +101,11 @@ Return a triage_submission tool call with:
 
 Call triage_submission exactly once.`;
 
-/** JSON Schema definition for the triage_submission tool. */
+/** Tool definition for the triage_submission tool. */
 const TRIAGE_TOOL = {
   name: "triage_submission",
   description: "Score and summarize a reader submission for an open question.",
-  input_schema: {
-    type: "object" as const,
-    properties: {
-      relevanceScore: { type: "number" as const, minimum: 0, maximum: 1 },
-      dedupeOf: { type: ["string", "null"] as unknown as "string" },
-      suggestedAnswer: { type: "string" as const },
-      reasoning: { type: "string" as const },
-    },
-    required: ["relevanceScore", "dedupeOf", "suggestedAnswer", "reasoning"],
-  },
+  schema: TriageDraft,
 };
 
 /** Builds the user prompt for the LLM triage call. */
@@ -224,7 +215,7 @@ export async function runTriageQuestions(args: { cwd: string; nowISO: string; sk
     let draft: TriageDraft | null = null;
 
     draft = await runToolCall({
-      model: "claude-sonnet-4-6",
+      tier: "balanced",
       maxTokens: 1024,
       systemPrompt: SYSTEM_PROMPT,
       userPrompt: buildUserPrompt({
@@ -236,7 +227,6 @@ export async function runTriageQuestions(args: { cwd: string; nowISO: string; sk
         responderName: submission.responder.name,
       }),
       tool: TRIAGE_TOOL,
-      schema: TriageDraft,
     });
 
     if (!draft) {

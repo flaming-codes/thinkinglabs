@@ -33,7 +33,7 @@ function makeTempTree(): string {
 
 /** Mock runToolCall to return a canned resolution draft. */
 function mockRunToolCall(vi: typeof import("vitest")["vi"]): void {
-  vi.doMock("../../src/lib/anthropic.ts", () => ({
+  vi.doMock("../../src/lib/llm.ts", () => ({
     runToolCall: vi.fn().mockResolvedValue({
       resolution: "true",
       resolution_note: "The prediction came true.",

@@ -16,10 +16,10 @@
     <string>__REPO_ROOT__</string>
 
     <!--
-        resolve-predictions calls the Anthropic API (Claude Sonnet 4.6).
-        Set ANTHROPIC_API_KEY in your launchd environment before loading this plist:
+        resolve-predictions calls the OpenAI API (gpt-4.1, balanced tier).
+        Set OPENAI_API_KEY in your launchd environment before loading this plist:
 
-            launchctl setenv ANTHROPIC_API_KEY <your-key>
+            launchctl setenv OPENAI_API_KEY <your-key>
 
         Alternatively, add an EnvironmentVariables dict below — but do NOT bake the key
         into this file or commit it to version control.
@@ -28,7 +28,7 @@
     -->
     <key>EnvironmentVariables</key>
     <dict>
-        <!-- Add ANTHROPIC_API_KEY here only if you cannot use launchctl setenv. -->
+        <!-- Add OPENAI_API_KEY here only if you cannot use launchctl setenv. -->
     </dict>
 
     <key>StartCalendarInterval</key>

@@ -2,7 +2,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import matter from "gray-matter";
 import { z } from "zod";
-import { runToolCall } from "../anthropic.ts";
+import { runToolCall } from "../llm.ts";
 import { walkMarkdown } from "../walk-content.ts";
 import { editInEditor } from "../editor.ts";
 import { patchFrontmatter } from "../frontmatter.ts";
@@ -65,15 +65,7 @@ Call draft_resolution exactly once.`;
 const DRAFT_TOOL = {
   name: "draft_resolution",
   description: "Draft a resolution judgment for a pending prediction.",
-  input_schema: {
-    type: "object" as const,
-    properties: {
-      resolution: { type: "string" as const, enum: ["true", "false", "ambiguous"] },
-      resolution_note: { type: "string" as const },
-      reasoning: { type: "string" as const },
-    },
-    required: ["resolution", "resolution_note", "reasoning"],
-  },
+  schema: ResolutionDraft,
 };
 
 /** Absolute path to the rejections file; resolved from cwd so tests can override. */
@@ -158,12 +150,11 @@ export async function runResolvePredictions(args: { cwd: string; nowISO: string;
     }
 
     const draft = await runToolCall({
-      model: "claude-sonnet-4-6",
+      tier: "balanced",
       maxTokens: 1024,
       systemPrompt: SYSTEM_PROMPT,
       userPrompt: buildUserPrompt(pred.data, windowInputs),
       tool: DRAFT_TOOL,
-      schema: ResolutionDraft,
     });
 
     if (!draft) {

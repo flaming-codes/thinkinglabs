@@ -42,7 +42,7 @@ function writePostNoStamps(dir: string, slug: string): void {
 
 /** Mock runToolCall to return a canned freshness review draft. */
 function mockRunToolCall(vi: typeof import("vitest")["vi"]): void {
-  vi.doMock("../../src/lib/anthropic.ts", () => ({
+  vi.doMock("../../src/lib/llm.ts", () => ({
     runToolCall: vi.fn().mockResolvedValue({
       whatMayHaveChanged: "The tooling landscape may have changed.",
       recommend: "revise",
