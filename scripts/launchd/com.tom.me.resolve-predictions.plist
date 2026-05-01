@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.tom.me.resolve-predictions</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/bin/env</string>
+        <string>-i</string>
+        <string>HOME=/Users/tom</string>
+        <string>PATH=/usr/local/bin:/usr/bin:/bin</string>
+        <string>pnpm</string>
+        <string>resolve-predictions</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>__REPO_ROOT__</string>
+
+    <!--
+        resolve-predictions calls the Anthropic API (Claude Sonnet 4.6).
+        Set ANTHROPIC_API_KEY in your launchd environment before loading this plist:
+
+            launchctl setenv ANTHROPIC_API_KEY <your-key>
+
+        Alternatively, add an EnvironmentVariables dict below — but do NOT bake the key
+        into this file or commit it to version control.
+
+        Without the key, the agent runs with --no-llm and produces zero proposals.
+    -->
+    <key>EnvironmentVariables</key>
+    <dict>
+        <!-- Add ANTHROPIC_API_KEY here only if you cannot use launchctl setenv. -->
+    </dict>
+
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>
+        <integer>3</integer>
+        <key>Minute</key>
+        <integer>10</integer>
+    </dict>
+
+    <key>StandardOutPath</key>
+    <string>/Users/tom/Library/Logs/me/resolve-predictions.out.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/Users/tom/Library/Logs/me/resolve-predictions.err.log</string>
+</dict>
+</plist>

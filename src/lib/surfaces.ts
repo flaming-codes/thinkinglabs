@@ -10,11 +10,13 @@ export interface Surface {
 
 /** Listing routes the site exposes; detail routes follow `<url>/[slug]`. */
 export const LISTING_KINDS = [
+  "claims",
   "thoughts",
   "projects",
   "predictions",
   "changed-my-mind",
   "decisions",
+  "inputs",
   "questions",
   "posts",
 ] as const satisfies ReadonlyArray<Kind>;
@@ -25,7 +27,9 @@ export const SURFACES: ReadonlyArray<Surface> = [
   { title: "Now", url: "/now", description: "What I'm currently focused on.", section: "page" },
   { title: "About", url: "/about", description: "About this site and the author.", section: "page" },
   { title: "Contact", url: "/contact", description: "Human-readable contact surface.", section: "page" },
+  { title: "Claims", url: "/claims", description: "Atomic structured claims with confidence and evidence.", section: "listing" },
   { title: "Thoughts", url: "/thoughts", description: "Long-form prose, by recency.", section: "listing" },
+  { title: "Inputs", url: "/inputs", description: "External material that shaped thinking.", section: "listing" },
   { title: "Projects", url: "/projects", description: "Active and dormant work, grouped by status.", section: "listing" },
   { title: "Predictions", url: "/predictions", description: "Falsifiable predictions, pending and resolved.", section: "listing" },
   { title: "Changed my mind", url: "/changed-my-mind", description: "Belief revisions, by date.", section: "listing" },
@@ -33,6 +37,8 @@ export const SURFACES: ReadonlyArray<Surface> = [
   { title: "Questions", url: "/questions", description: "Open questions I'm stuck on.", section: "listing" },
   { title: "Posts", url: "/posts", description: "Long-form evergreen posts with per-section freshness.", section: "listing" },
   { title: "Calibration", url: "/predictions/calibration", description: "Stated confidence vs realized accuracy.", section: "page" },
+  { title: "Claim detail", url: "/claims/<slug>", description: "Single claim page with confidence history.", section: "detail" },
+  { title: "Input detail", url: "/inputs/<slug>", description: "Single input page.", section: "detail" },
   { title: "Thought detail", url: "/thoughts/<slug>", description: "Single thought page.", section: "detail" },
   { title: "Project detail", url: "/projects/<slug>", description: "Single project page.", section: "detail" },
   { title: "Prediction detail", url: "/predictions/<slug>", description: "Single prediction page.", section: "detail" },
@@ -40,6 +46,8 @@ export const SURFACES: ReadonlyArray<Surface> = [
   { title: "Decision detail", url: "/decisions/<slug>", description: "Single decision page.", section: "detail" },
   { title: "Question detail", url: "/questions/<slug>", description: "Single question page.", section: "detail" },
   { title: "Post detail", url: "/posts/<slug>", description: "Single post page.", section: "detail" },
+  { title: "Claims JSON", url: "/api/claims.json", description: "All claims as JSON.", section: "api" },
+  { title: "Inputs JSON", url: "/api/inputs.json", description: "All inputs as JSON.", section: "api" },
   { title: "Thoughts JSON", url: "/api/thoughts.json", description: "All thoughts as JSON.", section: "api" },
   { title: "Projects JSON", url: "/api/projects.json", description: "All projects as JSON.", section: "api" },
   { title: "Predictions JSON", url: "/api/predictions.json", description: "All predictions as JSON.", section: "api" },

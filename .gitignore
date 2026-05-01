@@ -150,3 +150,21 @@ vite.config.ts.timestamp-*
 .vscode/
 *.swp
 .DS_Store
+
+# Derivation pipeline local state
+.derivation-state.json
+.derivation-rejections.json
+.derivation-deferrals.json
+
+# Stale-claim review local state
+.stale-review-deferrals.json
+
+# Proposal queue (M5)
+.proposal-queue.json
+.dormant-flip-rejections.json
+.resolve-predictions-rejections.json
+.review-decisions-rejections.json
+.triage-questions-rejections.json
+
+# Triage-questions submission inbox (written by MCP tool at M6)
+submissions/

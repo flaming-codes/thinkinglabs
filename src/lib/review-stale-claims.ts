@@ -1,9 +1,10 @@
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { z } from "zod";
-import matter from "gray-matter";
+import { daysBetween } from "./clock.ts";
 import { lastTouched } from "./git.ts";
 import { runToolCall } from "./anthropic.ts";
+import { walkMarkdown } from "./walk-content.ts";
 
 /** Reasons a claim might be flagged for review; the union is closed so consumers can switch exhaustively. */
 export type StaleReason = "past-threshold" | "evidence-shift" | "contradicting-thought" | "deprecation-candidate";
@@ -62,22 +63,6 @@ const SHIFT_TOOL = {
   },
 };
 
-/** Read all markdown files from a content subdirectory; returns [] when the dir is absent. */
-function readContentDir(dir: string): Array<{ slug: string; path: string; data: Record<string, unknown> }> {
-  if (!existsSync(dir)) return [];
-  return readdirSync(dir)
-    .filter((f) => f.endsWith(".md"))
-    .flatMap((f) => {
-      try {
-        const p = join(dir, f);
-        const { data } = matter(readFileSync(p, "utf8"));
-        return [{ slug: f.slice(0, -3), path: p, data: data as Record<string, unknown> }];
-      } catch {
-        return [];
-      }
-    });
-}
-
 /** Extract string tags from a frontmatter data object. */
 function tagsOf(data: Record<string, unknown>): ReadonlyArray<string> {
   return Array.isArray(data["tags"]) ? (data["tags"] as string[]) : [];
@@ -116,18 +101,12 @@ async function callShiftDetection(
 
 /** Scans the claims directory and returns flags; LLM is consulted only when shiftDetection is on. */
 export async function detectStaleClaims(args: DetectStaleClaimsArgs): Promise<ReadonlyArray<StaleFlag>> {
-  const { cwd, contentRoot, nowISO, thresholdDays, skipLLM } = args;
-  const claimsDir = join(contentRoot, "claims");
-  const thoughtsDir = join(contentRoot, "thoughts");
-  const postsDir = join(contentRoot, "posts");
-  const inputsDir = join(contentRoot, "inputs");
+  const { cwd, nowISO, thresholdDays, skipLLM } = args;
 
-  const claims = readContentDir(claimsDir);
-  const thoughts = readContentDir(thoughtsDir);
-  const posts = readContentDir(postsDir);
-  const inputs = readContentDir(inputsDir);
-
-  const now = new Date(nowISO).getTime();
+  const claims = walkMarkdown({ cwd, kind: "claims" });
+  const thoughts = walkMarkdown({ cwd, kind: "thoughts" });
+  const posts = walkMarkdown({ cwd, kind: "posts" });
+  const inputs = walkMarkdown({ cwd, kind: "inputs" });
 
   /** Resolve last-touched ISO for a content object, falling back to git. */
   async function touchedISO(obj: { path: string; data: Record<string, unknown> }): Promise<string | null> {
@@ -143,7 +122,7 @@ export async function detectStaleClaims(args: DetectStaleClaimsArgs): Promise<Re
     const lastReviewedRaw = claim.data["last_reviewed"];
     if (!lastReviewedRaw) continue;
     const lastReviewedISO = lastReviewedRaw instanceof Date ? lastReviewedRaw.toISOString() : String(lastReviewedRaw);
-    const daysSinceReview = Math.floor((now - new Date(lastReviewedISO).getTime()) / 86_400_000);
+    const daysSinceReview = daysBetween(lastReviewedISO, nowISO);
 
     const claimTags = tagsOf(claim.data);
     const derivedFrom = linksOf(claim.data, "derived_from");

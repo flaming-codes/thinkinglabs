@@ -1,4 +1,5 @@
 import matter from "gray-matter";
+import { nowISO } from "./clock.ts";
 import { git, showAt } from "./git.ts";
 import { stripMdExt } from "./refs.ts";
 
@@ -242,7 +243,7 @@ export function formatAtom(entries: ReadonlyArray<FeedEntry>, opts: { siteUrl?: 
   return [...head, ...body, `</feed>`].join("\n");
 }
 
-/** Resolves the build-time timestamp for generated feed metadata; env override keeps CI byte-stable. */
+/** Resolves the build-time timestamp for generated feed metadata; delegates to the shared clock helper. */
 function buildNowISO(): string {
-  return process.env["BUILD_NOW_ISO"] ?? new Date().toISOString();
+  return nowISO();
 }

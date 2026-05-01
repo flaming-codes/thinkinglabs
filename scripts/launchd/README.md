@@ -1,0 +1,93 @@
+# launchd agent plists
+
+Five launchd plists wire the M5 background agents to macOS's launchd. They are optional — running `pnpm <agent>` manually works fine for ad-hoc use. Installing these plists keeps the agents running on a schedule against the persistent working tree so that rejection memory (stored in gitignored state files at the repo root) survives across runs.
+
+See `docs/architecture/ADR-009-proposal-confirmation-pattern.md` for the rationale.
+
+## Before you install
+
+### 1. Replace `__REPO_ROOT__`
+
+Every plist has `WorkingDirectory` set to `__REPO_ROOT__`. Replace it with the absolute path to this repo:
+
+```sh
+REPO=$(pwd)
+for f in scripts/launchd/com.tom.me.*.plist; do
+  sed -i '' "s|__REPO_ROOT__|$REPO|g" "$f"
+done
+```
+
+### 2. Set `ANTHROPIC_API_KEY`
+
+Three agents (`resolve-predictions`, `freshness-review`, `triage-questions`) call the Anthropic API. The key must be available in the launchd environment. The recommended approach keeps the key out of version control entirely:
+
+```sh
+launchctl setenv ANTHROPIC_API_KEY <your-key>
+```
+
+This injects the variable into the launchd session; all five plists (and any future ones) pick it up without baking the key into any file. The setting persists until the next logout.
+
+For persistence across reboots, add the `launchctl setenv` call to a login item or a separate `launchd` plist loaded at login — do not put the key in these agent plists or commit it to git.
+
+The two non-LLM agents (`dormant-flip`, `review-decisions`) need no key.
+
+### 3. Create the log directory
+
+```sh
+mkdir -p ~/Library/Logs/me
+```
+
+## Install
+
+Bootstrap each plist into the GUI session (replace `<plist-path>` with the full path):
+
+```sh
+launchctl bootstrap gui/$(id -u) <plist-path>
+```
+
+Example for all five at once:
+
+```sh
+for f in scripts/launchd/com.tom.me.*.plist; do
+  launchctl bootstrap gui/$(id -u) "$(pwd)/$f"
+done
+```
+
+## Verify
+
+Kick off a plist immediately to confirm it runs cleanly:
+
+```sh
+launchctl kickstart -k gui/$(id -u)/com.tom.me.dormant-flip
+```
+
+Check the log:
+
+```sh
+tail ~/Library/Logs/me/dormant-flip.out.log
+tail ~/Library/Logs/me/dormant-flip.err.log
+```
+
+## Uninstall
+
+```sh
+launchctl bootout gui/$(id -u)/com.tom.me.dormant-flip
+# repeat for each label, or:
+for label in dormant-flip review-decisions resolve-predictions freshness-review triage-questions; do
+  launchctl bootout gui/$(id -u)/com.tom.me.$label 2>/dev/null || true
+done
+```
+
+## Schedule summary
+
+| Agent | Schedule | LLM |
+|---|---|---|
+| `dormant-flip` | Daily 03:00 | No |
+| `review-decisions` | Daily 03:05 | No |
+| `resolve-predictions` | Daily 03:10 | Yes |
+| `freshness-review` | Weekly Sunday 03:15 | Yes |
+| `triage-questions` | Every 30 minutes | Yes |
+
+## Note on `review-proposals`
+
+`pnpm review-proposals` is human-only and must never be scheduled. It blocks on TTY input. Run it manually whenever agents have enqueued proposals you want to review.

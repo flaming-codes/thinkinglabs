@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.tom.me.dormant-flip</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/bin/env</string>
+        <string>-i</string>
+        <string>HOME=/Users/tom</string>
+        <string>PATH=/usr/local/bin:/usr/bin:/bin</string>
+        <string>pnpm</string>
+        <string>dormant-flip</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>__REPO_ROOT__</string>
+
+    <!-- dormant-flip is a pure deterministic scanner; no ANTHROPIC_API_KEY needed. -->
+    <!-- If you want to set environment variables, add an EnvironmentVariables dict here. -->
+
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>
+        <integer>3</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+
+    <key>StandardOutPath</key>
+    <string>/Users/tom/Library/Logs/me/dormant-flip.out.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/Users/tom/Library/Logs/me/dormant-flip.err.log</string>
+</dict>
+</plist>

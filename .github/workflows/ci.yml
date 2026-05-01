@@ -1,3 +1,10 @@
+# Background agents (dormant-flip, review-decisions, resolve-predictions, freshness-review,
+# triage-questions) are scheduled via launchd locally and are NOT run in CI. They require
+# persistent state files (.proposal-queue.json, .<agent>-rejections.json) that live in the
+# repo working tree and are gitignored; a clean CI checkout would reset rejection memory on
+# every run. See docs/architecture/ADR-009-proposal-confirmation-pattern.md for the rationale
+# and scripts/launchd/README.md for installation instructions.
+
 name: ci
 
 on:

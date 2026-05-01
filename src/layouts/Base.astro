@@ -75,10 +75,14 @@ const path = Astro.url.pathname.replace(/\/$/, "") || "/";
         line-height: 1.4;
         color: var(--muted);
       }
-      .pill[data-status="alive"], .pill[data-status="open"], .pill[data-status="standing"] { color: #1f7a1f; border-color: #cfe9cf; }
-      .pill[data-status="dormant"], .pill[data-status="partial"] { color: #a06600; border-color: #f0d9a8; }
+      .pill[data-status="alive"], .pill[data-status="active"], .pill[data-status="open"], .pill[data-status="standing"] { color: #1f7a1f; border-color: #cfe9cf; }
+      .pill[data-status="dormant"], .pill[data-status="deprecated"], .pill[data-status="partial"] { color: #a06600; border-color: #f0d9a8; }
       .pill[data-status="shipped"] { color: #1f4ea0; border-color: #cfd9f0; }
       .pill[data-status="abandoned"], .pill[data-status="reversed"], .pill[data-status="superseded"], .pill[data-status="closed"] { color: #888; border-color: #ddd; }
+      .claim-history { border-collapse: collapse; font-size: 0.88rem; margin: 0.5rem 0 1.5rem; width: 100%; }
+      .claim-history th { text-align: left; color: var(--muted); font-weight: normal; border-bottom: 1px solid var(--line); padding: 0.25rem 0.5rem 0.25rem 0; }
+      .claim-history td { padding: 0.2rem 0.5rem 0.2rem 0; border-bottom: 1px solid var(--line); vertical-align: middle; }
+      .claim-history tr:last-child td { border-bottom: none; }
       .tags { display: inline-flex; flex-wrap: wrap; gap: 0.3rem; }
       .tags > .tag { font-size: 0.78rem; color: var(--muted); }
       .banner { padding: 0.6rem 0.8rem; border: 1px solid var(--line); border-radius: 4px; background: #fff8e6; margin: 1rem 0; font-size: 0.92rem; }

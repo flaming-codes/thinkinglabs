@@ -12,7 +12,9 @@
 
 ## Listings
 
+- [Claims](/claims): Atomic structured claims with confidence and evidence.
 - [Thoughts](/thoughts): Long-form prose, by recency.
+- [Inputs](/inputs): External material that shaped thinking.
 - [Projects](/projects): Active and dormant work, grouped by status.
 - [Predictions](/predictions): Falsifiable predictions, pending and resolved.
 - [Changed my mind](/changed-my-mind): Belief revisions, by date.
@@ -22,6 +24,8 @@
 
 ## Detail patterns
 
+- [Claim detail](/claims/<slug>): Single claim page with confidence history.
+- [Input detail](/inputs/<slug>): Single input page.
 - [Thought detail](/thoughts/<slug>): Single thought page.
 - [Project detail](/projects/<slug>): Single project page.
 - [Prediction detail](/predictions/<slug>): Single prediction page.
@@ -32,6 +36,8 @@
 
 ## JSON APIs
 
+- [Claims JSON](/api/claims.json): All claims as JSON.
+- [Inputs JSON](/api/inputs.json): All inputs as JSON.
 - [Thoughts JSON](/api/thoughts.json): All thoughts as JSON.
 - [Projects JSON](/api/projects.json): All projects as JSON.
 - [Predictions JSON](/api/predictions.json): All predictions as JSON.
