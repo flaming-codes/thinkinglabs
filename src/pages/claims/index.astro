@@ -1,0 +1,27 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import EmptyState from "../../components/EmptyState.astro";
+import StatusPill from "../../components/StatusPill.astro";
+import Tags from "../../components/Tags.astro";
+import { byDateDesc } from "../../lib/sort.ts";
+
+const items = byDateDesc(await getCollection("claims"), "last_reviewed");
+function trunc(s: string, n: number): string {
+  return s.length > n ? `${s.slice(0, n).trim()}…` : s;
+}
+---
+<Base title="Claims — Tom">
+  <h1>Claims</h1>
+  {items.length === 0 ? <EmptyState /> : (
+    <ul class="list">
+      {items.map((c) => (
+        <li>
+          <a href={`/claims/${c.id}`}>{trunc(c.data.claim, 140)}</a> <StatusPill status={c.data.status} />
+          <div class="meta">confidence {c.data.confidence.toFixed(2)} · reviewed {c.data.last_reviewed.slice(0, 10)}</div>
+          {c.data.tags.length > 0 ? <div class="meta"><Tags tags={c.data.tags} /></div> : null}
+        </li>
+      ))}
+    </ul>
+  )}
+</Base>

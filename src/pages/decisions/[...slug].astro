@@ -1,0 +1,64 @@
+---
+import { getCollection, render } from "astro:content";
+import type { GetStaticPaths, InferGetStaticPropsType } from "astro";
+import Base from "../../layouts/Base.astro";
+import MetaBlock from "../../components/MetaBlock.astro";
+import StatusPill from "../../components/StatusPill.astro";
+import Tags from "../../components/Tags.astro";
+import { reversedByMap } from "../../lib/decisions.ts";
+import { stripKindPrefix } from "../../lib/refs.ts";
+
+export const getStaticPaths = (async () => {
+  const items = await getCollection("decisions");
+  return items.map((d) => ({ params: { slug: d.id }, props: { entry: d } }));
+}) satisfies GetStaticPaths;
+
+const { entry } = Astro.props as InferGetStaticPropsType<typeof getStaticPaths>;
+const { Content } = await render(entry);
+const reversedBy = (await reversedByMap()).get(entry.id) ?? [];
+---
+<Base title={`${entry.data.decision.slice(0, 60)} — Decisions`}>
+  <h1>{entry.data.decision} <StatusPill status={entry.data.status} /></h1>
+
+  {entry.data.reverses.length > 0 ? (
+    <div class="banner">
+      Reverses: {entry.data.reverses.map((r) => <a href={`/decisions/${stripKindPrefix(r)}`}>{r}</a>)}
+    </div>
+  ) : null}
+  {reversedBy.length > 0 ? (
+    <div class="banner">
+      Reversed by: {reversedBy.map((r) => <a href={`/decisions/${r}`}>{r}</a>)}
+    </div>
+  ) : null}
+
+  <MetaBlock
+    data={entry.data}
+    fields={[
+      ["date", "date"],
+      ["chosen", "chosen"],
+      ["why", "why"],
+      ["context", "context"],
+      ["options considered", "options_considered"],
+      ["what would change my mind", "what_would_change_my_mind"],
+      ["follow up on", "follow_up_on"],
+    ]}
+  />
+  <Tags tags={entry.data.tags} />
+  <article><Content /></article>
+  {entry.data.related_claims.length > 0 ? (
+    <>
+      <h2>Related claims</h2>
+      <ul class="list">
+        {entry.data.related_claims.map((c) => <li><a href={`/claims/${stripKindPrefix(c)}`}>{c}</a></li>)}
+      </ul>
+    </>
+  ) : null}
+  {entry.data.related_projects.length > 0 ? (
+    <>
+      <h2>Related projects</h2>
+      <ul class="list">
+        {entry.data.related_projects.map((p) => <li><a href={`/projects/${stripKindPrefix(p)}`}>{p}</a></li>)}
+      </ul>
+    </>
+  ) : null}
+</Base>

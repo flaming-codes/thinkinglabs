@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.tom.me.triage-questions</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/zsh</string>
+        <string>-lc</string>
+        <string>source ~/.zshrc &gt;/dev/null 2&gt;&amp;1 || true; exec pnpm triage-questions</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>__REPO_ROOT__</string>
+
+    <!--
+        triage-questions calls the OpenAI API (gpt-4.1, balanced tier).
+        Set OPENAI_API_KEY in your launchd environment before loading this plist:
+
+            launchctl setenv OPENAI_API_KEY <your-key>
+
+        Alternatively, add an EnvironmentVariables dict below — but do NOT bake the key
+        into this file or commit it to version control.
+
+        Without the key, the agent runs with --no-llm and produces zero proposals.
+    -->
+    <key>EnvironmentVariables</key>
+    <dict>
+        <!-- Add OPENAI_API_KEY here only if you cannot use launchctl setenv. -->
+    </dict>
+
+    <!-- Every 30 minutes (1800 seconds); reader submissions can arrive any time. -->
+    <key>StartInterval</key>
+    <integer>1800</integer>
+
+    <key>StandardOutPath</key>
+    <string>/Users/tom/Library/Logs/me/triage-questions.out.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/Users/tom/Library/Logs/me/triage-questions.err.log</string>
+</dict>
+</plist>

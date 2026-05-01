@@ -1,0 +1,36 @@
+---
+import { getCollection, render } from "astro:content";
+import type { GetStaticPaths, InferGetStaticPropsType } from "astro";
+import Base from "../../layouts/Base.astro";
+import MetaBlock from "../../components/MetaBlock.astro";
+import Tags from "../../components/Tags.astro";
+import { stripKindPrefix } from "../../lib/refs.ts";
+
+export const getStaticPaths = (async () => {
+  const items = await getCollection("changed-my-mind");
+  return items.map((c) => ({ params: { slug: c.id }, props: { entry: c } }));
+}) satisfies GetStaticPaths;
+
+const { entry } = Astro.props as InferGetStaticPropsType<typeof getStaticPaths>;
+const { Content } = await render(entry);
+---
+<Base title={`${entry.data.title} — Changed my mind`}>
+  <h1>{entry.data.title}</h1>
+  <MetaBlock data={entry.data} fields={[["date", "date"]]} />
+  <Tags tags={entry.data.tags} />
+  <h2>Used to believe</h2>
+  <p>{entry.data.used_to_believe}</p>
+  <h2>What changed</h2>
+  <p>{entry.data.what_changed}</p>
+  <h2>Now believe</h2>
+  <p>{entry.data.now_believe}</p>
+  <article><Content /></article>
+  {entry.data.superseded_claims.length > 0 ? (
+    <>
+      <h2>Superseded claims</h2>
+      <ul class="list">
+        {entry.data.superseded_claims.map((c) => <li><a href={`/claims/${stripKindPrefix(c)}`}>{c}</a></li>)}
+      </ul>
+    </>
+  ) : null}
+</Base>

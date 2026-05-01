@@ -1,0 +1,56 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import { calibration } from "../../lib/calibration.ts";
+import EmbeddedTool from "../../components/EmbeddedTool.astro";
+import { predictionCalibrationLogger } from "../../../embeds/prediction-calibration-logger/index.ts";
+
+const all = await getCollection("predictions");
+const resolved = all.filter((p) => p.data.resolution === "true" || p.data.resolution === "false");
+const buckets = calibration(resolved.map((p) => ({ confidence: p.data.confidence, resolution: p.data.resolution })));
+
+const W = 480;
+const H = 360;
+const PAD_L = 48;
+const PAD_R = 16;
+const PAD_T = 16;
+const PAD_B = 36;
+const plotW = W - PAD_L - PAD_R;
+const plotH = H - PAD_T - PAD_B;
+function x(v: number): number { return PAD_L + v * plotW; }
+function y(v: number): number { return PAD_T + (1 - v) * plotH; }
+const ticks = [0, 0.25, 0.5, 0.75, 1];
+const maxCount = buckets.reduce((m, b) => Math.max(m, b.total), 0);
+function radius(n: number): number { return n === 0 ? 0 : 4 + 6 * Math.sqrt(n / Math.max(1, maxCount)); }
+---
+<Base title="Calibration — Predictions">
+  <h1>Calibration</h1>
+  <p class="meta">Stated confidence (x) versus realized accuracy (y) across resolved predictions. Diagonal is perfect calibration.</p>
+
+  <svg class="calibration" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Calibration plot">
+    <line x1={x(0)} y1={y(0)} x2={x(1)} y2={y(1)} stroke="#bbb" stroke-dasharray="4 4" />
+    <line x1={x(0)} y1={y(0)} x2={x(1)} y2={y(0)} stroke="#888" />
+    <line x1={x(0)} y1={y(0)} x2={x(0)} y2={y(1)} stroke="#888" />
+    {ticks.map((t) => (
+      <>
+        <line x1={x(t)} y1={y(0)} x2={x(t)} y2={y(0) + 4} stroke="#888" />
+        <text x={x(t)} y={y(0) + 18} text-anchor="middle" font-size="11" fill="#666">{t}</text>
+        <line x1={x(0)} y1={y(t)} x2={x(0) - 4} y2={y(t)} stroke="#888" />
+        <text x={x(0) - 8} y={y(t) + 4} text-anchor="end" font-size="11" fill="#666">{t}</text>
+      </>
+    ))}
+    <text x={PAD_L + plotW / 2} y={H - 6} text-anchor="middle" font-size="11" fill="#666">stated confidence</text>
+    <text x={12} y={PAD_T + plotH / 2} text-anchor="middle" font-size="11" fill="#666" transform={`rotate(-90 12 ${PAD_T + plotH / 2})`}>realized accuracy</text>
+    {buckets.filter((b) => b.accuracy !== null).map((b) => (
+      <circle cx={x(b.mid)} cy={y(b.accuracy!)} r={radius(b.total)} fill="#2b5cff" fill-opacity="0.7" stroke="#1f3fcc" />
+    ))}
+  </svg>
+
+  {resolved.length === 0 ? (
+    <p class="meta">No resolved predictions yet.</p>
+  ) : (
+    <p class="meta">{resolved.length} resolved prediction{resolved.length === 1 ? "" : "s"}.</p>
+  )}
+
+  <EmbeddedTool payload={predictionCalibrationLogger} />
+</Base>

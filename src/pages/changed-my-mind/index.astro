@@ -1,0 +1,22 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import EmptyState from "../../components/EmptyState.astro";
+import { byDateDesc } from "../../lib/sort.ts";
+
+const items = byDateDesc(await getCollection("changed-my-mind"), "date");
+---
+<Base title="Changed my mind — Tom">
+  <h1>Changed my mind</h1>
+  {items.length === 0 ? <EmptyState /> : (
+    <ul class="list">
+      {items.map((c) => (
+        <li>
+          <a href={`/changed-my-mind/${c.id}`}>{c.data.title}</a>
+          <div class="meta">{c.data.date.slice(0, 10)}</div>
+          <div class="meta">{c.data.used_to_believe} → {c.data.now_believe}</div>
+        </li>
+      ))}
+    </ul>
+  )}
+</Base>

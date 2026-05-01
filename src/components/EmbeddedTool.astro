@@ -1,0 +1,198 @@
+---
+import type { EmbeddedToolPayload } from "../../embeds/core.ts";
+
+interface Props {
+  payload: EmbeddedToolPayload;
+}
+
+const { payload } = Astro.props;
+const { contract } = payload;
+---
+<section
+  class="embedded-tool"
+  data-embedded-tool={contract.kind}
+  data-embed-id={contract.id}
+  data-storage-key={contract.scope.storageKey ?? ""}
+  data-endpoint={contract.scope.endpoint}
+>
+  <header class="embedded-tool__header">
+    <h2>{contract.title}</h2>
+    <p>{contract.summary}</p>
+  </header>
+
+  <noscript>
+    <p class="embedded-tool__notice">JavaScript is off; the static fallback below is still complete.</p>
+  </noscript>
+
+  <table class="embedded-tool__fallback">
+    <caption>{contract.fallback.status}</caption>
+    <tbody>
+      {contract.fallback.rows.map((row) => (
+        <tr>
+          <th scope="row">{row.label}</th>
+          <td>{row.value}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+
+  {contract.kind === "local-prediction-calibration-logger" ? (
+    <form class="embedded-tool__logger" data-logger-form method="get">
+      <label>
+        Confidence
+        <input name="confidence" type="range" min="0" max="100" value="70" />
+      </label>
+      <label>
+        Outcome
+        <select name="resolved">
+          <option value="true">true</option>
+          <option value="false">false</option>
+        </select>
+      </label>
+      <button type="submit" data-record disabled>Record locally</button>
+      <p class="embedded-tool__local" data-local-summary aria-live="polite">Local logging is available when JavaScript runs.</p>
+    </form>
+  ) : null}
+</section>
+
+<script is:inline>
+  for (const root of document.querySelectorAll("[data-embedded-tool='local-prediction-calibration-logger']")) {
+    if (root.dataset.ready === "true") continue;
+    root.dataset.ready = "true";
+    const storageKey = root.getAttribute("data-storage-key");
+    const form = root.querySelector("[data-logger-form]");
+    const button = root.querySelector("[data-record]");
+    const summary = root.querySelector("[data-local-summary]");
+    if (!storageKey || !form || !button || !summary) continue;
+    button.disabled = false;
+
+    const readEntries = () => {
+      try {
+        const parsed = JSON.parse(window.localStorage.getItem(storageKey) || "[]");
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    };
+
+    const writeEntries = (entries) => {
+      try {
+        window.localStorage.setItem(storageKey, JSON.stringify(entries.slice(-100)));
+      } catch {
+        summary.textContent = "Local storage is unavailable in this browser.";
+      }
+    };
+
+    const render = () => {
+      const entries = readEntries();
+      summary.textContent = entries.length === 1 ? "1 local entry stored in this browser." : `${entries.length} local entries stored in this browser.`;
+    };
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const data = new FormData(form);
+      const confidence = Number(data.get("confidence")) / 100;
+      const resolved = data.get("resolved") === "true";
+      const entries = readEntries();
+      entries.push({ id: `local-${Date.now()}`, confidence, resolved });
+      writeEntries(entries);
+      render();
+    });
+
+    render();
+  }
+</script>
+
+<style>
+  .embedded-tool {
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 1rem;
+    margin: 1.5rem 0;
+    background: #fff;
+  }
+
+  .embedded-tool__header h2 {
+    margin-top: 0;
+  }
+
+  .embedded-tool__header p,
+  .embedded-tool__notice,
+  .embedded-tool__local {
+    color: var(--muted);
+    font-size: 0.88rem;
+  }
+
+  .embedded-tool__fallback {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.75rem 0 1rem;
+    font-size: 0.92rem;
+  }
+
+  .embedded-tool__fallback caption {
+    caption-side: bottom;
+    padding-top: 0.5rem;
+    color: var(--muted);
+    text-align: left;
+    font-size: 0.82rem;
+  }
+
+  .embedded-tool__fallback th,
+  .embedded-tool__fallback td {
+    border-bottom: 1px solid var(--line);
+    padding: 0.35rem 0.5rem 0.35rem 0;
+    text-align: left;
+  }
+
+  .embedded-tool__fallback tr:last-child th,
+  .embedded-tool__fallback tr:last-child td {
+    border-bottom: none;
+  }
+
+  .embedded-tool__logger {
+    display: grid;
+    grid-template-columns: minmax(10rem, 1fr) minmax(8rem, 0.6fr) max-content;
+    gap: 0.75rem;
+    align-items: end;
+  }
+
+  .embedded-tool__logger label {
+    display: grid;
+    gap: 0.25rem;
+    color: var(--muted);
+    font-size: 0.82rem;
+  }
+
+  .embedded-tool__logger input,
+  .embedded-tool__logger select,
+  .embedded-tool__logger button {
+    min-height: 2.1rem;
+    font: inherit;
+  }
+
+  .embedded-tool__logger button {
+    border: 1px solid var(--accent);
+    border-radius: 4px;
+    background: var(--accent);
+    color: white;
+    padding: 0 0.75rem;
+  }
+
+  .embedded-tool__logger button:disabled {
+    border-color: var(--line);
+    background: var(--line);
+    color: var(--muted);
+  }
+
+  .embedded-tool__local {
+    grid-column: 1 / -1;
+    margin: 0;
+  }
+
+  @media (max-width: 560px) {
+    .embedded-tool__logger {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,31 @@
+---
+import { getCollection, render } from "astro:content";
+import type { GetStaticPaths, InferGetStaticPropsType } from "astro";
+import Base from "../../layouts/Base.astro";
+import MetaBlock from "../../components/MetaBlock.astro";
+import Tags from "../../components/Tags.astro";
+
+export const getStaticPaths = (async () => {
+  const items = await getCollection("inputs");
+  return items.map((i) => ({ params: { slug: i.id }, props: { entry: i } }));
+}) satisfies GetStaticPaths;
+
+const { entry } = Astro.props as InferGetStaticPropsType<typeof getStaticPaths>;
+const { Content } = await render(entry);
+---
+<Base title={`${entry.data.title} — Inputs`}>
+  <h1>{entry.data.title}</h1>
+  <MetaBlock
+    data={entry.data}
+    fields={[
+      ["consumed", "consumed"],
+      ["source", "source"],
+      ["note", "note"],
+    ]}
+  />
+  {entry.data.url ? (
+    <p><a href={entry.data.url}>{entry.data.url}</a></p>
+  ) : null}
+  <Tags tags={entry.data.tags} />
+  <article><Content /></article>
+</Base>

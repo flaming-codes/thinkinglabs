@@ -1,0 +1,44 @@
+---
+import { getCollection, render } from "astro:content";
+import type { GetStaticPaths, InferGetStaticPropsType } from "astro";
+import Base from "../../layouts/Base.astro";
+import MetaBlock from "../../components/MetaBlock.astro";
+import Tags from "../../components/Tags.astro";
+import { stripKindPrefix } from "../../lib/refs.ts";
+
+export const getStaticPaths = (async () => {
+  const items = await getCollection("thoughts");
+  return items.map((t) => ({ params: { slug: t.id }, props: { entry: t } }));
+}) satisfies GetStaticPaths;
+
+const { entry } = Astro.props as InferGetStaticPropsType<typeof getStaticPaths>;
+const { Content } = await render(entry);
+---
+<Base title={`${entry.data.title} — Thoughts`}>
+  <h1>{entry.data.title}</h1>
+  <MetaBlock
+    data={entry.data}
+    fields={[
+      ["created", "created"],
+      ["updated", "updated"],
+    ]}
+  />
+  <Tags tags={entry.data.tags} />
+  <article><Content /></article>
+  {entry.data.claims.length > 0 ? (
+    <>
+      <h2>Claims</h2>
+      <ul class="list">
+        {entry.data.claims.map((c) => <li><a href={`/claims/${stripKindPrefix(c)}`}>{c}</a></li>)}
+      </ul>
+    </>
+  ) : null}
+  {entry.data.inputs.length > 0 ? (
+    <>
+      <h2>Inputs</h2>
+      <ul class="list">
+        {entry.data.inputs.map((i) => <li><a href={`/inputs/${stripKindPrefix(i)}`}>{i}</a></li>)}
+      </ul>
+    </>
+  ) : null}
+</Base>

@@ -1,0 +1,14 @@
+{
+  "asOf": "2026-05-01",
+  "scenario": "Will this site keep embedded agents static, scoped, and CI-friendly through M7?",
+  "samples": [
+    { "id": "m7-seed-01", "confidence": 0.55, "resolved": true },
+    { "id": "m7-seed-02", "confidence": 0.62, "resolved": true },
+    { "id": "m7-seed-03", "confidence": 0.68, "resolved": false },
+    { "id": "m7-seed-04", "confidence": 0.74, "resolved": true },
+    { "id": "m7-seed-05", "confidence": 0.81, "resolved": true },
+    { "id": "m7-seed-06", "confidence": 0.87, "resolved": true },
+    { "id": "m7-seed-07", "confidence": 0.91, "resolved": false },
+    { "id": "m7-seed-08", "confidence": 0.96, "resolved": true }
+  ]
+}

@@ -1,0 +1,25 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import EmptyState from "../../components/EmptyState.astro";
+import Tags from "../../components/Tags.astro";
+import { byDateDesc } from "../../lib/sort.ts";
+
+const items = byDateDesc(await getCollection("inputs"), "consumed");
+---
+<Base title="Inputs — Tom">
+  <h1>Inputs</h1>
+  {items.length === 0 ? <EmptyState /> : (
+    <ul class="list">
+      {items.map((i) => (
+        <li>
+          <a href={`/inputs/${i.id}`}>{i.data.title}</a>
+          <div class="meta">
+            {i.data.source ? `${i.data.source} · ` : ""}{i.data.consumed.slice(0, 10)}
+          </div>
+          {i.data.tags.length > 0 ? <div class="meta"><Tags tags={i.data.tags} /></div> : null}
+        </li>
+      ))}
+    </ul>
+  )}
+</Base>
