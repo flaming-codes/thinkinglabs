@@ -1,6 +1,6 @@
-import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
 import { classify, type CommitDiff, type FileDiff } from "./brain-diff.ts";
+import { runToolCall } from "./anthropic.ts";
 
 /** Haiku 4.5 — picked for cost; brain-diff substantiveness is a coarse classification with a one-sentence summary. */
 const MODEL = "claude-haiku-4-5-20251001";
@@ -45,31 +45,14 @@ function fileContext(file: FileDiff): string {
   return `path: ${file.path}\nstatus: ${file.status}\nclassified: ${classify(file)}\n\n${fmDelta}\n\nOLD body (truncated):\n${oldBody}\n\nNEW body (truncated):\n${newBody}`;
 }
 
-/** One scoring call per file; system prompt is cached so the per-call cost is mostly the user message. */
-async function scoreOne(client: Anthropic, file: FileDiff): Promise<{ score: number; summary: string } | null> {
-  const res = await client.messages.create({
-    model: MODEL,
-    max_tokens: 256,
-    system: [{ type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral" } }],
-    tools: [TOOL],
-    tool_choice: { type: "tool", name: TOOL.name },
-    messages: [{ role: "user", content: fileContext(file) }],
-  });
-  const block = res.content.find((b) => b.type === "tool_use");
-  if (!block || block.type !== "tool_use") return null;
-  const parsed = SCORE_SCHEMA.safeParse(block.input);
-  return parsed.success ? parsed.data : null;
-}
-
 /** Score every file in every commit, keyed by `<sha>:<path>` so the formatter can look the score up. */
 export async function scoreCommitFiles(
   commits: ReadonlyArray<CommitDiff>,
 ): Promise<Map<string, { score: number; summary: string }>> {
-  const client = new Anthropic();
   const out = new Map<string, { score: number; summary: string }>();
   for (const c of commits) {
     for (const f of c.files) {
-      const s = await scoreOne(client, f);
+      const s = await runToolCall({ model: MODEL, maxTokens: 256, systemPrompt: SYSTEM_PROMPT, userPrompt: fileContext(f), tool: TOOL, schema: SCORE_SCHEMA });
       if (s) out.set(`${c.sha}:${f.path}`, s);
     }
   }
