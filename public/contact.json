@@ -1,0 +1,27 @@
+{
+  "same_day_reply": [
+    "paid advisory inquiries on AI / MCP / agent infrastructure",
+    "Wild client referrals"
+  ],
+  "queued": [
+    "press",
+    "speaking invitations with a published recent track record",
+    "collaboration proposals tied to a concrete artifact"
+  ],
+  "decline": [
+    "recruitment",
+    "generic 'pick your brain' meetings",
+    "podcast invites without published recent episodes",
+    "unsolicited demos of products I have not asked about"
+  ],
+  "advisory_rate": {
+    "currency": "EUR",
+    "hourly": "350",
+    "min_engagement": "2 hours"
+  },
+  "fastest_no": "Reply with `intent: decline-check` and the agent will tell you whether to bother sending the full inquiry.",
+  "channels": [
+    { "type": "email", "address": "tom@wild.as" }
+  ],
+  "languages": ["en", "de"]
+}

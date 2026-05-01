@@ -141,3 +141,12 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# Astro
+.astro/
+
+# Editors
+.idea/
+.vscode/
+*.swp
+.DS_Store

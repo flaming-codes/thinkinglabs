@@ -1,0 +1,40 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import EmptyState from "../../components/EmptyState.astro";
+import StatusPill from "../../components/StatusPill.astro";
+import { projectLastTouched } from "../../lib/projects.ts";
+import { byDateDesc } from "../../lib/sort.ts";
+
+const STATUS_ORDER = ["alive", "dormant", "shipped", "abandoned"] as const;
+type Status = (typeof STATUS_ORDER)[number];
+
+const all = byDateDesc(await getCollection("projects"), "started");
+const enriched = await Promise.all(
+  all.map(async (p) => ({ entry: p, last_touched: await projectLastTouched(p.id) })),
+);
+const byStatus: Record<Status, typeof enriched> = { alive: [], dormant: [], shipped: [], abandoned: [] };
+for (const e of enriched) byStatus[e.entry.data.status as Status].push(e);
+---
+<Base title="Projects — Tom">
+  <h1>Projects</h1>
+  {enriched.length === 0 ? (
+    <EmptyState />
+  ) : (
+    STATUS_ORDER.map((s) => byStatus[s].length > 0 ? (
+      <section>
+        <h2>{s}</h2>
+        <ul class="list">
+          {byStatus[s].map(({ entry, last_touched }) => (
+            <li>
+              <a href={`/projects/${entry.id}`}>{entry.data.title}</a> <StatusPill status={entry.data.status} />
+              <div class="meta">last touched {last_touched}</div>
+              {entry.data.current_question ? <div class="meta">Q: {entry.data.current_question}</div> : null}
+              {entry.data.help_welcome ? <div class="meta">help: {entry.data.help_welcome}</div> : null}
+            </li>
+          ))}
+        </ul>
+      </section>
+    ) : null)
+  )}
+</Base>

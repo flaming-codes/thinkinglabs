@@ -1,0 +1,44 @@
+---
+import Base from "../layouts/Base.astro";
+import { loadContact } from "../lib/contact.ts";
+
+const c = loadContact();
+---
+<Base title="Contact — Tom">
+  <h1>Contact</h1>
+  <p class="meta">
+    Structured contact surface; agents can read <a href="/contact.json">/contact.json</a> directly.
+  </p>
+
+  <h2>Same-day reply</h2>
+  {c.same_day_reply.length === 0 ? <p class="meta">(none)</p> : (
+    <ul class="list">{c.same_day_reply.map((s) => <li>{s}</li>)}</ul>
+  )}
+
+  <h2>Queued</h2>
+  {c.queued.length === 0 ? <p class="meta">(none)</p> : (
+    <ul class="list">{c.queued.map((s) => <li>{s}</li>)}</ul>
+  )}
+
+  <h2>Decline</h2>
+  {c.decline.length === 0 ? <p class="meta">(none)</p> : (
+    <ul class="list">{c.decline.map((s) => <li>{s}</li>)}</ul>
+  )}
+
+  <h2>Advisory rate</h2>
+  <p>{c.advisory_rate.hourly} {c.advisory_rate.currency} / hour, minimum {c.advisory_rate.min_engagement}.</p>
+
+  <h2>Fastest no</h2>
+  <p>{c.fastest_no}</p>
+
+  <h2>Channels</h2>
+  <ul class="list">
+    {c.channels.map((ch) => (
+      <li>
+        {ch.type}: {ch.type === "email" ? <a href={`mailto:${ch.address}`}>{ch.address}</a> : <a href={ch.url}>{ch.url}</a>}
+      </li>
+    ))}
+  </ul>
+
+  <p class="meta">Languages: {c.languages.join(", ")}.</p>
+</Base>

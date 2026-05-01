@@ -1,0 +1,8 @@
+---
+/** Small badge for any status enum value across kinds; styling is keyed off `data-status`. */
+interface Props {
+  status: string;
+}
+const { status } = Astro.props;
+---
+<span class="pill" data-status={status}>{status}</span>

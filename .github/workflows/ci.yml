@@ -1,0 +1,61 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        content-shape: [empty, fixtures]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm clean
+      - run: pnpm typecheck
+      - run: pnpm build
+        if: matrix.content-shape == 'empty'
+      - run: pnpm build:fixtures
+        if: matrix.content-shape == 'fixtures'
+      - run: pnpm build:index
+      - run: pnpm test
+
+  # Brain-diff publishes the substantiveness-scored change feed.
+  # Configure ANTHROPIC_API_KEY in repository Settings -> Secrets and variables -> Actions.
+  # The job uploads public/feed/ as a build artifact; deployment of those files is handled
+  # by a future deployment workflow (out of scope for M3).
+  brain-diff:
+    needs: verify
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm brain-diff --since="30 days ago" --out=public/feed
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: brain-diff-feeds
+          path: public/feed/

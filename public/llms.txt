@@ -1,0 +1,54 @@
+# Tom — wild.as
+
+> Personal thinking surface. Markdown source-of-truth at https://github.com/tom/me. Every page below renders from `content/<kind>/`.
+
+## Pages
+
+- [Home](/): Site root and entry points.
+- [Now](/now): What I'm currently focused on.
+- [About](/about): About this site and the author.
+- [Contact](/contact): Human-readable contact surface.
+- [Calibration](/predictions/calibration): Stated confidence vs realized accuracy.
+
+## Listings
+
+- [Thoughts](/thoughts): Long-form prose, by recency.
+- [Projects](/projects): Active and dormant work, grouped by status.
+- [Predictions](/predictions): Falsifiable predictions, pending and resolved.
+- [Changed my mind](/changed-my-mind): Belief revisions, by date.
+- [Decisions](/decisions): ADR-style public decisions.
+- [Questions](/questions): Open questions I'm stuck on.
+- [Posts](/posts): Long-form evergreen posts with per-section freshness.
+
+## Detail patterns
+
+- [Thought detail](/thoughts/<slug>): Single thought page.
+- [Project detail](/projects/<slug>): Single project page.
+- [Prediction detail](/predictions/<slug>): Single prediction page.
+- [Changed-my-mind detail](/changed-my-mind/<slug>): Single belief-revision page.
+- [Decision detail](/decisions/<slug>): Single decision page.
+- [Question detail](/questions/<slug>): Single question page.
+- [Post detail](/posts/<slug>): Single post page.
+
+## JSON APIs
+
+- [Thoughts JSON](/api/thoughts.json): All thoughts as JSON.
+- [Projects JSON](/api/projects.json): All projects as JSON.
+- [Predictions JSON](/api/predictions.json): All predictions as JSON.
+- [Changed-my-mind JSON](/api/changed-my-mind.json): All belief revisions as JSON.
+- [Decisions JSON](/api/decisions.json): All decisions as JSON.
+- [Questions JSON](/api/questions.json): All open questions as JSON.
+- [Posts JSON](/api/posts.json): All posts as JSON.
+
+## Data files
+
+- [Contact JSON](/contact.json): Structured contact surface.
+- [llms.txt](/llms.txt): Agent-readable surface index.
+
+## Feeds
+
+- [Brain-diff (Atom)](/feed/brain-diff.xml): Substantive changes across tracked content.
+- [Brain-diff (JSON)](/feed/brain-diff.json): Substantive changes as JSON.
+- [Predictions resolved](/feed/predictions-resolved.json): Predictions transitioning out of pending.
+- [Claims revised](/feed/claims-revised.json): Claim updates across history.
+- [Decisions reversed](/feed/decisions-reversed.json): Decision reversals and superseding records.

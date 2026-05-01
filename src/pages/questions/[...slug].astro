@@ -1,0 +1,39 @@
+---
+import { getCollection, render } from "astro:content";
+import type { GetStaticPaths, InferGetStaticPropsType } from "astro";
+import Base from "../../layouts/Base.astro";
+import MetaBlock from "../../components/MetaBlock.astro";
+import StatusPill from "../../components/StatusPill.astro";
+import Tags from "../../components/Tags.astro";
+import { stripKindPrefix } from "../../lib/refs.ts";
+
+export const getStaticPaths = (async () => {
+  const items = await getCollection("questions");
+  return items.map((q) => ({ params: { slug: q.id }, props: { entry: q } }));
+}) satisfies GetStaticPaths;
+
+const { entry } = Astro.props as InferGetStaticPropsType<typeof getStaticPaths>;
+const { Content } = await render(entry);
+---
+<Base title={`${entry.data.question.slice(0, 60)} — Questions`}>
+  <h1>{entry.data.question} <StatusPill status={entry.data.status} /></h1>
+  <MetaBlock
+    data={entry.data}
+    fields={[
+      ["asked", "asked"],
+      ["ideal responder", "ideal_responder"],
+      ["context", "context"],
+      ["attempts", "attempts"],
+    ]}
+  />
+  <Tags tags={entry.data.tags} />
+  <article><Content /></article>
+  {entry.data.related_claims.length > 0 ? (
+    <>
+      <h2>Related claims</h2>
+      <ul class="list">
+        {entry.data.related_claims.map((c) => <li><a href={`/claims/${stripKindPrefix(c)}`}>{c}</a></li>)}
+      </ul>
+    </>
+  ) : null}
+</Base>

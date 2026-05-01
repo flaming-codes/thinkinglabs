@@ -1,0 +1,45 @@
+---
+import { getCollection, render } from "astro:content";
+import type { GetStaticPaths, InferGetStaticPropsType } from "astro";
+import Base from "../../layouts/Base.astro";
+import MetaBlock from "../../components/MetaBlock.astro";
+import Tags from "../../components/Tags.astro";
+import { stripKindPrefix } from "../../lib/refs.ts";
+
+export const getStaticPaths = (async () => {
+  const items = await getCollection("posts");
+  return items.map((p) => ({ params: { slug: p.id }, props: { entry: p } }));
+}) satisfies GetStaticPaths;
+
+const { entry } = Astro.props as InferGetStaticPropsType<typeof getStaticPaths>;
+const { Content } = await render(entry);
+---
+<Base title={`${entry.data.title} — Posts`}>
+  <h1>{entry.data.title}</h1>
+  <MetaBlock
+    data={entry.data}
+    fields={[
+      ["created", "created"],
+      ["updated", "updated"],
+      ["summary", "summary"],
+    ]}
+  />
+  <Tags tags={entry.data.tags} />
+  <article><Content /></article>
+  {entry.data.related_claims.length > 0 ? (
+    <>
+      <h2>Related claims</h2>
+      <ul class="list">
+        {entry.data.related_claims.map((c) => <li><a href={`/claims/${stripKindPrefix(c)}`}>{c}</a></li>)}
+      </ul>
+    </>
+  ) : null}
+  {entry.data.related_thoughts.length > 0 ? (
+    <>
+      <h2>Related thoughts</h2>
+      <ul class="list">
+        {entry.data.related_thoughts.map((t) => <li><a href={`/thoughts/${stripKindPrefix(t)}`}>{t}</a></li>)}
+      </ul>
+    </>
+  ) : null}
+</Base>
