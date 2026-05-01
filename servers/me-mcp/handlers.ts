@@ -243,7 +243,7 @@ function matchPolicy(text: string, entries: ReadonlyArray<string>): string | nul
         .toLowerCase()
         .split(/[^a-z0-9]+/)
         .filter((term) => term.length >= 4);
-      return terms.length > 0 && terms.some((term) => haystack.includes(term));
+      return terms.some((term) => haystack.includes(term));
     }) ?? null
   );
 }
