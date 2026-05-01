@@ -8,18 +8,20 @@ export type ModelTier = "fast" | "balanced" | "deep";
 /** Active provider. Set LLM_PROVIDER=ollama to route through Ollama's cloud endpoint. */
 const PROVIDER = process.env["LLM_PROVIDER"] ?? "openai";
 
-/** OpenAI model ids per tier. */
-const OPENAI_IDS: Record<ModelTier, string> = {
-  fast: process.env["LLM_MODEL_FAST"] ?? "gpt-4.1-mini",
-  balanced: process.env["LLM_MODEL_BALANCED"] ?? "gpt-4.1",
-  deep: process.env["LLM_MODEL_DEEP"] ?? "gpt-4.1",
-};
+/** Default model ids per tier for the active provider. */
+function defaultModelIds(): Record<ModelTier, string> {
+  if (PROVIDER === "ollama") {
+    return { fast: "glm-5.1:cloud", balanced: "glm-5.1:cloud", deep: "glm-5.1:cloud" };
+  }
+  return { fast: "gpt-4.1-mini", balanced: "gpt-4.1", deep: "gpt-4.1" };
+}
+const DEFAULT_IDS = defaultModelIds();
 
-/** Ollama model ids per tier — all default to glm-5.1:cloud (OpenAI-compat cloud endpoint). */
-const OLLAMA_IDS: Record<ModelTier, string> = {
-  fast: process.env["LLM_OLLAMA_MODEL_FAST"] ?? "glm-5.1:cloud",
-  balanced: process.env["LLM_OLLAMA_MODEL_BALANCED"] ?? "glm-5.1:cloud",
-  deep: process.env["LLM_OLLAMA_MODEL_DEEP"] ?? "glm-5.1:cloud",
+/** Model ids per tier — env-var overrides take precedence over the provider default. */
+const MODEL_IDS: Record<ModelTier, string> = {
+  fast: process.env["LLM_MODEL_FAST"] ?? DEFAULT_IDS.fast,
+  balanced: process.env["LLM_MODEL_BALANCED"] ?? DEFAULT_IDS.balanced,
+  deep: process.env["LLM_MODEL_DEEP"] ?? DEFAULT_IDS.deep,
 };
 
 const ollamaProvider = createOpenAI({
@@ -28,7 +30,7 @@ const ollamaProvider = createOpenAI({
 });
 
 function modelFor(tier: ModelTier): LanguageModel {
-  return PROVIDER === "ollama" ? ollamaProvider(OLLAMA_IDS[tier]) : openai(OPENAI_IDS[tier]);
+  return PROVIDER === "ollama" ? ollamaProvider(MODEL_IDS[tier]) : openai(MODEL_IDS[tier]);
 }
 
 /** The env-var name that must be set for the active provider. */

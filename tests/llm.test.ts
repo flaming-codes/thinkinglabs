@@ -16,9 +16,6 @@ afterEach(() => {
   delete process.env["LLM_MODEL_FAST"];
   delete process.env["LLM_MODEL_BALANCED"];
   delete process.env["LLM_MODEL_DEEP"];
-  delete process.env["LLM_OLLAMA_MODEL_FAST"];
-  delete process.env["LLM_OLLAMA_MODEL_BALANCED"];
-  delete process.env["LLM_OLLAMA_MODEL_DEEP"];
   delete process.env["OLLAMA_BASE_URL"];
   vi.doUnmock("ai");
   vi.doUnmock("@ai-sdk/openai");
@@ -257,8 +254,8 @@ describe("runToolCall — Ollama provider (LLM_PROVIDER=ollama)", () => {
     delete process.env["OLLAMA_BASE_URL"];
   });
 
-  it("honors LLM_OLLAMA_MODEL_FAST override", async () => {
-    process.env["LLM_OLLAMA_MODEL_FAST"] = "glm-4.7:cloud";
+  it("honors LLM_MODEL_FAST override", async () => {
+    process.env["LLM_MODEL_FAST"] = "glm-4.7:cloud";
     vi.resetModules();
     const captured = mockAi((args) => [
       {
