@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
     <key>Label</key>
-    <string>com.tom.me.dormant-flip</string>
+    <string>com.tom.thinkinglabs.dormant-flip</string>
 
     <key>ProgramArguments</key>
     <array>
@@ -27,9 +27,9 @@
     </dict>
 
     <key>StandardOutPath</key>
-    <string>/Users/tom/Library/Logs/me/dormant-flip.out.log</string>
+    <string>/Users/tom/Library/Logs/thinkinglabs/dormant-flip.out.log</string>
 
     <key>StandardErrorPath</key>
-    <string>/Users/tom/Library/Logs/me/dormant-flip.err.log</string>
+    <string>/Users/tom/Library/Logs/thinkinglabs/dormant-flip.err.log</string>
 </dict>
 </plist>

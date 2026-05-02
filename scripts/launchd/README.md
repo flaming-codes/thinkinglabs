@@ -13,7 +13,7 @@ Keep the tracked plist templates unchanged. Copy them into `~/Library/LaunchAgen
 ```sh
 REPO=$(pwd)
 mkdir -p ~/Library/LaunchAgents
-for f in scripts/launchd/com.tom.me.*.plist; do
+for f in scripts/launchd/com.tom.thinkinglabs.*.plist; do
   dst="$HOME/Library/LaunchAgents/$(basename "$f")"
   cp "$f" "$dst"
   sed -i '' "s|__REPO_ROOT__|$REPO|g" "$dst"
@@ -61,7 +61,7 @@ The plists invoke `/bin/zsh -lc` and source `~/.zshrc` before running `pnpm`, so
 ### 3. Create the log directory
 
 ```sh
-mkdir -p ~/Library/Logs/me
+mkdir -p ~/Library/Logs/thinkinglabs
 ```
 
 ## Install
@@ -75,7 +75,7 @@ launchctl bootstrap gui/$(id -u) <plist-path>
 Example for all five at once:
 
 ```sh
-for f in ~/Library/LaunchAgents/com.tom.me.*.plist; do
+for f in ~/Library/LaunchAgents/com.tom.thinkinglabs.*.plist; do
   launchctl bootstrap gui/$(id -u) "$f"
 done
 ```
@@ -85,23 +85,23 @@ done
 Kick off a plist immediately to confirm it runs cleanly:
 
 ```sh
-launchctl kickstart -k gui/$(id -u)/com.tom.me.dormant-flip
+launchctl kickstart -k gui/$(id -u)/com.tom.thinkinglabs.dormant-flip
 ```
 
 Check the log:
 
 ```sh
-tail ~/Library/Logs/me/dormant-flip.out.log
-tail ~/Library/Logs/me/dormant-flip.err.log
+tail ~/Library/Logs/thinkinglabs/dormant-flip.out.log
+tail ~/Library/Logs/thinkinglabs/dormant-flip.err.log
 ```
 
 ## Uninstall
 
 ```sh
-launchctl bootout gui/$(id -u)/com.tom.me.dormant-flip
+launchctl bootout gui/$(id -u)/com.tom.thinkinglabs.dormant-flip
 # repeat for each label, or:
 for label in dormant-flip review-decisions resolve-predictions freshness-review triage-questions; do
-  launchctl bootout gui/$(id -u)/com.tom.me.$label 2>/dev/null || true
+  launchctl bootout gui/$(id -u)/com.tom.thinkinglabs.$label 2>/dev/null || true
 done
 ```
 

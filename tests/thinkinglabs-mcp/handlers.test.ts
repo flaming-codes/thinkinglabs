@@ -12,9 +12,9 @@ import {
   handleQueryView,
   handleQuestionSubmit,
   handleSubscribeBrainDiff,
-} from "../../servers/me-mcp/handlers.ts";
-import { createMeMcpServer } from "../../servers/me-mcp/server.ts";
-import { getObject } from "../../servers/me-mcp/store.ts";
+} from "../../servers/thinkinglabs-mcp/handlers.ts";
+import { createThinkinglabsMcpServer } from "../../servers/thinkinglabs-mcp/server.ts";
+import { getObject } from "../../servers/thinkinglabs-mcp/store.ts";
 
 let root: string;
 
@@ -43,7 +43,7 @@ function writeContact(): void {
 }
 
 beforeEach(() => {
-  root = mkdtempSync(join(tmpdir(), "me-mcp-"));
+  root = mkdtempSync(join(tmpdir(), "thinkinglabs-mcp-"));
   writeContact();
   writeMd(
     "thoughts",
@@ -87,7 +87,7 @@ afterEach(() => {
   rmSync(root, { recursive: true, force: true });
 });
 
-describe("me-mcp handlers", () => {
+describe("thinkinglabs-mcp handlers", () => {
   it("queries source-backed public views", () => {
     const result = handleQueryView(
       { repoRoot: root },
@@ -255,7 +255,7 @@ describe("me-mcp handlers", () => {
   });
 
   it("registers MCP resources and tools through the official SDK", async () => {
-    const server = createMeMcpServer({ repoRoot: root });
+    const server = createThinkinglabsMcpServer({ repoRoot: root });
     const client = new Client({ name: "test-client", version: "0.0.0" });
     const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
     await Promise.all([server.connect(serverTransport), client.connect(clientTransport)]);
@@ -263,48 +263,48 @@ describe("me-mcp handlers", () => {
       const resources = await client.listResources();
       const templates = await client.listResourceTemplates();
       const tools = await client.listTools();
-      const thoughts = await client.readResource({ uri: "me://thoughts" });
-      const claim = await client.readResource({ uri: "me://claims/mcp-claim" });
-      const claimsByTag = await client.readResource({ uri: "me://claims/by-tag/mcp" });
+      const thoughts = await client.readResource({ uri: "thinkinglabs://thoughts" });
+      const claim = await client.readResource({ uri: "thinkinglabs://claims/mcp-claim" });
+      const claimsByTag = await client.readResource({ uri: "thinkinglabs://claims/by-tag/mcp" });
       expect(resources.resources.map((resource) => resource.uri).sort()).toEqual(
         [
-          "me://thoughts",
-          "me://ai/current-models",
-          "me://claims",
-          "me://projects",
-          "me://decisions",
-          "me://predictions",
-          "me://inputs",
-          "me://inputs/recent",
-          "me://questions",
-          "me://current_focus",
-          "me://claims/recent",
-          "me://projects/active",
-          "me://decisions/recent",
-          "me://predictions/pending",
-          "me://predictions/resolved",
-          "me://provenance",
-          "me://schema/version",
-          "me://predictions/calibration",
-          "me://thoughts/mcp-notes",
-          "me://claims/mcp-claim",
-          "me://projects/agent-workbench",
-          "me://projects/old-tool",
-          "me://predictions/mcp-prediction",
-          "me://questions/mcp-question",
+          "thinkinglabs://thoughts",
+          "thinkinglabs://ai/current-models",
+          "thinkinglabs://claims",
+          "thinkinglabs://projects",
+          "thinkinglabs://decisions",
+          "thinkinglabs://predictions",
+          "thinkinglabs://inputs",
+          "thinkinglabs://inputs/recent",
+          "thinkinglabs://questions",
+          "thinkinglabs://current_focus",
+          "thinkinglabs://claims/recent",
+          "thinkinglabs://projects/active",
+          "thinkinglabs://decisions/recent",
+          "thinkinglabs://predictions/pending",
+          "thinkinglabs://predictions/resolved",
+          "thinkinglabs://provenance",
+          "thinkinglabs://schema/version",
+          "thinkinglabs://predictions/calibration",
+          "thinkinglabs://thoughts/mcp-notes",
+          "thinkinglabs://claims/mcp-claim",
+          "thinkinglabs://projects/agent-workbench",
+          "thinkinglabs://projects/old-tool",
+          "thinkinglabs://predictions/mcp-prediction",
+          "thinkinglabs://questions/mcp-question",
         ].sort(),
       );
       expect(templates.resourceTemplates.map((template) => template.uriTemplate).sort()).toEqual(
         [
-          "me://claims/by-tag/{tag}",
-          "me://claims/{slug}",
-          "me://decisions/{slug}",
-          "me://inputs/{slug}",
-          "me://predictions/{slug}",
-          "me://provenance/{slug}",
-          "me://projects/{slug}",
-          "me://questions/{slug}",
-          "me://thoughts/{slug}",
+          "thinkinglabs://claims/by-tag/{tag}",
+          "thinkinglabs://claims/{slug}",
+          "thinkinglabs://decisions/{slug}",
+          "thinkinglabs://inputs/{slug}",
+          "thinkinglabs://predictions/{slug}",
+          "thinkinglabs://provenance/{slug}",
+          "thinkinglabs://projects/{slug}",
+          "thinkinglabs://questions/{slug}",
+          "thinkinglabs://thoughts/{slug}",
         ].sort(),
       );
       expect(tools.tools.map((tool) => tool.name).sort()).toEqual([

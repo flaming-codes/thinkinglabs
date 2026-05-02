@@ -16,7 +16,7 @@ import type { PublicView } from "./types.ts";
 import { currentModelRefs } from "../../src/lib/llm.ts";
 
 /** Options controlling which checkout the MCP server reads. */
-export interface MeMcpServerOptions {
+export interface ThinkinglabsMcpServerOptions {
   readonly repoRoot?: string;
 }
 
@@ -31,27 +31,27 @@ const DETAIL_KINDS = [
   "provenance",
 ] as const;
 const STATIC_RESOURCES = [
-  ["thoughts", "me://thoughts"],
-  ["claims", "me://claims"],
-  ["projects", "me://projects"],
-  ["decisions", "me://decisions"],
-  ["predictions", "me://predictions"],
-  ["inputs", "me://inputs"],
-  ["inputs_recent", "me://inputs/recent"],
-  ["questions", "me://questions"],
-  ["current_focus", "me://current_focus"],
-  ["claims_recent", "me://claims/recent"],
-  ["projects_active", "me://projects/active"],
-  ["decisions_recent", "me://decisions/recent"],
-  ["predictions_pending", "me://predictions/pending"],
-  ["predictions_resolved", "me://predictions/resolved"],
-  ["provenance", "me://provenance"],
+  ["thoughts", "thinkinglabs://thoughts"],
+  ["claims", "thinkinglabs://claims"],
+  ["projects", "thinkinglabs://projects"],
+  ["decisions", "thinkinglabs://decisions"],
+  ["predictions", "thinkinglabs://predictions"],
+  ["inputs", "thinkinglabs://inputs"],
+  ["inputs_recent", "thinkinglabs://inputs/recent"],
+  ["questions", "thinkinglabs://questions"],
+  ["current_focus", "thinkinglabs://current_focus"],
+  ["claims_recent", "thinkinglabs://claims/recent"],
+  ["projects_active", "thinkinglabs://projects/active"],
+  ["decisions_recent", "thinkinglabs://decisions/recent"],
+  ["predictions_pending", "thinkinglabs://predictions/pending"],
+  ["predictions_resolved", "thinkinglabs://predictions/resolved"],
+  ["provenance", "thinkinglabs://provenance"],
 ] as const satisfies ReadonlyArray<readonly [PublicView, string]>;
 
 /** Create the personal MCP server with public resources and testable tool handlers. */
-export function createMeMcpServer(options: MeMcpServerOptions = {}): McpServer {
+export function createThinkinglabsMcpServer(options: ThinkinglabsMcpServerOptions = {}): McpServer {
   const repoRoot = options.repoRoot ?? process.cwd();
-  const server = new McpServer({ name: "me-mcp", version: "0.1.0" });
+  const server = new McpServer({ name: "thinkinglabs-mcp", version: "0.1.0" });
   for (const [view, uri] of STATIC_RESOURCES) registerViewResource(server, repoRoot, view, uri);
   for (const kind of DETAIL_KINDS) registerDetailResource(server, repoRoot, kind);
   registerClaimsByTagResource(server, repoRoot);
@@ -142,7 +142,7 @@ function registerViewResource(
     view,
     uri,
     {
-      title: `me:${view}`,
+      title: `thinkinglabs:${view}`,
       description: `Public ${view} view from the personal repo.`,
       mimeType: "application/json",
     },
@@ -159,15 +159,15 @@ function registerViewResource(
 function registerClaimsByTagResource(server: McpServer, repoRoot: string): void {
   server.registerResource(
     "claims-by-tag",
-    new ResourceTemplate("me://claims/by-tag/{tag}", { list: undefined }),
+    new ResourceTemplate("thinkinglabs://claims/by-tag/{tag}", { list: undefined }),
     {
-      title: "me:claims/by-tag/{tag}",
+      title: "thinkinglabs:claims/by-tag/{tag}",
       description: "Claims filtered by one tag.",
       mimeType: "application/json",
     },
     (_uri, variables) => {
       const tag = String(variables["tag"] ?? "").toLowerCase();
-      const uri = `me://claims/by-tag/${tag}`;
+      const uri = `thinkinglabs://claims/by-tag/${tag}`;
       if (!RESOURCE_TAG.test(tag)) return resourceError(uri, "invalid tag", { tag });
       try {
         return jsonResource(
@@ -188,12 +188,12 @@ function registerDetailResource(
 ): void {
   server.registerResource(
     `${kind}-detail`,
-    new ResourceTemplate(`me://${kind}/{slug}`, {
+    new ResourceTemplate(`thinkinglabs://${kind}/{slug}`, {
       list: () => {
         try {
           return {
             resources: queryView(repoRoot, { view: kind, limit: 50 }).items.map((item) => ({
-              uri: `me://${kind}/${item.slug}`,
+              uri: `thinkinglabs://${kind}/${item.slug}`,
               name: item.id,
               title: item.title,
               mimeType: "application/json",
@@ -205,13 +205,13 @@ function registerDetailResource(
       },
     }),
     {
-      title: `me:${kind}/{slug}`,
+      title: `thinkinglabs:${kind}/{slug}`,
       description: `Single ${kind} object by slug.`,
       mimeType: "application/json",
     },
     (_uri, variables) => {
       const slug = String(variables["slug"] ?? "");
-      const uri = `me://${kind}/${slug}`;
+      const uri = `thinkinglabs://${kind}/${slug}`;
       if (!RESOURCE_SLUG.test(slug)) return resourceError(uri, "invalid slug", { kind, slug });
       try {
         const value = getObject(repoRoot, kind, slug);
@@ -229,14 +229,14 @@ function registerDetailResource(
 function registerSchemaVersionResource(server: McpServer): void {
   server.registerResource(
     "schema-version",
-    "me://schema/version",
+    "thinkinglabs://schema/version",
     {
-      title: "me:schema/version",
+      title: "thinkinglabs:schema/version",
       description: "MCP schema version for consumers that pin contracts.",
       mimeType: "application/json",
     },
     () =>
-      jsonResource("me://schema/version", {
+      jsonResource("thinkinglabs://schema/version", {
         schema_version: "0.1.0",
         public_only: true,
         auth: "disabled",
@@ -247,31 +247,34 @@ function registerSchemaVersionResource(server: McpServer): void {
 function registerCurrentModelsResource(server: McpServer): void {
   server.registerResource(
     "ai-current-models",
-    "me://ai/current-models",
+    "thinkinglabs://ai/current-models",
     {
-      title: "me:ai/current-models",
+      title: "thinkinglabs:ai/current-models",
       description: "Current env-resolved LLM model refs by capability tier.",
       mimeType: "application/json",
     },
-    () => jsonResource("me://ai/current-models", { models: currentModelRefs() }),
+    () => jsonResource("thinkinglabs://ai/current-models", { models: currentModelRefs() }),
   );
 }
 
 function registerCalibrationResource(server: McpServer, repoRoot: string): void {
   server.registerResource(
     "predictions-calibration",
-    "me://predictions/calibration",
+    "thinkinglabs://predictions/calibration",
     {
-      title: "me:predictions/calibration",
+      title: "thinkinglabs:predictions/calibration",
       description: "Calibration data derived from resolved predictions.",
       mimeType: "application/json",
     },
     () => {
       try {
-        return jsonResource("me://predictions/calibration", predictionCalibration(repoRoot));
+        return jsonResource(
+          "thinkinglabs://predictions/calibration",
+          predictionCalibration(repoRoot),
+        );
       } catch (error) {
         return resourceError(
-          "me://predictions/calibration",
+          "thinkinglabs://predictions/calibration",
           error instanceof Error ? error.message : String(error),
         );
       }

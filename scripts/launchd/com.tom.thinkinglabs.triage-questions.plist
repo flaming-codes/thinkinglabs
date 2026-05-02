@@ -3,20 +3,20 @@
 <plist version="1.0">
 <dict>
     <key>Label</key>
-    <string>com.tom.me.freshness-review</string>
+    <string>com.tom.thinkinglabs.triage-questions</string>
 
     <key>ProgramArguments</key>
     <array>
         <string>/bin/zsh</string>
         <string>-lc</string>
-        <string>source ~/.zshrc &gt;/dev/null 2&gt;&amp;1 || true; exec pnpm freshness-review</string>
+        <string>source ~/.zshrc &gt;/dev/null 2&gt;&amp;1 || true; exec pnpm triage-questions</string>
     </array>
 
     <key>WorkingDirectory</key>
     <string>__REPO_ROOT__</string>
 
     <!--
-        freshness-review calls the OpenAI API (gpt-4.1, balanced tier).
+        triage-questions calls the OpenAI API (gpt-4.1, balanced tier).
         Set OPENAI_API_KEY in your launchd environment before loading this plist:
 
             launchctl setenv OPENAI_API_KEY <your-key>
@@ -31,21 +31,14 @@
         <!-- Add OPENAI_API_KEY here only if you cannot use launchctl setenv. -->
     </dict>
 
-    <!-- Weekly on Sunday at 03:15. -->
-    <key>StartCalendarInterval</key>
-    <dict>
-        <key>Weekday</key>
-        <integer>0</integer>
-        <key>Hour</key>
-        <integer>3</integer>
-        <key>Minute</key>
-        <integer>15</integer>
-    </dict>
+    <!-- Every 30 minutes (1800 seconds); reader submissions can arrive any time. -->
+    <key>StartInterval</key>
+    <integer>1800</integer>
 
     <key>StandardOutPath</key>
-    <string>/Users/tom/Library/Logs/me/freshness-review.out.log</string>
+    <string>/Users/tom/Library/Logs/thinkinglabs/triage-questions.out.log</string>
 
     <key>StandardErrorPath</key>
-    <string>/Users/tom/Library/Logs/me/freshness-review.err.log</string>
+    <string>/Users/tom/Library/Logs/thinkinglabs/triage-questions.err.log</string>
 </dict>
 </plist>

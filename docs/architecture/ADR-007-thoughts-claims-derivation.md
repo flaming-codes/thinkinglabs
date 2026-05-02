@@ -17,7 +17,7 @@ The derivation contract: thoughts are written first, uncurated. Periodically, `s
 
 Confidence is a moving target. The derivation pipeline seeds an initial value from the LLM's reading of the author's hedging. The stale-claim review pipeline (Slice C) re-surfaces claims whose `last_reviewed` has aged past a threshold for re-evaluation.
 
-Accepted AI-assisted effects are recorded separately as generic provenance objects under `content/provenance/`. Domain objects such as claims keep only domain fields; provenance links source and target semantic ids and records the `ModelRef` (`provider`, `model`, `tier`) captured by the LLM choke-point. Provenance is committed alongside other content but is **not surfaced on the public web**: no listing route, no detail route, no JSON API. Local consumers (the MCP stdio server, agents reading `dist/index.sqlite`) still see it via `me://provenance`.
+Accepted AI-assisted effects are recorded separately as generic provenance objects under `content/provenance/`. Domain objects such as claims keep only domain fields; provenance links source and target semantic ids and records the `ModelRef` (`provider`, `model`, `tier`) captured by the LLM choke-point. Provenance is committed alongside other content but is **not surfaced on the public web**: no listing route, no detail route, no JSON API. Local consumers (the MCP stdio server, agents reading `dist/index.sqlite`) still see it via `thinkinglabs://provenance`.
 
 ## Consequences
 

@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
     <key>Label</key>
-    <string>com.tom.me.review-decisions</string>
+    <string>com.tom.thinkinglabs.review-decisions</string>
 
     <key>ProgramArguments</key>
     <array>
@@ -27,9 +27,9 @@
     </dict>
 
     <key>StandardOutPath</key>
-    <string>/Users/tom/Library/Logs/me/review-decisions.out.log</string>
+    <string>/Users/tom/Library/Logs/thinkinglabs/review-decisions.out.log</string>
 
     <key>StandardErrorPath</key>
-    <string>/Users/tom/Library/Logs/me/review-decisions.err.log</string>
+    <string>/Users/tom/Library/Logs/thinkinglabs/review-decisions.err.log</string>
 </dict>
 </plist>

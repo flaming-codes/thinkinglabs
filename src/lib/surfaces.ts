@@ -225,7 +225,7 @@ export const SURFACES: ReadonlyArray<Surface> = [
   },
   {
     title: "Personal MCP server",
-    url: "mcp://stdio/pnpm%20mcp:me",
+    url: "mcp://stdio/pnpm%20mcp:thinkinglabs",
     description: "Stdio MCP entrypoint exposing public resources and tools from this repo.",
     section: "data",
   },

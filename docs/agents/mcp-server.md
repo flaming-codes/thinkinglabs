@@ -1,14 +1,14 @@
 # Personal MCP Server
 
-`servers/me-mcp/` exposes the public personal repo as a stdio MCP server using `@modelcontextprotocol/sdk`.
+`servers/thinkinglabs-mcp/` exposes the public personal repo as a stdio MCP server using `@modelcontextprotocol/sdk`.
 
 Run locally with:
 
 ```sh
-pnpm mcp:me -- --repo-root /Users/tom/Github/me
+pnpm mcp:thinkinglabs -- --repo-root /Users/tom/Github/thinkinglabs
 ```
 
-Resources are fixed JSON views at `me://thoughts`, `me://claims`, `me://projects`, `me://decisions`, `me://predictions`, `me://inputs`, `me://inputs/recent`, `me://questions`, `me://current_focus`, `me://claims/recent`, `me://claims/by-tag/{tag}`, `me://projects/active`, `me://decisions/recent`, `me://predictions/pending`, `me://predictions/resolved`, `me://predictions/calibration`, and `me://schema/version`. Per-object templates use `me://<kind>/{slug}` for thoughts, claims, projects, decisions, predictions, inputs, and questions. The store prefers `dist/index.sqlite` when it exists and falls back to validated markdown under `content/`.
+Resources are fixed JSON views at `thinkinglabs://thoughts`, `thinkinglabs://claims`, `thinkinglabs://projects`, `thinkinglabs://decisions`, `thinkinglabs://predictions`, `thinkinglabs://inputs`, `thinkinglabs://inputs/recent`, `thinkinglabs://questions`, `thinkinglabs://current_focus`, `thinkinglabs://claims/recent`, `thinkinglabs://claims/by-tag/{tag}`, `thinkinglabs://projects/active`, `thinkinglabs://decisions/recent`, `thinkinglabs://predictions/pending`, `thinkinglabs://predictions/resolved`, `thinkinglabs://predictions/calibration`, and `thinkinglabs://schema/version`. Per-object templates use `thinkinglabs://<kind>/{slug}` for thoughts, claims, projects, decisions, predictions, inputs, and questions. The store prefers `dist/index.sqlite` when it exists and falls back to validated markdown under `content/`.
 
 Tools:
 

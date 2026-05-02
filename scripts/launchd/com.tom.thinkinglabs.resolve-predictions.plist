@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
     <key>Label</key>
-    <string>com.tom.me.resolve-predictions</string>
+    <string>com.tom.thinkinglabs.resolve-predictions</string>
 
     <key>ProgramArguments</key>
     <array>
@@ -40,9 +40,9 @@
     </dict>
 
     <key>StandardOutPath</key>
-    <string>/Users/tom/Library/Logs/me/resolve-predictions.out.log</string>
+    <string>/Users/tom/Library/Logs/thinkinglabs/resolve-predictions.out.log</string>
 
     <key>StandardErrorPath</key>
-    <string>/Users/tom/Library/Logs/me/resolve-predictions.err.log</string>
+    <string>/Users/tom/Library/Logs/thinkinglabs/resolve-predictions.err.log</string>
 </dict>
 </plist>

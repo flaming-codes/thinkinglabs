@@ -1,6 +1,6 @@
 # Tom — wild.as
 
-> Personal thinking surface. Markdown source-of-truth at https://github.com/tom/me. Every page below renders from `content/<kind>/`.
+> Personal thinking surface. Markdown source-of-truth at https://github.com/tom/thinkinglabs. Every page below renders from `content/<kind>/`.
 
 ## Pages
 
@@ -51,7 +51,7 @@
 
 - [Contact JSON](/contact.json): Structured contact surface.
 - [llms.txt](/llms.txt): Agent-readable surface index.
-- [Personal MCP server](mcp://stdio/pnpm%20mcp:me): Stdio MCP entrypoint exposing public resources and tools from this repo.
+- [Personal MCP server](mcp://stdio/pnpm%20mcp:thinkinglabs): Stdio MCP entrypoint exposing public resources and tools from this repo.
 
 ## Feeds
 

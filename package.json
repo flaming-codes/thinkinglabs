@@ -1,5 +1,5 @@
 {
-  "name": "me",
+  "name": "thinkinglabs",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -13,7 +13,7 @@
     "build:index": "tsx scripts/build-index.ts",
     "check:structured-data": "tsx scripts/check-structured-data.ts",
     "brain-diff": "tsx scripts/brain-diff.ts",
-    "mcp:me": "tsx servers/me-mcp/cli.ts",
+    "mcp:thinkinglabs": "tsx servers/thinkinglabs-mcp/cli.ts",
     "derive-claims": "tsx scripts/derive-claims.ts",
     "review-stale-claims": "tsx scripts/review-stale-claims.ts",
     "dormant-flip": "tsx scripts/dormant-flip.ts",
