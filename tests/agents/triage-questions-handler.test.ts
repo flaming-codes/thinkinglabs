@@ -38,7 +38,9 @@ function useTmpDir(): { dir: () => string } {
     dir = mkdtempSync(join(tmpdir(), "triage-h-"));
     vi.spyOn(process, "cwd").mockReturnValue(dir);
     mkdirSync(join(dir, "content", "questions"), { recursive: true });
-    mkdirSync(join(dir, "submissions", "questions", "foo"), { recursive: true });
+    mkdirSync(join(dir, "submissions", "questions", "foo"), {
+      recursive: true,
+    });
   });
   afterEach(() => {
     vi.restoreAllMocks();

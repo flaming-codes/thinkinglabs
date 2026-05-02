@@ -62,7 +62,11 @@ export function runReviewDecisions(args: { cwd: string; nowISO: string }): Revie
     const decisionField = (decision.data as { decision?: unknown }).decision;
     const decisionTitle = typeof decisionField === "string" ? decisionField : decision.slug;
 
-    const payload: DecisionFollowupPayload = { followUpOnISO, daysOverdue, decisionTitle };
+    const payload: DecisionFollowupPayload = {
+      followUpOnISO,
+      daysOverdue,
+      decisionTitle,
+    };
     const id = proposalId("review-decisions", "decision-followup-due", decision.filePath, {
       followUpOnISO,
     });

@@ -63,7 +63,11 @@ export function runDormantFlip(args: {
     const rejectedSnapshot = rejectionMap.get(project.slug);
     if (rejectedSnapshot !== undefined && rejectedSnapshot === lastTouchedISO) continue;
 
-    const payload: DormantFlipPayload = { daysSinceTouched, thresholdDays, lastTouchedISO };
+    const payload: DormantFlipPayload = {
+      daysSinceTouched,
+      thresholdDays,
+      lastTouchedISO,
+    };
     const id = proposalId("dormant-flip", "project-flip-dormant", project.filePath, {
       lastTouchedISO,
       thresholdDays,

@@ -112,7 +112,11 @@ function recentBrainDiffSince(cwd: string, sinceISO: string): string {
       const history = walkFileHistory(cwd, `${dir}/${f}`);
       for (const entry of history) {
         if (new Date(entry.isoDate).getTime() > since && entry.subject) {
-          entries.push({ isoDate: entry.isoDate, subject: entry.subject, path: `${dir}/${f}` });
+          entries.push({
+            isoDate: entry.isoDate,
+            subject: entry.subject,
+            path: `${dir}/${f}`,
+          });
         }
       }
     }
