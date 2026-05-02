@@ -3,9 +3,12 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
+/** Fixed "now" ISO used in all pure-function tests for determinism. */
+const NOW_ISO = "2026-04-30T00:00:00.000Z";
+
 /** Writes a minimal alive project frontmatter file into the temp tree. */
 function writeProject(dir: string, slug: string, daysAgo: number, status = "alive"): void {
-  const date = new Date(Date.now() - daysAgo * 86_400_000).toISOString().slice(0, 10);
+  const date = new Date(Date.parse(NOW_ISO) - daysAgo * 86_400_000).toISOString().slice(0, 10);
   writeFileSync(
     join(dir, `${slug}.md`),
     `---\ntitle: ${slug}\nstatus: ${status}\nstarted: 2026-01-01\nlast_touched: ${date}\ntags: []\nlinks: {}\nrelated_thoughts: []\nrelated_claims: []\n---\nBody.\n`,
@@ -19,9 +22,6 @@ function makeTempTree(): string {
   mkdirSync(join(root, "content", "projects"), { recursive: true });
   return root;
 }
-
-/** Fixed "now" ISO used in all pure-function tests for determinism. */
-const NOW_ISO = "2026-04-30T00:00:00.000Z";
 
 describe("runDormantFlip — pure function", () => {
   let root = "";

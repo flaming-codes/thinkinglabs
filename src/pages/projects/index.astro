@@ -5,6 +5,7 @@ import EmptyState from "../../components/EmptyState.astro";
 import StatusPill from "../../components/StatusPill.astro";
 import { projectLastTouched } from "../../lib/projects.ts";
 import { byDateDesc } from "../../lib/sort.ts";
+import { listStructuredData } from "../../lib/structured-data.ts";
 
 const STATUS_ORDER = ["alive", "dormant", "shipped", "abandoned"] as const;
 type Status = (typeof STATUS_ORDER)[number];
@@ -13,10 +14,20 @@ const all = byDateDesc(await getCollection("projects"), "started");
 const enriched = await Promise.all(
   all.map(async (p) => ({ entry: p, last_touched: await projectLastTouched(p.id) })),
 );
+const site = Astro.site ?? new URL(Astro.url.origin);
 const byStatus: Record<Status, typeof enriched> = { alive: [], dormant: [], shipped: [], abandoned: [] };
 for (const e of enriched) byStatus[e.entry.data.status as Status].push(e);
 ---
-<Base title="Projects — Tom">
+<Base
+  title="Projects — Tom"
+  description="Active and dormant work, grouped by status."
+  structuredData={listStructuredData(
+    Astro.url,
+    site,
+    "Projects",
+    enriched.map(({ entry }) => ({ id: entry.id, name: entry.data.title, url: `/projects/${entry.id}` })),
+  )}
+>
   <h1>Projects</h1>
   {enriched.length === 0 ? (
     <EmptyState />

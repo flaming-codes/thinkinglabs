@@ -7,6 +7,7 @@ import StatusPill from "../../components/StatusPill.astro";
 import Tags from "../../components/Tags.astro";
 import { reversedByMap } from "../../lib/decisions.ts";
 import { stripKindPrefix } from "../../lib/refs.ts";
+import { decisionStructuredData } from "../../lib/structured-data.ts";
 
 export const getStaticPaths = (async () => {
   const items = await getCollection("decisions");
@@ -16,8 +17,13 @@ export const getStaticPaths = (async () => {
 const { entry } = Astro.props as InferGetStaticPropsType<typeof getStaticPaths>;
 const { Content } = await render(entry);
 const reversedBy = (await reversedByMap()).get(entry.id) ?? [];
+const site = Astro.site ?? new URL(Astro.url.origin);
 ---
-<Base title={`${entry.data.decision.slice(0, 60)} — Decisions`}>
+<Base
+  title={`${entry.data.decision.slice(0, 60)} — Decisions`}
+  description={entry.data.why ?? entry.data.context ?? entry.data.decision}
+  structuredData={decisionStructuredData(entry, Astro.url, site)}
+>
   <h1>{entry.data.decision} <StatusPill status={entry.data.status} /></h1>
 
   {entry.data.reverses.length > 0 ? (

@@ -4,10 +4,21 @@ import Base from "../../layouts/Base.astro";
 import EmptyState from "../../components/EmptyState.astro";
 import Tags from "../../components/Tags.astro";
 import { byDateDesc } from "../../lib/sort.ts";
+import { listStructuredData } from "../../lib/structured-data.ts";
 
 const items = byDateDesc(await getCollection("inputs"), "consumed");
+const site = Astro.site ?? new URL(Astro.url.origin);
 ---
-<Base title="Inputs — Tom">
+<Base
+  title="Inputs — Tom"
+  description="External material that shaped thinking."
+  structuredData={listStructuredData(
+    Astro.url,
+    site,
+    "Inputs",
+    items.map((i) => ({ id: i.id, name: i.data.title, url: `/inputs/${i.id}` })),
+  )}
+>
   <h1>Inputs</h1>
   {items.length === 0 ? <EmptyState /> : (
     <ul class="list">

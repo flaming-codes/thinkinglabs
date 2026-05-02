@@ -7,6 +7,7 @@ import StatusPill from "../../components/StatusPill.astro";
 import Tags from "../../components/Tags.astro";
 import { projectLastTouched } from "../../lib/projects.ts";
 import { stripKindPrefix } from "../../lib/refs.ts";
+import { projectStructuredData } from "../../lib/structured-data.ts";
 
 export const getStaticPaths = (async () => {
   const items = await getCollection("projects");
@@ -16,8 +17,13 @@ export const getStaticPaths = (async () => {
 const { entry } = Astro.props as InferGetStaticPropsType<typeof getStaticPaths>;
 const { Content } = await render(entry);
 const lastTouched = await projectLastTouched(entry.id);
+const site = Astro.site ?? new URL(Astro.url.origin);
 ---
-<Base title={`${entry.data.title} — Projects`}>
+<Base
+  title={`${entry.data.title} — Projects`}
+  description={entry.data.current_question ?? entry.data.help_welcome}
+  structuredData={projectStructuredData(entry, Astro.url, site, lastTouched)}
+>
   <h1>{entry.data.title} <StatusPill status={entry.data.status} /></h1>
   <MetaBlock
     data={{ ...entry.data, last_touched: lastTouched }}
