@@ -233,7 +233,10 @@ export function titleFor(
   return fallback;
 }
 
-/** One row in the public-views inventory; mirrors `KIND_BY_VIEW` plus the URI used by the MCP static resource. */
+/** Pure predicate operating on frontmatter; used to express per-view filters that the MCP store applies after fan-out. */
+export type FrontmatterPredicate = (fm: Record<string, unknown>) => boolean;
+
+/** One row in the public-views inventory; the optional `kinds`/`predicate` move per-view filter logic out of the MCP store. */
 export interface PublicViewSpec {
   readonly view: PublicViewName;
   readonly kind: Kind;
@@ -241,6 +244,30 @@ export interface PublicViewSpec {
   readonly title: string;
   readonly description: string;
   readonly resource: "static" | "template";
+  /** Composite views (e.g. `current_focus`) span multiple kinds; defaults to `[kind]`. */
+  readonly kinds?: ReadonlyArray<Kind>;
+  /** Per-kind frontmatter predicate; only items satisfying their kind's predicate are returned. */
+  readonly predicates?: Readonly<Partial<Record<Kind, FrontmatterPredicate>>>;
+}
+
+/** Status helper for predicates that check `frontmatter.status`. */
+function statusEquals(value: string): FrontmatterPredicate {
+  return (fm) => fm["status"] === value;
+}
+
+/** Status helper for predicates that check membership in a set of statuses. */
+function statusIn(values: ReadonlyArray<string>): FrontmatterPredicate {
+  return (fm) => values.includes(String(fm["status"] ?? ""));
+}
+
+/** Resolution helper for predicates that check `frontmatter.resolution`. */
+function resolutionEquals(value: string): FrontmatterPredicate {
+  return (fm) => fm["resolution"] === value;
+}
+
+/** Resolution helper for predicates that check `frontmatter.resolution !== value`. */
+function resolutionNotEquals(value: string): FrontmatterPredicate {
+  return (fm) => fm["resolution"] !== value;
 }
 
 /** Every public MCP view; static views become fixed resources, template views are URI templates. */
@@ -316,6 +343,11 @@ export const PUBLIC_VIEWS = [
     title: "thinkinglabs:current_focus",
     description: "Composite current-focus view (alive projects, recent thoughts, open questions).",
     resource: "static",
+    kinds: ["projects", "thoughts", "questions"],
+    predicates: {
+      projects: statusEquals("alive"),
+      questions: statusIn(["open", "partial"]),
+    },
   },
   {
     view: "claims_recent",
@@ -340,6 +372,7 @@ export const PUBLIC_VIEWS = [
     title: "thinkinglabs:projects/active",
     description: "Projects with status=alive.",
     resource: "static",
+    predicates: { projects: statusEquals("alive") },
   },
   {
     view: "decisions_recent",
@@ -356,6 +389,7 @@ export const PUBLIC_VIEWS = [
     title: "thinkinglabs:predictions/pending",
     description: "Pending predictions.",
     resource: "static",
+    predicates: { predictions: resolutionEquals("pending") },
   },
   {
     view: "predictions_resolved",
@@ -364,6 +398,7 @@ export const PUBLIC_VIEWS = [
     title: "thinkinglabs:predictions/resolved",
     description: "Resolved predictions.",
     resource: "static",
+    predicates: { predictions: resolutionNotEquals("pending") },
   },
   {
     view: "provenance",

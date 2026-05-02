@@ -27,9 +27,13 @@ assertGitAvailable();
 const DORMANT_FLIP_SCRIPT = join(process.cwd(), "scripts", "dormant-flip.ts");
 const REVIEW_SCRIPT = join(process.cwd(), "scripts", "review-proposals.ts");
 
-/** Writes a minimal alive project file. */
+/** Frozen "now" so the test is deterministic across runs and CI clocks. Honours BUILD_NOW_ISO. */
+const FROZEN_NOW_ISO = process.env["BUILD_NOW_ISO"] ?? "2026-05-02T00:00:00.000Z";
+const FROZEN_NOW_MS = new Date(FROZEN_NOW_ISO).getTime();
+
+/** Writes a minimal alive project file with a `last_touched` `daysAgo` before {@link FROZEN_NOW_ISO}. */
 function writeProject(dir: string, slug: string, daysAgo: number): string {
-  const date = new Date(Date.now() - daysAgo * 86_400_000).toISOString().slice(0, 10);
+  const date = new Date(FROZEN_NOW_MS - daysAgo * 86_400_000).toISOString().slice(0, 10);
   const path = join(dir, `${slug}.md`);
   writeFileSync(
     path,
@@ -70,7 +74,7 @@ describe("dormant-flip + review-proposals round-trip (integration)", () => {
         });
         execFileSync("git", ["config", "user.name", "Test"], { cwd: root, stdio: "ignore" });
         execFileSync("git", ["add", "."], { cwd: root, stdio: "ignore" });
-        const pastDate = new Date(Date.now() - 100 * 86_400_000).toISOString();
+        const pastDate = new Date(FROZEN_NOW_MS - 100 * 86_400_000).toISOString();
         execFileSync("git", ["commit", "--date", pastDate, "-m", "init"], {
           cwd: root,
           stdio: "ignore",
@@ -79,7 +83,7 @@ describe("dormant-flip + review-proposals round-trip (integration)", () => {
 
         process.chdir(root);
         try {
-          const nowISO = new Date().toISOString();
+          const nowISO = FROZEN_NOW_ISO;
           const flipSummary = runDormantFlip({ cwd: root, nowISO, thresholdDays: 60 });
           expect(flipSummary.proposed).toBe(1);
 
@@ -122,7 +126,7 @@ describe("dormant-flip + review-proposals round-trip (integration)", () => {
         });
         execFileSync("git", ["config", "user.name", "Test"], { cwd: root, stdio: "ignore" });
         execFileSync("git", ["add", "."], { cwd: root, stdio: "ignore" });
-        const pastDate = new Date(Date.now() - 100 * 86_400_000).toISOString();
+        const pastDate = new Date(FROZEN_NOW_MS - 100 * 86_400_000).toISOString();
         execFileSync("git", ["commit", "--date", pastDate, "-m", "init"], {
           cwd: root,
           stdio: "ignore",

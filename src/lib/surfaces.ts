@@ -1,5 +1,7 @@
-import { KINDS, type Kind } from "../schemas/index.ts";
-import { KIND_REGISTRY, type KindRegistryEntry } from "./registry.ts";
+import { type Kind } from "../schemas/index.ts";
+import { KIND_REGISTRY, LISTING_KINDS, type KindRegistryEntry } from "./registry.ts";
+
+export { LISTING_KINDS } from "./registry.ts";
 
 /** Widened registry entry used for surface derivation; the strict literal type narrows too aggressively for `??` fallbacks. */
 type KindSpecRuntime = KindRegistryEntry & {
@@ -17,9 +19,6 @@ export interface Surface {
   readonly description: string;
   readonly section: "page" | "listing" | "detail" | "api" | "data" | "feed";
 }
-
-/** Listing routes the site exposes; detail routes follow `<url>/[slug]`. Derived from the kind registry. */
-export const LISTING_KINDS = KINDS.filter((k) => KIND_REGISTRY[k].nav) as ReadonlyArray<Kind>;
 
 /** Display order for kind-derived sections in `llms.txt` and the homepage; preserves the historical ordering of the hand-rolled inventory. */
 const LISTING_DISPLAY_ORDER = [

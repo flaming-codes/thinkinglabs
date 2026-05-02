@@ -6,9 +6,10 @@ import StatusPill from "../../components/StatusPill.astro";
 import { projectLastTouched } from "../../lib/projects.ts";
 import { byDateDesc } from "../../lib/sort.ts";
 import { listStructuredData } from "../../lib/structured-data.ts";
+import { PROJECT_STATUSES, type ProjectStatus } from "../../schemas/project.ts";
 
-const STATUS_ORDER = ["alive", "dormant", "shipped", "abandoned"] as const;
-type Status = (typeof STATUS_ORDER)[number];
+const STATUS_ORDER = PROJECT_STATUSES;
+type Status = ProjectStatus;
 
 const all = byDateDesc(await getCollection("projects"), "started");
 const enriched = await Promise.all(

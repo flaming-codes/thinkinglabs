@@ -10,12 +10,13 @@ test.describe("top navigation", () => {
     const count = await links.count();
     expect(count).toBeGreaterThan(0);
 
-    const hrefs: string[] = [];
+    const allHrefs: Array<string | null> = [];
     for (let i = 0; i < count; i++) {
-      const href = await links.nth(i).getAttribute("href");
-      if (href && href.startsWith("/")) hrefs.push(href);
+      allHrefs.push(await links.nth(i).getAttribute("href"));
     }
-    expect(hrefs.length).toBe(count);
+    const nonRelative = allHrefs.filter((h) => !(h && h.startsWith("/")));
+    expect(nonRelative, "every top-nav href is a site-relative path").toEqual([]);
+    const hrefs = allHrefs.filter((h): h is string => h !== null && h.startsWith("/"));
 
     for (const href of hrefs) {
       const response = await page.goto(href);

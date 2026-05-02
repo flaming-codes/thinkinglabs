@@ -5,15 +5,36 @@ import { collectObjects, type IndexedObject } from "../../src/index/builder.ts";
 import { calibration, type Bucket } from "../../src/lib/calibration.ts";
 import { contactSchema, type Contact } from "../../src/schemas/contact.ts";
 import type { Prediction } from "../../src/schemas/prediction.ts";
-import { DETAIL_KINDS, PUBLIC_VIEWS, titleFor } from "../../src/lib/registry.ts";
+import {
+  DETAIL_KINDS,
+  PUBLIC_VIEWS,
+  titleFor,
+  type FrontmatterPredicate,
+  type PublicViewSpec,
+} from "../../src/lib/registry.ts";
 import { KINDS, type Kind } from "../../src/schemas/index.ts";
 import type { QueryViewArgs, PublicView, ViewItem, ViewResult } from "./types.ts";
 
-/** Derived `view -> kind` lookup; populated from the registry so adding a view in one place wires the store automatically. */
-const KIND_BY_VIEW = Object.fromEntries(PUBLIC_VIEWS.map((v) => [v.view, v.kind])) as Record<
-  PublicView,
-  string
->;
+/** Derived `view -> spec` lookup; widened to `PublicViewSpec` so optional fields (`kinds`, `predicates`) are visible to callers. */
+const VIEW_SPEC: Record<PublicView, PublicViewSpec> = Object.fromEntries(
+  PUBLIC_VIEWS.map((v) => [v.view, v as PublicViewSpec]),
+) as Record<PublicView, PublicViewSpec>;
+
+/** Set of kinds a view requests when reading the index (defaults to `[v.kind]`). */
+function viewKinds(view: PublicView): ReadonlyArray<Kind> {
+  return VIEW_SPEC[view].kinds ?? [VIEW_SPEC[view].kind];
+}
+
+/** Per-kind predicate set declared in the registry (e.g. `current_focus.projects = status==='alive'`). */
+function viewPredicates(view: PublicView): Readonly<Partial<Record<Kind, FrontmatterPredicate>>> {
+  return VIEW_SPEC[view].predicates ?? {};
+}
+
+/** Apply a view's per-kind predicates to a single item; items whose kind has no predicate pass through. */
+function passesViewPredicate(view: PublicView, item: ViewItem): boolean {
+  const pred = viewPredicates(view)[asKind(item.kind)];
+  return pred ? pred(item.frontmatter) : true;
+}
 
 interface ObjectRow {
   readonly id: string;
@@ -139,19 +160,13 @@ function clampLimit(limit: number | undefined): number {
 function querySqlite(indexFile: string, args: QueryViewArgs, limit: number): ViewResult {
   const db = new Database(indexFile, { readonly: true, fileMustExist: true });
   try {
-    if (args.view === "current_focus") {
-      const rows = db
-        .prepare(
-          "SELECT id, kind, slug, frontmatter_json, body_md, last_touched FROM objects WHERE kind IN ('projects', 'thoughts', 'questions') ORDER BY last_touched DESC, id ASC",
-        )
-        .all() as ObjectRow[];
-      return finalizeRows(args, "sqlite", rows.map(rowToItem), limit);
-    }
+    const kinds = viewKinds(args.view);
+    const placeholders = kinds.map(() => "?").join(", ");
     const rows = db
       .prepare(
-        "SELECT id, kind, slug, frontmatter_json, body_md, last_touched FROM objects WHERE kind = ? ORDER BY last_touched DESC, id ASC",
+        `SELECT id, kind, slug, frontmatter_json, body_md, last_touched FROM objects WHERE kind IN (${placeholders}) ORDER BY last_touched DESC, id ASC`,
       )
-      .all(KIND_BY_VIEW[args.view]) as ObjectRow[];
+      .all(...kinds) as ObjectRow[];
     return finalizeRows(args, "sqlite", rows.map(rowToItem), limit);
   } finally {
     db.close();
@@ -159,10 +174,9 @@ function querySqlite(indexFile: string, args: QueryViewArgs, limit: number): Vie
 }
 
 function querySource(repoRoot: string, args: QueryViewArgs, limit: number): ViewResult {
+  const kinds = new Set<string>(viewKinds(args.view));
   const objects = collectObjects(join(repoRoot, "content"), repoRoot).filter((o) =>
-    args.view === "current_focus"
-      ? ["projects", "thoughts", "questions"].includes(o.kind)
-      : o.kind === KIND_BY_VIEW[args.view],
+    kinds.has(o.kind),
   );
   return finalizeRows(args, "source", objects.map(objectToItem), limit);
 }
@@ -190,23 +204,7 @@ function finalizeRows(
   const query = args.query?.trim().toLowerCase();
   const tags = new Set((args.tags ?? []).map((t) => t.toLowerCase()));
   const filtered = rows.filter((item) => {
-    if (
-      args.view === "current_focus" &&
-      item.kind === "projects" &&
-      item.frontmatter["status"] !== "alive"
-    )
-      return false;
-    if (
-      args.view === "current_focus" &&
-      item.kind === "questions" &&
-      !["open", "partial"].includes(String(item.frontmatter["status"] ?? ""))
-    )
-      return false;
-    if (args.view === "projects_active" && item.frontmatter["status"] !== "alive") return false;
-    if (args.view === "predictions_pending" && item.frontmatter["resolution"] !== "pending")
-      return false;
-    if (args.view === "predictions_resolved" && item.frontmatter["resolution"] === "pending")
-      return false;
+    if (!passesViewPredicate(args.view, item)) return false;
     if (query && !haystack(item).includes(query)) return false;
     if (tags.size > 0 && !item.tags.some((tag) => tags.has(tag.toLowerCase()))) return false;
     return true;
