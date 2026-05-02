@@ -14,8 +14,8 @@ function makeHandler(
     parse: (p: QueuedProposal) => ({
       tag: String((p.payload as Record<string, unknown>)["tag"] ?? tag),
     }),
-    apply: async () => `applied-${tag}`,
-    edit: async () => `edited-${tag}`,
+    apply: async (_proposal, _ctx) => `applied-${tag}`,
+    edit: async (_proposal, _ctx) => `edited-${tag}`,
   };
 }
 

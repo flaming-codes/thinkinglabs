@@ -13,9 +13,9 @@ import { runToolCall } from "../llm.ts";
 import { appendSection } from "../body-append.ts";
 import { editMarkdownWithSchema } from "../edit-markdown.ts";
 import { patchFrontmatter } from "../frontmatter.ts";
-import { readJsonState, writeJsonState } from "../json-state.ts";
 import { enqueue, proposalId, readQueue } from "../proposal-queue.ts";
 import { registerHandler, type HandlerContext } from "../proposal-dispatch.ts";
+import { appendUniqueProposalRejection, readProposalRejections } from "../proposal-rejections.ts";
 import { submissionSchema } from "../../schemas/submission.ts";
 import type { QueuedProposal } from "../proposal-queue.ts";
 import { objectRef } from "../provenance.ts";
@@ -57,11 +57,6 @@ export interface TriageQuestionsSummary {
   readonly scoredBelow: number;
   readonly proposed: number;
   readonly deduped: number;
-}
-
-/** Absolute path to the rejections log; anchored to cwd so tests can supply a temp dir. */
-function rejectionsPath(cwd: string): string {
-  return join(resolve(cwd), ".triage-questions-rejections.json");
 }
 
 /** Ensures the directory exists, creating it (and parents) if absent. */
@@ -171,7 +166,7 @@ export async function runTriageQuestions(args: {
   const { cwd, nowISO, skipLLM } = args;
   const cwdResolved = resolve(cwd);
 
-  const rejections = readJsonState<string[]>(rejectionsPath(cwd), []);
+  const rejections = readProposalRejections<string>(cwd, "triage-questions");
   const rejectionSet = new Set(rejections);
   const existingIds = new Set(readQueue(cwd).map((p) => p.id));
 
@@ -333,11 +328,11 @@ const handler = {
   },
   async apply(
     proposal: QueuedProposal & { payload: QuestionAnswerCuratePayload },
-    ctx?: HandlerContext,
+    ctx: HandlerContext,
   ): Promise<string> {
     if (!proposal.target) throw new Error("triage-questions apply: missing target path");
     const { payload } = proposal;
-    const cwd = resolve(ctx?.cwd ?? process.cwd());
+    const cwd = resolve(ctx.cwd);
     const submissionAbs = resolve(cwd, payload.submissionPath);
     const heading = answerHeading(payload.responder.name, payload.receivedAt);
     const body = answerSectionBody(payload.suggestedAnswer, payload.pointers);
@@ -350,11 +345,11 @@ const handler = {
   },
   async edit(
     proposal: QueuedProposal & { payload: QuestionAnswerCuratePayload },
-    ctx?: HandlerContext,
+    ctx: HandlerContext,
   ): Promise<string> {
     if (!proposal.target) throw new Error("triage-questions edit: missing target path");
     const { payload } = proposal;
-    const cwd = resolve(ctx?.cwd ?? process.cwd());
+    const cwd = resolve(ctx.cwd);
     const submissionAbs = resolve(cwd, payload.submissionPath);
     const result = await editMarkdownWithSchema("questions", proposal.target);
     if (!result.ok) throw new Error(`triage-questions edit: ${result.reason}`);
@@ -363,19 +358,21 @@ const handler = {
   },
   async reject(
     proposal: QueuedProposal & { payload: QuestionAnswerCuratePayload },
-    ctx?: HandlerContext,
+    ctx: HandlerContext,
   ): Promise<void> {
     const { payload } = proposal;
-    const cwd = resolve(ctx?.cwd ?? process.cwd());
+    const cwd = resolve(ctx.cwd);
     const submissionAbs = resolve(cwd, payload.submissionPath);
     const submissionId = basename(payload.submissionPath, ".json");
     if (existsSync(submissionAbs)) {
       moveTo(submissionAbs, join(cwd, "submissions", "_rejected", payload.questionSlug));
     }
-    const rejections = readJsonState<string[]>(rejectionsPath(cwd), []);
-    if (!rejections.includes(submissionId)) {
-      writeJsonState(rejectionsPath(cwd), [...rejections, submissionId]);
-    }
+    appendUniqueProposalRejection(
+      cwd,
+      "triage-questions",
+      submissionId,
+      (entry) => entry === submissionId,
+    );
   },
 };
 

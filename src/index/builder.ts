@@ -2,7 +2,7 @@ import { existsSync, readFileSync, readdirSync, rmSync, statSync } from "node:fs
 import { extname, join, relative } from "node:path";
 import Database from "better-sqlite3";
 import matter from "gray-matter";
-import { lastTouchedSync } from "../lib/git.ts";
+import { resolvedLastTouchedSync } from "../lib/git.ts";
 import { stripKindPrefix, stripMdExt } from "../lib/refs.ts";
 import { titleFor } from "../lib/registry.ts";
 import { KIND_SCHEMAS, KINDS, type Kind } from "../schemas/index.ts";
@@ -90,7 +90,9 @@ function deriveSlug(filePath: string, kindRoot: string): string {
 
 /** Canonical history with mtime fallback so seeds and uncommitted fixtures still index. */
 function lastTouched(absPath: string, repoRoot: string): string {
-  return lastTouchedSync(absPath, repoRoot) ?? new Date(statSync(absPath).mtimeMs).toISOString();
+  return (
+    resolvedLastTouchedSync(absPath, repoRoot) ?? new Date(statSync(absPath).mtimeMs).toISOString()
+  );
 }
 
 /** Edge `to_id` reduced to a bare slug; the edge `kind` already encodes the destination type so prefix is redundant. */

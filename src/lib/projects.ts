@@ -1,6 +1,6 @@
 import { stat } from "node:fs/promises";
 import { resolve } from "node:path";
-import { lastTouched } from "./git.ts";
+import { resolvedLastTouched } from "./git.ts";
 
 /** Project source files live under `content/projects/<id>.md`; collection ids are `<slug>` so this composes the absolute path. */
 export function projectFilePath(id: string): string {
@@ -10,7 +10,7 @@ export function projectFilePath(id: string): string {
 /** Display date for a project: git history wins; mtime fallback keeps fresh-on-disk uncommitted files honest. */
 export async function projectLastTouched(id: string): Promise<string> {
   const file = projectFilePath(id);
-  const fromGit = await lastTouched(file);
+  const fromGit = await resolvedLastTouched(file);
   const iso =
     fromGit ??
     (await stat(file)

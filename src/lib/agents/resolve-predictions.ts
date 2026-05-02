@@ -1,15 +1,14 @@
 import { readFileSync } from "node:fs";
-import { join, resolve } from "node:path";
 import matter from "gray-matter";
 import { z } from "zod";
 import { runToolCall } from "../llm.ts";
 import { loadContent } from "../content-repo.ts";
 import { editMarkdownWithSchema } from "../edit-markdown.ts";
 import { patchFrontmatter } from "../frontmatter.ts";
-import { readJsonState, writeJsonState } from "../json-state.ts";
 import { enqueue, proposalId, readQueue } from "../proposal-queue.ts";
 import type { QueuedProposal } from "../proposal-queue.ts";
 import { registerHandler, type HandlerContext } from "../proposal-dispatch.ts";
+import { readProposalRejections, upsertProposalRejection } from "../proposal-rejections.ts";
 import { objectRef } from "../provenance.ts";
 
 /** Zod schema for the LLM resolution draft tool output. */
@@ -68,11 +67,6 @@ const DRAFT_TOOL = {
   schema: ResolutionDraft,
 };
 
-/** Absolute path to the rejections file; resolved from cwd so tests can override. */
-function rejectionsPath(cwd: string): string {
-  return join(resolve(cwd), ".resolve-predictions-rejections.json");
-}
-
 /** Normalise a raw frontmatter date to an ISO string. */
 function rawToISO(raw: unknown): string {
   if (raw instanceof Date) return raw.toISOString();
@@ -111,7 +105,7 @@ export async function runResolvePredictions(args: {
   const predictions = loadContent("predictions", { cwd });
   const inputs = loadContent("inputs", { cwd });
 
-  const rejections = readJsonState<RejectionEntry[]>(rejectionsPath(cwd), []);
+  const rejections = readProposalRejections<RejectionEntry>(cwd, "resolve-predictions");
   const rejectionMap = new Map(rejections.map((r) => [r.slug, r.predictionLastModified]));
 
   const now = new Date(nowISO).getTime();
@@ -237,7 +231,10 @@ const handler = {
   parse(proposal: QueuedProposal): PredictionResolvePayload {
     return PredictionResolvePayload.parse(proposal.payload);
   },
-  async apply(proposal: QueuedProposal & { payload: PredictionResolvePayload }): Promise<string> {
+  async apply(
+    proposal: QueuedProposal & { payload: PredictionResolvePayload },
+    _ctx: HandlerContext,
+  ): Promise<string> {
     if (!proposal.target) throw new Error("prediction-resolve apply: missing target path");
     await patchFrontmatter(proposal.target, (data) => {
       data["resolution"] = proposal.payload.resolution;
@@ -246,7 +243,10 @@ const handler = {
     });
     return `${proposal.target} → resolution: ${proposal.payload.resolution}`;
   },
-  async edit(proposal: QueuedProposal & { payload: PredictionResolvePayload }): Promise<string> {
+  async edit(
+    proposal: QueuedProposal & { payload: PredictionResolvePayload },
+    _ctx: HandlerContext,
+  ): Promise<string> {
     if (!proposal.target) throw new Error("prediction-resolve edit: missing target path");
     const result = await editMarkdownWithSchema("predictions", proposal.target);
     if (!result.ok) throw new Error(`prediction-resolve edit: ${result.reason}`);
@@ -254,11 +254,10 @@ const handler = {
   },
   async reject(
     proposal: QueuedProposal & { payload: PredictionResolvePayload },
-    ctx?: HandlerContext,
+    ctx: HandlerContext,
   ): Promise<void> {
     if (!proposal.target) return;
     const slug = proposal.target.replace(/.*\//, "").replace(/\.md$/, "");
-    const cwd = resolve(ctx?.cwd ?? process.cwd());
     let predictionLastModified = "";
     try {
       const raw = readFileSync(proposal.target, "utf8");
@@ -268,10 +267,15 @@ const handler = {
     } catch {
       predictionLastModified = new Date().toISOString();
     }
-    const rejections = readJsonState<RejectionEntry[]>(rejectionsPath(cwd), []);
-    const filtered = rejections.filter((r) => r.slug !== slug);
-    filtered.push({ slug, predictionLastModified });
-    writeJsonState(rejectionsPath(cwd), filtered);
+    upsertProposalRejection(
+      ctx.cwd,
+      "resolve-predictions",
+      {
+        slug,
+        predictionLastModified,
+      },
+      (entry) => entry.slug === slug,
+    );
   },
 };
 

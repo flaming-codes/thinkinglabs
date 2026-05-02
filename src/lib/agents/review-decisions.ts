@@ -1,12 +1,11 @@
 #!/usr/bin/env tsx
-import { join, resolve } from "node:path";
 import { z } from "zod";
 import { daysBetween } from "../clock.ts";
 import { editMarkdownWithSchema } from "../edit-markdown.ts";
 import { loadContent } from "../content-repo.ts";
-import { readJsonState, writeJsonState } from "../json-state.ts";
 import { enqueue, proposalId, readQueue } from "../proposal-queue.ts";
 import { registerHandler, type HandlerContext } from "../proposal-dispatch.ts";
+import { readProposalRejections, upsertProposalRejection } from "../proposal-rejections.ts";
 import type { QueuedProposal } from "../proposal-queue.ts";
 
 /** Payload carried by a decision-followup-due proposal. */
@@ -32,11 +31,6 @@ interface RejectionEntry {
   readonly followUpOnISO: string;
 }
 
-/** Absolute path to the rejections file; anchored to cwd so tests can supply a temp dir. */
-function rejectionsPath(cwd: string): string {
-  return join(resolve(cwd), ".review-decisions-rejections.json");
-}
-
 /** Walks decisions, enqueues follow-up proposals for standing decisions whose follow_up_on has passed. */
 export function runReviewDecisions(args: { cwd: string; nowISO: string }): ReviewDecisionsSummary {
   const { cwd, nowISO } = args;
@@ -46,7 +40,7 @@ export function runReviewDecisions(args: { cwd: string; nowISO: string }): Revie
     return status === "standing" || status === undefined;
   });
 
-  const rejections = readJsonState<RejectionEntry[]>(rejectionsPath(cwd), []);
+  const rejections = readProposalRejections<RejectionEntry>(cwd, "review-decisions");
   const rejectionMap = new Map(rejections.map((r) => [r.slug, r.followUpOnISO]));
 
   const existingIds = new Set(readQueue(cwd).map((p) => p.id));
@@ -100,6 +94,7 @@ export function runReviewDecisions(args: { cwd: string; nowISO: string }): Revie
 /** Opens the decision file in $EDITOR; apply ≡ edit since the only meaningful action is a human review. */
 async function openInEditor(
   proposal: QueuedProposal & { payload: DecisionFollowupPayload },
+  _ctx: HandlerContext,
 ): Promise<string> {
   if (!proposal.target) throw new Error("review-decisions: missing target path");
   const result = await editMarkdownWithSchema("decisions", proposal.target);
@@ -118,15 +113,19 @@ const handler = {
   edit: openInEditor,
   async reject(
     proposal: QueuedProposal & { payload: DecisionFollowupPayload },
-    ctx?: HandlerContext,
+    ctx: HandlerContext,
   ): Promise<void> {
     if (!proposal.target) return;
     const slug = proposal.target.replace(/.*\//, "").replace(/\.md$/, "");
-    const cwd = resolve(ctx?.cwd ?? process.cwd());
-    const rejections = readJsonState<RejectionEntry[]>(rejectionsPath(cwd), []);
-    const filtered = rejections.filter((r) => r.slug !== slug);
-    filtered.push({ slug, followUpOnISO: proposal.payload.followUpOnISO });
-    writeJsonState(rejectionsPath(cwd), filtered);
+    upsertProposalRejection(
+      ctx.cwd,
+      "review-decisions",
+      {
+        slug,
+        followUpOnISO: proposal.payload.followUpOnISO,
+      },
+      (entry) => entry.slug === slug,
+    );
   },
 };
 

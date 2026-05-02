@@ -63,7 +63,7 @@ describe("prediction-resolve handler", () => {
     const target = writePrediction(predictionsDir, "apply-test");
     const proposal = makeProposal(target, "true");
     const handler = getHandler("prediction-resolve");
-    await handler.apply(proposal);
+    await handler.apply(proposal, { cwd: root });
     const { data } = matter(readFileSync(target, "utf8"));
     expect(data["resolution"]).toBe("true");
     expect(data["resolution_note"]).toBe("Prediction resolved correctly.");
@@ -78,7 +78,7 @@ describe("prediction-resolve handler", () => {
     const target = writePrediction(predictionsDir, "false-test");
     const proposal = makeProposal(target, "false");
     const handler = getHandler("prediction-resolve");
-    await handler.apply(proposal);
+    await handler.apply(proposal, { cwd: root });
     const { data } = matter(readFileSync(target, "utf8"));
     expect(data["resolution"]).toBe("false");
     expect(data["resolved_on"]).toBe("2026-04-30");
@@ -90,7 +90,7 @@ describe("prediction-resolve handler", () => {
     const target = writePrediction(predictionsDir, "ambig-test");
     const proposal = makeProposal(target, "ambiguous");
     const handler = getHandler("prediction-resolve");
-    await handler.apply(proposal);
+    await handler.apply(proposal, { cwd: root });
     const { data } = matter(readFileSync(target, "utf8"));
     expect(data["resolution"]).toBe("ambiguous");
   });
@@ -104,7 +104,7 @@ describe("prediction-resolve handler", () => {
     process.env["EDITOR"] = "cat";
     try {
       const handler = getHandler("prediction-resolve");
-      const result = await handler.edit(proposal);
+      const result = await handler.edit(proposal, { cwd: root });
       expect(result).toContain("edit-test");
     } finally {
       if (prev === undefined) delete process.env["EDITOR"];
@@ -119,7 +119,7 @@ describe("prediction-resolve handler", () => {
     const target = writePrediction(predictionsDir, "reject-test");
     const proposal = makeProposal(target);
     const handler = getHandler("prediction-resolve");
-    if (handler.reject) await handler.reject(proposal);
+    if (handler.reject) await handler.reject(proposal, { cwd: root });
     const rejections = readJsonState<Array<{ slug: string; predictionLastModified: string }>>(
       join(root, ".resolve-predictions-rejections.json"),
       [],
@@ -134,6 +134,6 @@ describe("prediction-resolve handler", () => {
     const proposal = makeProposal("null-target");
     const noTarget = { ...proposal, target: null };
     const handler = getHandler("prediction-resolve");
-    await expect(handler.apply(noTarget)).rejects.toThrow("missing target path");
+    await expect(handler.apply(noTarget, { cwd: root })).rejects.toThrow("missing target path");
   });
 });

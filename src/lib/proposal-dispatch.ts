@@ -13,11 +13,11 @@ export interface ProposalHandler<P> {
   /** Build the typed payload from the queue entry; throws on invalid via the schema. */
   parse(proposal: QueuedProposal): P;
   /** Apply an "accept" action: mutate the source tree. Returns a one-line summary for the CLI. */
-  apply(proposal: QueuedProposal & { payload: P }, ctx?: HandlerContext): Promise<string>;
+  apply(proposal: QueuedProposal & { payload: P }, ctx: HandlerContext): Promise<string>;
   /** Apply an "edit" action: open the relevant file in $EDITOR; on save, validate and write. */
-  edit(proposal: QueuedProposal & { payload: P }, ctx?: HandlerContext): Promise<string>;
+  edit(proposal: QueuedProposal & { payload: P }, ctx: HandlerContext): Promise<string>;
   /** Optional reject hook: per-agent dedup so a rejected proposal isn't re-enqueued next run. */
-  reject?(proposal: QueuedProposal & { payload: P }, ctx?: HandlerContext): Promise<void>;
+  reject?(proposal: QueuedProposal & { payload: P }, ctx: HandlerContext): Promise<void>;
 }
 
 /** Module-scope registry mapping ProposalType to its registered handler. */

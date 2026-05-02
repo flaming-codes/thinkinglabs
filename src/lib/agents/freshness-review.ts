@@ -10,7 +10,7 @@ import { editMarkdownWithSchema } from "../edit-markdown.ts";
 import { freshnessState } from "../freshness.ts";
 import { enqueue, proposalId, readQueue } from "../proposal-queue.ts";
 import type { QueuedProposal } from "../proposal-queue.ts";
-import { registerHandler } from "../proposal-dispatch.ts";
+import { registerHandler, type HandlerContext } from "../proposal-dispatch.ts";
 import { parseSectionStamps } from "../section-stamps.ts";
 import { walkFileHistory } from "../git.ts";
 import { objectRef } from "../provenance.ts";
@@ -265,7 +265,10 @@ const handler = {
   parse(proposal: QueuedProposal): PostSectionRestampPayload {
     return PostSectionRestampPayload.parse(proposal.payload);
   },
-  async apply(proposal: QueuedProposal & { payload: PostSectionRestampPayload }): Promise<string> {
+  async apply(
+    proposal: QueuedProposal & { payload: PostSectionRestampPayload },
+    _ctx: HandlerContext,
+  ): Promise<string> {
     if (!proposal.target) throw new Error("post-section-restamp apply: missing target path");
     const now = nowISO();
 
@@ -288,13 +291,19 @@ const handler = {
     deprecateSectionCallout(proposal.target, proposal.payload.sectionHeading);
     return `${proposal.target}#${proposal.payload.sectionAnchor} → deprecated`;
   },
-  async edit(proposal: QueuedProposal & { payload: PostSectionRestampPayload }): Promise<string> {
+  async edit(
+    proposal: QueuedProposal & { payload: PostSectionRestampPayload },
+    _ctx: HandlerContext,
+  ): Promise<string> {
     if (!proposal.target) throw new Error("post-section-restamp edit: missing target path");
     const result = await editMarkdownWithSchema("posts", proposal.target);
     if (!result.ok) throw new Error(`post-section-restamp edit: ${result.reason}`);
     return `edited ${proposal.target}`;
   },
-  reject(_proposal: QueuedProposal & { payload: PostSectionRestampPayload }): Promise<void> {
+  reject(
+    _proposal: QueuedProposal & { payload: PostSectionRestampPayload },
+    _ctx: HandlerContext,
+  ): Promise<void> {
     return Promise.resolve();
   },
 };
