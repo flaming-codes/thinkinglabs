@@ -36,9 +36,9 @@
     <integer>1800</integer>
 
     <key>StandardOutPath</key>
-    <string>/Users/tom/Library/Logs/thinkinglabs/triage-questions.out.log</string>
+    <string>__LOG_DIR__/triage-questions.out.log</string>
 
     <key>StandardErrorPath</key>
-    <string>/Users/tom/Library/Logs/thinkinglabs/triage-questions.err.log</string>
+    <string>__LOG_DIR__/triage-questions.err.log</string>
 </dict>
 </plist>

@@ -6,12 +6,16 @@
   "scripts": {
     "clean": "rimraf .astro dist node_modules/.astro",
     "dev": "astro dev",
-    "prebuild": "pnpm clean && pnpm build:llms-txt",
+    "prebuild": "pnpm clean && pnpm build:llms-txt && pnpm build:feeds",
     "build": "astro check && astro build",
     "build:fixtures": "tsx scripts/build-fixtures.ts",
     "build:llms-txt": "tsx scripts/build-llms-txt.ts",
+    "build:feeds": "tsx scripts/build-feeds.ts",
     "build:index": "tsx scripts/build-index.ts",
-    "check:structured-data": "tsx scripts/check-structured-data.ts",
+    "check:structured-data:empty": "tsx scripts/check-structured-data.ts --mode=empty",
+    "check:structured-data:fixtures": "tsx scripts/check-structured-data.ts --mode=fixtures",
+    "preview": "astro preview",
+    "test:e2e": "playwright test",
     "brain-diff": "tsx scripts/brain-diff.ts",
     "mcp:thinkinglabs": "tsx servers/thinkinglabs-mcp/cli.ts",
     "derive-claims": "tsx scripts/derive-claims.ts",
@@ -27,7 +31,8 @@
     "format": "vp fmt",
     "check": "vp check",
     "test": "vp test run",
-    "verify": "pnpm clean && pnpm typecheck && pnpm check && pnpm build && pnpm check:structured-data && pnpm build:index && pnpm test",
+    "verify": "pnpm clean && pnpm typecheck && pnpm check && pnpm build && pnpm check:structured-data:empty && pnpm build:fixtures && pnpm check:structured-data:fixtures && pnpm build:index && pnpm test",
+    "verify:full": "pnpm verify && pnpm test:e2e",
     "prepare": "vp config"
   },
   "dependencies": {
@@ -42,6 +47,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.9",
+    "@playwright/test": "^1.48.0",
     "@types/better-sqlite3": "^7.6.13",
     "@types/hast": "^3.0.4",
     "@types/mdast": "^4.0.4",

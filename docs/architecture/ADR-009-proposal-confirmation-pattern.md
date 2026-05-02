@@ -34,3 +34,7 @@ Every agent scan is idempotent and non-destructive. The queue accumulates until 
 ## Alternatives considered
 
 CI cron was rejected because gitignored state files are wiped on every clean checkout, defeating rejection memory. Running only the two non-LLM agents in CI was rejected because mixing CI and launchd adds complexity without benefit. A central rejection store was rejected because per-agent files give independent rejection semantics; `freshness-review`'s no-op rejection is harder to model in a shared schema.
+
+### Current state (2026-05-02)
+
+All five agents ship in `src/lib/agents/` with CLIs in `scripts/` and launchd plist templates in `scripts/launchd/`. The plists use both `__REPO_ROOT__` and `__LOG_DIR__` placeholders that operators substitute at install time (see `scripts/launchd/README.md`). The LLM-mediated agents key off `OPENAI_API_KEY` (or `OLLAMA_API_KEY` when `LLM_PROVIDER=ollama`) — the M6 provider migration replaced the original Anthropic key reference; see ADR-007's current-state note. `pnpm review-proposals` is the human drain.

@@ -2,27 +2,18 @@ import { existsSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import Database from "better-sqlite3";
 import { collectObjects, type IndexedObject } from "../../src/index/builder.ts";
+import { calibration, type Bucket } from "../../src/lib/calibration.ts";
 import { contactSchema, type Contact } from "../../src/schemas/contact.ts";
+import type { Prediction } from "../../src/schemas/prediction.ts";
+import { DETAIL_KINDS, PUBLIC_VIEWS, titleFor } from "../../src/lib/registry.ts";
+import { KINDS, type Kind } from "../../src/schemas/index.ts";
 import type { QueryViewArgs, PublicView, ViewItem, ViewResult } from "./types.ts";
 
-const KIND_BY_VIEW = {
-  thoughts: "thoughts",
-  claims: "claims",
-  projects: "projects",
-  decisions: "decisions",
-  predictions: "predictions",
-  inputs: "inputs",
-  inputs_recent: "inputs",
-  questions: "questions",
-  current_focus: "projects",
-  claims_recent: "claims",
-  claims_by_tag: "claims",
-  projects_active: "projects",
-  decisions_recent: "decisions",
-  predictions_pending: "predictions",
-  predictions_resolved: "predictions",
-  provenance: "provenance",
-} as const satisfies Record<PublicView, string>;
+/** Derived `view -> kind` lookup; populated from the registry so adding a view in one place wires the store automatically. */
+const KIND_BY_VIEW = Object.fromEntries(PUBLIC_VIEWS.map((v) => [v.view, v.kind])) as Record<
+  PublicView,
+  string
+>;
 
 interface ObjectRow {
   readonly id: string;
@@ -66,33 +57,78 @@ export function getObject(repoRoot: string, kind: string, slug: string): ViewIte
   return object ? objectToItem(object) : null;
 }
 
-/** Return calibration data from resolved prediction objects. */
-export function predictionCalibration(repoRoot: string): {
-  resolved: number;
-  buckets: Array<{ confidence: number; total: number; correct: number; accuracy: number | null }>;
-} {
-  const resolved = queryView(repoRoot, { view: "predictions_resolved", limit: 50 }).items;
-  const buckets = new Map<number, { total: number; correct: number }>();
-  for (const item of resolved) {
-    const confidence =
-      typeof item.frontmatter["confidence"] === "number" ? item.frontmatter["confidence"] : 0;
-    const bucket = Math.round(confidence * 10) / 10;
-    const current = buckets.get(bucket) ?? { total: 0, correct: 0 };
-    current.total++;
-    if (item.frontmatter["resolution"] === "true") current.correct++;
-    buckets.set(bucket, current);
-  }
+/** MCP-shaped calibration response: resolved count plus per-bucket counts and rates. */
+export interface PredictionCalibrationResult {
+  readonly resolved: number;
+  readonly buckets: ReadonlyArray<{
+    readonly confidence: number;
+    readonly total: number;
+    readonly correct: number;
+    readonly accuracy: number | null;
+  }>;
+}
+
+/** Pure adapter from the shared `calibration()` output to the MCP response envelope. */
+export function calibrationToMcpEnvelope(
+  predictions: ReadonlyArray<Pick<Prediction, "confidence" | "resolution">>,
+): PredictionCalibrationResult {
+  const buckets = calibration(predictions);
   return {
-    resolved: resolved.length,
-    buckets: [...buckets.entries()]
-      .sort((a, b) => a[0] - b[0])
-      .map(([confidence, b]) => ({
-        confidence,
-        total: b.total,
-        correct: b.correct,
-        accuracy: b.total === 0 ? null : b.correct / b.total,
-      })),
+    resolved: predictions.length,
+    buckets: buckets.map((b: Bucket) => ({
+      confidence: Math.round(b.mid * 10) / 10,
+      total: b.total,
+      correct: b.correct,
+      accuracy: b.accuracy,
+    })),
   };
+}
+
+/** Extract the typed prediction subset the shared calibration helper expects. */
+function viewItemToPrediction(
+  item: ViewItem,
+): Pick<Prediction, "confidence" | "resolution"> | null {
+  const confidence = item.frontmatter["confidence"];
+  const resolution = item.frontmatter["resolution"];
+  if (typeof confidence !== "number") return null;
+  if (resolution !== "true" && resolution !== "false" && resolution !== "ambiguous") return null;
+  return { confidence, resolution };
+}
+
+/** Return calibration data from ALL resolved prediction objects via the shared helper. */
+export function predictionCalibration(repoRoot: string): PredictionCalibrationResult {
+  const root = resolveRepoRoot(repoRoot);
+  const indexFile = join(root, "dist", "index.sqlite");
+  const items = existsSync(indexFile)
+    ? readResolvedPredictionsSqlite(indexFile)
+    : readResolvedPredictionsSource(root);
+  const predictions: Array<Pick<Prediction, "confidence" | "resolution">> = [];
+  for (const item of items) {
+    const p = viewItemToPrediction(item);
+    if (p !== null) predictions.push(p);
+  }
+  return calibrationToMcpEnvelope(predictions);
+}
+
+function readResolvedPredictionsSqlite(indexFile: string): ViewItem[] {
+  const db = new Database(indexFile, { readonly: true, fileMustExist: true });
+  try {
+    const rows = db
+      .prepare(
+        "SELECT id, kind, slug, frontmatter_json, body_md, last_touched FROM objects WHERE kind = 'predictions'",
+      )
+      .all() as ObjectRow[];
+    return rows.map(rowToItem).filter((i) => i.frontmatter["resolution"] !== "pending");
+  } finally {
+    db.close();
+  }
+}
+
+function readResolvedPredictionsSource(repoRoot: string): ViewItem[] {
+  return collectObjects(join(repoRoot, "content"), repoRoot)
+    .filter((o) => o.kind === "predictions")
+    .map(objectToItem)
+    .filter((i) => i.frontmatter["resolution"] !== "pending");
 }
 
 function clampLimit(limit: number | undefined): number {
@@ -180,18 +216,11 @@ function finalizeRows(
   return { view: args.view, source, count: items.length, items };
 }
 
+/** Set of object kinds the MCP detail resource exposes; derived from the registry. */
+const DETAIL_KIND_SET: ReadonlySet<string> = new Set(DETAIL_KINDS);
+
 function assertObjectKind(kind: string): void {
-  if (
-    kind === "thoughts" ||
-    kind === "claims" ||
-    kind === "projects" ||
-    kind === "decisions" ||
-    kind === "predictions" ||
-    kind === "inputs" ||
-    kind === "questions" ||
-    kind === "provenance"
-  )
-    return;
+  if (DETAIL_KIND_SET.has(kind)) return;
   throw new Error(`unsupported MCP resource kind: ${kind}`);
 }
 
@@ -232,7 +261,7 @@ function makeItem(
     id,
     kind,
     slug,
-    title: titleFor(frontmatter, slug),
+    title: titleFor(asKind(kind), frontmatter, slug),
     url: `/${kind}/${slug}`,
     summary: summarize(body),
     frontmatter,
@@ -242,12 +271,9 @@ function makeItem(
   };
 }
 
-function titleFor(frontmatter: Record<string, unknown>, fallback: string): string {
-  for (const key of ["title", "claim", "decision", "prediction"]) {
-    const value = frontmatter[key];
-    if (typeof value === "string" && value.trim().length > 0) return value;
-  }
-  return fallback;
+/** Narrow a string `kind` from sqlite/source rows to the `Kind` literal union; falls back to "thoughts" on unknown values. */
+function asKind(kind: string): Kind {
+  return (KINDS as ReadonlyArray<string>).includes(kind) ? (kind as Kind) : "thoughts";
 }
 
 function summarize(body: string): string {

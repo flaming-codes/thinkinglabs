@@ -3,6 +3,7 @@ import { getCollection } from "astro:content";
 import Base from "../../layouts/Base.astro";
 import EmptyState from "../../components/EmptyState.astro";
 import StatusPill from "../../components/StatusPill.astro";
+import { formatDate } from "../../lib/route-helpers.ts";
 import { byDateDesc } from "../../lib/sort.ts";
 import { listStructuredData } from "../../lib/structured-data.ts";
 
@@ -29,7 +30,7 @@ function trunc(s: string | undefined, n: number): string {
       {items.map((d) => (
         <li>
           <a href={`/decisions/${d.id}`}>{d.data.decision}</a> <StatusPill status={d.data.status} />
-          <div class="meta">{d.data.date.slice(0, 10)} · chose {d.data.chosen}</div>
+          <div class="meta">{formatDate(d.data.date)} · chose {d.data.chosen}</div>
           {d.data.why ? <div class="meta">{trunc(d.data.why, 160)}</div> : null}
         </li>
       ))}

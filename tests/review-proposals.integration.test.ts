@@ -14,15 +14,19 @@ import { describe, expect, it } from "vite-plus/test";
 import { writeJsonState } from "../src/lib/json-state.ts";
 import type { QueuedProposal } from "../src/lib/proposal-queue.ts";
 
-/** Resolves whether `git` is callable. */
-function gitAvailable(): boolean {
+/** Asserts `git` is on PATH at module load. CI must provision git; we fail loudly rather than
+ *  silently skip so a runner regression cannot disguise itself as green coverage. */
+function assertGitAvailable(): void {
   try {
     execFileSync("git", ["--version"], { stdio: "ignore" });
-    return true;
   } catch {
-    return false;
+    throw new Error(
+      "git is required for this integration test but was not found on PATH. " +
+        "Install git or run on a runner that ships it (ubuntu-latest does).",
+    );
   }
 }
+assertGitAvailable();
 
 /** Absolute path to the CLI script. */
 const SCRIPT = join(process.cwd(), "scripts", "review-proposals.ts");
@@ -117,7 +121,7 @@ describe("review-proposals CLI (integration)", () => {
     }
   }, 30_000);
 
-  describe.runIf(gitAvailable())("--dry-run preserves queue", () => {
+  describe("--dry-run preserves queue", () => {
     it("queue file is unchanged after --dry-run with a registered-handler proposal", () => {
       const root = mkdtempSync(join(tmpdir(), "review-proposals-int-"));
       try {

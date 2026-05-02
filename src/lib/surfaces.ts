@@ -1,4 +1,14 @@
-import type { Kind } from "../schemas/index.ts";
+import { KINDS, type Kind } from "../schemas/index.ts";
+import { KIND_REGISTRY, type KindRegistryEntry } from "./registry.ts";
+
+/** Widened registry entry used for surface derivation; the strict literal type narrows too aggressively for `??` fallbacks. */
+type KindSpecRuntime = KindRegistryEntry & {
+  readonly listingTitle: string;
+  readonly detailTitle: string;
+  readonly detailDescription: string;
+  readonly apiTitle?: string;
+  readonly apiDescription?: string;
+};
 
 /** Single inventory of public surfaces; consumed by both top nav and `llms.txt` so the list never drifts. */
 export interface Surface {
@@ -8,21 +18,45 @@ export interface Surface {
   readonly section: "page" | "listing" | "detail" | "api" | "data" | "feed";
 }
 
-/** Listing routes the site exposes; detail routes follow `<url>/[slug]`. */
-export const LISTING_KINDS = [
+/** Listing routes the site exposes; detail routes follow `<url>/[slug]`. Derived from the kind registry. */
+export const LISTING_KINDS = KINDS.filter((k) => KIND_REGISTRY[k].nav) as ReadonlyArray<Kind>;
+
+/** Display order for kind-derived sections in `llms.txt` and the homepage; preserves the historical ordering of the hand-rolled inventory. */
+const LISTING_DISPLAY_ORDER = [
   "claims",
+  "thoughts",
+  "inputs",
+  "projects",
+  "predictions",
+  "changed-my-mind",
+  "decisions",
+  "questions",
+  "posts",
+] as const satisfies ReadonlyArray<Kind>;
+
+const LISTING_ORDERED: ReadonlyArray<Kind> = LISTING_DISPLAY_ORDER.filter((k) =>
+  LISTING_KINDS.includes(k),
+);
+
+/** Display order for detail-pattern surfaces; matches the historical hand-rolled inventory. */
+const DETAIL_DISPLAY_ORDER = [
+  "claims",
+  "inputs",
   "thoughts",
   "projects",
   "predictions",
   "changed-my-mind",
   "decisions",
-  "inputs",
   "questions",
   "posts",
 ] as const satisfies ReadonlyArray<Kind>;
 
-/** Stable inventory; ordering is the rendering order in `llms.txt` and homepage nav. */
-export const SURFACES: ReadonlyArray<Surface> = [
+const DETAIL_ORDERED: ReadonlyArray<Kind> = DETAIL_DISPLAY_ORDER.filter((k) =>
+  LISTING_KINDS.includes(k),
+);
+
+/** Static (non-per-kind) page surfaces; ordering reflects rendering order in `llms.txt` and top nav. */
+const STATIC_PAGES: ReadonlyArray<Surface> = [
   { title: "Home", url: "/", description: "Site root and entry points.", section: "page" },
   { title: "Now", url: "/now", description: "What I'm currently focused on.", section: "page" },
   {
@@ -37,174 +71,20 @@ export const SURFACES: ReadonlyArray<Surface> = [
     description: "Human-readable contact surface.",
     section: "page",
   },
-  {
-    title: "Claims",
-    url: "/claims",
-    description: "Atomic structured claims with confidence and evidence.",
-    section: "listing",
-  },
-  {
-    title: "Thoughts",
-    url: "/thoughts",
-    description: "Long-form prose, by recency.",
-    section: "listing",
-  },
-  {
-    title: "Inputs",
-    url: "/inputs",
-    description: "External material that shaped thinking.",
-    section: "listing",
-  },
-  {
-    title: "Projects",
-    url: "/projects",
-    description: "Active and dormant work, grouped by status.",
-    section: "listing",
-  },
-  {
-    title: "Predictions",
-    url: "/predictions",
-    description: "Falsifiable predictions, pending and resolved.",
-    section: "listing",
-  },
-  {
-    title: "Changed my mind",
-    url: "/changed-my-mind",
-    description: "Belief revisions, by date.",
-    section: "listing",
-  },
-  {
-    title: "Decisions",
-    url: "/decisions",
-    description: "ADR-style public decisions.",
-    section: "listing",
-  },
-  {
-    title: "Questions",
-    url: "/questions",
-    description: "Open questions I'm stuck on.",
-    section: "listing",
-  },
-  {
-    title: "Posts",
-    url: "/posts",
-    description: "Long-form evergreen posts with per-section freshness.",
-    section: "listing",
-  },
+];
+
+/** Standalone (non-listing, non-detail) page surfaces appended after kind sections. */
+const EXTRA_PAGES: ReadonlyArray<Surface> = [
   {
     title: "Calibration",
     url: "/predictions/calibration",
     description: "Stated confidence vs realized accuracy.",
     section: "page",
   },
-  {
-    title: "Claim detail",
-    url: "/claims/<slug>",
-    description: "Single claim page with confidence history.",
-    section: "detail",
-  },
-  {
-    title: "Input detail",
-    url: "/inputs/<slug>",
-    description: "Single input page.",
-    section: "detail",
-  },
-  {
-    title: "Thought detail",
-    url: "/thoughts/<slug>",
-    description: "Single thought page.",
-    section: "detail",
-  },
-  {
-    title: "Project detail",
-    url: "/projects/<slug>",
-    description: "Single project page.",
-    section: "detail",
-  },
-  {
-    title: "Prediction detail",
-    url: "/predictions/<slug>",
-    description: "Single prediction page.",
-    section: "detail",
-  },
-  {
-    title: "Changed-my-mind detail",
-    url: "/changed-my-mind/<slug>",
-    description: "Single belief-revision page.",
-    section: "detail",
-  },
-  {
-    title: "Decision detail",
-    url: "/decisions/<slug>",
-    description: "Single decision page.",
-    section: "detail",
-  },
-  {
-    title: "Question detail",
-    url: "/questions/<slug>",
-    description: "Single question page.",
-    section: "detail",
-  },
-  {
-    title: "Post detail",
-    url: "/posts/<slug>",
-    description: "Single post page.",
-    section: "detail",
-  },
-  {
-    title: "Claims JSON",
-    url: "/api/claims.json",
-    description: "All claims as JSON.",
-    section: "api",
-  },
-  {
-    title: "Inputs JSON",
-    url: "/api/inputs.json",
-    description: "All inputs as JSON.",
-    section: "api",
-  },
-  {
-    title: "Thoughts JSON",
-    url: "/api/thoughts.json",
-    description: "All thoughts as JSON.",
-    section: "api",
-  },
-  {
-    title: "Projects JSON",
-    url: "/api/projects.json",
-    description: "All projects as JSON.",
-    section: "api",
-  },
-  {
-    title: "Predictions JSON",
-    url: "/api/predictions.json",
-    description: "All predictions as JSON.",
-    section: "api",
-  },
-  {
-    title: "Changed-my-mind JSON",
-    url: "/api/changed-my-mind.json",
-    description: "All belief revisions as JSON.",
-    section: "api",
-  },
-  {
-    title: "Decisions JSON",
-    url: "/api/decisions.json",
-    description: "All decisions as JSON.",
-    section: "api",
-  },
-  {
-    title: "Questions JSON",
-    url: "/api/questions.json",
-    description: "All open questions as JSON.",
-    section: "api",
-  },
-  {
-    title: "Posts JSON",
-    url: "/api/posts.json",
-    description: "All posts as JSON.",
-    section: "api",
-  },
+];
+
+/** Static data and feed surfaces appended after the per-kind sections. */
+const TAIL_SURFACES: ReadonlyArray<Surface> = [
   {
     title: "Prediction calibration embed JSON",
     url: "/api/embed/prediction-calibration-logger.json",
@@ -232,33 +112,83 @@ export const SURFACES: ReadonlyArray<Surface> = [
   {
     title: "Brain-diff (Atom)",
     url: "/feed/brain-diff.xml",
-    description: "Substantive changes across tracked content.",
+    description:
+      "Substantive changes across tracked content (scored daily by `pnpm brain-diff`; not yet auto-deployed — currently published as a CI artifact only).",
     section: "feed",
   },
   {
     title: "Brain-diff (JSON)",
     url: "/feed/brain-diff.json",
-    description: "Substantive changes as JSON.",
+    description:
+      "Substantive changes as JSON (scored daily by `pnpm brain-diff`; not yet auto-deployed — currently published as a CI artifact only).",
     section: "feed",
   },
   {
     title: "Predictions resolved",
     url: "/feed/predictions-resolved.json",
-    description: "Predictions transitioning out of pending.",
+    description: "Predictions transitioning out of pending (live, regenerated every site build).",
     section: "feed",
   },
   {
     title: "Claims revised",
     url: "/feed/claims-revised.json",
-    description: "Claim updates across history.",
+    description:
+      "Claims with non-active status or supersedes/superseded_by links (live, regenerated every site build).",
     section: "feed",
   },
   {
     title: "Decisions reversed",
     url: "/feed/decisions-reversed.json",
-    description: "Decision reversals and superseding records.",
+    description:
+      "Decisions marked reversed/superseded or with a `reverses` link (live, regenerated every site build).",
     section: "feed",
   },
+];
+
+/** Per-kind listing surface derived from the registry. */
+function listingSurface(kind: Kind): Surface {
+  const spec = KIND_REGISTRY[kind] as KindSpecRuntime;
+  if (!spec.route) throw new Error(`registry: kind "${kind}" has nav=true but no route`);
+  return {
+    title: spec.listingTitle,
+    url: spec.route,
+    description: spec.description,
+    section: "listing",
+  };
+}
+
+/** Per-kind detail surface derived from the registry. */
+function detailSurface(kind: Kind): Surface {
+  const spec = KIND_REGISTRY[kind] as KindSpecRuntime;
+  if (!spec.route) throw new Error(`registry: kind "${kind}" has nav=true but no route`);
+  return {
+    title: spec.detailTitle,
+    url: `${spec.route}/<slug>`,
+    description: spec.detailDescription,
+    section: "detail",
+  };
+}
+
+/** Per-kind JSON API surface derived from the registry. */
+function apiSurface(kind: Kind): Surface | null {
+  const spec = KIND_REGISTRY[kind] as KindSpecRuntime;
+  if (!spec.api || !spec.route) return null;
+  return {
+    title: spec.apiTitle ?? `${spec.listingTitle} JSON`,
+    url: `/api/${kind}.json`,
+    description: spec.apiDescription ?? `All ${kind} as JSON.`,
+    section: "api",
+  };
+}
+
+/** Stable inventory; ordering is the rendering order in `llms.txt` and homepage nav. */
+export const SURFACES: ReadonlyArray<Surface> = [
+  ...STATIC_PAGES,
+  ...LISTING_ORDERED.map(listingSurface),
+  ...EXTRA_PAGES,
+  ...DETAIL_ORDERED.map(detailSurface),
+  ...LISTING_ORDERED.map(apiSurface).filter((s): s is Surface => s !== null),
+  ...TAIL_SURFACES,
 ];
 
 /** Human title per surface section; single source for both nav grouping and llms.txt headings. */

@@ -28,3 +28,7 @@ Local entries are intentionally browser-local and disposable. They are not analy
 ## Alternatives considered
 
 A live POST endpoint was rejected because it would turn the first embed into a server mutation surface. Page-specific one-off markup was rejected because M7 is infrastructure work and should establish a reusable contract before traffic justifies custom embeds.
+
+### Current state (2026-05-02)
+
+`embeds/` contains the registered embeds and `src/pages/api/embed/[id].json.ts` prerenders one JSON artifact per registration. The seed embed `prediction-calibration-logger` ships with its no-JS fallback and `localStorage` augmentation as described above; no further embeds have been added.

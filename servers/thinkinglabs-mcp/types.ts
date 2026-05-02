@@ -1,27 +1,17 @@
 import { z } from "zod";
+import { PUBLIC_VIEWS, type PublicViewName } from "../../src/lib/registry.ts";
+
+/** Tuple of public view names derived from the registry; coerced to zod's required `[T, ...T[]]` tuple shape. */
+const VIEW_NAMES = PUBLIC_VIEWS.map((v) => v.view) as unknown as readonly [
+  PublicViewName,
+  ...PublicViewName[],
+];
 
 /** Public view names exposed as fixed MCP resources and query_view targets. */
-export const publicViewSchema = z.enum([
-  "thoughts",
-  "claims",
-  "projects",
-  "decisions",
-  "predictions",
-  "inputs",
-  "inputs_recent",
-  "questions",
-  "current_focus",
-  "claims_recent",
-  "claims_by_tag",
-  "projects_active",
-  "decisions_recent",
-  "predictions_pending",
-  "predictions_resolved",
-  "provenance",
-]);
+export const publicViewSchema = z.enum(VIEW_NAMES);
 
 /** Inferred public view union from the MCP view schema. */
-export type PublicView = z.infer<typeof publicViewSchema>;
+export type PublicView = PublicViewName;
 
 /** Query parameters for the public query_view tool. */
 export interface QueryViewArgs {

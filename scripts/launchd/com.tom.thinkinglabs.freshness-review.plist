@@ -43,9 +43,9 @@
     </dict>
 
     <key>StandardOutPath</key>
-    <string>/Users/tom/Library/Logs/thinkinglabs/freshness-review.out.log</string>
+    <string>__LOG_DIR__/freshness-review.out.log</string>
 
     <key>StandardErrorPath</key>
-    <string>/Users/tom/Library/Logs/thinkinglabs/freshness-review.err.log</string>
+    <string>__LOG_DIR__/freshness-review.err.log</string>
 </dict>
 </plist>

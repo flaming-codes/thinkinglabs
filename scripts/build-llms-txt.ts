@@ -16,7 +16,7 @@ function main(): void {
   const lines: string[] = [
     "# Tom — wild.as",
     "",
-    "> Personal thinking surface. Markdown source-of-truth at https://github.com/tom/thinkinglabs. Every page below renders from `content/<kind>/`.",
+    "> Personal thinking surface. Markdown source-of-truth at https://github.com/flaming-codes/thinkinglabs. Every page below renders from `content/<kind>/`.",
     "",
   ];
   for (const key of SECTION_ORDER) {

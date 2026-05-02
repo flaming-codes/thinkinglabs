@@ -1,14 +1,14 @@
 ---
-import { getCollection, render } from "astro:content";
+import { render } from "astro:content";
 import type { GetStaticPaths, InferGetStaticPropsType } from "astro";
 import Base from "../../layouts/Base.astro";
 import MetaBlock from "../../components/MetaBlock.astro";
 import Tags from "../../components/Tags.astro";
+import { getKindStaticPaths } from "../../lib/route-helpers.ts";
 import { predictionStructuredData } from "../../lib/structured-data.ts";
 
 export const getStaticPaths = (async () => {
-  const items = await getCollection("predictions");
-  return items.map((p) => ({ params: { slug: p.id }, props: { entry: p } }));
+  return getKindStaticPaths("predictions");
 }) satisfies GetStaticPaths;
 
 const { entry } = Astro.props as InferGetStaticPropsType<typeof getStaticPaths>;

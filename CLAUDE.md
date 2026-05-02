@@ -36,7 +36,7 @@ LLM-mediated CLIs require `OPENAI_API_KEY` (see `.env.example`); pass `--no-llm`
 
 ## Architecture
 
-This is a personal knowledge / agentic-space repo. The full execution plan lives at `~/.claude/plans/brainstorm-more-realisitc-ideas-merry-rain.md`; architectural decisions are in [`docs/architecture/`](./docs/architecture/) (ADR-001 through ADR-012). Pipeline how-tos are in [`docs/agents/`](./docs/agents/). Read the relevant ADR before changing a pipeline — they capture _why_, not just what.
+This is a personal knowledge / agentic-space repo. Architectural decisions live in [`docs/architecture/`](./docs/architecture/) (ADR-001 through ADR-012). Pipeline how-tos are in [`docs/agents/`](./docs/agents/). Read the relevant ADR before changing a pipeline — they capture _why_, not just what.
 
 ### Source vs index (ADR-001)
 

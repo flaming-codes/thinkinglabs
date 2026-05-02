@@ -22,3 +22,7 @@ Agents get structured public data without a new database or CMS. The fixed resou
 ## Alternatives considered
 
 HTTP-first hosting was rejected for M6 because stdio is simpler to install locally and test in CI. Reading only `dist/index.sqlite` was rejected because a clean clone should still serve public content before the derived index exists.
+
+### Current state (2026-05-02)
+
+The server ships at `servers/thinkinglabs-mcp/` and is launched via `pnpm mcp:thinkinglabs`. The fixed resource taxonomy now also exposes provenance for accepted AI-assisted effects: `thinkinglabs://provenance` (list), `thinkinglabs://provenance/{slug}` (detail), and `thinkinglabs://ai/current-models` (the env-resolved `ModelRef` per capability tier). Provenance is committed to the source tree but is intentionally **not** surfaced on the public web — it is only reachable through MCP resources or `dist/index.sqlite`. The full resource and tool list lives in `docs/agents/mcp-server.md`. The authenticated tier remains deferred.

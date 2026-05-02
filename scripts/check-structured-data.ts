@@ -1,16 +1,31 @@
 #!/usr/bin/env tsx
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
+import { env } from "../src/lib/env.ts";
 
-const SITE = "https://tom.wild.as";
+const SITE = env().SITE_URL;
 const dist = resolve(process.cwd(), "dist");
 
 interface JsonObject {
   readonly [key: string]: unknown;
 }
 
+/** Mode flag controlling which assertion suite runs against dist/. */
+type Mode = "empty" | "fixtures";
+
+/** Parses --mode=<empty|fixtures> from argv; defaults to empty. */
+function parseMode(): Mode {
+  const arg = process.argv.slice(2).find((a) => a.startsWith("--mode="));
+  const value = arg ? arg.slice("--mode=".length) : "empty";
+  if (value !== "empty" && value !== "fixtures") {
+    throw new Error(`unknown --mode value: ${value} (expected 'empty' or 'fixtures')`);
+  }
+  return value;
+}
+
 function main(): void {
   if (!existsSync(dist)) throw new Error("dist/ does not exist; run pnpm build first");
+  const mode = parseMode();
   const files = walk(dist).filter((file) => file.endsWith(".html"));
   if (files.length === 0) throw new Error("no HTML files found in dist/");
 
@@ -39,13 +54,17 @@ function main(): void {
     assert(page?.url === canonical, rel, "WebPage url must match canonical");
   }
 
-  assertFixtureType("posts/_seed/index.html", "BlogPosting");
-  assertFixtureType("claims/_seed/index.html", "Claim");
-  assertFixtureDoesNotInclude("claims/_seed/index.html", "ClaimReview");
-  assertFixtureType("questions/_seed/index.html", "Question");
-  assertFixtureDoesNotInclude("questions/_seed/index.html", "QAPage");
+  if (mode === "fixtures") {
+    requireFixtureType("posts/_seed/index.html", "BlogPosting");
+    requireFixtureType("claims/_seed/index.html", "Claim");
+    requireFixtureDoesNotInclude("claims/_seed/index.html", "ClaimReview");
+    requireFixtureType("questions/_seed/index.html", "Question");
+    requireFixtureDoesNotInclude("questions/_seed/index.html", "QAPage");
+  }
 
-  process.stdout.write(`checked structured metadata in ${files.length} HTML files\n`);
+  process.stdout.write(
+    `checked structured metadata in ${files.length} HTML files (mode=${mode})\n`,
+  );
 }
 
 function walk(dir: string): string[] {
@@ -77,18 +96,28 @@ function extractJsonLd(html: string, rel: string): JsonObject {
   return parsed;
 }
 
-function assertFixtureType(path: string, type: string): void {
+/** In fixtures mode the file MUST exist; missing it is a hard failure (caller forgot the fixture build). */
+function requireFixtureType(path: string, type: string): void {
   const file = join(dist, path);
-  if (!existsSync(file)) return;
+  if (!existsSync(file)) {
+    throw new Error(
+      `${path}: required fixture HTML missing in dist/. Did you run \`pnpm build:fixtures\` before --mode=fixtures?`,
+    );
+  }
   const jsonLd = extractJsonLd(readFileSync(file, "utf8"), path);
   const graph = jsonLd["@graph"];
   assert(Array.isArray(graph), path, "fixture JSON-LD must use an @graph array");
   assertIncludesType(graph, type, path);
 }
 
-function assertFixtureDoesNotInclude(path: string, type: string): void {
+/** In fixtures mode the file MUST exist; missing it is a hard failure. */
+function requireFixtureDoesNotInclude(path: string, type: string): void {
   const file = join(dist, path);
-  if (!existsSync(file)) return;
+  if (!existsSync(file)) {
+    throw new Error(
+      `${path}: required fixture HTML missing in dist/. Did you run \`pnpm build:fixtures\` before --mode=fixtures?`,
+    );
+  }
   const jsonLd = extractJsonLd(readFileSync(file, "utf8"), path);
   const graph = jsonLd["@graph"];
   assert(Array.isArray(graph), path, "fixture JSON-LD must use an @graph array");

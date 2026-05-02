@@ -11,8 +11,8 @@ export interface WalkedEntry {
   readonly content: string;
 }
 
-/** Lazily walks `content/<kind>/*.md`; returns parsed entries. Returns `[]` if the directory is missing. Skips files starting with `.` or `_seed`. */
-export function walkMarkdown(args: { cwd: string; kind: Kind }): ReadonlyArray<WalkedEntry> {
+/** @deprecated Single-level untyped walker that drops parse errors; use `loadContent` from `@/lib/content-repo`. */
+export function walkMarkdownRaw(args: { cwd: string; kind: Kind }): ReadonlyArray<WalkedEntry> {
   const dir = join(resolve(args.cwd), "content", args.kind);
   if (!existsSync(dir)) return [];
   return readdirSync(dir)
@@ -28,3 +28,6 @@ export function walkMarkdown(args: { cwd: string; kind: Kind }): ReadonlyArray<W
       }
     });
 }
+
+/** @deprecated Transition alias for `walkMarkdownRaw`; prefer `loadContent` from `@/lib/content-repo`. */
+export const walkMarkdown = walkMarkdownRaw;

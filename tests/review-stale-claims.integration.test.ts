@@ -4,17 +4,21 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vite-plus/test";
 
-/** Resolves whether `git` is callable. */
-function gitAvailable(): boolean {
+/** Asserts `git` is on PATH at module load. CI must provision git; we fail loudly rather than
+ *  silently skip so a runner regression cannot disguise itself as green coverage. */
+function assertGitAvailable(): void {
   try {
     execFileSync("git", ["--version"], { stdio: "ignore" });
-    return true;
   } catch {
-    return false;
+    throw new Error(
+      "git is required for this integration test but was not found on PATH. " +
+        "Install git or run on a runner that ships it (ubuntu-latest does).",
+    );
   }
 }
+assertGitAvailable();
 
-describe.runIf(gitAvailable())("review-stale-claims CLI (integration, --no-llm --dry-run)", () => {
+describe("review-stale-claims CLI (integration, --no-llm --dry-run)", () => {
   it("exits 0 and prints 0 flags when claims dir is empty", () => {
     const root = mkdtempSync(join(tmpdir(), "review-stale-int-"));
     try {

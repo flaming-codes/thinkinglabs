@@ -1,0 +1,33 @@
+---
+import EmptyState from "./EmptyState.astro";
+import { KIND_REGISTRY } from "../lib/registry.ts";
+import type { Kind } from "../schemas/index.ts";
+
+/** Generic listing primitive; renders a heading-less list with the canonical title field per kind. */
+interface Item {
+  readonly id: string;
+  readonly title: string;
+  readonly meta?: string;
+}
+
+interface Props {
+  kind: Kind;
+  items: ReadonlyArray<Item>;
+  emptyMessage?: string;
+}
+
+const { kind, items, emptyMessage } = Astro.props;
+const route = KIND_REGISTRY[kind].route ?? `/${kind}`;
+---
+{items.length === 0 ? (
+  <EmptyState message={emptyMessage ?? "(no items yet)"} />
+) : (
+  <ul class="list">
+    {items.map((item) => (
+      <li>
+        <a href={`${route}/${item.id}`}>{item.title}</a>
+        {item.meta ? <div class="meta">{item.meta}</div> : null}
+      </li>
+    ))}
+  </ul>
+)}

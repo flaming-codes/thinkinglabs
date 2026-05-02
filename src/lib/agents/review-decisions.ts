@@ -1,15 +1,12 @@
 #!/usr/bin/env tsx
-import { readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
-import matter from "gray-matter";
 import { z } from "zod";
 import { daysBetween } from "../clock.ts";
-import { editInEditor } from "../editor.ts";
-import { walkMarkdown } from "../walk-content.ts";
+import { editMarkdownWithSchema } from "../edit-markdown.ts";
+import { loadContent } from "../content-repo.ts";
 import { readJsonState, writeJsonState } from "../json-state.ts";
 import { enqueue, proposalId, readQueue } from "../proposal-queue.ts";
-import { registerHandler } from "../proposal-dispatch.ts";
-import { decisionSchema } from "../../schemas/decision.ts";
+import { registerHandler, type HandlerContext } from "../proposal-dispatch.ts";
 import type { QueuedProposal } from "../proposal-queue.ts";
 
 /** Payload carried by a decision-followup-due proposal. */
@@ -43,10 +40,11 @@ function rejectionsPath(cwd: string): string {
 /** Walks decisions, enqueues follow-up proposals for standing decisions whose follow_up_on has passed. */
 export function runReviewDecisions(args: { cwd: string; nowISO: string }): ReviewDecisionsSummary {
   const { cwd, nowISO } = args;
-  const decisions = walkMarkdown({ cwd, kind: "decisions" });
-  const standing = decisions.filter(
-    (d) => d.data["status"] === "standing" || d.data["status"] === undefined,
-  );
+  const decisions = loadContent("decisions", { cwd });
+  const standing = decisions.filter((d) => {
+    const status = (d.data as { status?: unknown }).status;
+    return status === "standing" || status === undefined;
+  });
 
   const rejections = readJsonState<RejectionEntry[]>(rejectionsPath(cwd), []);
   const rejectionMap = new Map(rejections.map((r) => [r.slug, r.followUpOnISO]));
@@ -57,7 +55,7 @@ export function runReviewDecisions(args: { cwd: string; nowISO: string }): Revie
   let deduped = 0;
 
   for (const decision of standing) {
-    const followUpRaw = decision.data["follow_up_on"];
+    const followUpRaw = (decision.data as { follow_up_on?: unknown }).follow_up_on;
     if (!followUpRaw) continue;
     const followUpOnISO =
       followUpRaw instanceof Date ? followUpRaw.toISOString() : String(followUpRaw);
@@ -67,11 +65,11 @@ export function runReviewDecisions(args: { cwd: string; nowISO: string }): Revie
     if (rejectedSnapshot !== undefined && rejectedSnapshot === followUpOnISO) continue;
 
     const daysOverdue = daysBetween(followUpOnISO, nowISO);
-    const decisionTitle =
-      typeof decision.data["decision"] === "string" ? decision.data["decision"] : decision.slug;
+    const decisionField = (decision.data as { decision?: unknown }).decision;
+    const decisionTitle = typeof decisionField === "string" ? decisionField : decision.slug;
 
     const payload: DecisionFollowupPayload = { followUpOnISO, daysOverdue, decisionTitle };
-    const id = proposalId("review-decisions", "decision-followup-due", decision.path, {
+    const id = proposalId("review-decisions", "decision-followup-due", decision.filePath, {
       followUpOnISO,
     });
 
@@ -86,7 +84,7 @@ export function runReviewDecisions(args: { cwd: string; nowISO: string }): Revie
         source: "review-decisions",
         type: "decision-followup-due",
         createdAt: nowISO,
-        target: decision.path,
+        target: decision.filePath,
         title: `Review decision: ${decision.slug}`,
         preview: `"${decisionTitle}" — follow_up_on was ${followUpOnISO.slice(0, 10)}, ${daysOverdue} days overdue. Open in editor to confirm or reverse.`,
         payload,
@@ -104,11 +102,8 @@ async function openInEditor(
   proposal: QueuedProposal & { payload: DecisionFollowupPayload },
 ): Promise<string> {
   if (!proposal.target) throw new Error("review-decisions: missing target path");
-  const raw = readFileSync(proposal.target, "utf8");
-  const edited = await editInEditor(raw, ".md");
-  const parsed = matter(edited);
-  decisionSchema.parse(parsed.data);
-  writeFileSync(proposal.target, edited, "utf8");
+  const result = await editMarkdownWithSchema("decisions", proposal.target);
+  if (!result.ok) throw new Error(`review-decisions: ${result.reason}`);
   return `reviewed ${proposal.target}`;
 }
 
@@ -121,10 +116,13 @@ const handler = {
   },
   apply: openInEditor,
   edit: openInEditor,
-  async reject(proposal: QueuedProposal & { payload: DecisionFollowupPayload }): Promise<void> {
+  async reject(
+    proposal: QueuedProposal & { payload: DecisionFollowupPayload },
+    ctx?: HandlerContext,
+  ): Promise<void> {
     if (!proposal.target) return;
     const slug = proposal.target.replace(/.*\//, "").replace(/\.md$/, "");
-    const cwd = resolve(process.cwd());
+    const cwd = resolve(ctx?.cwd ?? process.cwd());
     const rejections = readJsonState<RejectionEntry[]>(rejectionsPath(cwd), []);
     const filtered = rejections.filter((r) => r.slug !== slug);
     filtered.push({ slug, followUpOnISO: proposal.payload.followUpOnISO });

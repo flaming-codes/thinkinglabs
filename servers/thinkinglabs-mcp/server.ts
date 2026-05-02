@@ -12,41 +12,22 @@ import {
   subscribeBrainDiffInputSchema,
 } from "./handlers.ts";
 import { getObject, predictionCalibration, queryView } from "./store.ts";
-import type { PublicView } from "./types.ts";
+import { publicViewSchema, type PublicView } from "./types.ts";
 import { currentModelRefs } from "../../src/lib/llm.ts";
+import { DETAIL_KINDS as registryDetailKinds, PUBLIC_VIEWS } from "../../src/lib/registry.ts";
 
 /** Options controlling which checkout the MCP server reads. */
 export interface ThinkinglabsMcpServerOptions {
   readonly repoRoot?: string;
 }
 
-const DETAIL_KINDS = [
-  "thoughts",
-  "claims",
-  "projects",
-  "decisions",
-  "predictions",
-  "inputs",
-  "questions",
-  "provenance",
-] as const;
-const STATIC_RESOURCES = [
-  ["thoughts", "thinkinglabs://thoughts"],
-  ["claims", "thinkinglabs://claims"],
-  ["projects", "thinkinglabs://projects"],
-  ["decisions", "thinkinglabs://decisions"],
-  ["predictions", "thinkinglabs://predictions"],
-  ["inputs", "thinkinglabs://inputs"],
-  ["inputs_recent", "thinkinglabs://inputs/recent"],
-  ["questions", "thinkinglabs://questions"],
-  ["current_focus", "thinkinglabs://current_focus"],
-  ["claims_recent", "thinkinglabs://claims/recent"],
-  ["projects_active", "thinkinglabs://projects/active"],
-  ["decisions_recent", "thinkinglabs://decisions/recent"],
-  ["predictions_pending", "thinkinglabs://predictions/pending"],
-  ["predictions_resolved", "thinkinglabs://predictions/resolved"],
-  ["provenance", "thinkinglabs://provenance"],
-] as const satisfies ReadonlyArray<readonly [PublicView, string]>;
+/** MCP detail kinds derived from the kind registry. */
+const DETAIL_KINDS = registryDetailKinds;
+
+/** MCP static-view resource (view, uri) pairs derived from the kind registry. */
+const STATIC_RESOURCES = PUBLIC_VIEWS.filter((v) => v.resource === "static").map(
+  (v) => [v.view, v.uri] as const,
+) as ReadonlyArray<readonly [PublicView, string]>;
 
 /** Create the personal MCP server with public resources and testable tool handlers. */
 export function createThinkinglabsMcpServer(options: ThinkinglabsMcpServerOptions = {}): McpServer {
@@ -190,14 +171,18 @@ function registerDetailResource(
     `${kind}-detail`,
     new ResourceTemplate(`thinkinglabs://${kind}/{slug}`, {
       list: () => {
+        const viewParse = publicViewSchema.safeParse(kind);
+        if (!viewParse.success) return { resources: [] };
         try {
           return {
-            resources: queryView(repoRoot, { view: kind, limit: 50 }).items.map((item) => ({
-              uri: `thinkinglabs://${kind}/${item.slug}`,
-              name: item.id,
-              title: item.title,
-              mimeType: "application/json",
-            })),
+            resources: queryView(repoRoot, { view: viewParse.data, limit: 50 }).items.map(
+              (item) => ({
+                uri: `thinkinglabs://${kind}/${item.slug}`,
+                name: item.id,
+                title: item.title,
+                mimeType: "application/json",
+              }),
+            ),
           };
         } catch {
           return { resources: [] };

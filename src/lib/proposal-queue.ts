@@ -2,6 +2,14 @@ import { createHash } from "node:crypto";
 import { closeSync, openSync, readFileSync, statSync, unlinkSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { z } from "zod";
+import {
+  PROPOSAL_SOURCES,
+  PROPOSAL_TYPES,
+  PROVENANCE_PROCESS_IDS,
+  type ProposalSource,
+  type ProposalType,
+  type ProvenanceProcessId,
+} from "./agent-registry.ts";
 import { readJsonState, writeJsonState } from "./json-state.ts";
 import {
   modelRefSchema,
@@ -10,21 +18,7 @@ import {
 } from "../schemas/provenance.ts";
 import type { QueuedProvenance } from "./provenance.ts";
 
-/** Stable identifier for an agent that emits proposals; literal-union forces an explicit per-agent registration. */
-export type ProposalSource =
-  | "dormant-flip"
-  | "review-decisions"
-  | "resolve-predictions"
-  | "freshness-review"
-  | "triage-questions";
-
-/** Mutation kind; closed union so the dispatcher can switch exhaustively when applying actions. */
-export type ProposalType =
-  | "project-flip-dormant"
-  | "decision-followup-due"
-  | "prediction-resolve"
-  | "post-section-restamp"
-  | "question-answer-curate";
+export type { ProposalSource, ProposalType };
 
 /** One pending proposal emitted by a background agent and awaiting human review. */
 export interface QueuedProposal {
@@ -41,14 +35,7 @@ export interface QueuedProposal {
 
 /** Zod schema for optional LLM provenance metadata on proposals. */
 const queuedProvenanceSchema = z.object({
-  process_id: z.enum([
-    "dormant-flip",
-    "review-decisions",
-    "resolve-predictions",
-    "freshness-review",
-    "triage-questions",
-    "derive-claims",
-  ]),
+  process_id: z.enum(PROVENANCE_PROCESS_IDS as ReadonlyArray<ProvenanceProcessId>),
   event_type: provenanceEventTypeSchema,
   actor: z.object({ kind: z.literal("llm"), model: modelRefSchema }),
   started_at: z.string(),
@@ -60,20 +47,8 @@ const queuedProvenanceSchema = z.object({
 /** Zod schema for QueuedProposal; validates the queue file at the system edge. */
 const queuedProposalSchema = z.object({
   id: z.string(),
-  source: z.enum([
-    "dormant-flip",
-    "review-decisions",
-    "resolve-predictions",
-    "freshness-review",
-    "triage-questions",
-  ]),
-  type: z.enum([
-    "project-flip-dormant",
-    "decision-followup-due",
-    "prediction-resolve",
-    "post-section-restamp",
-    "question-answer-curate",
-  ]),
+  source: z.enum(PROPOSAL_SOURCES as ReadonlyArray<ProposalSource>),
+  type: z.enum(PROPOSAL_TYPES as ReadonlyArray<ProposalType>),
   createdAt: z.string(),
   target: z.string().nullable(),
   title: z.string(),

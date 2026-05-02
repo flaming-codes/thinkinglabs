@@ -36,3 +36,7 @@ Agents query `claims/` without re-parsing prose. Authoring pressure stays on `th
 ## Alternatives considered
 
 Auto-deriving claims at build time was rejected — it removes the human write gate. Storing claims inside thought frontmatter was rejected: no independent addressability, no per-claim history, no supersession chain. A claim-only system was rejected for authoring overhead.
+
+### Current state (2026-05-02)
+
+The M4.5 SDK choke-point and M6 provider migration are both shipped. `src/lib/llm.ts` is the sole entry point and selects provider/model via `LLM_PROVIDER`, `LLM_MODEL_FAST|BALANCED|DEEP`, with `OPENAI_API_KEY` (default) or `OLLAMA_API_KEY` (`LLM_PROVIDER=ollama`). The Anthropic SDK and `ANTHROPIC_API_KEY` are no longer wired in; CI passes `OPENAI_API_KEY` to the brain-diff job and fails fast when it is missing. `runToolCall` returns `{ data, model }`, and accepted AI-assisted effects are persisted as `content/provenance/` objects exposed locally via `thinkinglabs://provenance` and `thinkinglabs://ai/current-models` (see ADR-010). The `--no-llm` paths and the absent-key guard remain SDK-free at the call site.

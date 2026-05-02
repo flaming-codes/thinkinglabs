@@ -17,7 +17,7 @@ function writePrediction(dir: string, slug: string, resolution: string, resolves
   const path = join(dir, `${slug}.md`);
   writeFileSync(
     path,
-    `---\nprediction: "Test prediction for ${slug}."\nmade: 2025-01-01\nresolves: ${resolves}\nconfidence: 0.7\nresolution: ${resolution}\nresolved_on: null\nresolution_note: null\nevidence_at_time: []\ntags: []\n---\nBody.\n`,
+    `---\nprediction: "Test prediction for ${slug}."\nmade: 2025-01-01\nresolves: ${resolves}\nconfidence: 0.7\nresolution: "${resolution}"\nresolved_on: null\nresolution_note: null\nevidence_at_time: []\ntags: []\n---\nBody.\n`,
     "utf8",
   );
   return path;

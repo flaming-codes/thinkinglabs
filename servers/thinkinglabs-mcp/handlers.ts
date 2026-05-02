@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { buildEntries, applyGenericGate, walkCommits } from "../../src/lib/brain-diff.ts";
+import { env } from "../../src/lib/env.ts";
 import type { Contact } from "../../src/schemas/contact.ts";
 import { existsSync, mkdirSync } from "node:fs";
 import { basename, join } from "node:path";
@@ -46,7 +47,7 @@ export const contactSendInputSchema = {
 export const subscribeBrainDiffInputSchema = {
   since: z.string().default("HEAD~20"),
   include_recent: z.boolean().default(false),
-  site_url: z.url().default("https://tom.wild.as"),
+  site_url: z.url().default(env().SITE_URL),
 };
 
 /** Inferred input accepted by contact.precheck. */

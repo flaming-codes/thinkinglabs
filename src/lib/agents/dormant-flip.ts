@@ -1,17 +1,15 @@
 #!/usr/bin/env tsx
-import { readFileSync, statSync, writeFileSync } from "node:fs";
+import { statSync } from "node:fs";
 import { join, resolve } from "node:path";
-import matter from "gray-matter";
 import { z } from "zod";
 import { daysBetween } from "../clock.ts";
-import { editInEditor } from "../editor.ts";
-import { walkMarkdown } from "../walk-content.ts";
+import { loadContent } from "../content-repo.ts";
+import { editMarkdownWithSchema } from "../edit-markdown.ts";
 import { patchFrontmatter } from "../frontmatter.ts";
 import { lastTouchedSync } from "../git.ts";
 import { readJsonState, writeJsonState } from "../json-state.ts";
 import { enqueue, proposalId, readQueue } from "../proposal-queue.ts";
-import { registerHandler } from "../proposal-dispatch.ts";
-import { projectSchema } from "../../schemas/project.ts";
+import { registerHandler, type HandlerContext } from "../proposal-dispatch.ts";
 import type { QueuedProposal } from "../proposal-queue.ts";
 
 /** Env-configurable dormancy threshold; default 60 days per F3 spec. Override via DORMANT_THRESHOLD_DAYS. */
@@ -52,8 +50,8 @@ export function runDormantFlip(args: {
   thresholdDays: number;
 }): DormantFlipSummary {
   const { cwd, nowISO, thresholdDays } = args;
-  const projects = walkMarkdown({ cwd, kind: "projects" });
-  const alive = projects.filter((p) => p.data["status"] === "alive");
+  const projects = loadContent("projects", { cwd });
+  const alive = projects.filter((p) => (p.data as { status?: unknown }).status === "alive");
 
   const rejections = readJsonState<RejectionEntry[]>(rejectionsPath(cwd), []);
   const rejectionMap = new Map(rejections.map((r) => [r.slug, r.lastTouchedISO]));
@@ -64,14 +62,14 @@ export function runDormantFlip(args: {
   let deduped = 0;
 
   for (const project of alive) {
-    const gitISO = lastTouchedSync(project.path, cwd);
-    const fmISO = project.data["last_touched"];
+    const gitISO = lastTouchedSync(project.filePath, cwd);
+    const fmTouched = (project.data as { last_touched?: unknown }).last_touched;
     let lastTouchedISO: string | null = gitISO;
-    if (!lastTouchedISO && typeof fmISO === "string") lastTouchedISO = fmISO;
-    if (!lastTouchedISO && fmISO instanceof Date) lastTouchedISO = fmISO.toISOString();
+    if (!lastTouchedISO && typeof fmTouched === "string") lastTouchedISO = fmTouched;
+    if (!lastTouchedISO && fmTouched instanceof Date) lastTouchedISO = fmTouched.toISOString();
     if (!lastTouchedISO) {
       try {
-        lastTouchedISO = statSync(project.path).mtime.toISOString();
+        lastTouchedISO = statSync(project.filePath).mtime.toISOString();
       } catch {
         lastTouchedISO = null;
       }
@@ -84,7 +82,7 @@ export function runDormantFlip(args: {
     if (rejectedSnapshot !== undefined && rejectedSnapshot === lastTouchedISO) continue;
 
     const payload: DormantFlipPayload = { daysSinceTouched, thresholdDays, lastTouchedISO };
-    const id = proposalId("dormant-flip", "project-flip-dormant", project.path, {
+    const id = proposalId("dormant-flip", "project-flip-dormant", project.filePath, {
       lastTouchedISO,
       thresholdDays,
     });
@@ -100,7 +98,7 @@ export function runDormantFlip(args: {
         source: "dormant-flip",
         type: "project-flip-dormant",
         createdAt: nowISO,
-        target: project.path,
+        target: project.filePath,
         title: `Flip ${project.slug} dormant`,
         preview: `${project.slug} inactive for ${daysSinceTouched} days (threshold ${thresholdDays}). Proposed: set status = "dormant".`,
         payload,
@@ -129,17 +127,17 @@ const handler = {
   },
   async edit(proposal: QueuedProposal & { payload: DormantFlipPayload }): Promise<string> {
     if (!proposal.target) throw new Error("dormant-flip edit: missing target path");
-    const raw = readFileSync(proposal.target, "utf8");
-    const edited = await editInEditor(raw, ".md");
-    const parsed = matter(edited);
-    projectSchema.parse(parsed.data);
-    writeFileSync(proposal.target, edited, "utf8");
+    const result = await editMarkdownWithSchema("projects", proposal.target);
+    if (!result.ok) throw new Error(`dormant-flip edit: ${result.reason}`);
     return `edited ${proposal.target}`;
   },
-  async reject(proposal: QueuedProposal & { payload: DormantFlipPayload }): Promise<void> {
+  async reject(
+    proposal: QueuedProposal & { payload: DormantFlipPayload },
+    ctx?: HandlerContext,
+  ): Promise<void> {
     if (!proposal.target) return;
     const slug = proposal.target.replace(/.*\//, "").replace(/\.md$/, "");
-    const cwd = resolve(process.cwd());
+    const cwd = resolve(ctx?.cwd ?? process.cwd());
     const rejections = readJsonState<RejectionEntry[]>(rejectionsPath(cwd), []);
     const filtered = rejections.filter((r) => r.slug !== slug);
     filtered.push({ slug, lastTouchedISO: proposal.payload.lastTouchedISO });

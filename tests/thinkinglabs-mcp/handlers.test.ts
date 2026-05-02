@@ -296,10 +296,12 @@ describe("thinkinglabs-mcp handlers", () => {
       );
       expect(templates.resourceTemplates.map((template) => template.uriTemplate).sort()).toEqual(
         [
+          "thinkinglabs://changed-my-mind/{slug}",
           "thinkinglabs://claims/by-tag/{tag}",
           "thinkinglabs://claims/{slug}",
           "thinkinglabs://decisions/{slug}",
           "thinkinglabs://inputs/{slug}",
+          "thinkinglabs://posts/{slug}",
           "thinkinglabs://predictions/{slug}",
           "thinkinglabs://provenance/{slug}",
           "thinkinglabs://projects/{slug}",

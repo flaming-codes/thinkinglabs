@@ -1,5 +1,6 @@
 import matter from "gray-matter";
 import { nowISO } from "./clock.ts";
+import { env } from "./env.ts";
 import { git, showAt } from "./git.ts";
 import { stripMdExt } from "./refs.ts";
 
@@ -265,7 +266,7 @@ export function formatAtom(
   entries: ReadonlyArray<FeedEntry>,
   opts: { siteUrl?: string } = {},
 ): string {
-  const site = opts.siteUrl ?? "https://tom.wild.as";
+  const site = opts.siteUrl ?? env().SITE_URL;
   const updated = entries[0]?.isoDate ?? buildNowISO();
   const head = [
     `<?xml version="1.0" encoding="utf-8"?>`,

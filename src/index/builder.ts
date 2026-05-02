@@ -4,6 +4,7 @@ import Database from "better-sqlite3";
 import matter from "gray-matter";
 import { lastTouchedSync } from "../lib/git.ts";
 import { stripKindPrefix, stripMdExt } from "../lib/refs.ts";
+import { titleFor } from "../lib/registry.ts";
 import { KIND_SCHEMAS, KINDS, type Kind } from "../schemas/index.ts";
 
 /** Single object row produced from one source markdown file; used for ordered, deterministic inserts. */
@@ -181,12 +182,7 @@ export function writeIndex(objects: ReadonlyArray<IndexedObject>, outFile: strin
     }
     for (const o of rows) {
       const fm = JSON.parse(o.frontmatter_json) as Record<string, unknown>;
-      const titleSource = (fm["title"] ??
-        fm["claim"] ??
-        fm["question"] ??
-        fm["decision"] ??
-        fm["prediction"] ??
-        "") as string;
+      const titleSource = titleFor(o.kind, fm, "");
       insertFts.run(o.id, titleSource, o.body_md, o.tags.join(" "));
     }
   });

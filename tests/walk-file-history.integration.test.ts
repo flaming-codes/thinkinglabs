@@ -5,15 +5,19 @@ import { join } from "node:path";
 import { describe, expect, it } from "vite-plus/test";
 import { walkFileHistory } from "../src/lib/git.ts";
 
-/** Resolves whether `git` is callable; the integration test skips silently otherwise. */
-function gitAvailable(): boolean {
+/** Asserts `git` is on PATH at module load. CI must provision git; we fail loudly rather than
+ *  silently skip so a runner regression cannot disguise itself as green coverage. */
+function assertGitAvailable(): void {
   try {
     execFileSync("git", ["--version"], { stdio: "ignore" });
-    return true;
   } catch {
-    return false;
+    throw new Error(
+      "git is required for this integration test but was not found on PATH. " +
+        "Install git or run on a runner that ships it (ubuntu-latest does).",
+    );
   }
 }
+assertGitAvailable();
 
 function git(cwd: string, args: ReadonlyArray<string>): void {
   execFileSync("git", args as string[], {
@@ -29,7 +33,7 @@ function git(cwd: string, args: ReadonlyArray<string>): void {
   });
 }
 
-describe.runIf(gitAvailable())("walkFileHistory (integration)", () => {
+describe("walkFileHistory (integration)", () => {
   it("returns entries oldest-first with correct sha, date, and content", () => {
     const root = mkdtempSync(join(tmpdir(), "walk-fh-"));
     try {

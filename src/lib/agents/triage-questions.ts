@@ -11,12 +11,11 @@ import matter from "gray-matter";
 import { z } from "zod";
 import { runToolCall } from "../llm.ts";
 import { appendSection } from "../body-append.ts";
-import { editInEditor } from "../editor.ts";
+import { editMarkdownWithSchema } from "../edit-markdown.ts";
 import { patchFrontmatter } from "../frontmatter.ts";
 import { readJsonState, writeJsonState } from "../json-state.ts";
 import { enqueue, proposalId, readQueue } from "../proposal-queue.ts";
-import { registerHandler } from "../proposal-dispatch.ts";
-import { questionSchema } from "../../schemas/question.ts";
+import { registerHandler, type HandlerContext } from "../proposal-dispatch.ts";
 import { submissionSchema } from "../../schemas/submission.ts";
 import type { QueuedProposal } from "../proposal-queue.ts";
 import { objectRef } from "../provenance.ts";
@@ -334,10 +333,11 @@ const handler = {
   },
   async apply(
     proposal: QueuedProposal & { payload: QuestionAnswerCuratePayload },
+    ctx?: HandlerContext,
   ): Promise<string> {
     if (!proposal.target) throw new Error("triage-questions apply: missing target path");
     const { payload } = proposal;
-    const cwd = resolve(process.cwd());
+    const cwd = resolve(ctx?.cwd ?? process.cwd());
     const submissionAbs = resolve(cwd, payload.submissionPath);
     const heading = answerHeading(payload.responder.name, payload.receivedAt);
     const body = answerSectionBody(payload.suggestedAnswer, payload.pointers);
@@ -348,22 +348,25 @@ const handler = {
     if (existsSync(submissionAbs)) moveToAccepted(cwd, submissionAbs, payload.questionSlug);
     return `appended answer from ${payload.responder.name} to ${proposal.target}`;
   },
-  async edit(proposal: QueuedProposal & { payload: QuestionAnswerCuratePayload }): Promise<string> {
+  async edit(
+    proposal: QueuedProposal & { payload: QuestionAnswerCuratePayload },
+    ctx?: HandlerContext,
+  ): Promise<string> {
     if (!proposal.target) throw new Error("triage-questions edit: missing target path");
     const { payload } = proposal;
-    const cwd = resolve(process.cwd());
+    const cwd = resolve(ctx?.cwd ?? process.cwd());
     const submissionAbs = resolve(cwd, payload.submissionPath);
-    const raw = readFileSync(proposal.target, "utf8");
-    const edited = await editInEditor(raw, ".md");
-    const parsedMatter = matter(edited);
-    questionSchema.parse(parsedMatter.data);
-    writeFileSync(proposal.target, edited, "utf8");
+    const result = await editMarkdownWithSchema("questions", proposal.target);
+    if (!result.ok) throw new Error(`triage-questions edit: ${result.reason}`);
     if (existsSync(submissionAbs)) moveToAccepted(cwd, submissionAbs, payload.questionSlug);
     return `edited ${proposal.target}`;
   },
-  async reject(proposal: QueuedProposal & { payload: QuestionAnswerCuratePayload }): Promise<void> {
+  async reject(
+    proposal: QueuedProposal & { payload: QuestionAnswerCuratePayload },
+    ctx?: HandlerContext,
+  ): Promise<void> {
     const { payload } = proposal;
-    const cwd = resolve(process.cwd());
+    const cwd = resolve(ctx?.cwd ?? process.cwd());
     const submissionAbs = resolve(cwd, payload.submissionPath);
     const submissionId = basename(payload.submissionPath, ".json");
     if (existsSync(submissionAbs)) {

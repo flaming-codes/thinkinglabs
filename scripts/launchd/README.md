@@ -6,17 +6,22 @@ See `docs/architecture/ADR-009-proposal-confirmation-pattern.md` for the rationa
 
 ## Before you install
 
-### 1. Copy plists and replace `__REPO_ROOT__`
+### 1. Copy plists and replace `__REPO_ROOT__` and `__LOG_DIR__`
 
-Keep the tracked plist templates unchanged. Copy them into `~/Library/LaunchAgents`, then replace `__REPO_ROOT__` in the copies with the absolute path to this repo:
+Keep the tracked plist templates unchanged. Copy them into `~/Library/LaunchAgents`, then replace **both** placeholders in the copies:
+
+- `__REPO_ROOT__` → absolute path to this repo working tree.
+- `__LOG_DIR__` → absolute path to the directory where stdout/stderr logs should land (e.g. `~/Library/Logs/thinkinglabs`). The directory must exist before the agents start (see step 3).
 
 ```sh
 REPO=$(pwd)
+LOG_DIR="$HOME/Library/Logs/thinkinglabs"
 mkdir -p ~/Library/LaunchAgents
 for f in scripts/launchd/com.tom.thinkinglabs.*.plist; do
   dst="$HOME/Library/LaunchAgents/$(basename "$f")"
   cp "$f" "$dst"
   sed -i '' "s|__REPO_ROOT__|$REPO|g" "$dst"
+  sed -i '' "s|__LOG_DIR__|$LOG_DIR|g" "$dst"
 done
 ```
 
@@ -60,8 +65,10 @@ The plists invoke `/bin/zsh -lc` and source `~/.zshrc` before running `pnpm`, so
 
 ### 3. Create the log directory
 
+Create the directory you substituted for `__LOG_DIR__` in step 1; launchd will not create it for you and the plists will fail to start without it.
+
 ```sh
-mkdir -p ~/Library/Logs/thinkinglabs
+mkdir -p "$LOG_DIR"   # e.g. ~/Library/Logs/thinkinglabs
 ```
 
 ## Install
@@ -88,11 +95,11 @@ Kick off a plist immediately to confirm it runs cleanly:
 launchctl kickstart -k gui/$(id -u)/com.tom.thinkinglabs.dormant-flip
 ```
 
-Check the log:
+Check the log (substitute the `__LOG_DIR__` value you used in step 1):
 
 ```sh
-tail ~/Library/Logs/thinkinglabs/dormant-flip.out.log
-tail ~/Library/Logs/thinkinglabs/dormant-flip.err.log
+tail "$LOG_DIR/dormant-flip.out.log"
+tail "$LOG_DIR/dormant-flip.err.log"
 ```
 
 ## Uninstall

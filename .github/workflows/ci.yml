@@ -33,15 +33,53 @@ jobs:
       - run: pnpm check
       - run: pnpm build
         if: matrix.content-shape == 'empty'
+      - run: pnpm check:structured-data:empty
+        if: matrix.content-shape == 'empty'
       - run: pnpm build:fixtures
+        if: matrix.content-shape == 'fixtures'
+      - run: pnpm check:structured-data:fixtures
         if: matrix.content-shape == 'fixtures'
       - run: pnpm build:index
       - run: pnpm test
+      # Tests under tests/*.integration.test.ts and others that shell out to git require
+      # `git` to be available on PATH. The default ubuntu-latest runner ships git; this is
+      # documented here so any future runner swap (alpine, scratch container) preserves the
+      # prerequisite. See tests/walk-file-history.integration.test.ts for the assertion.
+
+  # End-to-end browser tests. Runs against the fixtures preview so specs see seeded content
+  # rather than the empty-content baseline build. Needs the verify[fixtures] matrix entry to
+  # have passed first; the e2e runner re-builds fixtures itself rather than depending on
+  # cross-job artifacts (which would be slower than a re-run on this small site).
+  e2e:
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm build:fixtures
+      - run: pnpm test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-traces
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 7
 
   # Brain-diff publishes the substantiveness-scored change feed.
-  # Configure ANTHROPIC_API_KEY in repository Settings -> Secrets and variables -> Actions.
+  # Configure OPENAI_API_KEY (or, for the optional Ollama provider, OLLAMA_API_KEY plus
+  # LLM_PROVIDER=ollama) in repository Settings -> Secrets and variables -> Actions.
   # The job uploads public/feed/ as a build artifact; deployment of those files is handled
-  # by a future deployment workflow (out of scope for M3).
+  # by a future deployment workflow.
   brain-diff:
     needs: verify
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -56,9 +94,33 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # Pre-flight: fail loudly if the active provider's API key is missing. The brain-diff
+      # feed is meaningless without LLM scoring; we refuse to publish unscored output rather
+      # than degrade silently. The active provider is selected by LLM_PROVIDER (default
+      # "openai"); see src/lib/llm.ts apiKeyName().
+      - name: Verify LLM provider key is set
+        env:
+          LLM_PROVIDER: ${{ vars.LLM_PROVIDER }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
+        run: |
+          provider="${LLM_PROVIDER:-openai}"
+          if [ "$provider" = "ollama" ]; then
+            if [ -z "$OLLAMA_API_KEY" ]; then
+              echo "::error::LLM_PROVIDER=ollama but OLLAMA_API_KEY is not set; refusing to publish unscored brain-diff."
+              exit 1
+            fi
+          else
+            if [ -z "$OPENAI_API_KEY" ]; then
+              echo "::error::OPENAI_API_KEY is not set; refusing to publish unscored brain-diff. Configure the secret in repository settings."
+              exit 1
+            fi
+          fi
       - run: pnpm brain-diff --since="30 days ago" --out=public/feed
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          LLM_PROVIDER: ${{ vars.LLM_PROVIDER }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
       - uses: actions/upload-artifact@v4
         with:
           name: brain-diff-feeds

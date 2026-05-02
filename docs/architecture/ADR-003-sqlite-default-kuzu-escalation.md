@@ -20,3 +20,7 @@ Day-one we ship one binary dependency (better-sqlite3) and one file format every
 ## Alternatives considered
 
 Kùzu from day one was rejected: an extra runtime, less mature tooling than sqlite, and we have no concrete query that needs Cypher today. DuckDB was considered for analytics but adds no graph affordance and overlaps sqlite for our query shape. In-memory only (no on-disk index, walk markdown on every query) was rejected because the future MCP server expects sub-millisecond reads and rebuilding state per request defeats the index entirely.
+
+### Current state (2026-05-02)
+
+`dist/index.sqlite` ships and is rebuilt by `pnpm build:index` (`scripts/build-index.ts`). The personal MCP server reads it through `servers/thinkinglabs-mcp/store.ts` with a markdown fallback (the "future MCP server" reference above is now the live `pnpm mcp:thinkinglabs` server; see ADR-010). Kùzu has not been needed; no concrete query has crossed the escalation threshold. Vector search via `sqlite-vec` remains a placeholder column — embeddings are not populated yet.

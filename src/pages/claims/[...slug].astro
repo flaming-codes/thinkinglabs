@@ -1,19 +1,20 @@
 ---
-import { getCollection, render } from "astro:content";
+import { render } from "astro:content";
 import type { GetStaticPaths, InferGetStaticPropsType } from "astro";
 import { resolve } from "node:path";
 import Base from "../../layouts/Base.astro";
 import MetaBlock from "../../components/MetaBlock.astro";
+import RelatedRefs from "../../components/RelatedRefs.astro";
 import StatusPill from "../../components/StatusPill.astro";
 import Tags from "../../components/Tags.astro";
 import { stripKindPrefix, stripMdExt } from "../../lib/refs.ts";
 import { walkFileHistory } from "../../lib/git.ts";
 import { parseClaimHistory } from "../../lib/claim-history.ts";
+import { getKindStaticPaths } from "../../lib/route-helpers.ts";
 import { claimStructuredData } from "../../lib/structured-data.ts";
 
 export const getStaticPaths = (async () => {
-  const items = await getCollection("claims");
-  return items.map((c) => ({ params: { slug: c.id }, props: { entry: c } }));
+  return getKindStaticPaths("claims");
 }) satisfies GetStaticPaths;
 
 const { entry } = Astro.props as InferGetStaticPropsType<typeof getStaticPaths>;
@@ -77,17 +78,7 @@ const site = Astro.site ?? new URL(Astro.url.origin);
     </>
   ) : null}
 
-  {entry.data.derived_from.length > 0 ? (
-    <>
-      <h2>Derived from</h2>
-      <ul class="list">
-        {entry.data.derived_from.map((ref) => {
-          const slug = stripKindPrefix(stripMdExt(ref));
-          return <li><a href={`/thoughts/${slug}`}>{ref}</a></li>;
-        })}
-      </ul>
-    </>
-  ) : null}
+  <RelatedRefs heading="Derived from" kind="thoughts" refs={entry.data.derived_from} />
 
   <article><Content /></article>
 

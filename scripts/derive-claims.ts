@@ -14,7 +14,7 @@ import { patchFrontmatter } from "../src/lib/frontmatter.ts";
 import { readJsonState, writeJsonState } from "../src/lib/json-state.ts";
 import { runReview, type ReviewActionDef, type ReviewProposal } from "../src/lib/review-cli.ts";
 import { claimSchema } from "../src/schemas/claim.ts";
-import { isLLMAvailable, apiKeyName } from "../src/lib/llm.ts";
+import { resolveLlmMode, runMain } from "../src/lib/cli.ts";
 import { objectRef, writeProvenanceEvent } from "../src/lib/provenance.ts";
 
 /** CLI args shape. */
@@ -166,10 +166,7 @@ async function mergeIntoExistingClaim(
 /** CLI entry point. */
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
-  if (!args.noLlm && !isLLMAvailable()) {
-    process.stderr.write(`${apiKeyName()} missing; falling back to --no-llm mode.\n`);
-  }
-  const effectiveNoLlm = args.noLlm || !isLLMAvailable();
+  const effectiveNoLlm = resolveLlmMode("derive-claims", args.noLlm) === "no-llm";
 
   const state = readJsonState<DerivationState>(STATE_FILE, {});
   const rejections = readJsonState<RejectionStore>(REJECTIONS_FILE, []);
@@ -371,8 +368,4 @@ async function main(): Promise<void> {
   );
 }
 
-main().catch((e: unknown) => {
-  const err = e as { message?: string; exitCode?: number };
-  process.stderr.write(`${err.message ?? String(e)}\n`);
-  process.exit(err.exitCode ?? 1);
-});
+runMain(main);

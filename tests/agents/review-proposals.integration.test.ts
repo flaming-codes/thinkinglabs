@@ -9,15 +9,19 @@ import { runDormantFlip } from "../../src/lib/agents/dormant-flip.ts";
 import { runProposalsReview } from "../../scripts/review-proposals.ts";
 import { readQueue } from "../../src/lib/proposal-queue.ts";
 
-/** Resolves whether `git` is callable. */
-function gitAvailable(): boolean {
+/** Asserts `git` is on PATH at module load. CI must provision git; we fail loudly rather than
+ *  silently skip so a runner regression cannot disguise itself as green coverage. */
+function assertGitAvailable(): void {
   try {
     execFileSync("git", ["--version"], { stdio: "ignore" });
-    return true;
   } catch {
-    return false;
+    throw new Error(
+      "git is required for this integration test but was not found on PATH. " +
+        "Install git or run on a runner that ships it (ubuntu-latest does).",
+    );
   }
 }
+assertGitAvailable();
 
 /** Absolute path to the scripts. */
 const DORMANT_FLIP_SCRIPT = join(process.cwd(), "scripts", "dormant-flip.ts");
@@ -51,7 +55,7 @@ describe("dormant-flip + review-proposals round-trip (integration)", () => {
     }
   }, 30_000);
 
-  describe.runIf(gitAvailable())("full round-trip with git available", () => {
+  describe("full round-trip with git available", () => {
     it("accept in runProposalsReview mutates project to dormant and drains the queue", async () => {
       const root = mkdtempSync(join(tmpdir(), "rp-int-accept-"));
       const originalCwd = process.cwd();

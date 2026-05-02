@@ -40,9 +40,9 @@
     </dict>
 
     <key>StandardOutPath</key>
-    <string>/Users/tom/Library/Logs/thinkinglabs/resolve-predictions.out.log</string>
+    <string>__LOG_DIR__/resolve-predictions.out.log</string>
 
     <key>StandardErrorPath</key>
-    <string>/Users/tom/Library/Logs/thinkinglabs/resolve-predictions.err.log</string>
+    <string>__LOG_DIR__/resolve-predictions.err.log</string>
 </dict>
 </plist>

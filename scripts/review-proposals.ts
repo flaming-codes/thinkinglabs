@@ -1,15 +1,16 @@
 #!/usr/bin/env tsx
 import type { Readable, Writable } from "node:stream";
-import "../src/lib/agents/dormant-flip.ts";
-import "../src/lib/agents/freshness-review.ts";
-import "../src/lib/agents/resolve-predictions.ts";
-import "../src/lib/agents/review-decisions.ts";
-import "../src/lib/agents/triage-questions.ts";
+import { AGENT_REGISTRY, PROPOSAL_SOURCES } from "../src/lib/agent-registry.ts";
 import { runReview, type ReviewActionDef, type ReviewProposal } from "../src/lib/review-cli.ts";
 import { readQueue, removeFromQueue, type QueuedProposal } from "../src/lib/proposal-queue.ts";
 import { getHandler, allHandlers } from "../src/lib/proposal-dispatch.ts";
 import type { ProposalSource } from "../src/lib/proposal-queue.ts";
 import { writeProvenanceEvent } from "../src/lib/provenance.ts";
+
+/** Side-effect import of every agent module so each `registerHandler` call runs at startup; derived from the registry. */
+async function loadAgentHandlers(): Promise<void> {
+  await Promise.all(Object.values(AGENT_REGISTRY).map((spec) => import(spec.handlerModule)));
+}
 
 /** CLI args shape. */
 interface Args {
@@ -31,13 +32,7 @@ function parseArgs(argv: ReadonlyArray<string>): Args {
   let limit = 25;
   const filter: ProposalSource[] = [];
   let dryRun = false;
-  const validSources = new Set<string>([
-    "dormant-flip",
-    "review-decisions",
-    "resolve-predictions",
-    "freshness-review",
-    "triage-questions",
-  ]);
+  const validSources = new Set<string>(PROPOSAL_SOURCES);
 
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i]!;
@@ -154,6 +149,8 @@ export async function runProposalsReview(args: {
     payload: p,
   }));
 
+  const ctx = { cwd };
+
   const actions: ReviewActionDef<QueuedProposal, string>[] = [
     {
       key: "a",
@@ -164,7 +161,7 @@ export async function runProposalsReview(args: {
         if (dryRun) {
           output.write(`[dry-run] would accept: ${p.id}\n`);
         } else {
-          const summary = await handler.apply(typed);
+          const summary = await handler.apply(typed, ctx);
           writeQueuedProvenance(cwd, p, "accepted");
           removeFromQueue(p.id, cwd);
           output.write(`accepted: ${summary}\n`);
@@ -182,7 +179,7 @@ export async function runProposalsReview(args: {
         if (dryRun) {
           output.write(`[dry-run] would edit: ${p.id}\n`);
         } else {
-          const summary = await handler.edit(typed);
+          const summary = await handler.edit(typed, ctx);
           writeQueuedProvenance(cwd, p, "edited");
           removeFromQueue(p.id, cwd);
           output.write(`edited: ${summary}\n`);
@@ -200,7 +197,7 @@ export async function runProposalsReview(args: {
         if (dryRun) {
           output.write(`[dry-run] would reject: ${p.id}\n`);
         } else {
-          if (handler.reject) await handler.reject(typed);
+          if (handler.reject) await handler.reject(typed, ctx);
           removeFromQueue(p.id, cwd);
         }
         tally.rejected++;
@@ -224,6 +221,7 @@ export async function runProposalsReview(args: {
 
 /** CLI entry point; thin wrapper around runProposalsReview that adds SIGINT handling and summary output. */
 async function main(): Promise<void> {
+  await loadAgentHandlers();
   const args = parseArgs(process.argv.slice(2));
 
   const initialQueue = readQueue();

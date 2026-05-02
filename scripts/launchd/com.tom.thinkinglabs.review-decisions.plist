@@ -27,9 +27,9 @@
     </dict>
 
     <key>StandardOutPath</key>
-    <string>/Users/tom/Library/Logs/thinkinglabs/review-decisions.out.log</string>
+    <string>__LOG_DIR__/review-decisions.out.log</string>
 
     <key>StandardErrorPath</key>
-    <string>/Users/tom/Library/Logs/thinkinglabs/review-decisions.err.log</string>
+    <string>__LOG_DIR__/review-decisions.err.log</string>
 </dict>
 </plist>
