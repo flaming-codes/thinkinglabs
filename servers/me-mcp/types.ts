@@ -17,6 +17,7 @@ export const publicViewSchema = z.enum([
   "decisions_recent",
   "predictions_pending",
   "predictions_resolved",
+  "provenance",
 ]);
 
 /** Inferred public view union from the MCP view schema. */

@@ -13,6 +13,7 @@ import {
 } from "./handlers.ts";
 import { getObject, predictionCalibration, queryView } from "./store.ts";
 import type { PublicView } from "./types.ts";
+import { currentModelRefs } from "../../src/lib/llm.ts";
 
 /** Options controlling which checkout the MCP server reads. */
 export interface MeMcpServerOptions {
@@ -27,6 +28,7 @@ const DETAIL_KINDS = [
   "predictions",
   "inputs",
   "questions",
+  "provenance",
 ] as const;
 const STATIC_RESOURCES = [
   ["thoughts", "me://thoughts"],
@@ -43,6 +45,7 @@ const STATIC_RESOURCES = [
   ["decisions_recent", "me://decisions/recent"],
   ["predictions_pending", "me://predictions/pending"],
   ["predictions_resolved", "me://predictions/resolved"],
+  ["provenance", "me://provenance"],
 ] as const satisfies ReadonlyArray<readonly [PublicView, string]>;
 
 /** Create the personal MCP server with public resources and testable tool handlers. */
@@ -53,6 +56,7 @@ export function createMeMcpServer(options: MeMcpServerOptions = {}): McpServer {
   for (const kind of DETAIL_KINDS) registerDetailResource(server, repoRoot, kind);
   registerClaimsByTagResource(server, repoRoot);
   registerSchemaVersionResource(server);
+  registerCurrentModelsResource(server);
   registerCalibrationResource(server, repoRoot);
   server.registerTool(
     "query_view",
@@ -237,6 +241,19 @@ function registerSchemaVersionResource(server: McpServer): void {
         public_only: true,
         auth: "disabled",
       }),
+  );
+}
+
+function registerCurrentModelsResource(server: McpServer): void {
+  server.registerResource(
+    "ai-current-models",
+    "me://ai/current-models",
+    {
+      title: "me:ai/current-models",
+      description: "Current env-resolved LLM model refs by capability tier.",
+      mimeType: "application/json",
+    },
+    () => jsonResource("me://ai/current-models", { models: currentModelRefs() }),
   );
 }
 

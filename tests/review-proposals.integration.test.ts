@@ -1,5 +1,13 @@
 import { execFileSync, spawnSync } from "node:child_process";
-import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vite-plus/test";
@@ -41,6 +49,69 @@ describe("review-proposals CLI (integration)", () => {
       });
       expect(result.status).toBe(2);
       expect(result.stderr).toContain("unknown source");
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  }, 30_000);
+
+  it("accepting a queued LLM proposal writes provenance before removing it", () => {
+    const root = mkdtempSync(join(tmpdir(), "review-proposals-prov-"));
+    try {
+      const predDir = join(root, "content", "predictions");
+      mkdirSync(predDir, { recursive: true });
+      const target = join(predDir, "prov-pred.md");
+      writeFileSync(
+        target,
+        `---\nprediction: "A provenance test prediction resolves."\nmade: 2026-01-01\nresolves: 2026-02-01\nconfidence: 0.7\nresolution: pending\nresolved_on: null\nresolution_note: null\nevidence_at_time: []\ntags: []\n---\nBody.\n`,
+        "utf8",
+      );
+      const proposal: QueuedProposal = {
+        id: "provenance-proposal",
+        source: "resolve-predictions",
+        type: "prediction-resolve",
+        createdAt: "2026-05-02T10:00:00.000Z",
+        target,
+        title: "Resolve provenance prediction",
+        preview: "Resolve as true.",
+        payload: {
+          resolution: "true",
+          resolution_note: "It resolved.",
+          reasoning: "Evidence supports it.",
+          resolvedOnISO: "2026-05-02T10:00:00.000Z",
+        },
+        provenance: {
+          process_id: "resolve-predictions",
+          event_type: "content_resolution",
+          actor: {
+            kind: "llm",
+            model: { provider: "ollama", model: "glm-5.1:cloud", tier: "balanced" },
+          },
+          started_at: "2026-05-02T10:00:00.000Z",
+          source_objects: [{ id: "predictions/prov-pred" }],
+          target_objects: [{ id: "predictions/prov-pred" }],
+          tags: ["ai", "provenance", "predictions"],
+        },
+      };
+      writeJsonState(join(root, ".proposal-queue.json"), { proposals: [proposal] });
+      const result = spawnSync("tsx", [SCRIPT], {
+        cwd: root,
+        input: "a",
+        encoding: "utf8",
+        timeout: 30_000,
+      });
+      expect(result.status).toBe(0);
+      const queue = JSON.parse(readFileSync(join(root, ".proposal-queue.json"), "utf8")) as {
+        proposals: unknown[];
+      };
+      expect(queue.proposals).toHaveLength(0);
+      const provenanceFiles = readdirSync(join(root, "content", "provenance"));
+      expect(provenanceFiles).toHaveLength(1);
+      const provenance = readFileSync(
+        join(root, "content", "provenance", provenanceFiles[0]!),
+        "utf8",
+      );
+      expect(provenance).toContain("provider: ollama");
+      expect(provenance).toContain('model: "glm-5.1:cloud"');
     } finally {
       rmSync(root, { recursive: true, force: true });
     }

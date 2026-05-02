@@ -45,17 +45,16 @@ The two non-LLM agents (`dormant-flip`, `review-decisions`) need no key.
 
 #### Optional overrides
 
-| Var                         | Default                 | Purpose                                                 |
-| --------------------------- | ----------------------- | ------------------------------------------------------- |
-| `LLM_PROVIDER`              | `openai`                | Switch provider: `openai` or `ollama`                   |
-| `LLM_MODEL_FAST`            | `gpt-4.1-mini`          | OpenAI fast-tier model                                  |
-| `LLM_MODEL_BALANCED`        | `gpt-4.1`               | OpenAI balanced-tier model                              |
-| `LLM_MODEL_DEEP`            | `gpt-4.1`               | OpenAI deep-tier model                                  |
-| `OLLAMA_API_KEY`            | —                       | Ollama cloud API key                                    |
-| `OLLAMA_BASE_URL`           | `https://ollama.com/v1` | Override for local daemon (`http://localhost:11434/v1`) |
-| `LLM_OLLAMA_MODEL_FAST`     | `glm-5.1:cloud`         | Ollama fast-tier model                                  |
-| `LLM_OLLAMA_MODEL_BALANCED` | `glm-5.1:cloud`         | Ollama balanced-tier model                              |
-| `LLM_OLLAMA_MODEL_DEEP`     | `glm-5.1:cloud`         | Ollama deep-tier model                                  |
+| Var                  | Default                 | Purpose                                                 |
+| -------------------- | ----------------------- | ------------------------------------------------------- |
+| `LLM_PROVIDER`       | `openai`                | Switch provider: `openai` or `ollama`                   |
+| `LLM_MODEL_FAST`     | `gpt-4.1-mini`          | OpenAI fast-tier model                                  |
+| `LLM_MODEL_BALANCED` | `gpt-4.1`               | OpenAI balanced-tier model                              |
+| `LLM_MODEL_DEEP`     | `gpt-4.1`               | OpenAI deep-tier model                                  |
+| `OLLAMA_API_KEY`     | —                       | Ollama cloud API key                                    |
+| `OLLAMA_BASE_URL`    | `https://ollama.com/v1` | Override for local daemon (`http://localhost:11434/v1`) |
+
+When `LLM_PROVIDER=ollama`, the same `LLM_MODEL_FAST`, `LLM_MODEL_BALANCED`, and `LLM_MODEL_DEEP` overrides apply; their provider defaults are all `glm-5.1:cloud`.
 
 The plists invoke `/bin/zsh -lc` and source `~/.zshrc` before running `pnpm`, so nvm/asdf-style local Node installs are available without hard-coding a machine-specific pnpm path.
 

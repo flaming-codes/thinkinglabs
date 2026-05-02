@@ -12,7 +12,7 @@ Resources are fixed JSON views at `me://thoughts`, `me://claims`, `me://projects
 
 Tools:
 
-- `query_view` filters one public view by text, tags, and limit.
+- `query_view` filters one public view by text, tags, and limit, including the `provenance` view for accepted AI-assisted effects.
 - `contact.precheck` checks a proposed inquiry against `public/contact.json`.
 - `contact.send` validates a message and returns the public email handoff; it does not send mail.
 - `question.submit` writes a structured answer into `submissions/questions/<slug>/` for `triage-questions`.

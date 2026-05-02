@@ -1,6 +1,7 @@
 import { generateText, tool, type LanguageModel } from "ai";
 import { createOpenAI, openai } from "@ai-sdk/openai";
 import { z } from "zod";
+import type { ModelRef } from "../schemas/provenance.ts";
 
 /** Provider-agnostic capability tier; mapped to a concrete model id at call time. */
 export type ModelTier = "fast" | "balanced" | "deep";
@@ -31,6 +32,24 @@ const ollamaProvider = createOpenAI({
 
 function modelFor(tier: ModelTier): LanguageModel {
   return PROVIDER === "ollama" ? ollamaProvider(MODEL_IDS[tier]) : openai(MODEL_IDS[tier]);
+}
+
+/** Concrete model identity for one capability tier under the current env configuration. */
+export function currentModelRef(tier: ModelTier): ModelRef {
+  return {
+    provider: PROVIDER === "ollama" ? "ollama" : "openai",
+    model: MODEL_IDS[tier],
+    tier,
+  };
+}
+
+/** Concrete model identities for every capability tier under the current env configuration. */
+export function currentModelRefs(): Record<ModelTier, ModelRef> {
+  return {
+    fast: currentModelRef("fast"),
+    balanced: currentModelRef("balanced"),
+    deep: currentModelRef("deep"),
+  };
 }
 
 /** The env-var name that must be set for the active provider. */
@@ -80,10 +99,13 @@ async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, label: str
   }
 }
 
-/** Runs one forced tool call; returns the typed parsed result, or null on empty / non-matching response. */
-export async function runToolCall<T>(args: ToolCallArgs<T>): Promise<T | null> {
+/** Runs one forced tool call; returns parsed data plus the model identity used for the call. */
+export async function runToolCall<T>(
+  args: ToolCallArgs<T>,
+): Promise<{ data: T; model: ModelRef } | null> {
   if (!isLLMAvailable()) throw new Error(`${apiKeyName()} is not set`);
   const timeoutMs = args.timeoutMs ?? DEFAULT_TIMEOUT_MS;
+  const model = currentModelRef(args.tier);
   const result = await withTimeout(
     generateText({
       model: modelFor(args.tier),
@@ -114,5 +136,5 @@ export async function runToolCall<T>(args: ToolCallArgs<T>): Promise<T | null> {
     );
     return null;
   }
-  return parsed.data;
+  return { data: parsed.data, model };
 }

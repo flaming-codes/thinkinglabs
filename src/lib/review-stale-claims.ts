@@ -108,7 +108,7 @@ async function callShiftDetection(
   });
   if (!result)
     return { shifted: false, reasoning: "LLM returned no tool call", contradicts: false };
-  return result;
+  return result.data;
 }
 
 /** Scans the claims directory and returns flags; LLM is consulted only when shiftDetection is on. */

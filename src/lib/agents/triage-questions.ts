@@ -19,6 +19,7 @@ import { registerHandler } from "../proposal-dispatch.ts";
 import { questionSchema } from "../../schemas/question.ts";
 import { submissionSchema } from "../../schemas/submission.ts";
 import type { QueuedProposal } from "../proposal-queue.ts";
+import { objectRef } from "../provenance.ts";
 
 /** LLM-scored triage output for one submission; validated via Zod at the system edge. */
 export const TriageDraft = z.object({
@@ -233,9 +234,7 @@ export async function runTriageQuestions(args: {
       continue;
     }
 
-    let draft: TriageDraft | null = null;
-
-    draft = await runToolCall({
+    const draftResult = await runToolCall({
       tier: "balanced",
       maxTokens: 1024,
       systemPrompt: SYSTEM_PROMPT,
@@ -250,9 +249,10 @@ export async function runTriageQuestions(args: {
       tool: TRIAGE_TOOL,
     });
 
-    if (!draft) {
+    if (!draftResult) {
       continue;
     }
+    const draft = draftResult.data;
 
     if (draft.relevanceScore < 0.4) {
       moveTo(filePath, join(cwdResolved, "submissions", "_skipped"));
@@ -299,6 +299,15 @@ export async function runTriageQuestions(args: {
         title: `Answer to ${submission.questionSlug} from ${responderLabel}`,
         preview: `${submission.questionSlug}: answer from ${responderLabel}${scoreLabel}. ${draft.reasoning}`,
         payload,
+        provenance: {
+          process_id: "triage-questions",
+          event_type: "content_triage",
+          actor: { kind: "llm", model: draftResult.model },
+          started_at: nowISO,
+          source_objects: [objectRef("questions", submission.questionSlug)],
+          target_objects: [objectRef("questions", submission.questionSlug)],
+          tags: ["ai", "provenance", "questions"],
+        },
       },
       cwd,
     );

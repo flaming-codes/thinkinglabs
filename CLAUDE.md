@@ -66,7 +66,7 @@ Any propose-then-curate workflow composes three primitives, never reimplements t
 
 ### LLM choke-point (ADR-007 caveats)
 
-All LLM calls go through `runToolCall` in `src/lib/llm.ts` (Vercel AI SDK + `@ai-sdk/openai`). Providers/models are selected via `LLM_PROVIDER`, `LLM_MODEL_FAST|BALANCED|DEEP`, and a `ModelTier` abstraction (`"fast"` / `"balanced"` / `"deep"`). When `OPENAI_API_KEY` is absent, `runToolCall` is guarded — no network call. Don't instantiate SDK clients directly in new callers; compose against `runToolCall`.
+All LLM calls go through `runToolCall` in `src/lib/llm.ts` (Vercel AI SDK + `@ai-sdk/openai`). Providers/models are selected via `LLM_PROVIDER`, `LLM_MODEL_FAST|BALANCED|DEEP`, and a `ModelTier` abstraction (`"fast"` / `"balanced"` / `"deep"`). `runToolCall` returns `{ data, model }`, where `model` is the contract-first `ModelRef` persisted into `content/provenance/` only after an AI-assisted effect is accepted. When the active provider API key is absent, `runToolCall` is guarded — no network call. Don't instantiate SDK clients directly in new callers; compose against `runToolCall`.
 
 ### Rendering
 

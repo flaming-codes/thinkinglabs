@@ -11,6 +11,7 @@ import { enqueue, proposalId, readQueue } from "../proposal-queue.ts";
 import type { QueuedProposal } from "../proposal-queue.ts";
 import { registerHandler } from "../proposal-dispatch.ts";
 import { predictionSchema } from "../../schemas/prediction.ts";
+import { objectRef } from "../provenance.ts";
 
 /** Zod schema for the LLM resolution draft tool output. */
 export const ResolutionDraft = z.object({
@@ -158,7 +159,7 @@ export async function runResolvePredictions(args: {
       continue;
     }
 
-    const draft = await runToolCall({
+    const draftResult = await runToolCall({
       tier: "balanced",
       maxTokens: 1024,
       systemPrompt: SYSTEM_PROMPT,
@@ -166,13 +167,14 @@ export async function runResolvePredictions(args: {
       tool: DRAFT_TOOL,
     });
 
-    if (!draft) {
+    if (!draftResult) {
       process.stderr.write(
         `resolve-predictions: LLM returned no result for ${pred.slug}, skipping\n`,
       );
       skippedDueToLLM++;
       continue;
     }
+    const draft = draftResult.data;
 
     const payload: PredictionResolvePayload = {
       resolution: draft.resolution,
@@ -202,6 +204,18 @@ export async function runResolvePredictions(args: {
         title: `Resolve prediction: ${pred.slug}`,
         preview: `${pred.slug} resolves as ${draft.resolution}. ${draft.reasoning}`,
         payload,
+        provenance: {
+          process_id: "resolve-predictions",
+          event_type: "content_resolution",
+          actor: { kind: "llm", model: draftResult.model },
+          started_at: nowISO,
+          source_objects: [
+            objectRef("predictions", pred.slug),
+            ...windowInputs.map((input) => objectRef("inputs", input.slug)),
+          ],
+          target_objects: [objectRef("predictions", pred.slug)],
+          tags: ["ai", "provenance", "predictions"],
+        },
       },
       cwd,
     );

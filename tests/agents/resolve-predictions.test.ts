@@ -35,9 +35,12 @@ function makeTempTree(): string {
 function mockRunToolCall(vi: (typeof import("vitest"))["vi"]): void {
   vi.doMock("../../src/lib/llm.ts", () => ({
     runToolCall: vi.fn().mockResolvedValue({
-      resolution: "true",
-      resolution_note: "The prediction came true.",
-      reasoning: "Evidence supports it.",
+      data: {
+        resolution: "true",
+        resolution_note: "The prediction came true.",
+        reasoning: "Evidence supports it.",
+      },
+      model: { provider: "openai", model: "gpt-test", tier: "balanced" },
     }),
   }));
 }

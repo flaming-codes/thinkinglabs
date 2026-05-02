@@ -17,6 +17,8 @@ The derivation contract: thoughts are written first, uncurated. Periodically, `s
 
 Confidence is a moving target. The derivation pipeline seeds an initial value from the LLM's reading of the author's hedging. The stale-claim review pipeline (Slice C) re-surfaces claims whose `last_reviewed` has aged past a threshold for re-evaluation.
 
+Accepted AI-assisted effects are recorded separately as generic provenance objects under `content/provenance/`. Domain objects such as claims keep only domain fields; provenance links source and target semantic ids and records the `ModelRef` (`provider`, `model`, `tier`) captured by the LLM choke-point. Provenance is committed alongside other content but is **not surfaced on the public web**: no listing route, no detail route, no JSON API. Local consumers (the MCP stdio server, agents reading `dist/index.sqlite`) still see it via `me://provenance`.
+
 ## Consequences
 
 Agents query `claims/` without re-parsing prose. Authoring pressure stays on `thoughts/`, which is cheap. Claim confidence history is visible on `/claims/<slug>` via `walkFileHistory` + `parseClaimHistory` at render time.
@@ -29,7 +31,7 @@ Agents query `claims/` without re-parsing prose. Authoring pressure stays on `th
 
 **`derived_from` canonical form**: pipeline-generated claims write `thoughts/<slug>` (no extension, no anchor). Hand-authored claims may include `.md` and `#anchor` suffixes. The renderer normalizes both via `stripMdExt` then `stripKindPrefix`.
 
-**SDK choke-point** (resolved): `brain-diff-score.ts` and `derive-claims.ts` each instantiated their own LLM client; Slice C's `review-stale-claims` was the third caller, crossing the agreed extraction threshold. The M4.5 cleanup pass extracted a single choke-point, now at `src/lib/llm.ts` (Vercel AI SDK, OpenAI provider). All callers compose against `runToolCall`. The M6 refactor migrated from `@anthropic-ai/sdk` to `ai` + `@ai-sdk/openai`, replacing Anthropic model literals with a `ModelTier` abstraction (`"fast"` → gpt-4.1-mini, `"balanced"` → gpt-4.1). The `OPENAI_API_KEY` guard in `runToolCall` means no network call is made when the key is absent; `--no-llm` paths remain SDK-free at the call-site level. Future callers (M5+ background agents) compose against `runToolCall`.
+**SDK choke-point** (resolved): `brain-diff-score.ts` and `derive-claims.ts` each instantiated their own LLM client; Slice C's `review-stale-claims` was the third caller, crossing the agreed extraction threshold. The M4.5 cleanup pass extracted a single choke-point, now at `src/lib/llm.ts` (Vercel AI SDK, OpenAI provider). All callers compose against `runToolCall`. The M6 refactor migrated from `@anthropic-ai/sdk` to `ai` + `@ai-sdk/openai`, replacing Anthropic model literals with a `ModelTier` abstraction (`"fast"` → gpt-4.1-mini, `"balanced"` → gpt-4.1). The provenance extension changed `runToolCall` to return `{ data, model }`, where `model` is the env-resolved `ModelRef` captured at call time. The active provider API-key guard means no network call is made when the key is absent; `--no-llm` paths remain SDK-free at the call-site level. Future callers compose against `runToolCall`.
 
 ## Alternatives considered
 

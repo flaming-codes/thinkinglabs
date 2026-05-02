@@ -13,6 +13,7 @@ import type { QueuedProposal } from "../proposal-queue.ts";
 import { registerHandler } from "../proposal-dispatch.ts";
 import { parseSectionStamps } from "../section-stamps.ts";
 import { walkFileHistory } from "../git.ts";
+import { objectRef } from "../provenance.ts";
 
 /** Zod schema for the LLM freshness-review tool output. */
 export const FreshnessReviewDraft = z.object({
@@ -183,7 +184,7 @@ export async function runFreshnessReview(args: {
       const sectionBody = extractSectionBody(post.content, stamp.headingText);
       const brainDiff = recentBrainDiffSince(cwd, stamp.lastVerifiedISO);
 
-      const draft = await runToolCall({
+      const draftResult = await runToolCall({
         tier: "balanced",
         maxTokens: 768,
         systemPrompt: SYSTEM_PROMPT,
@@ -197,13 +198,14 @@ export async function runFreshnessReview(args: {
         tool: FLAG_TOOL,
       });
 
-      if (!draft) {
+      if (!draftResult) {
         process.stderr.write(
           `freshness-review: LLM returned no result for ${post.slug}#${stamp.anchor}, skipping\n`,
         );
         skippedDueToLLM++;
         continue;
       }
+      const draft = draftResult.data;
 
       const payload: PostSectionRestampPayload = {
         postSlug: post.slug,
@@ -236,6 +238,15 @@ export async function runFreshnessReview(args: {
           title: `Restamp ${post.slug}#${stamp.anchor}`,
           preview: `${post.slug} § ${stamp.headingText} — ${daysAgo} days since verified. ${draft.reasoning}`,
           payload,
+          provenance: {
+            process_id: "freshness-review",
+            event_type: "change_scoring",
+            actor: { kind: "llm", model: draftResult.model },
+            started_at: nowISO,
+            source_objects: [objectRef("posts", post.slug)],
+            target_objects: [objectRef("posts", post.slug)],
+            tags: ["ai", "provenance", "freshness"],
+          },
         },
         cwd,
       );

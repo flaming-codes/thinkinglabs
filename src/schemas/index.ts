@@ -8,6 +8,7 @@ import { inputLinkFields, inputSchema } from "./input.ts";
 import { postLinkFields, postSchema } from "./post.ts";
 import { predictionLinkFields, predictionSchema } from "./prediction.ts";
 import { projectLinkFields, projectSchema } from "./project.ts";
+import { provenanceLinkFields, provenanceEventSchema } from "./provenance.ts";
 import { questionLinkFields, questionSchema } from "./question.ts";
 import { thoughtLinkFields, thoughtSchema } from "./thought.ts";
 
@@ -34,6 +35,7 @@ export const KIND_SCHEMAS = {
   questions: { schema: questionSchema, linkFields: questionLinkFields },
   posts: { schema: postSchema, linkFields: postLinkFields },
   inputs: { schema: inputSchema, linkFields: inputLinkFields },
+  provenance: { schema: provenanceEventSchema, linkFields: provenanceLinkFields },
 } as const satisfies Record<Kind, KindSpec>;
 
 /** Compile-time assertion that the registry covers every kind exactly. */

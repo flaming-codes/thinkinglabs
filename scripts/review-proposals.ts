@@ -9,6 +9,7 @@ import { runReview, type ReviewActionDef, type ReviewProposal } from "../src/lib
 import { readQueue, removeFromQueue, type QueuedProposal } from "../src/lib/proposal-queue.ts";
 import { getHandler, allHandlers } from "../src/lib/proposal-dispatch.ts";
 import type { ProposalSource } from "../src/lib/proposal-queue.ts";
+import { writeProvenanceEvent } from "../src/lib/provenance.ts";
 
 /** CLI args shape. */
 interface Args {
@@ -92,6 +93,22 @@ function unregisteredTypes(proposals: ReadonlyArray<QueuedProposal>): string[] {
   return [...missing];
 }
 
+/** Persist accepted LLM provenance when a queued proposal carries model metadata. */
+function writeQueuedProvenance(
+  cwd: string,
+  proposal: QueuedProposal,
+  outcome: "accepted" | "edited",
+): void {
+  if (!proposal.provenance) return;
+  writeProvenanceEvent({
+    ...proposal.provenance,
+    cwd,
+    title: `AI provenance for ${proposal.title}`,
+    accepted_at: new Date().toISOString(),
+    outcome,
+  });
+}
+
 /** Summary returned by runProposalsReview. */
 export interface ReviewRunSummary {
   readonly accepted: number;
@@ -148,6 +165,7 @@ export async function runProposalsReview(args: {
           output.write(`[dry-run] would accept: ${p.id}\n`);
         } else {
           const summary = await handler.apply(typed);
+          writeQueuedProvenance(cwd, p, "accepted");
           removeFromQueue(p.id, cwd);
           output.write(`accepted: ${summary}\n`);
         }
@@ -165,6 +183,7 @@ export async function runProposalsReview(args: {
           output.write(`[dry-run] would edit: ${p.id}\n`);
         } else {
           const summary = await handler.edit(typed);
+          writeQueuedProvenance(cwd, p, "edited");
           removeFromQueue(p.id, cwd);
           output.write(`edited: ${summary}\n`);
         }

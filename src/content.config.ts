@@ -41,6 +41,10 @@ export const collections = {
     loader: glob({ pattern: "**/*.md", base: "./content/inputs" }),
     schema: KIND_SCHEMAS.inputs.schema,
   }),
+  provenance: defineCollection({
+    loader: glob({ pattern: "**/*.md", base: "./content/provenance" }),
+    schema: KIND_SCHEMAS.provenance.schema,
+  }),
 } satisfies Record<Kind, ReturnType<typeof defineCollection>>;
 
 /** Compile-time assertion that `collections` covers every Kind exactly; adding/removing a kind without updating both sides fails to typecheck here. */

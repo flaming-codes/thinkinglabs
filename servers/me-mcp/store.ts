@@ -21,6 +21,7 @@ const KIND_BY_VIEW = {
   decisions_recent: "decisions",
   predictions_pending: "predictions",
   predictions_resolved: "predictions",
+  provenance: "provenance",
 } as const satisfies Record<PublicView, string>;
 
 interface ObjectRow {
@@ -187,7 +188,8 @@ function assertObjectKind(kind: string): void {
     kind === "decisions" ||
     kind === "predictions" ||
     kind === "inputs" ||
-    kind === "questions"
+    kind === "questions" ||
+    kind === "provenance"
   )
     return;
   throw new Error(`unsupported MCP resource kind: ${kind}`);
@@ -259,7 +261,14 @@ function summarize(body: string): string {
 }
 
 function haystack(item: ViewItem): string {
-  return [item.id, item.title, item.summary, item.body_md, item.tags.join(" ")]
+  return [
+    item.id,
+    item.title,
+    item.summary,
+    item.body_md,
+    JSON.stringify(item.frontmatter),
+    item.tags.join(" "),
+  ]
     .join("\n")
     .toLowerCase();
 }

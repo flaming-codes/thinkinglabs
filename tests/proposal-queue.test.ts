@@ -104,6 +104,25 @@ describe("proposal-queue", () => {
     expect(id1).toHaveLength(64);
   });
 
+  it("proposalId ignores provenance metadata", async () => {
+    const { proposalId } = await import("../src/lib/proposal-queue.ts");
+    const base = proposalId(
+      "resolve-predictions",
+      "prediction-resolve",
+      "content/predictions/a.md",
+      {
+        prediction: "x",
+      },
+    );
+    const withDifferentModel = proposalId(
+      "resolve-predictions",
+      "prediction-resolve",
+      "content/predictions/a.md",
+      { prediction: "x" },
+    );
+    expect(withDifferentModel).toBe(base);
+  });
+
   it("a malformed queue file causes readQueue to return [] without throwing", async () => {
     const { readQueue } = await import("../src/lib/proposal-queue.ts");
     const dir = process.cwd();

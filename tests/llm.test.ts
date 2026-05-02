@@ -64,7 +64,10 @@ describe("runToolCall — OpenAI provider (default)", () => {
       userPrompt: "Score this.",
       tool: { name: "score", description: "Score.", schema },
     });
-    expect(result).toEqual({ score: 7, summary: "Good change." });
+    expect(result).toEqual({
+      data: { score: 7, summary: "Good change." },
+      model: { provider: "openai", model: "gpt-4.1", tier: "balanced" },
+    });
   });
 
   it("returns null when toolCalls is empty", async () => {
@@ -168,9 +171,14 @@ describe("runToolCall — OpenAI provider (default)", () => {
   });
 
   it("apiKeyName() returns OPENAI_API_KEY; isLLMAvailable() reflects key presence", async () => {
-    const { apiKeyName, isLLMAvailable } = await import("../src/lib/llm.ts");
+    const { apiKeyName, isLLMAvailable, currentModelRefs } = await import("../src/lib/llm.ts");
     expect(apiKeyName()).toBe("OPENAI_API_KEY");
     expect(isLLMAvailable()).toBe(true);
+    expect(currentModelRefs().fast).toEqual({
+      provider: "openai",
+      model: "gpt-4.1-mini",
+      tier: "fast",
+    });
     delete process.env["OPENAI_API_KEY"];
     // isLLMAvailable reads live env — module re-import not needed since it checks process.env at call time
     // (PROVIDER is fixed but apiKeyName() is evaluated at call time)
@@ -293,9 +301,14 @@ describe("runToolCall — Ollama provider (LLM_PROVIDER=ollama)", () => {
   });
 
   it("apiKeyName() returns OLLAMA_API_KEY; isLLMAvailable() reflects key presence", async () => {
-    const { apiKeyName, isLLMAvailable } = await import("../src/lib/llm.ts");
+    const { apiKeyName, isLLMAvailable, currentModelRefs } = await import("../src/lib/llm.ts");
     expect(apiKeyName()).toBe("OLLAMA_API_KEY");
     expect(isLLMAvailable()).toBe(true);
+    expect(currentModelRefs().balanced).toEqual({
+      provider: "ollama",
+      model: "glm-5.1:cloud",
+      tier: "balanced",
+    });
   });
 });
 

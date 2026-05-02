@@ -269,6 +269,7 @@ describe("me-mcp handlers", () => {
       expect(resources.resources.map((resource) => resource.uri).sort()).toEqual(
         [
           "me://thoughts",
+          "me://ai/current-models",
           "me://claims",
           "me://projects",
           "me://decisions",
@@ -282,6 +283,7 @@ describe("me-mcp handlers", () => {
           "me://decisions/recent",
           "me://predictions/pending",
           "me://predictions/resolved",
+          "me://provenance",
           "me://schema/version",
           "me://predictions/calibration",
           "me://thoughts/mcp-notes",
@@ -292,16 +294,19 @@ describe("me-mcp handlers", () => {
           "me://questions/mcp-question",
         ].sort(),
       );
-      expect(templates.resourceTemplates.map((template) => template.uriTemplate).sort()).toEqual([
-        "me://claims/by-tag/{tag}",
-        "me://claims/{slug}",
-        "me://decisions/{slug}",
-        "me://inputs/{slug}",
-        "me://predictions/{slug}",
-        "me://projects/{slug}",
-        "me://questions/{slug}",
-        "me://thoughts/{slug}",
-      ]);
+      expect(templates.resourceTemplates.map((template) => template.uriTemplate).sort()).toEqual(
+        [
+          "me://claims/by-tag/{tag}",
+          "me://claims/{slug}",
+          "me://decisions/{slug}",
+          "me://inputs/{slug}",
+          "me://predictions/{slug}",
+          "me://provenance/{slug}",
+          "me://projects/{slug}",
+          "me://questions/{slug}",
+          "me://thoughts/{slug}",
+        ].sort(),
+      );
       expect(tools.tools.map((tool) => tool.name).sort()).toEqual([
         "contact.precheck",
         "contact.send",

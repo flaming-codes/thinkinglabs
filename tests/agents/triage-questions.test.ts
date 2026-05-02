@@ -46,10 +46,13 @@ describe("runTriageQuestions — main flows", () => {
   it("emits 1 proposal when LLM returns relevance 0.8", async () => {
     vi.doMock("../../src/lib/llm.ts", () => ({
       runToolCall: vi.fn().mockResolvedValue({
-        relevanceScore: 0.8,
-        dedupeOf: null,
-        suggestedAnswer: "Alice argues the system should use mutual TLS.",
-        reasoning: "Direct experience with the domain.",
+        data: {
+          relevanceScore: 0.8,
+          dedupeOf: null,
+          suggestedAnswer: "Alice argues the system should use mutual TLS.",
+          reasoning: "Direct experience with the domain.",
+        },
+        model: { provider: "openai", model: "gpt-test", tier: "balanced" },
       }),
     }));
     const { runTriageQuestions } = await import("../../src/lib/agents/triage-questions.ts");
@@ -71,10 +74,13 @@ describe("runTriageQuestions — main flows", () => {
   it("moves submission to _skipped and emits 0 proposals when relevance 0.2", async () => {
     vi.doMock("../../src/lib/llm.ts", () => ({
       runToolCall: vi.fn().mockResolvedValue({
-        relevanceScore: 0.2,
-        dedupeOf: null,
-        suggestedAnswer: "Off-topic answer.",
-        reasoning: "Unrelated to the question.",
+        data: {
+          relevanceScore: 0.2,
+          dedupeOf: null,
+          suggestedAnswer: "Off-topic answer.",
+          reasoning: "Unrelated to the question.",
+        },
+        model: { provider: "openai", model: "gpt-test", tier: "balanced" },
       }),
     }));
     const { runTriageQuestions } = await import("../../src/lib/agents/triage-questions.ts");

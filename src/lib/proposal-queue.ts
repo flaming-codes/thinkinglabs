@@ -3,6 +3,12 @@ import { closeSync, openSync, readFileSync, statSync, unlinkSync, writeFileSync 
 import { join, resolve } from "node:path";
 import { z } from "zod";
 import { readJsonState, writeJsonState } from "./json-state.ts";
+import {
+  modelRefSchema,
+  objectRefSchema,
+  provenanceEventTypeSchema,
+} from "../schemas/provenance.ts";
+import type { QueuedProvenance } from "./provenance.ts";
 
 /** Stable identifier for an agent that emits proposals; literal-union forces an explicit per-agent registration. */
 export type ProposalSource =
@@ -30,7 +36,26 @@ export interface QueuedProposal {
   readonly title: string;
   readonly preview: string;
   readonly payload: unknown;
+  readonly provenance?: QueuedProvenance | undefined;
 }
+
+/** Zod schema for optional LLM provenance metadata on proposals. */
+const queuedProvenanceSchema = z.object({
+  process_id: z.enum([
+    "dormant-flip",
+    "review-decisions",
+    "resolve-predictions",
+    "freshness-review",
+    "triage-questions",
+    "derive-claims",
+  ]),
+  event_type: provenanceEventTypeSchema,
+  actor: z.object({ kind: z.literal("llm"), model: modelRefSchema }),
+  started_at: z.string(),
+  source_objects: z.array(objectRefSchema),
+  target_objects: z.array(objectRefSchema),
+  tags: z.array(z.string()).optional(),
+});
 
 /** Zod schema for QueuedProposal; validates the queue file at the system edge. */
 const queuedProposalSchema = z.object({
@@ -54,6 +79,7 @@ const queuedProposalSchema = z.object({
   title: z.string(),
   preview: z.string(),
   payload: z.unknown(),
+  provenance: queuedProvenanceSchema.optional(),
 });
 
 /** Zod schema for the entire queue file shape. */
