@@ -20,20 +20,23 @@ Docs are local at `node_modules/vite-plus/docs` or online at https://viteplus.de
 
 ## Common commands
 
-Package manager is `pnpm` (v10, see `packageManager` in `package.json`). Node ≥ 22.
+Package manager is `pnpm` (v10, see `packageManager` in `package.json`). Node ≥ 22.12.0.
 
 - `pnpm dev` — Astro dev server for the site
 - `pnpm build` — `astro check && astro build` (typecheck + build; validates every frontmatter file against its Zod schema)
 - `pnpm build:index` — rebuild the derived `dist/index.sqlite` query layer
-- `pnpm verify` — release-confidence local CI: `pnpm verify:fast` plus Playwright e2e/browser checks
-- `pnpm verify:fast` — quicker non-browser gate: clean, typecheck, `vp check`, build, build index, test
+- `pnpm artifacts` — offline artifact build: brain-diff feeds, site, `public/llms.txt`, JSON feeds, `dist/index.sqlite`
+- `pnpm artifacts:scored` — same artifact build, but requires LLM-scored brain-diff output
+- `pnpm verify` — local verification: empty-content path plus fixture-content structured-data path
+- `pnpm verify:empty` / `pnpm verify:fixtures` — run one validation shape explicitly
 - `pnpm typecheck` / `pnpm check` / `pnpm lint` / `pnpm format` — `astro check`, `vp check`, `vp lint`, `vp fmt`
 - `pnpm test` — `vp test run` (Vitest under Vite+); single test: `pnpm test -- path/to/file.test.ts -t "test name"`
+- `pnpm setup:e2e` / `pnpm test:e2e` — install Chromium / build fixtures and run Playwright
 - `pnpm mcp:thinkinglabs` — run the personal MCP server (`servers/thinkinglabs-mcp/cli.ts`); accepts `--repo-root <path>`
 
 Background-agent CLIs (proposal-emitting; safe to re-run): `pnpm dormant-flip`, `pnpm review-decisions`, `pnpm resolve-predictions`, `pnpm freshness-review`, `pnpm triage-questions`. Drain the queue interactively with `pnpm review-proposals`. Other curation CLIs: `pnpm derive-claims`, `pnpm review-stale-claims`. Diff feed driver: `pnpm brain-diff` (`scripts/brain-diff.ts`).
 
-LLM-mediated CLIs require `OPENAI_API_KEY` (see `.env.example`); pass `--no-llm` to skip LLM calls and exit with zero proposals. `BUILD_NOW_ISO` / `FRESHNESS_NOW_ISO` freeze "now" for deterministic builds and tests.
+LLM-mediated CLIs require the active provider key (`OPENAI_API_KEY` by default, or `OLLAMA_API_KEY` with `LLM_PROVIDER=ollama`; see `.env.example`). Pass `--no-llm` to skip LLM calls and exit with zero proposals. `BUILD_NOW_ISO` / `FRESHNESS_NOW_ISO` freeze "now" for deterministic builds and tests.
 
 ## Architecture
 
