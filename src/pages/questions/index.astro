@@ -1,55 +1,24 @@
 ---
 import { getCollection } from "astro:content";
-import Base from "../../layouts/Base.astro";
-import EmptyState from "../../components/EmptyState.astro";
-import StatusPill from "../../components/StatusPill.astro";
-import { byDateDesc } from "../../lib/sort.ts";
+import QuestionsListingPageComposition from "../../frontend/thinkinglabs-ui/pages/QuestionsListingPageComposition.astro";
+import ThinkinglabsUiPage from "../../layouts/ThinkinglabsUiPage.astro";
+import { mapQuestionsView } from "../../lib/thinkinglabs-ui.ts";
 import { listStructuredData } from "../../lib/structured-data.ts";
 
-const items = byDateDesc(await getCollection("questions"), "asked");
-const open = items.filter((q) => q.data.status !== "closed");
-const closed = items.filter((q) => q.data.status === "closed");
+const entries = await getCollection("questions");
+const view = mapQuestionsView({ entries });
 const site = Astro.site ?? new URL(Astro.url.origin);
 ---
-<Base
+
+<ThinkinglabsUiPage
   title="Questions — Tom"
   description="Open questions I'm stuck on."
   structuredData={listStructuredData(
     Astro.url,
     site,
     "Questions",
-    items.map((q) => ({ id: q.id, name: q.data.question, url: `/questions/${q.id}` })),
+    entries.map((q) => ({ id: q.id, name: q.data.question, url: `/questions/${q.id}` })),
   )}
 >
-  <h1>Open questions</h1>
-
-  <h2>Open</h2>
-  {open.length === 0 ? <EmptyState message="(no open questions)" /> : (
-    <ul class="list">
-      {open.map((q) => (
-        <li>
-          <a href={`/questions/${q.id}`}>{q.data.question}</a> <StatusPill status={q.data.status} />
-          <div class="meta">
-            asked {q.data.asked.slice(0, 10)}
-            {q.data.ideal_responder ? ` · ideal responder: ${q.data.ideal_responder}` : ""}
-          </div>
-        </li>
-      ))}
-    </ul>
-  )}
-
-  <h2>Closed</h2>
-  {closed.length === 0 ? <EmptyState message="(no closed questions)" /> : (
-    <ul class="list">
-      {closed.map((q) => (
-        <li>
-          <a href={`/questions/${q.id}`}>{q.data.question}</a> <StatusPill status={q.data.status} />
-          <div class="meta">
-            asked {q.data.asked.slice(0, 10)}
-            {q.data.ideal_responder ? ` · ideal responder: ${q.data.ideal_responder}` : ""}
-          </div>
-        </li>
-      ))}
-    </ul>
-  )}
-</Base>
+  <QuestionsListingPageComposition view={view} />
+</ThinkinglabsUiPage>

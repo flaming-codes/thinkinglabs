@@ -1,0 +1,53 @@
+---
+import AppShell from "../components/AppShell.astro";
+import DotLabel from "../components/DotLabel.astro";
+import IndexHero from "../components/IndexHero.astro";
+import IndexSectionHeader from "../components/IndexSectionHeader.astro";
+import StatBand from "../components/StatBand.astro";
+import type { ProjectsView } from "../types";
+
+interface Props {
+  view: ProjectsView;
+}
+
+const { view } = Astro.props;
+---
+
+<AppShell activeNav="Index">
+  <IndexHero
+    eyebrow="§ /projects"
+    crumb={`Index · ${view.total} projects · ${view.active} active`}
+    title="Projects."
+    deck="Things I'm building. Each carries a current state, a reason it exists, and the next move I owe it. If a project sits without a next move for two months, it goes paused."
+    layout="split"
+  />
+
+  <StatBand stats={view.stats} />
+
+  <IndexSectionHeader label="§ all projects · most recent first" title="What I'm building." />
+
+  <section class="tl-index-list">
+    {view.rows.map((project, index) => (
+      <article class="tl-projects-row">
+        <div class="tl-mono">{String(index + 1).padStart(2, "0")}</div>
+        <div>
+          <h3>{project.href ? <a href={project.href}>{project.title}</a> : project.title}</h3>
+          <p>{project.deck}</p>
+          <div class="tl-projects-meta">
+            started {project.started} · last touched <span class="is-strong">{project.last}</span> · {project.stack}
+          </div>
+          <div class="tl-projects-next">
+            <span class="tl-projects-next-label">Next</span>
+            <p class="tl-projects-next-text">{project.next}</p>
+          </div>
+        </div>
+        <div class="tl-projects-side">
+          <DotLabel label={project.state} filled={project.stateFilled} />
+          <div class="tl-projects-side-label">Why it exists</div>
+          <div class="tl-projects-side-text">{project.why}</div>
+        </div>
+        <div class="tl-projects-row-date">{project.last}</div>
+      </article>
+    ))}
+  </section>
+</AppShell>

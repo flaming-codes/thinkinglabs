@@ -1,38 +1,24 @@
 ---
 import { getCollection } from "astro:content";
-import Base from "../../layouts/Base.astro";
-import EmptyState from "../../components/EmptyState.astro";
-import StatusPill from "../../components/StatusPill.astro";
-import Tags from "../../components/Tags.astro";
-import { byDateDesc } from "../../lib/sort.ts";
+import ClaimsListingPageComposition from "../../frontend/thinkinglabs-ui/pages/ClaimsListingPageComposition.astro";
+import ThinkinglabsUiPage from "../../layouts/ThinkinglabsUiPage.astro";
+import { mapClaimSummaries } from "../../lib/thinkinglabs-ui.ts";
 import { listStructuredData } from "../../lib/structured-data.ts";
 
-const items = byDateDesc(await getCollection("claims"), "last_reviewed");
+const items = await getCollection("claims");
+const claims = mapClaimSummaries(items);
 const site = Astro.site ?? new URL(Astro.url.origin);
-function trunc(s: string, n: number): string {
-  return s.length > n ? `${s.slice(0, n).trim()}…` : s;
-}
 ---
-<Base
+
+<ThinkinglabsUiPage
   title="Claims — Tom"
   description="Atomic structured claims with confidence and evidence."
   structuredData={listStructuredData(
     Astro.url,
     site,
     "Claims",
-    items.map((c) => ({ id: c.id, name: c.data.claim, url: `/claims/${c.id}` })),
+    items.map((claim) => ({ id: claim.id, name: claim.data.claim, url: `/claims/${claim.id}` })),
   )}
 >
-  <h1>Claims</h1>
-  {items.length === 0 ? <EmptyState /> : (
-    <ul class="list">
-      {items.map((c) => (
-        <li>
-          <a href={`/claims/${c.id}`}>{trunc(c.data.claim, 140)}</a> <StatusPill status={c.data.status} />
-          <div class="meta">confidence {c.data.confidence.toFixed(2)} · reviewed {c.data.last_reviewed.slice(0, 10)}</div>
-          {c.data.tags.length > 0 ? <div class="meta"><Tags tags={c.data.tags} /></div> : null}
-        </li>
-      ))}
-    </ul>
-  )}
-</Base>
+  <ClaimsListingPageComposition claims={claims} totalCount={items.length} />
+</ThinkinglabsUiPage>

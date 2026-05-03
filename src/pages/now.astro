@@ -1,35 +1,29 @@
 ---
 import { getCollection } from "astro:content";
-import Base from "../layouts/Base.astro";
-import EmptyState from "../components/EmptyState.astro";
+import NowPageComposition from "../frontend/thinkinglabs-ui/pages/NowPageComposition.astro";
+import ThinkinglabsUiPage from "../layouts/ThinkinglabsUiPage.astro";
+import { mapNowData } from "../lib/thinkinglabs-ui.ts";
 import { listStructuredData } from "../lib/structured-data.ts";
 
-const alive = (await getCollection("projects")).filter((p) => p.data.status === "alive");
+const [projects, inputs] = await Promise.all([getCollection("projects"), getCollection("inputs")]);
+const alive = projects.filter((project) => project.data.status === "alive");
+const now = mapNowData({ projects, inputs });
 const site = Astro.site ?? new URL(Astro.url.origin);
 ---
-<Base
+
+<ThinkinglabsUiPage
   title="Now — Tom"
   description="What I'm currently focused on."
   structuredData={listStructuredData(
     Astro.url,
     site,
     "Active projects",
-    alive.map((p) => ({ id: p.id, name: p.data.title, url: `/projects/${p.id}` })),
+    alive.map((project) => ({
+      id: project.id,
+      name: project.data.title,
+      url: `/projects/${project.id}`,
+    })),
   )}
 >
-  <h1>Now</h1>
-  <p>Currently focused on:</p>
-  {alive.length === 0 ? (
-    <EmptyState message="(nothing active yet)" />
-  ) : (
-    <ul class="list">
-      {alive.map((p) => (
-        <li>
-          <a href={`/projects/${p.id}`}>{p.data.title}</a>
-          {p.data.current_question ? <div class="meta">{p.data.current_question}</div> : null}
-        </li>
-      ))}
-    </ul>
-  )}
-  <p class="meta">TODO: hand-written prose framing what I'm thinking about this season.</p>
-</Base>
+  <NowPageComposition now={now} />
+</ThinkinglabsUiPage>

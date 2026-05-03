@@ -1,5 +1,5 @@
-import { THOUGHT_DETAIL } from "../../src/storybook/thinkinglabs-ui/mocks";
-import ThoughtDetailPageComposition from "../../src/storybook/thinkinglabs-ui/pages/ThoughtDetailPageComposition.astro";
+import { THOUGHT_DETAIL } from "../../src/frontend/thinkinglabs-ui/mocks";
+import ThoughtDetailPageComposition from "../../src/frontend/thinkinglabs-ui/pages/ThoughtDetailPageComposition.astro";
 
 const meta = {
   title: "Thinkinglabs/Pages/Thought Detail",
@@ -8,7 +8,6 @@ const meta = {
     layout: "fullscreen",
   },
   args: {
-    themeKey: "forum",
     thought: THOUGHT_DETAIL,
   },
 };

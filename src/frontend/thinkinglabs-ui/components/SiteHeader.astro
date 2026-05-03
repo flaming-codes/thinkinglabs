@@ -1,0 +1,29 @@
+---
+interface Props {
+  activeNav?: "Index" | "Now" | "Calibration" | "Brain-diff" | "About";
+}
+
+const { activeNav = "Index" } = Astro.props;
+const navItems: Array<{ label: Props["activeNav"]; href: string }> = [
+  { label: "Index", href: "/" },
+  { label: "Now", href: "/now" },
+  { label: "Calibration", href: "/predictions/calibration" },
+  { label: "Brain-diff", href: "/feed/brain-diff.xml" },
+  { label: "About", href: "/about" },
+];
+---
+
+<header class="tl-header">
+  <div class="tl-brand">
+    <span class="tl-brand-mark"><span class="tl-brand-mark-inner"></span></span>
+    <a href="/" class="tl-brand-text">thinkinglabs</a>
+  </div>
+  <nav class="tl-nav" aria-label="Primary navigation">
+    {navItems.map((item) => (
+      <a href={item.href} class:list={["tl-nav-item", item.label !== activeNav && "is-muted"]}>
+        {item.label}
+      </a>
+    ))}
+  </nav>
+  <a href="/contact" class="tl-cta">Get in touch ↗</a>
+</header>

@@ -1,0 +1,13 @@
+---
+interface Props {
+  label: string;
+  title: string;
+}
+
+const { label, title } = Astro.props;
+---
+
+<header class="tl-index-section-head">
+  <div class="tl-index-section-label">{label}</div>
+  <h2 class="tl-index-section-title"><Fragment set:html={title} /></h2>
+</header>

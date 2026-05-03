@@ -1,0 +1,27 @@
+---
+interface Props {
+  eyebrow: string;
+  crumb: string;
+  title: string;
+  deck: string;
+  layout?: "stacked" | "split";
+}
+
+const { eyebrow, crumb, title, deck, layout = "stacked" } = Astro.props;
+---
+
+<div class="tl-index-eyebrow">{eyebrow}</div>
+<div class="tl-index-crumb">{crumb}</div>
+<section class:list={["tl-index-hero", layout === "split" && "is-split"]}>
+  {layout === "split" ? (
+    <>
+      <h1>{title}</h1>
+      <p class="tl-index-hero-deck">{deck}</p>
+    </>
+  ) : (
+    <>
+      <h1><Fragment set:html={title} /></h1>
+      <p class="tl-index-hero-deck">{deck}</p>
+    </>
+  )}
+</section>

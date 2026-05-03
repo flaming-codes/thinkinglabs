@@ -1,54 +1,24 @@
 ---
 import { getCollection } from "astro:content";
-import Base from "../../layouts/Base.astro";
-import EmptyState from "../../components/EmptyState.astro";
-import { formatDate } from "../../lib/route-helpers.ts";
-import { byDateDesc } from "../../lib/sort.ts";
+import PredictionsListingPageComposition from "../../frontend/thinkinglabs-ui/pages/PredictionsListingPageComposition.astro";
+import ThinkinglabsUiPage from "../../layouts/ThinkinglabsUiPage.astro";
+import { mapPredictionsView } from "../../lib/thinkinglabs-ui.ts";
 import { listStructuredData } from "../../lib/structured-data.ts";
 
-const all = byDateDesc(await getCollection("predictions"), "made");
-const pending = all.filter((p) => p.data.resolution === "pending");
-const resolved = all.filter((p) => p.data.resolution !== "pending");
+const entries = await getCollection("predictions");
+const view = mapPredictionsView({ entries });
 const site = Astro.site ?? new URL(Astro.url.origin);
 ---
-<Base
+
+<ThinkinglabsUiPage
   title="Predictions — Tom"
   description="Falsifiable predictions, pending and resolved."
   structuredData={listStructuredData(
     Astro.url,
     site,
     "Predictions",
-    all.map((p) => ({ id: p.id, name: p.data.prediction, url: `/predictions/${p.id}` })),
+    entries.map((p) => ({ id: p.id, name: p.data.prediction, url: `/predictions/${p.id}` })),
   )}
 >
-  <h1>Predictions</h1>
-  <p class="meta"><a href="/predictions/calibration">See calibration plot</a>.</p>
-
-  <h2>Pending</h2>
-  {pending.length === 0 ? <EmptyState message="(no pending predictions)" /> : (
-    <ul class="list">
-      {pending.map((p) => (
-        <li>
-          <a href={`/predictions/${p.id}`}>{p.data.prediction}</a>
-          <div class="meta">
-            made {formatDate(p.data.made)} · resolves {formatDate(p.data.resolves)} · confidence {p.data.confidence}
-          </div>
-        </li>
-      ))}
-    </ul>
-  )}
-
-  <h2>Resolved</h2>
-  {resolved.length === 0 ? <EmptyState message="(no resolved predictions)" /> : (
-    <ul class="list">
-      {resolved.map((p) => (
-        <li>
-          <a href={`/predictions/${p.id}`}>{p.data.prediction}</a>
-          <div class="meta">
-            made {formatDate(p.data.made)} · resolves {formatDate(p.data.resolves)} · confidence {p.data.confidence} · {p.data.resolution}
-          </div>
-        </li>
-      ))}
-    </ul>
-  )}
-</Base>
+  <PredictionsListingPageComposition view={view} />
+</ThinkinglabsUiPage>

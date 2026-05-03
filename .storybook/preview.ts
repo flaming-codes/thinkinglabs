@@ -1,5 +1,5 @@
 import type { Preview } from "@storybook-astro/framework";
-import "../src/storybook/thinkinglabs-ui/styles.css";
+import "../src/frontend/thinkinglabs-ui/styles.css";
 
 const preview: Preview = {
   parameters: {

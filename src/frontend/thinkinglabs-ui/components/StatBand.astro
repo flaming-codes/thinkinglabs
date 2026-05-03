@@ -1,0 +1,19 @@
+---
+import type { IndexStat } from "../types";
+
+interface Props {
+  stats: IndexStat[];
+}
+
+const { stats } = Astro.props;
+---
+
+<section class="tl-stat-band">
+  {stats.map((stat) => (
+    <div class="tl-stat-cell">
+      <div class="tl-stat-label">{stat.label}</div>
+      <div class="tl-stat-num">{stat.value}</div>
+      <div class="tl-stat-sub">{stat.sub}</div>
+    </div>
+  ))}
+</section>

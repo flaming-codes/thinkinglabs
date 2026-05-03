@@ -1,4 +1,4 @@
-import StatusTag from "../../src/storybook/thinkinglabs-ui/components/StatusTag.astro";
+import StatusTag from "../../src/frontend/thinkinglabs-ui/components/StatusTag.astro";
 
 const meta = {
   title: "Thinkinglabs/Primitives/StatusTag",

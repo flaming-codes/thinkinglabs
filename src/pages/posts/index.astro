@@ -1,39 +1,24 @@
 ---
 import { getCollection } from "astro:content";
-import Base from "../../layouts/Base.astro";
-import EmptyState from "../../components/EmptyState.astro";
-import Tags from "../../components/Tags.astro";
-import { byDateDesc } from "../../lib/sort.ts";
+import PostsListingPageComposition from "../../frontend/thinkinglabs-ui/pages/PostsListingPageComposition.astro";
+import ThinkinglabsUiPage from "../../layouts/ThinkinglabsUiPage.astro";
+import { mapPostSummaries } from "../../lib/thinkinglabs-ui.ts";
 import { listStructuredData } from "../../lib/structured-data.ts";
 
-const items = byDateDesc(await getCollection("posts"), "updated");
+const items = await getCollection("posts");
+const posts = mapPostSummaries(items);
 const site = Astro.site ?? new URL(Astro.url.origin);
 ---
-<Base
+
+<ThinkinglabsUiPage
   title="Posts — Tom"
   description="Long-form evergreen posts with per-section freshness."
   structuredData={listStructuredData(
     Astro.url,
     site,
     "Posts",
-    items.map((p) => ({ id: p.id, name: p.data.title, url: `/posts/${p.id}` })),
+    items.map((post) => ({ id: post.id, name: post.data.title, url: `/posts/${post.id}` })),
   )}
 >
-  <h1>Posts</h1>
-  {items.length === 0 ? (
-    <EmptyState />
-  ) : (
-    <ul class="list">
-      {items.map((p) => (
-        <li>
-          <a href={`/posts/${p.id}`}>{p.data.title}</a>
-          <div class="meta">
-            updated {p.data.updated.slice(0, 10)}
-            {p.data.summary ? ` · ${p.data.summary}` : ""}
-            {" "}<Tags tags={p.data.tags} />
-          </div>
-        </li>
-      ))}
-    </ul>
-  )}
-</Base>
+  <PostsListingPageComposition posts={posts} />
+</ThinkinglabsUiPage>

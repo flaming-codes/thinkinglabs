@@ -1,51 +1,38 @@
 ---
-import { getCollection, render } from "astro:content";
+import { getCollection } from "astro:content";
 import type { GetStaticPaths, InferGetStaticPropsType } from "astro";
-import Base from "../../layouts/Base.astro";
-import MetaBlock from "../../components/MetaBlock.astro";
-import Tags from "../../components/Tags.astro";
-import { stripKindPrefix } from "../../lib/refs.ts";
+import { resolve } from "node:path";
+import ThoughtDetailPageComposition from "../../frontend/thinkinglabs-ui/pages/ThoughtDetailPageComposition.astro";
+import ThinkinglabsUiPage from "../../layouts/ThinkinglabsUiPage.astro";
+import { walkFileHistory } from "../../lib/git.ts";
+import { getKindStaticPaths } from "../../lib/route-helpers.ts";
+import {
+  buildClaimLookup,
+  buildTitleLookup,
+  mapThoughtDetail,
+  mapThoughtHistory,
+} from "../../lib/thinkinglabs-ui.ts";
 import { thoughtStructuredData } from "../../lib/structured-data.ts";
 
 export const getStaticPaths = (async () => {
-  const items = await getCollection("thoughts");
-  return items.map((t) => ({ params: { slug: t.id }, props: { entry: t } }));
+  return getKindStaticPaths("thoughts");
 }) satisfies GetStaticPaths;
 
 const { entry } = Astro.props as InferGetStaticPropsType<typeof getStaticPaths>;
-const { Content } = await render(entry);
+const [claims, inputs] = await Promise.all([getCollection("claims"), getCollection("inputs")]);
+const cwd = resolve(".");
+const history = mapThoughtHistory(walkFileHistory(cwd, `content/thoughts/${entry.id}.md`));
+const lookups = buildTitleLookup({ claims, inputs });
+const claimLookup = buildClaimLookup(claims);
+const thought = mapThoughtDetail({ entry, lookups, claimLookup, history });
 const site = Astro.site ?? new URL(Astro.url.origin);
 ---
-<Base
+
+<ThinkinglabsUiPage
   title={`${entry.data.title} — Thoughts`}
   description={`Thought: ${entry.data.title}`}
   structuredData={thoughtStructuredData(entry, Astro.url, site)}
   ogType="article"
 >
-  <h1>{entry.data.title}</h1>
-  <MetaBlock
-    data={entry.data}
-    fields={[
-      ["created", "created"],
-      ["updated", "updated"],
-    ]}
-  />
-  <Tags tags={entry.data.tags} />
-  <article><Content /></article>
-  {entry.data.claims.length > 0 ? (
-    <>
-      <h2>Claims</h2>
-      <ul class="list">
-        {entry.data.claims.map((c) => <li><a href={`/claims/${stripKindPrefix(c)}`}>{c}</a></li>)}
-      </ul>
-    </>
-  ) : null}
-  {entry.data.inputs.length > 0 ? (
-    <>
-      <h2>Inputs</h2>
-      <ul class="list">
-        {entry.data.inputs.map((i) => <li><a href={`/inputs/${stripKindPrefix(i)}`}>{i}</a></li>)}
-      </ul>
-    </>
-  ) : null}
-</Base>
+  <ThoughtDetailPageComposition thought={thought} />
+</ThinkinglabsUiPage>

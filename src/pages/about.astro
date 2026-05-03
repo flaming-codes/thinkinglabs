@@ -1,7 +1,35 @@
 ---
-import Base from "../layouts/Base.astro";
+import { getCollection } from "astro:content";
+import AboutPageComposition from "../frontend/thinkinglabs-ui/pages/AboutPageComposition.astro";
+import ThinkinglabsUiPage from "../layouts/ThinkinglabsUiPage.astro";
+import { mapAboutKinds } from "../lib/thinkinglabs-ui.ts";
+
+const [claims, thoughts, inputs, projects, predictions, changedMyMind, decisions, questions, posts] =
+  await Promise.all([
+    getCollection("claims"),
+    getCollection("thoughts"),
+    getCollection("inputs"),
+    getCollection("projects"),
+    getCollection("predictions"),
+    getCollection("changed-my-mind"),
+    getCollection("decisions"),
+    getCollection("questions"),
+    getCollection("posts"),
+  ]);
+
+const kinds = mapAboutKinds({
+  claims: claims.length,
+  thoughts: thoughts.length,
+  inputs: inputs.length,
+  projects: projects.length,
+  predictions: predictions.length,
+  "changed-my-mind": changedMyMind.length,
+  decisions: decisions.length,
+  questions: questions.length,
+  posts: posts.length,
+});
 ---
-<Base title="About — Tom" description="About this site and the author." ogType="profile">
-  <h1>About</h1>
-  <p class="meta">(content forthcoming)</p>
-</Base>
+
+<ThinkinglabsUiPage title="About — Tom" description="About this site and the author." ogType="profile">
+  <AboutPageComposition kinds={kinds} />
+</ThinkinglabsUiPage>

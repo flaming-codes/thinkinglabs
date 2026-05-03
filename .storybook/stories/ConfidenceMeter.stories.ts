@@ -1,4 +1,4 @@
-import ConfidenceMeter from "../../src/storybook/thinkinglabs-ui/components/ConfidenceMeter.astro";
+import ConfidenceMeter from "../../src/frontend/thinkinglabs-ui/components/ConfidenceMeter.astro";
 
 const meta = {
   title: "Thinkinglabs/Primitives/ConfidenceMeter",

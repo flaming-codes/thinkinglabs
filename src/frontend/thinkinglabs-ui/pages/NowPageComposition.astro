@@ -1,0 +1,55 @@
+---
+import AppShell from "../components/AppShell.astro";
+import ConfidenceMeter from "../components/ConfidenceMeter.astro";
+import type { NowData } from "../types";
+
+interface Props {
+  now: NowData;
+}
+
+const { now } = Astro.props;
+---
+
+<AppShell activeNav="Now">
+  <section class="tl-page-head">
+    <div class="tl-eyebrow">§ /now</div>
+    <h1>Now.</h1>
+    <div class="tl-mono">{now.season} · last touched 2026-05-03</div>
+    <p class="tl-page-sub">{now.thesis}</p>
+  </section>
+
+  <section>
+    <header class="tl-split-header is-tight">
+      <div class="tl-eyebrow">Active threads</div>
+      <div class="tl-mono">{now.active.length} alive</div>
+    </header>
+    {now.active.map((thread) => (
+      <article class="tl-now-row">
+        <div>
+          <h3>{thread.href ? <a href={thread.href}>{thread.title}</a> : thread.title}</h3>
+          <div class="tl-mono">{thread.kind} · since {thread.since}</div>
+        </div>
+        <p>“{thread.currentQ}”</p>
+        <div>
+          <div class="tl-mono is-right">pulse</div>
+          <ConfidenceMeter value={thread.pulse} showDelta={false} compact />
+        </div>
+      </article>
+    ))}
+  </section>
+
+  <section class="tl-now-two-col">
+    <article>
+      <h2>Reading</h2>
+      {now.reading.map((entry) => (
+        <p>{entry}</p>
+      ))}
+    </article>
+    <article>
+      <h2>Not reading</h2>
+      {now.notReading.map((entry) => (
+        <p class="is-strike">{entry}</p>
+      ))}
+    </article>
+  </section>
+</AppShell>

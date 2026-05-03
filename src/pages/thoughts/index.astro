@@ -1,39 +1,24 @@
 ---
 import { getCollection } from "astro:content";
-import Base from "../../layouts/Base.astro";
-import EmptyState from "../../components/EmptyState.astro";
-import Tags from "../../components/Tags.astro";
-import { byDateDesc } from "../../lib/sort.ts";
+import ThoughtsListingPageComposition from "../../frontend/thinkinglabs-ui/pages/ThoughtsListingPageComposition.astro";
+import ThinkinglabsUiPage from "../../layouts/ThinkinglabsUiPage.astro";
+import { mapThoughtSummaries } from "../../lib/thinkinglabs-ui.ts";
 import { listStructuredData } from "../../lib/structured-data.ts";
 
-const items = byDateDesc(await getCollection("thoughts"), "updated");
+const items = await getCollection("thoughts");
+const thoughts = mapThoughtSummaries(items);
 const site = Astro.site ?? new URL(Astro.url.origin);
 ---
-<Base
+
+<ThinkinglabsUiPage
   title="Thoughts — Tom"
   description="Long-form prose, by recency."
   structuredData={listStructuredData(
     Astro.url,
     site,
     "Thoughts",
-    items.map((t) => ({ id: t.id, name: t.data.title, url: `/thoughts/${t.id}` })),
+    items.map((thought) => ({ id: thought.id, name: thought.data.title, url: `/thoughts/${thought.id}` })),
   )}
 >
-  <h1>Thoughts</h1>
-  {items.length === 0 ? (
-    <EmptyState />
-  ) : (
-    <ul class="list">
-      {items.map((t) => (
-        <li>
-          <a href={`/thoughts/${t.id}`}>{t.data.title}</a>
-          <div class="meta">
-            {t.data.updated.slice(0, 10)}
-            {t.data.claims.length > 0 ? ` · ${t.data.claims.length} claim${t.data.claims.length === 1 ? "" : "s"}` : ""}
-            {" "}<Tags tags={t.data.tags} />
-          </div>
-        </li>
-      ))}
-    </ul>
-  )}
-</Base>
+  <ThoughtsListingPageComposition thoughts={thoughts} />
+</ThinkinglabsUiPage>

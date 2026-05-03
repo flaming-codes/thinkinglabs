@@ -1,0 +1,84 @@
+---
+import AppShell from "../components/AppShell.astro";
+import IndexSectionHeader from "../components/IndexSectionHeader.astro";
+import type { InputDetail } from "../types";
+
+interface Props {
+  input: InputDetail;
+}
+
+const { input } = Astro.props;
+
+const meta = [
+  { label: "First read", value: input.read },
+  {
+    label: "Re-read",
+    value: input.reread.length > 0 ? `${input.reread.length} times` : "—",
+  },
+  { label: "Cited by", value: `${input.citations.length} pages` },
+  { label: "One-line summary", value: input.oneLine },
+];
+---
+
+<AppShell activeNav="Index">
+  <div class="tl-index-eyebrow">§ /inputs/{input.slug}</div>
+  <div class="tl-index-crumb">Input · {input.kind} · {input.year}</div>
+
+  <header class="tl-input-detail-head">
+    <div class="tl-input-detail-kindline">
+      {input.kind} · {input.year} · {input.publisher}
+    </div>
+    <h1>{input.title}</h1>
+    <div class="tl-input-detail-byline">{input.by}</div>
+  </header>
+
+  <section class="tl-input-meta-band">
+    {meta.map((cell) => (
+      <div class="tl-input-meta-cell">
+        <div class="tl-input-meta-label">{cell.label}</div>
+        <div class="tl-input-meta-val">{cell.value}</div>
+      </div>
+    ))}
+  </section>
+
+  <IndexSectionHeader label="§ 01 / takeaway" title="What stuck." />
+  <section class="tl-input-takeaway">
+    <p>“{input.takeaway}”</p>
+  </section>
+
+  {input.marginNotes.length > 0 && (
+    <>
+      <IndexSectionHeader label="§ 02 / margin notes" title="What I wrote in the margins." />
+      <section class="tl-input-notes">
+        {input.marginNotes.map((note) => (
+          <article class="tl-input-note">
+            <span class="tl-input-note-page">{note.page}</span>
+            <p class="tl-input-note-text">{note.text}</p>
+          </article>
+        ))}
+      </section>
+    </>
+  )}
+
+  {input.citations.length > 0 && (
+    <>
+      <IndexSectionHeader
+        label="§ 03 / cited by"
+        title="Where it shows up<br/>in this system."
+      />
+      <section class="tl-input-citations">
+        {input.citations.map((c) => (
+          <article class="tl-input-citation">
+            <span class="tl-input-citation-kind">{c.kind}</span>
+            <span class="tl-input-citation-title">
+              {c.href ? <a href={c.href}>{c.title}</a> : c.title}
+            </span>
+            <span class="tl-input-citation-conf">
+              {c.conf !== undefined ? c.conf.toFixed(2) : (c.date ?? "")}
+            </span>
+          </article>
+        ))}
+      </section>
+    </>
+  )}
+</AppShell>

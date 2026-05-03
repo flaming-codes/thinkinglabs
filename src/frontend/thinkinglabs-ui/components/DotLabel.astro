@@ -1,0 +1,13 @@
+---
+interface Props {
+  label: string;
+  filled?: boolean;
+}
+
+const { label, filled = false } = Astro.props;
+---
+
+<span class="tl-dot-label">
+  <span class:list={["tl-dot", filled && "is-filled"]} />
+  {label}
+</span>

@@ -1,52 +1,29 @@
 ---
 import { getCollection } from "astro:content";
-import Base from "../../layouts/Base.astro";
-import EmptyState from "../../components/EmptyState.astro";
-import StatusPill from "../../components/StatusPill.astro";
+import ProjectsListingPageComposition from "../../frontend/thinkinglabs-ui/pages/ProjectsListingPageComposition.astro";
+import ThinkinglabsUiPage from "../../layouts/ThinkinglabsUiPage.astro";
+import { mapProjectsView } from "../../lib/thinkinglabs-ui.ts";
 import { projectLastTouched } from "../../lib/projects.ts";
-import { byDateDesc } from "../../lib/sort.ts";
 import { listStructuredData } from "../../lib/structured-data.ts";
-import { PROJECT_STATUSES, type ProjectStatus } from "../../schemas/project.ts";
 
-const STATUS_ORDER = PROJECT_STATUSES;
-type Status = ProjectStatus;
-
-const all = byDateDesc(await getCollection("projects"), "started");
-const enriched = await Promise.all(
-  all.map(async (p) => ({ entry: p, last_touched: await projectLastTouched(p.id) })),
+const entries = await getCollection("projects");
+const lastTouchedEntries = await Promise.all(
+  entries.map(async (entry) => [entry.id, await projectLastTouched(entry.id)] as const),
 );
+const lastTouchedById = new Map(lastTouchedEntries);
+const view = mapProjectsView({ entries, lastTouchedById });
 const site = Astro.site ?? new URL(Astro.url.origin);
-const byStatus: Record<Status, typeof enriched> = { alive: [], dormant: [], shipped: [], abandoned: [] };
-for (const e of enriched) byStatus[e.entry.data.status as Status].push(e);
 ---
-<Base
+
+<ThinkinglabsUiPage
   title="Projects — Tom"
   description="Active and dormant work, grouped by status."
   structuredData={listStructuredData(
     Astro.url,
     site,
     "Projects",
-    enriched.map(({ entry }) => ({ id: entry.id, name: entry.data.title, url: `/projects/${entry.id}` })),
+    entries.map((p) => ({ id: p.id, name: p.data.title, url: `/projects/${p.id}` })),
   )}
 >
-  <h1>Projects</h1>
-  {enriched.length === 0 ? (
-    <EmptyState />
-  ) : (
-    STATUS_ORDER.map((s) => byStatus[s].length > 0 ? (
-      <section>
-        <h2>{s}</h2>
-        <ul class="list">
-          {byStatus[s].map(({ entry, last_touched }) => (
-            <li>
-              <a href={`/projects/${entry.id}`}>{entry.data.title}</a> <StatusPill status={entry.data.status} />
-              <div class="meta">last touched {last_touched}</div>
-              {entry.data.current_question ? <div class="meta">Q: {entry.data.current_question}</div> : null}
-              {entry.data.help_welcome ? <div class="meta">help: {entry.data.help_welcome}</div> : null}
-            </li>
-          ))}
-        </ul>
-      </section>
-    ) : null)
-  )}
-</Base>
+  <ProjectsListingPageComposition view={view} />
+</ThinkinglabsUiPage>

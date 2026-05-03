@@ -1,0 +1,62 @@
+---
+import AppShell from "../components/AppShell.astro";
+import CalibrationChart from "../components/CalibrationChart.astro";
+import MetricTile from "../components/MetricTile.astro";
+import StatusTag from "../components/StatusTag.astro";
+import type { CalibrationData } from "../types";
+
+interface Props {
+  calibration: CalibrationData;
+}
+
+const { calibration } = Astro.props;
+---
+
+<AppShell activeNav="Calibration">
+  <section class="tl-page-head">
+    <div class="tl-eyebrow">§ /predictions/calibration</div>
+    <div class="tl-page-head-grid">
+      <h1>Kept score.</h1>
+      <p>
+        Stated confidence on the x-axis, realised accuracy on the y-axis. The 45° line is perfect
+        calibration. Bubble size represents bucket count.
+      </p>
+    </div>
+  </section>
+
+  <section class="tl-metric-grid">
+    <MetricTile label="Brier" value={calibration.brier.toFixed(2)} hint="lower is better" />
+    <MetricTile label="Log loss" value={calibration.log.toFixed(2)} hint="natural log" />
+    <MetricTile label="Resolved" value={String(calibration.resolved)} hint={`of ${calibration.count} total`} />
+    <MetricTile label="Pending" value={String(calibration.pending)} hint="not yet due" />
+  </section>
+
+  <section class="tl-chart-shell">
+    <header class="tl-split-header is-tight">
+      <h2>Stated vs realised.</h2>
+      <div class="tl-mono">n = {calibration.resolved} resolved</div>
+    </header>
+    <CalibrationChart bins={calibration.bins} />
+  </section>
+
+  <section>
+    <header class="tl-split-header is-tight">
+      <h2>Recent predictions.</h2>
+      <div class="tl-mono">{calibration.recent.length} of {calibration.count}</div>
+    </header>
+
+    {calibration.recent.map((entry) => (
+      <article class="tl-calibration-row">
+        <div class="tl-claim-conf-big">{entry.stated.toFixed(2)}</div>
+        <h3>{entry.href ? <a href={entry.href}>{entry.title}</a> : entry.title}</h3>
+        <div class="tl-mono">{entry.outcome === null ? `due ${entry.due}` : `resolved ${entry.resolved}`}</div>
+        <StatusTag
+          label={
+            entry.outcome === true ? "✓ true" : entry.outcome === false ? "✗ false" : "○ pending"
+          }
+          tone={entry.outcome === true ? "positive" : entry.outcome === false ? "negative" : "default"}
+        />
+      </article>
+    ))}
+  </section>
+</AppShell>

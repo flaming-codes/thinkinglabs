@@ -1,16 +1,13 @@
 ---
-import { render } from "astro:content";
 import type { GetStaticPaths, InferGetStaticPropsType } from "astro";
+import { getCollection } from "astro:content";
 import { resolve } from "node:path";
-import Base from "../../layouts/Base.astro";
-import MetaBlock from "../../components/MetaBlock.astro";
-import RelatedRefs from "../../components/RelatedRefs.astro";
-import StatusPill from "../../components/StatusPill.astro";
-import Tags from "../../components/Tags.astro";
-import { stripKindPrefix, stripMdExt } from "../../lib/refs.ts";
-import { walkFileHistory } from "../../lib/git.ts";
+import ClaimDetailPageComposition from "../../frontend/thinkinglabs-ui/pages/ClaimDetailPageComposition.astro";
+import ThinkinglabsUiPage from "../../layouts/ThinkinglabsUiPage.astro";
 import { parseClaimHistory } from "../../lib/claim-history.ts";
+import { walkFileHistory } from "../../lib/git.ts";
 import { getKindStaticPaths } from "../../lib/route-helpers.ts";
+import { buildTitleLookup, mapClaimDetail } from "../../lib/thinkinglabs-ui.ts";
 import { claimStructuredData } from "../../lib/structured-data.ts";
 
 export const getStaticPaths = (async () => {
@@ -18,95 +15,19 @@ export const getStaticPaths = (async () => {
 }) satisfies GetStaticPaths;
 
 const { entry } = Astro.props as InferGetStaticPropsType<typeof getStaticPaths>;
-const { Content } = await render(entry);
+const thoughts = await getCollection("thoughts");
 const cwd = resolve(".");
 const relPath = `content/claims/${entry.id}.md`;
 const history = parseClaimHistory(walkFileHistory(cwd, relPath));
+const lookups = buildTitleLookup({ thoughts });
+const claim = mapClaimDetail({ entry, history, lookups });
 const site = Astro.site ?? new URL(Astro.url.origin);
 ---
-<Base
+
+<ThinkinglabsUiPage
   title={`${entry.data.claim.slice(0, 60)} — Claims`}
   description={entry.data.claim}
   structuredData={claimStructuredData(entry, Astro.url, site)}
 >
-  <h1>{entry.data.claim} <StatusPill status={entry.data.status} /></h1>
-
-  {entry.data.supersedes.length > 0 ? (
-    <div class="banner">
-      Supersedes: {entry.data.supersedes.map((r, i) => (
-        <>{i > 0 ? ", " : ""}<a href={`/claims/${stripKindPrefix(stripMdExt(r))}`}>{r}</a></>
-      ))}
-    </div>
-  ) : null}
-  {entry.data.superseded_by.length > 0 ? (
-    <div class="banner">
-      Superseded by: {entry.data.superseded_by.map((r, i) => (
-        <>{i > 0 ? ", " : ""}<a href={`/claims/${stripKindPrefix(stripMdExt(r))}`}>{r}</a></>
-      ))}
-    </div>
-  ) : null}
-
-  <MetaBlock
-    data={entry.data}
-    fields={[
-      ["confidence", "confidence"],
-      ["last reviewed", "last_reviewed"],
-    ]}
-  />
-  <Tags tags={entry.data.tags} />
-
-  {entry.data.evidence.length > 0 ? (
-    <>
-      <h2>Evidence</h2>
-      <ul class="list">
-        {entry.data.evidence.map((e) => (
-          <li>
-            {e.url ? <a href={e.url}>{e.url}</a> : null}
-            {e.note ? <span class="meta">{e.url ? " — " : ""}{e.note}</span> : null}
-          </li>
-        ))}
-      </ul>
-    </>
-  ) : null}
-
-  {entry.data.opposing.length > 0 ? (
-    <>
-      <h2>Opposing views</h2>
-      <ul class="list">
-        {entry.data.opposing.map((o) => <li class="meta">{o}</li>)}
-      </ul>
-    </>
-  ) : null}
-
-  <RelatedRefs heading="Derived from" kind="thoughts" refs={entry.data.derived_from} />
-
-  <article><Content /></article>
-
-  <h2>History</h2>
-  {history.length === 0 ? (
-    <p class="meta">(no history yet)</p>
-  ) : (
-    <table class="claim-history">
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Confidence</th>
-          <th>Evidence</th>
-          <th>Opposing</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        {history.map((h) => (
-          <tr>
-            <td class="meta">{h.isoDate.slice(0, 10)}</td>
-            <td>{h.confidence.toFixed(2)}</td>
-            <td class="meta">{h.evidenceCount}</td>
-            <td class="meta">{h.opposingCount}</td>
-            <td><StatusPill status={h.status} /></td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  )}
-</Base>
+  <ClaimDetailPageComposition claim={claim} />
+</ThinkinglabsUiPage>

@@ -1,18 +1,40 @@
 ---
-import Base from "../layouts/Base.astro";
-import { LISTING_KINDS } from "../lib/surfaces.ts";
+import { getCollection } from "astro:content";
+import HomePageComposition from "../frontend/thinkinglabs-ui/pages/HomePageComposition.astro";
+import ThinkinglabsUiPage from "../layouts/ThinkinglabsUiPage.astro";
+import { mapHomeKinds } from "../lib/thinkinglabs-ui.ts";
+
+const [claims, thoughts, inputs, projects, predictions, changedMyMind, decisions, questions, posts] =
+  await Promise.all([
+    getCollection("claims"),
+    getCollection("thoughts"),
+    getCollection("inputs"),
+    getCollection("projects"),
+    getCollection("predictions"),
+    getCollection("changed-my-mind"),
+    getCollection("decisions"),
+    getCollection("questions"),
+    getCollection("posts"),
+  ]);
+
+const counts = {
+  claims: claims.length,
+  thoughts: thoughts.length,
+  inputs: inputs.length,
+  projects: projects.length,
+  predictions: predictions.length,
+  "changed-my-mind": changedMyMind.length,
+  decisions: decisions.length,
+  questions: questions.length,
+  posts: posts.length,
+};
+
+const kinds = mapHomeKinds(counts);
 ---
-<Base title="Tom — wild.as" description="Personal thinking surface and structured public operating layer.">
-  <h1>Tom's thinking surface</h1>
-  <p>
-    See {LISTING_KINDS.map((k, i) => (
-      <>
-        {i > 0 ? ", " : null}
-        <a href={`/${k}`}>{k}</a>
-      </>
-    ))}.
-  </p>
-  <p class="meta">
-    The site is one renderer over a markdown source tree. Structured surfaces live alongside human pages — see <a href="/llms.txt">llms.txt</a>.
-  </p>
-</Base>
+
+<ThinkinglabsUiPage
+  title="Tom — wild.as"
+  description="Personal thinking surface and structured public operating layer."
+>
+  <HomePageComposition kinds={kinds} />
+</ThinkinglabsUiPage>

@@ -1,4 +1,4 @@
-import MetricTile from "../../src/storybook/thinkinglabs-ui/components/MetricTile.astro";
+import MetricTile from "../../src/frontend/thinkinglabs-ui/components/MetricTile.astro";
 
 const meta = {
   title: "Thinkinglabs/Primitives/MetricTile",

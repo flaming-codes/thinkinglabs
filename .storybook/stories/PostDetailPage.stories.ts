@@ -1,5 +1,5 @@
-import { POST_DETAIL } from "../../src/storybook/thinkinglabs-ui/mocks";
-import PostDetailPageComposition from "../../src/storybook/thinkinglabs-ui/pages/PostDetailPageComposition.astro";
+import { POST_DETAIL } from "../../src/frontend/thinkinglabs-ui/mocks";
+import PostDetailPageComposition from "../../src/frontend/thinkinglabs-ui/pages/PostDetailPageComposition.astro";
 
 const meta = {
   title: "Thinkinglabs/Pages/Post Detail",
@@ -8,7 +8,6 @@ const meta = {
     layout: "fullscreen",
   },
   args: {
-    themeKey: "forum",
     post: POST_DETAIL,
   },
 };

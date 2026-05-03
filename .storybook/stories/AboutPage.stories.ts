@@ -1,5 +1,5 @@
-import { ABOUT_KINDS } from "../../src/storybook/thinkinglabs-ui/mocks";
-import AboutPageComposition from "../../src/storybook/thinkinglabs-ui/pages/AboutPageComposition.astro";
+import { ABOUT_KINDS } from "../../src/frontend/thinkinglabs-ui/mocks";
+import AboutPageComposition from "../../src/frontend/thinkinglabs-ui/pages/AboutPageComposition.astro";
 
 const meta = {
   title: "Thinkinglabs/Pages/About",
@@ -8,7 +8,6 @@ const meta = {
     layout: "fullscreen",
   },
   args: {
-    themeKey: "forum",
     kinds: ABOUT_KINDS,
   },
 };

@@ -1,0 +1,87 @@
+---
+import AppShell from "../components/AppShell.astro";
+import type { DiffDay, DiffEntry } from "../types";
+
+interface Props {
+  days: DiffDay[];
+}
+
+const { days } = Astro.props;
+
+function deltaLabel(entry: DiffEntry): string {
+  if (entry.outcome) {
+    return `resolved · ${entry.outcome}`;
+  }
+
+  if (entry.from !== undefined && entry.to !== undefined) {
+    return `conf ${entry.from.toFixed(2)} → ${entry.to.toFixed(2)}`;
+  }
+
+  if (entry.conf !== undefined) {
+    return `conf ${entry.conf.toFixed(2)}`;
+  }
+
+  if (entry.words !== undefined) {
+    return `${entry.words.toLocaleString()} words`;
+  }
+
+  return "—";
+}
+
+function deltaTone(entry: DiffEntry): "up" | "down" | "neutral" {
+  if (entry.from === undefined || entry.to === undefined) {
+    return "neutral";
+  }
+
+  if (entry.to > entry.from) {
+    return "up";
+  }
+
+  if (entry.to < entry.from) {
+    return "down";
+  }
+
+  return "neutral";
+}
+---
+
+<AppShell activeNav="Brain-diff">
+  <section class="tl-page-head">
+    <div class="tl-eyebrow">§ /feed/brain-diff</div>
+    <div class="tl-page-head-grid">
+      <h1>Diff.</h1>
+      <p>
+        Substantive changes across all kinds, generated from git history. Boring edits are filtered
+        out so review focuses on meaningful updates.
+      </p>
+    </div>
+  </section>
+
+  {days.map((day) => (
+    <section class="tl-day-section">
+      <header class="tl-day-head">
+        <h2>{day.day}</h2>
+        <div></div>
+      </header>
+
+      {day.entries.map((entry) => (
+        <article class="tl-day-entry">
+          <div class="tl-mono">
+            {entry.kind}
+            <span>{entry.action}</span>
+          </div>
+          <div>
+            <h3>{entry.title}</h3>
+            {entry.why && <p>“{entry.why}”</p>}
+          </div>
+          <div class:list={["tl-mono", "is-right", `is-${deltaTone(entry)}`]}>{deltaLabel(entry)}</div>
+        </article>
+      ))}
+    </section>
+  ))}
+
+  <footer class="tl-quote-foot is-inline">
+    <span>/feed/brain-diff.xml · /feed/brain-diff.json</span>
+    <span>last build 2026-05-03 14:22 UTC</span>
+  </footer>
+</AppShell>

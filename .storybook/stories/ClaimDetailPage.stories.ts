@@ -1,5 +1,5 @@
-import { FEATURED_CLAIM_DETAIL } from "../../src/storybook/thinkinglabs-ui/mocks";
-import ClaimDetailPageComposition from "../../src/storybook/thinkinglabs-ui/pages/ClaimDetailPageComposition.astro";
+import { FEATURED_CLAIM_DETAIL } from "../../src/frontend/thinkinglabs-ui/mocks";
+import ClaimDetailPageComposition from "../../src/frontend/thinkinglabs-ui/pages/ClaimDetailPageComposition.astro";
 
 const meta = {
   title: "Thinkinglabs/Pages/Claim Detail",
@@ -8,7 +8,6 @@ const meta = {
     layout: "fullscreen",
   },
   args: {
-    themeKey: "forum",
     claim: FEATURED_CLAIM_DETAIL,
   },
 };

@@ -23,7 +23,7 @@ pnpm mcp:thinkinglabs  # run the personal MCP server over stdio
 
 ## Storybook UI review surfaces
 
-Storybook stories for UI-layer review live under `src/storybook/thinkinglabs-ui/`.
+Storybook stories for UI-layer review live under `src/frontend/thinkinglabs-ui/`.
 
 - `mocks/` keeps handoff-derived mock data separate from presentation.
 - `components/` holds reusable primitives (header, confidence meter, status tags, charts).

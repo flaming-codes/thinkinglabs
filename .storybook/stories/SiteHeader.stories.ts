@@ -1,4 +1,4 @@
-import SiteHeader from "../../src/storybook/thinkinglabs-ui/components/SiteHeader.astro";
+import SiteHeader from "../../src/frontend/thinkinglabs-ui/components/SiteHeader.astro";
 
 const meta = {
   title: "Thinkinglabs/Primitives/SiteHeader",

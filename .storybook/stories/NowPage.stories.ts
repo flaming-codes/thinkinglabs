@@ -1,5 +1,5 @@
-import { NOW } from "../../src/storybook/thinkinglabs-ui/mocks";
-import NowPageComposition from "../../src/storybook/thinkinglabs-ui/pages/NowPageComposition.astro";
+import { NOW } from "../../src/frontend/thinkinglabs-ui/mocks";
+import NowPageComposition from "../../src/frontend/thinkinglabs-ui/pages/NowPageComposition.astro";
 
 const meta = {
   title: "Thinkinglabs/Pages/Now",
@@ -8,7 +8,6 @@ const meta = {
     layout: "fullscreen",
   },
   args: {
-    themeKey: "forum",
     now: NOW,
   },
 };

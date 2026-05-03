@@ -1,0 +1,16 @@
+---
+import SiteFooter from "./SiteFooter.astro";
+import SiteHeader from "./SiteHeader.astro";
+
+interface Props {
+  activeNav?: "Index" | "Now" | "Calibration" | "Brain-diff" | "About";
+}
+
+const { activeNav = "Index" } = Astro.props;
+---
+
+<article class="tl-shell">
+  <SiteHeader activeNav={activeNav} />
+  <slot />
+  <SiteFooter />
+</article>

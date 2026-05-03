@@ -1,5 +1,5 @@
-import { BRAIN_DIFF } from "../../src/storybook/thinkinglabs-ui/mocks";
-import BrainDiffPageComposition from "../../src/storybook/thinkinglabs-ui/pages/BrainDiffPageComposition.astro";
+import { BRAIN_DIFF } from "../../src/frontend/thinkinglabs-ui/mocks";
+import BrainDiffPageComposition from "../../src/frontend/thinkinglabs-ui/pages/BrainDiffPageComposition.astro";
 
 const meta = {
   title: "Thinkinglabs/Pages/Brain Diff",
@@ -8,7 +8,6 @@ const meta = {
     layout: "fullscreen",
   },
   args: {
-    themeKey: "forum",
     days: BRAIN_DIFF,
   },
 };

@@ -1,5 +1,5 @@
-import { CALIBRATION } from "../../src/storybook/thinkinglabs-ui/mocks";
-import CalibrationPageComposition from "../../src/storybook/thinkinglabs-ui/pages/CalibrationPageComposition.astro";
+import { CALIBRATION } from "../../src/frontend/thinkinglabs-ui/mocks";
+import CalibrationPageComposition from "../../src/frontend/thinkinglabs-ui/pages/CalibrationPageComposition.astro";
 
 const meta = {
   title: "Thinkinglabs/Pages/Calibration",
@@ -8,7 +8,6 @@ const meta = {
     layout: "fullscreen",
   },
   args: {
-    themeKey: "forum",
     calibration: CALIBRATION,
   },
 };

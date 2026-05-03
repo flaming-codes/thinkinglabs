@@ -1,0 +1,56 @@
+---
+import AppShell from "../components/AppShell.astro";
+import type { KindSummary } from "../types";
+
+interface Props {
+  kinds: KindSummary[];
+}
+
+const { kinds } = Astro.props;
+const total = kinds.reduce((sum, kind) => sum + kind.count, 0);
+---
+
+<AppShell activeNav="Index">
+  <section class="tl-home-hero">
+    <p class="tl-home-hero-left">
+      From a markdown
+      <br />
+      tree
+      <br />
+      to a public
+      <br />
+      thinking surface.
+    </p>
+    <h1 class="tl-home-lede">
+      One mind, kept in plain text — with
+      <span class="tl-home-lede-accent"> stated confidence, dated predictions, and a public record of every reversal.</span>
+    </h1>
+  </section>
+
+  <section class="tl-home-thesis-row">
+    <div class="tl-eyebrow">↳ The thesis</div>
+    <p>
+      Most personal sites are static essays. This one is a queryable corpus: each claim has confidence
+      in [0,1], each prediction is graded against reality, and reversals stay visible rather than
+      quietly edited.
+    </p>
+  </section>
+
+  <section>
+    <header class="tl-split-header">
+      <div class="tl-eyebrow">Index of kinds</div>
+      <div class="tl-mono">{total} entries · last build 2026-05-03</div>
+    </header>
+      <div class="tl-kind-list">
+        {kinds.map((kind, index) => (
+          <article class="tl-kind-row">
+            <div class="tl-mono">{String(index + 1).padStart(2, "0")}</div>
+            <h3>{kind.href ? <a href={kind.href}>{kind.title}</a> : kind.title}</h3>
+            <p>{kind.description}</p>
+            <div class="tl-kind-count">{kind.count}</div>
+          </article>
+        ))}
+      </div>
+  </section>
+
+</AppShell>
