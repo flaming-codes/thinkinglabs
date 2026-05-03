@@ -1,13 +1,20 @@
 ---
 import { NAV_SURFACES } from "../lib/surfaces.ts";
+import JsonLd from "../components/JsonLd.astro";
+import { buildPageGraph, canonicalUrl, type StructuredData } from "../lib/structured-data.ts";
 
 interface Props {
   title: string;
-  description?: string;
+  description?: string | undefined;
+  structuredData?: StructuredData | undefined;
+  ogType?: "website" | "article" | "profile";
 }
 
-const { title, description } = Astro.props;
+const { title, description, structuredData, ogType = "website" } = Astro.props;
 const path = Astro.url.pathname.replace(/\/$/, "") || "/";
+const site = Astro.site ?? new URL(Astro.url.origin);
+const canonical = canonicalUrl(Astro.url.pathname, site);
+const jsonLd = buildPageGraph({ site, url: canonical, title, description, structuredData });
 ---
 
 <!doctype html>
@@ -17,6 +24,16 @@ const path = Astro.url.pathname.replace(/\/$/, "") || "/";
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     {description ? <meta name="description" content={description} /> : null}
+    <link rel="canonical" href={canonical} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content="Tom — wild.as" />
+    <meta property="og:title" content={title} />
+    {description ? <meta property="og:description" content={description} /> : null}
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    {description ? <meta name="twitter:description" content={description} /> : null}
+    <JsonLd data={jsonLd} />
     <style is:global>
       :root {
         --fg: #1b1b1b;

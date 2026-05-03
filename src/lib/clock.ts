@@ -1,4 +1,4 @@
-/** Current time as ISO string; honors BUILD_NOW_ISO for deterministic tests and CI. */
+/** Current time as ISO string; honors BUILD_NOW_ISO for deterministic tests and local builds. */
 export function nowISO(): string {
   return process.env["BUILD_NOW_ISO"] ?? new Date().toISOString();
 }

@@ -6,17 +6,22 @@ See `docs/architecture/ADR-009-proposal-confirmation-pattern.md` for the rationa
 
 ## Before you install
 
-### 1. Copy plists and replace `__REPO_ROOT__`
+### 1. Copy plists and replace `__REPO_ROOT__` and `__LOG_DIR__`
 
-Keep the tracked plist templates unchanged. Copy them into `~/Library/LaunchAgents`, then replace `__REPO_ROOT__` in the copies with the absolute path to this repo:
+Keep the tracked plist templates unchanged. Copy them into `~/Library/LaunchAgents`, then replace **both** placeholders in the copies:
+
+- `__REPO_ROOT__` → absolute path to this repo working tree.
+- `__LOG_DIR__` → absolute path to the directory where stdout/stderr logs should land (e.g. `~/Library/Logs/thinkinglabs`). The directory must exist before the agents start (see step 3).
 
 ```sh
 REPO=$(pwd)
+LOG_DIR="$HOME/Library/Logs/thinkinglabs"
 mkdir -p ~/Library/LaunchAgents
-for f in scripts/launchd/com.tom.me.*.plist; do
+for f in scripts/launchd/com.tom.thinkinglabs.*.plist; do
   dst="$HOME/Library/LaunchAgents/$(basename "$f")"
   cp "$f" "$dst"
   sed -i '' "s|__REPO_ROOT__|$REPO|g" "$dst"
+  sed -i '' "s|__LOG_DIR__|$LOG_DIR|g" "$dst"
 done
 ```
 
@@ -45,24 +50,25 @@ The two non-LLM agents (`dormant-flip`, `review-decisions`) need no key.
 
 #### Optional overrides
 
-| Var                         | Default                 | Purpose                                                 |
-| --------------------------- | ----------------------- | ------------------------------------------------------- |
-| `LLM_PROVIDER`              | `openai`                | Switch provider: `openai` or `ollama`                   |
-| `LLM_MODEL_FAST`            | `gpt-4.1-mini`          | OpenAI fast-tier model                                  |
-| `LLM_MODEL_BALANCED`        | `gpt-4.1`               | OpenAI balanced-tier model                              |
-| `LLM_MODEL_DEEP`            | `gpt-4.1`               | OpenAI deep-tier model                                  |
-| `OLLAMA_API_KEY`            | —                       | Ollama cloud API key                                    |
-| `OLLAMA_BASE_URL`           | `https://ollama.com/v1` | Override for local daemon (`http://localhost:11434/v1`) |
-| `LLM_OLLAMA_MODEL_FAST`     | `glm-5.1:cloud`         | Ollama fast-tier model                                  |
-| `LLM_OLLAMA_MODEL_BALANCED` | `glm-5.1:cloud`         | Ollama balanced-tier model                              |
-| `LLM_OLLAMA_MODEL_DEEP`     | `glm-5.1:cloud`         | Ollama deep-tier model                                  |
+| Var                  | Default                 | Purpose                                                 |
+| -------------------- | ----------------------- | ------------------------------------------------------- |
+| `LLM_PROVIDER`       | `openai`                | Switch provider: `openai` or `ollama`                   |
+| `LLM_MODEL_FAST`     | `gpt-4.1-mini`          | OpenAI fast-tier model                                  |
+| `LLM_MODEL_BALANCED` | `gpt-4.1`               | OpenAI balanced-tier model                              |
+| `LLM_MODEL_DEEP`     | `gpt-4.1`               | OpenAI deep-tier model                                  |
+| `OLLAMA_API_KEY`     | —                       | Ollama cloud API key                                    |
+| `OLLAMA_BASE_URL`    | `https://ollama.com/v1` | Override for local daemon (`http://localhost:11434/v1`) |
+
+When `LLM_PROVIDER=ollama`, the same `LLM_MODEL_FAST`, `LLM_MODEL_BALANCED`, and `LLM_MODEL_DEEP` overrides apply; their provider defaults are all `glm-5.1:cloud`.
 
 The plists invoke `/bin/zsh -lc` and source `~/.zshrc` before running `pnpm`, so nvm/asdf-style local Node installs are available without hard-coding a machine-specific pnpm path.
 
 ### 3. Create the log directory
 
+Create the directory you substituted for `__LOG_DIR__` in step 1; launchd will not create it for you and the plists will fail to start without it.
+
 ```sh
-mkdir -p ~/Library/Logs/me
+mkdir -p "$LOG_DIR"   # e.g. ~/Library/Logs/thinkinglabs
 ```
 
 ## Install
@@ -76,7 +82,7 @@ launchctl bootstrap gui/$(id -u) <plist-path>
 Example for all five at once:
 
 ```sh
-for f in ~/Library/LaunchAgents/com.tom.me.*.plist; do
+for f in ~/Library/LaunchAgents/com.tom.thinkinglabs.*.plist; do
   launchctl bootstrap gui/$(id -u) "$f"
 done
 ```
@@ -86,23 +92,23 @@ done
 Kick off a plist immediately to confirm it runs cleanly:
 
 ```sh
-launchctl kickstart -k gui/$(id -u)/com.tom.me.dormant-flip
+launchctl kickstart -k gui/$(id -u)/com.tom.thinkinglabs.dormant-flip
 ```
 
-Check the log:
+Check the log (substitute the `__LOG_DIR__` value you used in step 1):
 
 ```sh
-tail ~/Library/Logs/me/dormant-flip.out.log
-tail ~/Library/Logs/me/dormant-flip.err.log
+tail "$LOG_DIR/dormant-flip.out.log"
+tail "$LOG_DIR/dormant-flip.err.log"
 ```
 
 ## Uninstall
 
 ```sh
-launchctl bootout gui/$(id -u)/com.tom.me.dormant-flip
+launchctl bootout gui/$(id -u)/com.tom.thinkinglabs.dormant-flip
 # repeat for each label, or:
 for label in dormant-flip review-decisions resolve-predictions freshness-review triage-questions; do
-  launchctl bootout gui/$(id -u)/com.tom.me.$label 2>/dev/null || true
+  launchctl bootout gui/$(id -u)/com.tom.thinkinglabs.$label 2>/dev/null || true
 done
 ```
 

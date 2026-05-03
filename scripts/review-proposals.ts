@@ -1,14 +1,23 @@
 #!/usr/bin/env tsx
 import type { Readable, Writable } from "node:stream";
-import "../src/lib/agents/dormant-flip.ts";
-import "../src/lib/agents/freshness-review.ts";
-import "../src/lib/agents/resolve-predictions.ts";
-import "../src/lib/agents/review-decisions.ts";
-import "../src/lib/agents/triage-questions.ts";
+import { AGENT_REGISTRY, PROPOSAL_SOURCES } from "../src/lib/agent-registry.ts";
 import { runReview, type ReviewActionDef, type ReviewProposal } from "../src/lib/review-cli.ts";
 import { readQueue, removeFromQueue, type QueuedProposal } from "../src/lib/proposal-queue.ts";
 import { getHandler, allHandlers } from "../src/lib/proposal-dispatch.ts";
 import type { ProposalSource } from "../src/lib/proposal-queue.ts";
+import { writeProvenanceEvent } from "../src/lib/provenance.ts";
+import {
+  beginProposalReview,
+  getProposalReviewEntry,
+  markProposalApplied,
+  markProposalFinalized,
+  markProposalProvenanceWritten,
+} from "../src/lib/proposal-review-state.ts";
+
+/** Side-effect import of every agent module so each `registerHandler` call runs at startup; derived from the registry. */
+async function loadAgentHandlers(): Promise<void> {
+  await Promise.all(Object.values(AGENT_REGISTRY).map((spec) => import(spec.handlerModule)));
+}
 
 /** CLI args shape. */
 interface Args {
@@ -30,13 +39,7 @@ function parseArgs(argv: ReadonlyArray<string>): Args {
   let limit = 25;
   const filter: ProposalSource[] = [];
   let dryRun = false;
-  const validSources = new Set<string>([
-    "dormant-flip",
-    "review-decisions",
-    "resolve-predictions",
-    "freshness-review",
-    "triage-questions",
-  ]);
+  const validSources = new Set<string>(PROPOSAL_SOURCES);
 
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i]!;
@@ -92,6 +95,43 @@ function unregisteredTypes(proposals: ReadonlyArray<QueuedProposal>): string[] {
   return [...missing];
 }
 
+/** Persist accepted LLM provenance when a queued proposal carries model metadata. */
+function writeQueuedProvenance(
+  cwd: string,
+  proposal: QueuedProposal,
+  outcome: "accepted" | "edited",
+): void {
+  if (!proposal.provenance) return;
+  writeProvenanceEvent({
+    ...proposal.provenance,
+    cwd,
+    title: `AI provenance for ${proposal.title}`,
+    accepted_at: new Date().toISOString(),
+    outcome,
+  });
+}
+
+/** Finalizes a previously-applied proposal without replaying its side effects. */
+function finalizeWithoutReplay(args: {
+  cwd: string;
+  proposal: QueuedProposal;
+  outcome: "accepted" | "edited";
+  output: Writable;
+}): void {
+  const { cwd, proposal, outcome, output } = args;
+  const entry = getProposalReviewEntry(proposal.id, cwd);
+  if (!entry || entry.outcome !== outcome) {
+    throw new Error(`review-proposals-state: missing ${outcome} replay record for ${proposal.id}`);
+  }
+  if (!entry.provenanceWritten && proposal.provenance) {
+    writeQueuedProvenance(cwd, proposal, outcome);
+    markProposalProvenanceWritten(proposal.id, outcome, cwd);
+  }
+  removeFromQueue(proposal.id, cwd);
+  if (entry.phase !== "finalized") markProposalFinalized(proposal.id, outcome, cwd);
+  output.write(`already ${outcome}: ${proposal.id}; finalized without replay\n`);
+}
+
 /** Summary returned by runProposalsReview. */
 export interface ReviewRunSummary {
   readonly accepted: number;
@@ -137,6 +177,8 @@ export async function runProposalsReview(args: {
     payload: p,
   }));
 
+  const ctx = { cwd };
+
   const actions: ReviewActionDef<QueuedProposal, string>[] = [
     {
       key: "a",
@@ -147,8 +189,21 @@ export async function runProposalsReview(args: {
         if (dryRun) {
           output.write(`[dry-run] would accept: ${p.id}\n`);
         } else {
-          const summary = await handler.apply(typed);
+          beginProposalReview(p.id, "accepted", cwd);
+          const previous = getProposalReviewEntry(p.id, cwd);
+          if (previous && previous.phase !== "applying") {
+            finalizeWithoutReplay({ cwd, proposal: p, outcome: "accepted", output });
+            tally.accepted++;
+            return "accepted";
+          }
+          const summary = await handler.apply(typed, ctx);
+          markProposalApplied(p.id, "accepted", cwd);
+          if (p.provenance) {
+            writeQueuedProvenance(cwd, p, "accepted");
+            markProposalProvenanceWritten(p.id, "accepted", cwd);
+          }
           removeFromQueue(p.id, cwd);
+          markProposalFinalized(p.id, "accepted", cwd);
           output.write(`accepted: ${summary}\n`);
         }
         tally.accepted++;
@@ -164,8 +219,21 @@ export async function runProposalsReview(args: {
         if (dryRun) {
           output.write(`[dry-run] would edit: ${p.id}\n`);
         } else {
-          const summary = await handler.edit(typed);
+          beginProposalReview(p.id, "edited", cwd);
+          const previous = getProposalReviewEntry(p.id, cwd);
+          if (previous && previous.phase !== "applying") {
+            finalizeWithoutReplay({ cwd, proposal: p, outcome: "edited", output });
+            tally.edited++;
+            return "edited";
+          }
+          const summary = await handler.edit(typed, ctx);
+          markProposalApplied(p.id, "edited", cwd);
+          if (p.provenance) {
+            writeQueuedProvenance(cwd, p, "edited");
+            markProposalProvenanceWritten(p.id, "edited", cwd);
+          }
           removeFromQueue(p.id, cwd);
+          markProposalFinalized(p.id, "edited", cwd);
           output.write(`edited: ${summary}\n`);
         }
         tally.edited++;
@@ -181,7 +249,7 @@ export async function runProposalsReview(args: {
         if (dryRun) {
           output.write(`[dry-run] would reject: ${p.id}\n`);
         } else {
-          if (handler.reject) await handler.reject(typed);
+          if (handler.reject) await handler.reject(typed, ctx);
           removeFromQueue(p.id, cwd);
         }
         tally.rejected++;
@@ -205,6 +273,7 @@ export async function runProposalsReview(args: {
 
 /** CLI entry point; thin wrapper around runProposalsReview that adds SIGINT handling and summary output. */
 async function main(): Promise<void> {
+  await loadAgentHandlers();
   const args = parseArgs(process.argv.slice(2));
 
   const initialQueue = readQueue();

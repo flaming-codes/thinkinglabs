@@ -1,10 +1,29 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { z } from "zod";
+import type { Kind } from "../schemas/index.ts";
 import { daysBetween } from "./clock.ts";
+import { loadContent } from "./content-repo.ts";
 import { lastTouched } from "./git.ts";
 import { runToolCall } from "./llm.ts";
-import { walkMarkdown } from "./walk-content.ts";
+
+/** Untyped view of a typed entry; this module reads frontmatter generically across kinds. */
+interface RawEntry {
+  readonly slug: string;
+  readonly path: string;
+  readonly data: Record<string, unknown>;
+  readonly content: string;
+}
+
+/** Loads a kind through the typed repo and erases the schema type so generic frontmatter access stays ergonomic. */
+function loadAsRaw(kind: Kind, cwd: string): RawEntry[] {
+  return loadContent(kind, { cwd }).map((e) => ({
+    slug: e.slug,
+    path: e.filePath,
+    data: e.data as unknown as Record<string, unknown>,
+    content: e.body,
+  }));
+}
 
 /** Reasons a claim might be flagged for review; the union is closed so consumers can switch exhaustively. */
 export type StaleReason =
@@ -108,7 +127,7 @@ async function callShiftDetection(
   });
   if (!result)
     return { shifted: false, reasoning: "LLM returned no tool call", contradicts: false };
-  return result;
+  return result.data;
 }
 
 /** Scans the claims directory and returns flags; LLM is consulted only when shiftDetection is on. */
@@ -117,10 +136,10 @@ export async function detectStaleClaims(
 ): Promise<ReadonlyArray<StaleFlag>> {
   const { cwd, nowISO, thresholdDays, skipLLM } = args;
 
-  const claims = walkMarkdown({ cwd, kind: "claims" });
-  const thoughts = walkMarkdown({ cwd, kind: "thoughts" });
-  const posts = walkMarkdown({ cwd, kind: "posts" });
-  const inputs = walkMarkdown({ cwd, kind: "inputs" });
+  const claims = loadAsRaw("claims", cwd);
+  const thoughts = loadAsRaw("thoughts", cwd);
+  const posts = loadAsRaw("posts", cwd);
+  const inputs = loadAsRaw("inputs", cwd);
 
   /** Resolve last-touched ISO for a content object, falling back to git. */
   async function touchedISO(obj: {

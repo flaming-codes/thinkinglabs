@@ -17,7 +17,7 @@ function writePrediction(dir: string, slug: string, resolution: string, resolves
   const path = join(dir, `${slug}.md`);
   writeFileSync(
     path,
-    `---\nprediction: "Test prediction for ${slug}."\nmade: 2025-01-01\nresolves: ${resolves}\nconfidence: 0.7\nresolution: ${resolution}\nresolved_on: null\nresolution_note: null\nevidence_at_time: []\ntags: []\n---\nBody.\n`,
+    `---\nprediction: "Test prediction for ${slug}."\nmade: 2025-01-01\nresolves: ${resolves}\nconfidence: 0.7\nresolution: "${resolution}"\nresolved_on: null\nresolution_note: null\nevidence_at_time: []\ntags: []\n---\nBody.\n`,
     "utf8",
   );
   return path;
@@ -35,9 +35,12 @@ function makeTempTree(): string {
 function mockRunToolCall(vi: (typeof import("vitest"))["vi"]): void {
   vi.doMock("../../src/lib/llm.ts", () => ({
     runToolCall: vi.fn().mockResolvedValue({
-      resolution: "true",
-      resolution_note: "The prediction came true.",
-      reasoning: "Evidence supports it.",
+      data: {
+        resolution: "true",
+        resolution_note: "The prediction came true.",
+        reasoning: "Evidence supports it.",
+      },
+      model: { provider: "openai", model: "gpt-test", tier: "balanced" },
     }),
   }));
 }

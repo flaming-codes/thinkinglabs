@@ -18,6 +18,13 @@
       "@/*": ["src/*"]
     }
   },
-  "include": [".astro/types.d.ts", "src/**/*", "scripts/**/*", "servers/**/*", "tests/**/*"],
+  "include": [
+    ".astro/types.d.ts",
+    ".storybook/**/*",
+    "src/**/*",
+    "scripts/**/*",
+    "servers/**/*",
+    "tests/**/*"
+  ],
   "exclude": ["dist/", "node_modules/"]
 }

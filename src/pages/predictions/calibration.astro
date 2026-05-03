@@ -23,7 +23,7 @@ const ticks = [0, 0.25, 0.5, 0.75, 1];
 const maxCount = buckets.reduce((m, b) => Math.max(m, b.total), 0);
 function radius(n: number): number { return n === 0 ? 0 : 4 + 6 * Math.sqrt(n / Math.max(1, maxCount)); }
 ---
-<Base title="Calibration — Predictions">
+<Base title="Calibration — Predictions" description="Stated confidence versus realized accuracy across resolved predictions.">
   <h1>Calibration</h1>
   <p class="meta">Stated confidence (x) versus realized accuracy (y) across resolved predictions. Diagonal is perfect calibration.</p>
 

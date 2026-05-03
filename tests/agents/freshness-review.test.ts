@@ -44,9 +44,12 @@ function writePostNoStamps(dir: string, slug: string): void {
 function mockRunToolCall(vi: (typeof import("vitest"))["vi"]): void {
   vi.doMock("../../src/lib/llm.ts", () => ({
     runToolCall: vi.fn().mockResolvedValue({
-      whatMayHaveChanged: "The tooling landscape may have changed.",
-      recommend: "revise",
-      reasoning: "120 days old, significant changes likely.",
+      data: {
+        whatMayHaveChanged: "The tooling landscape may have changed.",
+        recommend: "revise",
+        reasoning: "120 days old, significant changes likely.",
+      },
+      model: { provider: "openai", model: "gpt-test", tier: "balanced" },
     }),
   }));
 }

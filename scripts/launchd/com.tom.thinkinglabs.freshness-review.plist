@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.tom.thinkinglabs.freshness-review</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/zsh</string>
+        <string>-lc</string>
+        <string>source ~/.zshrc &gt;/dev/null 2&gt;&amp;1 || true; exec pnpm freshness-review</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>__REPO_ROOT__</string>
+
+    <!--
+        freshness-review calls the OpenAI API (gpt-4.1, balanced tier).
+        Set OPENAI_API_KEY in your launchd environment before loading this plist:
+
+            launchctl setenv OPENAI_API_KEY <your-key>
+
+        Alternatively, add an EnvironmentVariables dict below — but do NOT bake the key
+        into this file or commit it to version control.
+
+        Without the key, the agent runs with --no-llm and produces zero proposals.
+    -->
+    <key>EnvironmentVariables</key>
+    <dict>
+        <!-- Add OPENAI_API_KEY here only if you cannot use launchctl setenv. -->
+    </dict>
+
+    <!-- Weekly on Sunday at 03:15. -->
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Weekday</key>
+        <integer>0</integer>
+        <key>Hour</key>
+        <integer>3</integer>
+        <key>Minute</key>
+        <integer>15</integer>
+    </dict>
+
+    <key>StandardOutPath</key>
+    <string>__LOG_DIR__/freshness-review.out.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>__LOG_DIR__/freshness-review.err.log</string>
+</dict>
+</plist>

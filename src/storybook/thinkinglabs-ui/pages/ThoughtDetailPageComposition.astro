@@ -1,0 +1,68 @@
+---
+import AppShell from "../components/AppShell.astro";
+import StatusTag from "../components/StatusTag.astro";
+import type { ThemeKey, ThoughtDetail } from "../types";
+
+interface Props {
+  themeKey?: ThemeKey;
+  thought: ThoughtDetail;
+}
+
+const { themeKey = "forum", thought } = Astro.props;
+---
+
+<AppShell themeKey={themeKey} activeNav="Index">
+  <section class="tl-page-head is-detail is-spacious">
+    <div class="tl-eyebrow">§ /thoughts/{thought.slug}</div>
+    <div class="tl-mono">Thought · {thought.minutes} min · {thought.words.toLocaleString()} words</div>
+    <h1>{thought.title}</h1>
+    <div class="tl-thought-detail-meta">
+      <StatusTag label={thought.state} tone={thought.state === "settled" ? "active" : "default"} />
+      <span class="tl-mono">started {thought.started}</span>
+      <span class="tl-mono">last touched {thought.touched}</span>
+      <span class="tl-mono">{thought.history.length} revisions</span>
+    </div>
+  </section>
+
+  <section class="tl-prose-shell">
+    <div class="tl-prose-body">
+      {thought.paragraphs.map((paragraph) => (
+        <p>{paragraph}</p>
+      ))}
+    </div>
+  </section>
+
+  <section class="tl-aside-block">
+    <div class="tl-eyebrow">Open questions</div>
+    <div>
+      {thought.questions.map((question) => (
+        <p class="tl-quote-line">“{question}”</p>
+      ))}
+    </div>
+  </section>
+
+  <section class="tl-aside-block">
+    <div class="tl-eyebrow">Connects to</div>
+    <div class="tl-rel-list">
+      {thought.related.map((rel) => (
+        <article class="tl-rel-row">
+          <span class="tl-mono">{rel.kind}</span>
+          <h3>{rel.title}</h3>
+          <span class="tl-mono is-right">{rel.conf !== undefined ? rel.conf.toFixed(2) : ""}</span>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section class="tl-aside-block">
+    <div class="tl-eyebrow">How it got here</div>
+    <div>
+      {thought.history.map((entry) => (
+        <article class="tl-history-row is-wide">
+          <span class="tl-mono">{entry.date}</span>
+          <span>{entry.note}</span>
+        </article>
+      ))}
+    </div>
+  </section>
+</AppShell>

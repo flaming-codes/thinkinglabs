@@ -18,7 +18,7 @@ export function freshnessState(
   return { state, daysAgo };
 }
 
-/** Resolves the build-time "now" the rehype pill consults; env override exists so tests and brain-diff CI runs are deterministic. */
+/** Resolves the build-time "now" the rehype pill consults; env override exists so tests and local brain-diff runs are deterministic. */
 export function freshnessNowISO(): string {
   return process.env["FRESHNESS_NOW_ISO"] ?? new Date().toISOString();
 }

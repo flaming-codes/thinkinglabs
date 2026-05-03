@@ -4,12 +4,23 @@ import Base from "../../layouts/Base.astro";
 import EmptyState from "../../components/EmptyState.astro";
 import StatusPill from "../../components/StatusPill.astro";
 import { byDateDesc } from "../../lib/sort.ts";
+import { listStructuredData } from "../../lib/structured-data.ts";
 
 const items = byDateDesc(await getCollection("questions"), "asked");
 const open = items.filter((q) => q.data.status !== "closed");
 const closed = items.filter((q) => q.data.status === "closed");
+const site = Astro.site ?? new URL(Astro.url.origin);
 ---
-<Base title="Questions — Tom">
+<Base
+  title="Questions — Tom"
+  description="Open questions I'm stuck on."
+  structuredData={listStructuredData(
+    Astro.url,
+    site,
+    "Questions",
+    items.map((q) => ({ id: q.id, name: q.data.question, url: `/questions/${q.id}` })),
+  )}
+>
   <h1>Open questions</h1>
 
   <h2>Open</h2>

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vite-plus/test";
 import {
   applyGenericGate,
+  brainDiffSpecializedFeedFilename,
   buildEntries,
   classify,
   FEED_PREDICATES,
@@ -140,6 +141,7 @@ describe("isTrackedPath", () => {
   it("matches both bare and content/-prefixed paths", () => {
     expect(isTrackedPath("content/claims/foo.md")).toBe(true);
     expect(isTrackedPath("claims/foo.md")).toBe(true);
+    expect(isTrackedPath("content/claims/.gitkeep")).toBe(false);
     expect(isTrackedPath("content/inputs/x.md")).toBe(false);
     expect(isTrackedPath("README.md")).toBe(false);
   });
@@ -232,6 +234,15 @@ describe("specialized predicates and gate", () => {
 
   it("decisions-reversed predicate filters correctly", () => {
     expect(entries.filter(FEED_PREDICATES["decisions-reversed"])).toHaveLength(1);
+  });
+
+  it("brain-diff specialized filenames do not collide with deterministic JSON Feed filenames", () => {
+    expect(brainDiffSpecializedFeedFilename("claims-revised")).toBe(
+      "brain-diff-claims-revised.json",
+    );
+    for (const kind of Object.keys(FEED_PREDICATES) as Array<keyof typeof FEED_PREDICATES>) {
+      expect(brainDiffSpecializedFeedFilename(kind)).not.toBe(`${kind}.json`);
+    }
   });
 
   it("generic gate excludes score < 4 but keeps high-score items", () => {

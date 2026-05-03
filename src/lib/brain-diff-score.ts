@@ -49,7 +49,7 @@ export async function scoreCommitFiles(
         userPrompt: fileContext(f),
         tool: TOOL,
       });
-      if (s) out.set(`${c.sha}:${f.path}`, s);
+      if (s) out.set(`${c.sha}:${f.path}`, s.data);
     }
   }
   return out;

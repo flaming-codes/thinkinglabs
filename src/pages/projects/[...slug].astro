@@ -3,10 +3,11 @@ import { getCollection, render } from "astro:content";
 import type { GetStaticPaths, InferGetStaticPropsType } from "astro";
 import Base from "../../layouts/Base.astro";
 import MetaBlock from "../../components/MetaBlock.astro";
+import RelatedRefs from "../../components/RelatedRefs.astro";
 import StatusPill from "../../components/StatusPill.astro";
 import Tags from "../../components/Tags.astro";
 import { projectLastTouched } from "../../lib/projects.ts";
-import { stripKindPrefix } from "../../lib/refs.ts";
+import { projectStructuredData } from "../../lib/structured-data.ts";
 
 export const getStaticPaths = (async () => {
   const items = await getCollection("projects");
@@ -16,8 +17,13 @@ export const getStaticPaths = (async () => {
 const { entry } = Astro.props as InferGetStaticPropsType<typeof getStaticPaths>;
 const { Content } = await render(entry);
 const lastTouched = await projectLastTouched(entry.id);
+const site = Astro.site ?? new URL(Astro.url.origin);
 ---
-<Base title={`${entry.data.title} — Projects`}>
+<Base
+  title={`${entry.data.title} — Projects`}
+  description={entry.data.current_question ?? entry.data.help_welcome}
+  structuredData={projectStructuredData(entry, Astro.url, site, lastTouched)}
+>
   <h1>{entry.data.title} <StatusPill status={entry.data.status} /></h1>
   <MetaBlock
     data={{ ...entry.data, last_touched: lastTouched }}
@@ -30,20 +36,6 @@ const lastTouched = await projectLastTouched(entry.id);
   />
   <Tags tags={entry.data.tags} />
   <article><Content /></article>
-  {entry.data.related_thoughts.length > 0 ? (
-    <>
-      <h2>Related thoughts</h2>
-      <ul class="list">
-        {entry.data.related_thoughts.map((t) => <li><a href={`/thoughts/${stripKindPrefix(t)}`}>{t}</a></li>)}
-      </ul>
-    </>
-  ) : null}
-  {entry.data.related_claims.length > 0 ? (
-    <>
-      <h2>Related claims</h2>
-      <ul class="list">
-        {entry.data.related_claims.map((c) => <li><a href={`/claims/${stripKindPrefix(c)}`}>{c}</a></li>)}
-      </ul>
-    </>
-  ) : null}
+  <RelatedRefs heading="Related thoughts" kind="thoughts" refs={entry.data.related_thoughts} />
+  <RelatedRefs heading="Related claims" kind="claims" refs={entry.data.related_claims} />
 </Base>

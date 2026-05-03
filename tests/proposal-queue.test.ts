@@ -104,14 +104,30 @@ describe("proposal-queue", () => {
     expect(id1).toHaveLength(64);
   });
 
-  it("a malformed queue file causes readQueue to return [] without throwing", async () => {
+  it("proposalId ignores provenance metadata", async () => {
+    const { proposalId } = await import("../src/lib/proposal-queue.ts");
+    const base = proposalId(
+      "resolve-predictions",
+      "prediction-resolve",
+      "content/predictions/a.md",
+      {
+        prediction: "x",
+      },
+    );
+    const withDifferentModel = proposalId(
+      "resolve-predictions",
+      "prediction-resolve",
+      "content/predictions/a.md",
+      { prediction: "x" },
+    );
+    expect(withDifferentModel).toBe(base);
+  });
+
+  it("a malformed queue file causes readQueue to throw an explicit error", async () => {
     const { readQueue } = await import("../src/lib/proposal-queue.ts");
     const dir = process.cwd();
     writeJsonState(join(dir, ".proposal-queue.json"), { proposals: "not-an-array" });
-    const stderrSpy = vi.spyOn(process.stderr, "write").mockImplementation(() => true);
-    const result = readQueue();
-    stderrSpy.mockRestore();
-    expect(result).toEqual([]);
+    expect(() => readQueue()).toThrow(/malformed queue file/);
   });
 
   it("recovers from a stale lock left behind by a dead pid", async () => {

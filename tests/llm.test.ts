@@ -16,9 +16,6 @@ afterEach(() => {
   delete process.env["LLM_MODEL_FAST"];
   delete process.env["LLM_MODEL_BALANCED"];
   delete process.env["LLM_MODEL_DEEP"];
-  delete process.env["LLM_OLLAMA_MODEL_FAST"];
-  delete process.env["LLM_OLLAMA_MODEL_BALANCED"];
-  delete process.env["LLM_OLLAMA_MODEL_DEEP"];
   delete process.env["OLLAMA_BASE_URL"];
   vi.doUnmock("ai");
   vi.doUnmock("@ai-sdk/openai");
@@ -67,7 +64,10 @@ describe("runToolCall — OpenAI provider (default)", () => {
       userPrompt: "Score this.",
       tool: { name: "score", description: "Score.", schema },
     });
-    expect(result).toEqual({ score: 7, summary: "Good change." });
+    expect(result).toEqual({
+      data: { score: 7, summary: "Good change." },
+      model: { provider: "openai", model: "gpt-4.1", tier: "balanced" },
+    });
   });
 
   it("returns null when toolCalls is empty", async () => {
@@ -171,9 +171,14 @@ describe("runToolCall — OpenAI provider (default)", () => {
   });
 
   it("apiKeyName() returns OPENAI_API_KEY; isLLMAvailable() reflects key presence", async () => {
-    const { apiKeyName, isLLMAvailable } = await import("../src/lib/llm.ts");
+    const { apiKeyName, isLLMAvailable, currentModelRefs } = await import("../src/lib/llm.ts");
     expect(apiKeyName()).toBe("OPENAI_API_KEY");
     expect(isLLMAvailable()).toBe(true);
+    expect(currentModelRefs().fast).toEqual({
+      provider: "openai",
+      model: "gpt-4.1-mini",
+      tier: "fast",
+    });
     delete process.env["OPENAI_API_KEY"];
     // isLLMAvailable reads live env — module re-import not needed since it checks process.env at call time
     // (PROVIDER is fixed but apiKeyName() is evaluated at call time)
@@ -257,8 +262,8 @@ describe("runToolCall — Ollama provider (LLM_PROVIDER=ollama)", () => {
     delete process.env["OLLAMA_BASE_URL"];
   });
 
-  it("honors LLM_OLLAMA_MODEL_FAST override", async () => {
-    process.env["LLM_OLLAMA_MODEL_FAST"] = "glm-4.7:cloud";
+  it("honors LLM_MODEL_FAST override", async () => {
+    process.env["LLM_MODEL_FAST"] = "glm-4.7:cloud";
     vi.resetModules();
     const captured = mockAi((args) => [
       {
@@ -296,9 +301,14 @@ describe("runToolCall — Ollama provider (LLM_PROVIDER=ollama)", () => {
   });
 
   it("apiKeyName() returns OLLAMA_API_KEY; isLLMAvailable() reflects key presence", async () => {
-    const { apiKeyName, isLLMAvailable } = await import("../src/lib/llm.ts");
+    const { apiKeyName, isLLMAvailable, currentModelRefs } = await import("../src/lib/llm.ts");
     expect(apiKeyName()).toBe("OLLAMA_API_KEY");
     expect(isLLMAvailable()).toBe(true);
+    expect(currentModelRefs().balanced).toEqual({
+      provider: "ollama",
+      model: "glm-5.1:cloud",
+      tier: "balanced",
+    });
   });
 });
 

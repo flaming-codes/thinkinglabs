@@ -14,7 +14,8 @@ import { patchFrontmatter } from "../src/lib/frontmatter.ts";
 import { readJsonState, writeJsonState } from "../src/lib/json-state.ts";
 import { runReview, type ReviewActionDef, type ReviewProposal } from "../src/lib/review-cli.ts";
 import { claimSchema } from "../src/schemas/claim.ts";
-import { isLLMAvailable, apiKeyName } from "../src/lib/llm.ts";
+import { resolveLlmMode, runMain } from "../src/lib/cli.ts";
+import { objectRef, writeProvenanceEvent } from "../src/lib/provenance.ts";
 
 /** CLI args shape. */
 interface Args {
@@ -165,10 +166,7 @@ async function mergeIntoExistingClaim(
 /** CLI entry point. */
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
-  if (!args.noLlm && !isLLMAvailable()) {
-    process.stderr.write(`${apiKeyName()} missing; falling back to --no-llm mode.\n`);
-  }
-  const effectiveNoLlm = args.noLlm || !isLLMAvailable();
+  const effectiveNoLlm = resolveLlmMode("derive-claims", args.noLlm) === "no-llm";
 
   const state = readJsonState<DerivationState>(STATE_FILE, {});
   const rejections = readJsonState<RejectionStore>(REJECTIONS_FILE, []);
@@ -219,6 +217,27 @@ async function main(): Promise<void> {
       payload: p,
     }));
 
+    const writeDerivationProvenance = (
+      payload: ClaimProposal,
+      targetSlug: string,
+      outcome: "accepted" | "edited" | "merged",
+    ): void => {
+      if (!payload.model) return;
+      writeProvenanceEvent({
+        cwd: ROOT,
+        title: `AI provenance for derived claim ${targetSlug}`,
+        process_id: "derive-claims",
+        event_type: "content_derivation",
+        actor: { kind: "llm", model: payload.model },
+        started_at: nowISO,
+        accepted_at: new Date().toISOString(),
+        source_objects: [objectRef("thoughts", slug)],
+        target_objects: [objectRef("claims", targetSlug)],
+        outcome,
+        tags: ["ai", "provenance", "claims"],
+      });
+    };
+
     const actions: ReviewActionDef<ClaimProposal, string>[] = [
       {
         key: "a",
@@ -229,6 +248,7 @@ async function main(): Promise<void> {
           if (!args.dryRun) {
             writeFileSync(claimPath, markdown, "utf8");
             await addClaimBacklink(thoughtPath, cSlug);
+            writeDerivationProvenance(payload, cSlug, "accepted");
           } else {
             process.stdout.write(`[dry-run] would write ${claimPath}\n`);
             process.stdout.write(`[dry-run] would backlink ${slug} -> ${cSlug}\n`);
@@ -268,6 +288,7 @@ async function main(): Promise<void> {
           if (!args.dryRun) {
             writeFileSync(claimPath, edited, "utf8");
             await addClaimBacklink(thoughtPath, cSlug);
+            writeDerivationProvenance(payload, cSlug, "edited");
           } else {
             process.stdout.write(`[dry-run] would write edited ${claimPath}\n`);
           }
@@ -316,7 +337,10 @@ async function main(): Promise<void> {
           const claimPath = join(CLAIMS_DIR, `${targetSlug}.md`);
           if (targetSlug && existsSync(claimPath)) {
             await mergeIntoExistingClaim(claimPath, payload, nowISO, args.dryRun);
-            if (!args.dryRun) await addClaimBacklink(thoughtPath, targetSlug);
+            if (!args.dryRun) {
+              await addClaimBacklink(thoughtPath, targetSlug);
+              writeDerivationProvenance(payload, targetSlug, "merged");
+            }
           } else {
             process.stderr.write(`Claim '${targetSlug}' not found; skipping merge.\n`);
           }
@@ -344,8 +368,4 @@ async function main(): Promise<void> {
   );
 }
 
-main().catch((e: unknown) => {
-  const err = e as { message?: string; exitCode?: number };
-  process.stderr.write(`${err.message ?? String(e)}\n`);
-  process.exit(err.exitCode ?? 1);
-});
+runMain(main);

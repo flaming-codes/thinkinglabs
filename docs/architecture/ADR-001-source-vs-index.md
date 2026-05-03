@@ -11,7 +11,7 @@ The system serves two very different consumers from one body of personal knowled
 
 ## Decision
 
-Two-tier storage with a strict directionality. The `content/` tree of markdown files in git is canonical and sacred — all primary state lives here, one file per object, line-diffable. Every other artifact, including `dist/index.sqlite` produced by `scripts/build-index.ts`, is derived, gitignored, and rebuilt deterministically on every CI run. No code path mutates the index without going through a source-tree edit first. Renderers (Astro site, future MCP server, JSON exports) treat both source and index as read-only and never write back.
+Two-tier storage with a strict directionality. The `content/` tree of markdown files in git is canonical and sacred — all primary state lives here, one file per object, line-diffable. Every other artifact, including `dist/index.sqlite` produced by `scripts/build-index.ts`, is derived, gitignored, and rebuilt deterministically by local verification and artifact commands. No code path mutates the index without going through a source-tree edit first. Renderers (Astro site, future MCP server, JSON exports) treat both source and index as read-only and never write back.
 
 ## Consequences
 

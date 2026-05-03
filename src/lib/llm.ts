@@ -1,6 +1,7 @@
 import { generateText, tool, type LanguageModel } from "ai";
 import { createOpenAI, openai } from "@ai-sdk/openai";
 import { z } from "zod";
+import type { ModelRef } from "../schemas/provenance.ts";
 
 /** Provider-agnostic capability tier; mapped to a concrete model id at call time. */
 export type ModelTier = "fast" | "balanced" | "deep";
@@ -8,18 +9,20 @@ export type ModelTier = "fast" | "balanced" | "deep";
 /** Active provider. Set LLM_PROVIDER=ollama to route through Ollama's cloud endpoint. */
 const PROVIDER = process.env["LLM_PROVIDER"] ?? "openai";
 
-/** OpenAI model ids per tier. */
-const OPENAI_IDS: Record<ModelTier, string> = {
-  fast: process.env["LLM_MODEL_FAST"] ?? "gpt-4.1-mini",
-  balanced: process.env["LLM_MODEL_BALANCED"] ?? "gpt-4.1",
-  deep: process.env["LLM_MODEL_DEEP"] ?? "gpt-4.1",
-};
+/** Default model ids per tier for the active provider. */
+function defaultModelIds(): Record<ModelTier, string> {
+  if (PROVIDER === "ollama") {
+    return { fast: "glm-5.1:cloud", balanced: "glm-5.1:cloud", deep: "glm-5.1:cloud" };
+  }
+  return { fast: "gpt-4.1-mini", balanced: "gpt-4.1", deep: "gpt-4.1" };
+}
+const DEFAULT_IDS = defaultModelIds();
 
-/** Ollama model ids per tier — all default to glm-5.1:cloud (OpenAI-compat cloud endpoint). */
-const OLLAMA_IDS: Record<ModelTier, string> = {
-  fast: process.env["LLM_OLLAMA_MODEL_FAST"] ?? "glm-5.1:cloud",
-  balanced: process.env["LLM_OLLAMA_MODEL_BALANCED"] ?? "glm-5.1:cloud",
-  deep: process.env["LLM_OLLAMA_MODEL_DEEP"] ?? "glm-5.1:cloud",
+/** Model ids per tier — env-var overrides take precedence over the provider default. */
+const MODEL_IDS: Record<ModelTier, string> = {
+  fast: process.env["LLM_MODEL_FAST"] ?? DEFAULT_IDS.fast,
+  balanced: process.env["LLM_MODEL_BALANCED"] ?? DEFAULT_IDS.balanced,
+  deep: process.env["LLM_MODEL_DEEP"] ?? DEFAULT_IDS.deep,
 };
 
 const ollamaProvider = createOpenAI({
@@ -28,7 +31,25 @@ const ollamaProvider = createOpenAI({
 });
 
 function modelFor(tier: ModelTier): LanguageModel {
-  return PROVIDER === "ollama" ? ollamaProvider(OLLAMA_IDS[tier]) : openai(OPENAI_IDS[tier]);
+  return PROVIDER === "ollama" ? ollamaProvider(MODEL_IDS[tier]) : openai(MODEL_IDS[tier]);
+}
+
+/** Concrete model identity for one capability tier under the current env configuration. */
+export function currentModelRef(tier: ModelTier): ModelRef {
+  return {
+    provider: PROVIDER === "ollama" ? "ollama" : "openai",
+    model: MODEL_IDS[tier],
+    tier,
+  };
+}
+
+/** Concrete model identities for every capability tier under the current env configuration. */
+export function currentModelRefs(): Record<ModelTier, ModelRef> {
+  return {
+    fast: currentModelRef("fast"),
+    balanced: currentModelRef("balanced"),
+    deep: currentModelRef("deep"),
+  };
 }
 
 /** The env-var name that must be set for the active provider. */
@@ -78,10 +99,13 @@ async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, label: str
   }
 }
 
-/** Runs one forced tool call; returns the typed parsed result, or null on empty / non-matching response. */
-export async function runToolCall<T>(args: ToolCallArgs<T>): Promise<T | null> {
+/** Runs one forced tool call; returns parsed data plus the model identity used for the call. */
+export async function runToolCall<T>(
+  args: ToolCallArgs<T>,
+): Promise<{ data: T; model: ModelRef } | null> {
   if (!isLLMAvailable()) throw new Error(`${apiKeyName()} is not set`);
   const timeoutMs = args.timeoutMs ?? DEFAULT_TIMEOUT_MS;
+  const model = currentModelRef(args.tier);
   const result = await withTimeout(
     generateText({
       model: modelFor(args.tier),
@@ -112,5 +136,5 @@ export async function runToolCall<T>(args: ToolCallArgs<T>): Promise<T | null> {
     );
     return null;
   }
-  return parsed.data;
+  return { data: parsed.data, model };
 }

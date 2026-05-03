@@ -1,0 +1,12 @@
+---
+import type { Graph, Thing, WithContext } from "schema-dts";
+
+interface Props {
+  data: Graph | WithContext<Thing>;
+}
+
+const { data } = Astro.props;
+const json = JSON.stringify(data).replace(/</g, "\\u003c");
+---
+
+<script is:inline type="application/ld+json" set:html={json} />

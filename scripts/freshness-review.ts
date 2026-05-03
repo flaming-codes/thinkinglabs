@@ -1,36 +1,24 @@
 #!/usr/bin/env tsx
-import { resolve } from "node:path";
 import { nowISO } from "../src/lib/clock.ts";
 import "../src/lib/agents/freshness-review.ts";
 import { runFreshnessReview } from "../src/lib/agents/freshness-review.ts";
-import { isLLMAvailable, apiKeyName } from "../src/lib/llm.ts";
+import { parseCommonArgs, resolveLlmMode, runMain } from "../src/lib/cli.ts";
 
 /** CLI args shape. */
 interface Args {
   readonly cwd: string;
-  readonly noLLM: boolean;
+  readonly noLlm: boolean;
   readonly thresholdDays: number;
 }
 
 /** Parse CLI args from process.argv; throws with exitCode 2 on invalid input. */
 function parseArgs(argv: ReadonlyArray<string>): Args {
-  let cwd = resolve(process.cwd());
-  let noLLM = false;
+  const common = parseCommonArgs(argv);
   let thresholdDays = 90;
-
-  for (let i = 0; i < argv.length; i++) {
-    const a = argv[i]!;
-    if (a === "--no-llm") {
-      noLLM = true;
-    } else if (a === "--cwd") {
-      const next = argv[i + 1];
-      if (!next) throw Object.assign(new Error("--cwd requires a value"), { exitCode: 2 });
-      cwd = resolve(next);
-      i++;
-    } else if (a.startsWith("--cwd=")) {
-      cwd = resolve(a.slice("--cwd=".length));
-    } else if (a === "--threshold-days") {
-      const next = argv[i + 1];
+  for (let i = 0; i < common.rest.length; i++) {
+    const a = common.rest[i]!;
+    if (a === "--threshold-days") {
+      const next = common.rest[i + 1];
       if (!next)
         throw Object.assign(new Error("--threshold-days requires a value"), { exitCode: 2 });
       const n = Number(next);
@@ -47,24 +35,18 @@ function parseArgs(argv: ReadonlyArray<string>): Args {
       throw Object.assign(new Error(`unknown arg: ${a}`), { exitCode: 2 });
     }
   }
-
-  return { cwd, noLLM, thresholdDays };
+  return { cwd: common.cwd, noLlm: common.noLlm, thresholdDays };
 }
 
 /** CLI entry point. */
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
-
-  let skipLLM = args.noLLM;
-  if (!skipLLM && !isLLMAvailable()) {
-    process.stderr.write(`freshness-review: ${apiKeyName()} not set, running with --no-llm\n`);
-    skipLLM = true;
-  }
+  const mode = resolveLlmMode("freshness-review", args.noLlm);
 
   const summary = await runFreshnessReview({
     cwd: args.cwd,
     nowISO: nowISO(),
-    skipLLM: Boolean(skipLLM),
+    skipLLM: mode === "no-llm",
     thresholdDays: args.thresholdDays,
   });
 
@@ -73,8 +55,4 @@ async function main(): Promise<void> {
   );
 }
 
-main().catch((e: unknown) => {
-  const err = e as { message?: string; exitCode?: number };
-  process.stderr.write(`${err.message ?? String(e)}\n`);
-  process.exit(err.exitCode ?? 1);
-});
+runMain(main);

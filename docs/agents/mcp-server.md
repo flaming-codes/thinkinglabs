@@ -1,19 +1,55 @@
 # Personal MCP Server
 
-`servers/me-mcp/` exposes the public personal repo as a stdio MCP server using `@modelcontextprotocol/sdk`.
+`servers/thinkinglabs-mcp/` exposes the public personal repo as a stdio MCP server using `@modelcontextprotocol/sdk`.
 
 Run locally with:
 
 ```sh
-pnpm mcp:me -- --repo-root /Users/tom/Github/me
+pnpm mcp:thinkinglabs -- --repo-root <path-to-repo>
 ```
 
-Resources are fixed JSON views at `me://thoughts`, `me://claims`, `me://projects`, `me://decisions`, `me://predictions`, `me://inputs`, `me://inputs/recent`, `me://questions`, `me://current_focus`, `me://claims/recent`, `me://claims/by-tag/{tag}`, `me://projects/active`, `me://decisions/recent`, `me://predictions/pending`, `me://predictions/resolved`, `me://predictions/calibration`, and `me://schema/version`. Per-object templates use `me://<kind>/{slug}` for thoughts, claims, projects, decisions, predictions, inputs, and questions. The store prefers `dist/index.sqlite` when it exists and falls back to validated markdown under `content/`.
+The repo root can also be set via the `THINKINGLABS_MCP_REPO_ROOT` env var (validated through `src/lib/env.ts`); falls back to `process.cwd()`.
 
-Tools:
+The store prefers `dist/index.sqlite` when it exists and falls back to validated markdown under `content/`.
 
-- `query_view` filters one public view by text, tags, and limit.
-- `contact.precheck` checks a proposed inquiry against `public/contact.json`.
-- `contact.send` validates a message and returns the public email handoff; it does not send mail.
-- `question.submit` writes a structured answer into `submissions/questions/<slug>/` for `triage-questions`.
-- `subscribe_brain_diff` returns public feed URLs and can include deterministic recent entries from git history.
+## Public read-only resources
+
+Fixed JSON views at:
+
+- `thinkinglabs://thoughts`
+- `thinkinglabs://claims`
+- `thinkinglabs://claims/recent`
+- `thinkinglabs://claims/by-tag/{tag}`
+- `thinkinglabs://projects`
+- `thinkinglabs://projects/active`
+- `thinkinglabs://decisions`
+- `thinkinglabs://decisions/recent`
+- `thinkinglabs://predictions`
+- `thinkinglabs://predictions/pending`
+- `thinkinglabs://predictions/resolved`
+- `thinkinglabs://predictions/calibration`
+- `thinkinglabs://inputs`
+- `thinkinglabs://inputs/recent`
+- `thinkinglabs://questions`
+- `thinkinglabs://current_focus`
+- `thinkinglabs://schema/version`
+
+Per-object detail templates use `thinkinglabs://<kind>/{slug}` for `thoughts`, `claims`, `projects`, `decisions`, `predictions`, `inputs`, `questions`, `posts`, and `changed-my-mind`.
+
+## Local-only tools (write/intake)
+
+These tools are stdio-only and intended for local agent use:
+
+- `query_view` — filters one public view by text, tags, and limit.
+- `contact.precheck` — checks a proposed inquiry against `public/contact.json`.
+- `contact.send` — validates a message and returns the public email handoff; it does not send mail.
+- `question.submit` — writes a structured answer into `submissions/questions/<slug>/` for `triage-questions`.
+- `subscribe_brain_diff` — returns public feed URLs and can include deterministic recent entries from git history.
+
+## Model resource
+
+The active model configuration is exposed as a read-only resource.
+
+- `thinkinglabs://ai/current-models` — the env-resolved `ModelRef` per capability tier under the current configuration (mirrors `currentModelRefs()` from `src/lib/llm.ts`).
+
+Provenance remains in source (`content/provenance`) but is intentionally not exposed via MCP runtime resources or views.

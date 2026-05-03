@@ -2,23 +2,23 @@ import { createHash } from "node:crypto";
 import { closeSync, openSync, readFileSync, statSync, unlinkSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { z } from "zod";
+import {
+  PROPOSAL_SOURCES,
+  PROPOSAL_TYPES,
+  PROVENANCE_PROCESS_IDS,
+  type ProposalSource,
+  type ProposalType,
+  type ProvenanceProcessId,
+} from "./agent-registry.ts";
 import { readJsonState, writeJsonState } from "./json-state.ts";
+import {
+  modelRefSchema,
+  objectRefSchema,
+  provenanceEventTypeSchema,
+} from "../schemas/provenance.ts";
+import type { QueuedProvenance } from "./provenance.ts";
 
-/** Stable identifier for an agent that emits proposals; literal-union forces an explicit per-agent registration. */
-export type ProposalSource =
-  | "dormant-flip"
-  | "review-decisions"
-  | "resolve-predictions"
-  | "freshness-review"
-  | "triage-questions";
-
-/** Mutation kind; closed union so the dispatcher can switch exhaustively when applying actions. */
-export type ProposalType =
-  | "project-flip-dormant"
-  | "decision-followup-due"
-  | "prediction-resolve"
-  | "post-section-restamp"
-  | "question-answer-curate";
+export type { ProposalSource, ProposalType };
 
 /** One pending proposal emitted by a background agent and awaiting human review. */
 export interface QueuedProposal {
@@ -30,34 +30,49 @@ export interface QueuedProposal {
   readonly title: string;
   readonly preview: string;
   readonly payload: unknown;
+  readonly provenance?: QueuedProvenance | undefined;
 }
+
+/** Zod schema for optional LLM provenance metadata on proposals. */
+const queuedProvenanceSchema = z.object({
+  process_id: z.enum(PROVENANCE_PROCESS_IDS as ReadonlyArray<ProvenanceProcessId>),
+  event_type: provenanceEventTypeSchema,
+  actor: z.object({ kind: z.literal("llm"), model: modelRefSchema }),
+  started_at: z.string(),
+  source_objects: z.array(objectRefSchema),
+  target_objects: z.array(objectRefSchema),
+  tags: z.array(z.string()).optional(),
+});
 
 /** Zod schema for QueuedProposal; validates the queue file at the system edge. */
 const queuedProposalSchema = z.object({
   id: z.string(),
-  source: z.enum([
-    "dormant-flip",
-    "review-decisions",
-    "resolve-predictions",
-    "freshness-review",
-    "triage-questions",
-  ]),
-  type: z.enum([
-    "project-flip-dormant",
-    "decision-followup-due",
-    "prediction-resolve",
-    "post-section-restamp",
-    "question-answer-curate",
-  ]),
+  source: z.enum(PROPOSAL_SOURCES as ReadonlyArray<ProposalSource>),
+  type: z.enum(PROPOSAL_TYPES as ReadonlyArray<ProposalType>),
   createdAt: z.string(),
   target: z.string().nullable(),
   title: z.string(),
   preview: z.string(),
   payload: z.unknown(),
+  provenance: queuedProvenanceSchema.optional(),
 });
 
 /** Zod schema for the entire queue file shape. */
 const queueFileSchema = z.object({ proposals: z.array(queuedProposalSchema) });
+
+/** Builds a stable, explicit malformed-queue error. */
+function malformedQueueError(path: string, message: string): Error {
+  return new Error(`proposal-queue: malformed queue file at ${path}: ${message}`);
+}
+
+/** Parse queue-file JSON and throw on malformed shape instead of silently dropping proposals. */
+function parseQueueFile(raw: unknown, path: string): z.infer<typeof queueFileSchema> {
+  const parsed = queueFileSchema.safeParse(raw);
+  if (!parsed.success) {
+    throw malformedQueueError(path, parsed.error.message);
+  }
+  return parsed.data;
+}
 
 /** Absolute path to the queue file; resolved from the supplied repo root or process cwd. */
 function queuePath(cwd = process.cwd()): string {
@@ -156,13 +171,10 @@ function withQueueLock<T>(cwd: string | undefined, fn: () => T): T {
 
 /** Read all pending proposals in deterministic order (createdAt asc, id tiebreak). */
 export function readQueue(cwd?: string): ReadonlyArray<QueuedProposal> {
-  const raw = readJsonState<unknown>(queuePath(cwd), { proposals: [] });
-  const parsed = queueFileSchema.safeParse(raw);
-  if (!parsed.success) {
-    process.stderr.write(`proposal-queue: malformed queue file, returning empty queue\n`);
-    return [];
-  }
-  return [...parsed.data.proposals].sort((a, b) => {
+  const path = queuePath(cwd);
+  const raw = readJsonState<unknown>(path, { proposals: [] });
+  const parsed = parseQueueFile(raw, path);
+  return [...parsed.proposals].sort((a, b) => {
     const t = a.createdAt.localeCompare(b.createdAt);
     return t !== 0 ? t : a.id.localeCompare(b.id);
   });
@@ -171,21 +183,21 @@ export function readQueue(cwd?: string): ReadonlyArray<QueuedProposal> {
 /** Append a proposal; idempotent on identical id (no duplicate entries). */
 export function enqueue(proposal: QueuedProposal, cwd?: string): void {
   withQueueLock(cwd, () => {
-    const raw = readJsonState<unknown>(queuePath(cwd), { proposals: [] });
-    const parsed = queueFileSchema.safeParse(raw);
-    const existing = parsed.success ? parsed.data.proposals : [];
+    const path = queuePath(cwd);
+    const raw = readJsonState<unknown>(path, { proposals: [] });
+    const existing = parseQueueFile(raw, path).proposals;
     if (existing.some((p) => p.id === proposal.id)) return;
-    writeJsonState(queuePath(cwd), { proposals: [...existing, proposal] });
+    writeJsonState(path, { proposals: [...existing, proposal] });
   });
 }
 
 /** Remove one proposal by id; no-op if missing. */
 export function removeFromQueue(id: string, cwd?: string): void {
   withQueueLock(cwd, () => {
-    const raw = readJsonState<unknown>(queuePath(cwd), { proposals: [] });
-    const parsed = queueFileSchema.safeParse(raw);
-    if (!parsed.success) return;
-    writeJsonState(queuePath(cwd), { proposals: parsed.data.proposals.filter((p) => p.id !== id) });
+    const path = queuePath(cwd);
+    const raw = readJsonState<unknown>(path, { proposals: [] });
+    const parsed = parseQueueFile(raw, path);
+    writeJsonState(path, { proposals: parsed.proposals.filter((p) => p.id !== id) });
   });
 }
 

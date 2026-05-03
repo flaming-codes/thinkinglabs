@@ -60,7 +60,7 @@ describe("review-decisions handler", () => {
     process.env["EDITOR"] = "cat";
     try {
       const handler = getHandler("decision-followup-due");
-      const result = await handler.apply(proposal);
+      const result = await handler.apply(proposal, { cwd: root });
       expect(result).toContain("use-astro");
     } finally {
       if (prev === undefined) delete process.env["EDITOR"];
@@ -77,8 +77,8 @@ describe("review-decisions handler", () => {
     process.env["EDITOR"] = "cat";
     try {
       const handler = getHandler("decision-followup-due");
-      const applyResult = await handler.apply(proposal);
-      const editResult = await handler.edit(proposal);
+      const applyResult = await handler.apply(proposal, { cwd: root });
+      const editResult = await handler.edit(proposal, { cwd: root });
       expect(applyResult).toBe(editResult);
     } finally {
       if (prev === undefined) delete process.env["EDITOR"];
@@ -93,7 +93,7 @@ describe("review-decisions handler", () => {
     const target = writeDecision(decisionsDir, "reject-decision");
     const proposal = makeProposal(target);
     const handler = getHandler("decision-followup-due");
-    if (handler.reject) await handler.reject(proposal);
+    if (handler.reject) await handler.reject(proposal, { cwd: root });
     const rejections = readJsonState<Array<{ slug: string; followUpOnISO: string }>>(
       join(root, ".review-decisions-rejections.json"),
       [],
@@ -110,7 +110,10 @@ describe("review-decisions handler", () => {
     const { readQueue } = await import("../../src/lib/proposal-queue.ts");
 
     writeDecision(decisionsDir, "repeated-decision");
-    const summary1 = runReviewDecisions({ cwd: root, nowISO: "2026-04-30T00:00:00.000Z" });
+    const summary1 = runReviewDecisions({
+      cwd: root,
+      nowISO: "2026-04-30T00:00:00.000Z",
+    });
     expect(summary1.proposed).toBe(1);
 
     const queue = readQueue();
@@ -121,9 +124,12 @@ describe("review-decisions handler", () => {
         entry.payload as import("../../src/lib/agents/review-decisions.ts").DecisionFollowupPayload,
     };
     const handler = getHandler("decision-followup-due");
-    if (handler.reject) await handler.reject(typed);
+    if (handler.reject) await handler.reject(typed, { cwd: root });
 
-    const summary2 = runReviewDecisions({ cwd: root, nowISO: "2026-04-30T00:00:00.000Z" });
+    const summary2 = runReviewDecisions({
+      cwd: root,
+      nowISO: "2026-04-30T00:00:00.000Z",
+    });
     expect(summary2.proposed).toBe(0);
   });
 });

@@ -1,0 +1,72 @@
+---
+import AppShell from "../components/AppShell.astro";
+import StatusTag from "../components/StatusTag.astro";
+import type { ThemeKey, ThoughtSummary } from "../types";
+
+interface Props {
+  themeKey?: ThemeKey;
+  thoughts: ThoughtSummary[];
+}
+
+const { themeKey = "forum", thoughts } = Astro.props;
+
+const stateLabel = {
+  drafting: "drafting",
+  settled: "settled",
+  "still-thinking": "still thinking",
+};
+
+const stateTone = {
+  drafting: "default",
+  settled: "active",
+  "still-thinking": "superseded",
+} as const;
+---
+
+<AppShell themeKey={themeKey} activeNav="Index">
+  <section class="tl-page-head is-spacious">
+    <div class="tl-eyebrow">§ /thoughts · {thoughts.length} entries</div>
+    <h1>Thoughts.</h1>
+    <p class="tl-page-sub">
+      Short-form essays. Some settled, some drafting, some likely never finished — kept anyway,
+      because finishing was never the point.
+    </p>
+  </section>
+
+  <section class="tl-filter-row">
+    <div>
+      <span class="is-active">All</span>
+      <span>Settled</span>
+      <span>Drafting</span>
+      <span>Still thinking</span>
+    </div>
+    <div>
+      <span>Sorted by last touched</span>
+    </div>
+  </section>
+
+  {thoughts.map((thought, index) => (
+    <article class="tl-thought-row">
+      <div class="tl-mono">{String(thoughts.length - index).padStart(3, "0")}</div>
+      <div>
+        <h3>{thought.title}</h3>
+        <p class="tl-thought-excerpt">“{thought.excerpt}”</p>
+        <div class="tl-thought-meta">
+          <span class="tl-mono">touched {thought.touched}</span>
+          <span class="tl-mono">{thought.minutes} min read</span>
+          <span class="tl-mono">{thought.backlinks} backlinks</span>
+        </div>
+      </div>
+      <div class="tl-thought-right">
+        <StatusTag label={stateLabel[thought.state]} tone={stateTone[thought.state]} />
+        <div class="tl-thought-words">{thought.words.toLocaleString()}</div>
+        <div class="tl-mono">words</div>
+      </div>
+    </article>
+  ))}
+
+  <footer class="tl-quote-foot">
+    <p>“Most of these are wrong somewhere. The point is to write them down so I find out which.”</p>
+    <span>/feed/thoughts.xml</span>
+  </footer>
+</AppShell>

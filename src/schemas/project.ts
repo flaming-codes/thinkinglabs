@@ -1,10 +1,16 @@
 import { z } from "zod";
 import { isoDate, linkArray, tagsField } from "./_base.ts";
 
+/** Project lifecycle states; declaration order matches the rendering order on `/projects`. */
+export const PROJECT_STATUSES = ["alive", "dormant", "shipped", "abandoned"] as const;
+
+/** One element of {@link PROJECT_STATUSES}; the schema's status field narrows to this type. */
+export type ProjectStatus = (typeof PROJECT_STATUSES)[number];
+
 /** Projects carry a state machine; `last_touched` is auto-derived and must never be hand-edited. */
 export const projectSchema = z.object({
   title: z.string().min(1),
-  status: z.enum(["alive", "dormant", "shipped", "abandoned"]),
+  status: z.enum(PROJECT_STATUSES),
   started: isoDate,
   last_touched: isoDate.optional(),
   current_question: z.string().optional(),

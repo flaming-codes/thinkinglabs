@@ -5,15 +5,18 @@ import { join } from "node:path";
 import { describe, expect, it } from "vite-plus/test";
 import { walkCommits, classify } from "../src/lib/brain-diff.ts";
 
-/** Resolves whether `git` is callable; the integration test skips silently otherwise. */
-function gitAvailable(): boolean {
+/** Asserts `git` is on PATH at module load; fail loudly rather than silently skipping coverage. */
+function assertGitAvailable(): void {
   try {
     execFileSync("git", ["--version"], { stdio: "ignore" });
-    return true;
   } catch {
-    return false;
+    throw new Error(
+      "git is required for this integration test but was not found on PATH. " +
+        "Install git or run in an environment that ships it.",
+    );
   }
 }
+assertGitAvailable();
 
 function git(cwd: string, args: ReadonlyArray<string>): void {
   execFileSync("git", args as string[], {
@@ -29,7 +32,7 @@ function git(cwd: string, args: ReadonlyArray<string>): void {
   });
 }
 
-describe.runIf(gitAvailable())("brain-diff walker (integration)", () => {
+describe("brain-diff walker (integration)", () => {
   it("walks a synthetic repo and classifies each commit", () => {
     const root = mkdtempSync(join(tmpdir(), "brain-diff-"));
     try {

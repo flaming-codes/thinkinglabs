@@ -1,4 +1,4 @@
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it, afterEach } from "vite-plus/test";
@@ -31,12 +31,17 @@ describe("readJsonState", () => {
     expect(readJsonState(path, {})).toEqual({ count: 42 });
   });
 
-  it("returns the fallback for a malformed JSON file without throwing", () => {
+  it("throws an explicit error for a malformed JSON file", () => {
     const path = tmpFile("bad.json");
     const { writeFileSync } = require("node:fs") as typeof import("node:fs");
     writeFileSync(path, "{ not valid json", "utf8");
-    expect(() => readJsonState(path, ["fallback"])).not.toThrow();
-    expect(readJsonState(path, ["fallback"])).toEqual(["fallback"]);
+    expect(() => readJsonState(path, ["fallback"])).toThrow(/malformed JSON/);
+  });
+
+  it("re-throws non-ENOENT filesystem errors", () => {
+    const dirPath = tmpFile("state-dir");
+    mkdirSync(dirPath);
+    expect(() => readJsonState(dirPath, ["fallback"])).toThrow();
   });
 });
 

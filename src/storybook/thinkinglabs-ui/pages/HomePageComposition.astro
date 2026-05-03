@@ -1,0 +1,87 @@
+---
+import AppShell from "../components/AppShell.astro";
+import type { HomeFeaturedClaim, HomeDiff, KindSummary, ThemeKey } from "../types";
+
+interface Props {
+  themeKey?: ThemeKey;
+  kinds: KindSummary[];
+  recentDiffs: HomeDiff[];
+  featuredClaim: HomeFeaturedClaim;
+}
+
+const { themeKey = "forum", kinds, recentDiffs, featuredClaim } = Astro.props;
+const total = kinds.reduce((sum, kind) => sum + kind.count, 0);
+---
+
+<AppShell themeKey={themeKey} activeNav="Index" showFooter>
+  <section class="tl-home-hero">
+    <p class="tl-home-hero-left">
+      From a markdown
+      <br />
+      tree
+      <br />
+      to a public
+      <br />
+      thinking surface.
+    </p>
+    <h1 class="tl-home-lede">
+      One mind, kept in plain text — with
+      <span class="tl-home-lede-accent"> stated confidence, dated predictions, and a public record of every reversal.</span>
+    </h1>
+  </section>
+
+  <section class="tl-home-thesis-row">
+    <div class="tl-eyebrow">↳ The thesis</div>
+    <p>
+      Most personal sites are static essays. This one is a queryable corpus: each claim has confidence
+      in [0,1], each prediction is graded against reality, and reversals stay visible rather than
+      quietly edited.
+    </p>
+  </section>
+
+  <section>
+    <header class="tl-split-header">
+      <div class="tl-eyebrow">Index of kinds</div>
+      <div class="tl-mono">{total} entries · last build 2026-05-03</div>
+    </header>
+    <div class="tl-kind-list">
+      {kinds.map((kind, index) => (
+        <article class="tl-kind-row">
+          <div class="tl-mono">{String(index + 1).padStart(2, "0")}</div>
+          <h3>{kind.title}</h3>
+          <p>{kind.description}</p>
+          <div class="tl-kind-count">{kind.count}</div>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section class="tl-home-secondary-grid">
+    <article>
+      <header class="tl-split-header is-tight">
+        <div class="tl-eyebrow">Recent brain-diff</div>
+        <div class="tl-mono">{recentDiffs.length} entries</div>
+      </header>
+      <div class="tl-home-diff-list">
+        {recentDiffs.map((entry) => (
+          <article class="tl-home-diff-row">
+            <div class="tl-mono">{entry.kind} · {entry.action}</div>
+            <p>{entry.title}</p>
+            <div class="tl-mono is-right">{entry.when}</div>
+          </article>
+        ))}
+      </div>
+    </article>
+
+    <article class="tl-home-featured-claim">
+      <div class="tl-eyebrow">Featured claim</div>
+      <h2>{featuredClaim.title}</h2>
+      <p>{featuredClaim.body}</p>
+      <div class="tl-home-featured-meta">
+        <span class="tl-mono">conf {featuredClaim.confidence.toFixed(2)}</span>
+        <span class="tl-mono">reviewed {featuredClaim.reviewed}</span>
+        <span class="tl-mono">{featuredClaim.evidence} ev · {featuredClaim.opposing} opp</span>
+      </div>
+    </article>
+  </section>
+</AppShell>

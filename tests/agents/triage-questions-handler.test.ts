@@ -38,7 +38,9 @@ function useTmpDir(): { dir: () => string } {
     dir = mkdtempSync(join(tmpdir(), "triage-h-"));
     vi.spyOn(process, "cwd").mockReturnValue(dir);
     mkdirSync(join(dir, "content", "questions"), { recursive: true });
-    mkdirSync(join(dir, "submissions", "questions", "foo"), { recursive: true });
+    mkdirSync(join(dir, "submissions", "questions", "foo"), {
+      recursive: true,
+    });
   });
   afterEach(() => {
     vi.restoreAllMocks();
@@ -72,7 +74,7 @@ describe("triage-questions handler — apply", () => {
       preview: "test",
       payload: QuestionAnswerCuratePayload.parse(payload),
     };
-    const result = await handler.apply(typed);
+    const result = await handler.apply(typed, { cwd: dir() });
     expect(result).toContain("foo.md");
     const updated = readFileSync(questionPath, "utf8");
     const parsed = matter(updated);
@@ -101,7 +103,7 @@ describe("triage-questions handler — apply", () => {
       preview: "test",
       payload: QuestionAnswerCuratePayload.parse(makePayload()),
     };
-    await handler.apply(typed);
+    await handler.apply(typed, { cwd: dir() });
     expect(existsSync(submissionPath)).toBe(false);
     expect(existsSync(join(dir(), "submissions", "_accepted", "foo", "bar.json"))).toBe(true);
   });
@@ -131,7 +133,7 @@ describe("triage-questions handler — edit", () => {
       preview: "test",
       payload: QuestionAnswerCuratePayload.parse(makePayload()),
     };
-    const result = await handler.edit(typed);
+    const result = await handler.edit(typed, { cwd: dir() });
     expect(result).toContain("foo.md");
     vi.unstubAllEnvs();
   });
@@ -160,7 +162,7 @@ describe("triage-questions handler — reject", () => {
       preview: "test",
       payload: QuestionAnswerCuratePayload.parse(makePayload()),
     };
-    await handler.reject!(typed);
+    await handler.reject!(typed, { cwd: dir() });
     expect(existsSync(submissionPath)).toBe(false);
     expect(existsSync(join(dir(), "submissions", "_rejected", "foo", "bar.json"))).toBe(true);
     const rejections = JSON.parse(

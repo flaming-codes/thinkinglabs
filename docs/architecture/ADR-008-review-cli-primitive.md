@@ -30,3 +30,7 @@ Any new propose-then-curate workflow inherits the loop and test harness for free
 ## Alternatives considered
 
 Embedding the loop in each script was rejected — the raw-mode guard and test-injection seam are non-trivial and would diverge. A readline-based interface was rejected: readline adds line-buffering; single-keystroke dispatch needs raw mode or a one-byte read loop. An event-emitter design was rejected as over-engineered for a linear proposal list where ordering is always sequential.
+
+### Current state (2026-05-02)
+
+`runReview` (`src/lib/review-cli.ts`), `editInEditor` (`src/lib/editor.ts`), and `patchFrontmatter` (`src/lib/frontmatter.ts`) all ship as the foundation referenced above. M5 background agents compose against them through `scripts/review-proposals.ts`; see ADR-009. The merge-picker `io`-threading limitation noted in the caveat is unchanged — handlers still close over `process.stdin` directly or delegate to `editInEditor`.

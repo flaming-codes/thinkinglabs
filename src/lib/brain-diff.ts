@@ -1,5 +1,6 @@
 import matter from "gray-matter";
 import { nowISO } from "./clock.ts";
+import { env } from "./env.ts";
 import { git, showAt } from "./git.ts";
 import { stripMdExt } from "./refs.ts";
 
@@ -56,6 +57,7 @@ const TRACKED_PREFIXES = [
 
 /** True iff `path` is one of the tracked content kinds; pure so the walker, classifier, and predicates share it. */
 export function isTrackedPath(path: string): boolean {
+  if (!path.endsWith(".md")) return false;
   return (
     TRACKED_PREFIXES.some((p) => path.startsWith(`content/${p}`)) ||
     TRACKED_PREFIXES.some((p) => path.startsWith(p))
@@ -247,6 +249,14 @@ export const FEED_PREDICATES = {
   "decisions-reversed": (e: FeedEntry) => e.type === "decision-reversed",
 } as const;
 
+/** Key for a specialized brain-diff feed predicate. */
+export type BrainDiffSpecializedFeedKind = keyof typeof FEED_PREDICATES;
+
+/** Public filename for brain-diff specialized feeds; prefixed so JSON Feed 1.1 files keep ownership of their URLs. */
+export function brainDiffSpecializedFeedFilename(kind: BrainDiffSpecializedFeedKind): string {
+  return `brain-diff-${kind}.json`;
+}
+
 /** Score threshold below which entries are excluded from the *generic* brain-diff feed only. */
 export const GENERIC_FEED_MIN_SCORE = 4;
 
@@ -265,7 +275,7 @@ export function formatAtom(
   entries: ReadonlyArray<FeedEntry>,
   opts: { siteUrl?: string } = {},
 ): string {
-  const site = opts.siteUrl ?? "https://tom.wild.as";
+  const site = opts.siteUrl ?? env().SITE_URL;
   const updated = entries[0]?.isoDate ?? buildNowISO();
   const head = [
     `<?xml version="1.0" encoding="utf-8"?>`,

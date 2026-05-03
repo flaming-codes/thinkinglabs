@@ -1,6 +1,6 @@
 #!/usr/bin/env tsx
-import { resolve } from "node:path";
 import { nowISO } from "../src/lib/clock.ts";
+import { parseCommonArgs, runMain } from "../src/lib/cli.ts";
 import { DEFAULT_DORMANT_THRESHOLD_DAYS, runDormantFlip } from "../src/lib/agents/dormant-flip.ts";
 import { readQueue } from "../src/lib/proposal-queue.ts";
 
@@ -10,26 +10,21 @@ interface Args {
   readonly thresholdDays: number;
 }
 
+/** Default threshold pulled from env or the agent constant; isolated so parseArgs stays tidy. */
+function defaultThreshold(): number {
+  const raw = process.env["DORMANT_THRESHOLD_DAYS"];
+  const n = raw ? Number(raw) : DEFAULT_DORMANT_THRESHOLD_DAYS;
+  return Number.isFinite(n) && n > 0 ? n : DEFAULT_DORMANT_THRESHOLD_DAYS;
+}
+
 /** Parses CLI args; throws with exitCode 2 on invalid input. */
 function parseArgs(argv: ReadonlyArray<string>): Args {
-  let cwd = resolve(process.cwd());
-  let thresholdDays = (() => {
-    const raw = process.env["DORMANT_THRESHOLD_DAYS"];
-    const n = raw ? Number(raw) : DEFAULT_DORMANT_THRESHOLD_DAYS;
-    return Number.isFinite(n) && n > 0 ? n : DEFAULT_DORMANT_THRESHOLD_DAYS;
-  })();
-
-  for (let i = 0; i < argv.length; i++) {
-    const a = argv[i]!;
-    if (a === "--cwd") {
-      const next = argv[i + 1];
-      if (!next) throw Object.assign(new Error("--cwd requires a value"), { exitCode: 2 });
-      cwd = resolve(next);
-      i++;
-    } else if (a.startsWith("--cwd=")) {
-      cwd = resolve(a.slice("--cwd=".length));
-    } else if (a === "--threshold") {
-      const next = argv[i + 1];
+  const common = parseCommonArgs(argv);
+  let thresholdDays = defaultThreshold();
+  for (let i = 0; i < common.rest.length; i++) {
+    const a = common.rest[i]!;
+    if (a === "--threshold") {
+      const next = common.rest[i + 1];
       if (!next) throw Object.assign(new Error("--threshold requires a value"), { exitCode: 2 });
       const n = Number(next);
       if (!Number.isFinite(n) || n < 1)
@@ -45,7 +40,7 @@ function parseArgs(argv: ReadonlyArray<string>): Args {
       throw Object.assign(new Error(`unknown arg: ${a}`), { exitCode: 2 });
     }
   }
-  return { cwd, thresholdDays };
+  return { cwd: common.cwd, thresholdDays };
 }
 
 /** CLI entry point. */
@@ -62,8 +57,4 @@ async function main(): Promise<void> {
   );
 }
 
-main().catch((e: unknown) => {
-  const err = e as { message?: string; exitCode?: number };
-  process.stderr.write(`${err.message ?? String(e)}\n`);
-  process.exit(err.exitCode ?? 1);
-});
+runMain(main);

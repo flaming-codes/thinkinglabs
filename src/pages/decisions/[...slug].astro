@@ -1,23 +1,30 @@
 ---
-import { getCollection, render } from "astro:content";
+import { render } from "astro:content";
 import type { GetStaticPaths, InferGetStaticPropsType } from "astro";
 import Base from "../../layouts/Base.astro";
 import MetaBlock from "../../components/MetaBlock.astro";
+import RelatedRefs from "../../components/RelatedRefs.astro";
 import StatusPill from "../../components/StatusPill.astro";
 import Tags from "../../components/Tags.astro";
 import { reversedByMap } from "../../lib/decisions.ts";
 import { stripKindPrefix } from "../../lib/refs.ts";
+import { getKindStaticPaths } from "../../lib/route-helpers.ts";
+import { decisionStructuredData } from "../../lib/structured-data.ts";
 
 export const getStaticPaths = (async () => {
-  const items = await getCollection("decisions");
-  return items.map((d) => ({ params: { slug: d.id }, props: { entry: d } }));
+  return getKindStaticPaths("decisions");
 }) satisfies GetStaticPaths;
 
 const { entry } = Astro.props as InferGetStaticPropsType<typeof getStaticPaths>;
 const { Content } = await render(entry);
 const reversedBy = (await reversedByMap()).get(entry.id) ?? [];
+const site = Astro.site ?? new URL(Astro.url.origin);
 ---
-<Base title={`${entry.data.decision.slice(0, 60)} — Decisions`}>
+<Base
+  title={`${entry.data.decision.slice(0, 60)} — Decisions`}
+  description={entry.data.why ?? entry.data.context ?? entry.data.decision}
+  structuredData={decisionStructuredData(entry, Astro.url, site)}
+>
   <h1>{entry.data.decision} <StatusPill status={entry.data.status} /></h1>
 
   {entry.data.reverses.length > 0 ? (
@@ -45,20 +52,6 @@ const reversedBy = (await reversedByMap()).get(entry.id) ?? [];
   />
   <Tags tags={entry.data.tags} />
   <article><Content /></article>
-  {entry.data.related_claims.length > 0 ? (
-    <>
-      <h2>Related claims</h2>
-      <ul class="list">
-        {entry.data.related_claims.map((c) => <li><a href={`/claims/${stripKindPrefix(c)}`}>{c}</a></li>)}
-      </ul>
-    </>
-  ) : null}
-  {entry.data.related_projects.length > 0 ? (
-    <>
-      <h2>Related projects</h2>
-      <ul class="list">
-        {entry.data.related_projects.map((p) => <li><a href={`/projects/${stripKindPrefix(p)}`}>{p}</a></li>)}
-      </ul>
-    </>
-  ) : null}
+  <RelatedRefs heading="Related claims" kind="claims" refs={entry.data.related_claims} />
+  <RelatedRefs heading="Related projects" kind="projects" refs={entry.data.related_projects} />
 </Base>

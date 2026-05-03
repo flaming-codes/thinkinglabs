@@ -1,7 +1,7 @@
 #!/usr/bin/env tsx
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
-import { lastTouched } from "../src/lib/git.ts";
+import { resolvedLastTouched } from "../src/lib/git.ts";
 
 /** CLI: prints last commit ISO date for a file/slug; resolves bare slugs against `content/projects/<slug>.md`. */
 async function main(): Promise<void> {
@@ -13,7 +13,7 @@ async function main(): Promise<void> {
   const direct = resolve(process.cwd(), arg);
   const fallback = resolve(process.cwd(), "content/projects", `${arg}.md`);
   const file = existsSync(direct) ? direct : fallback;
-  const out = await lastTouched(file);
+  const out = await resolvedLastTouched(file);
   process.stdout.write(`${out ?? "(untracked)"}\n`);
 }
 

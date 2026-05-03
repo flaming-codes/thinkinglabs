@@ -11,14 +11,14 @@ import matter from "gray-matter";
 import { z } from "zod";
 import { runToolCall } from "../llm.ts";
 import { appendSection } from "../body-append.ts";
-import { editInEditor } from "../editor.ts";
+import { editMarkdownWithSchema } from "../edit-markdown.ts";
 import { patchFrontmatter } from "../frontmatter.ts";
-import { readJsonState, writeJsonState } from "../json-state.ts";
 import { enqueue, proposalId, readQueue } from "../proposal-queue.ts";
-import { registerHandler } from "../proposal-dispatch.ts";
-import { questionSchema } from "../../schemas/question.ts";
+import { registerHandler, type HandlerContext } from "../proposal-dispatch.ts";
+import { appendUniqueProposalRejection, readProposalRejections } from "../proposal-rejections.ts";
 import { submissionSchema } from "../../schemas/submission.ts";
 import type { QueuedProposal } from "../proposal-queue.ts";
+import { objectRef } from "../provenance.ts";
 
 /** LLM-scored triage output for one submission; validated via Zod at the system edge. */
 export const TriageDraft = z.object({
@@ -57,11 +57,6 @@ export interface TriageQuestionsSummary {
   readonly scoredBelow: number;
   readonly proposed: number;
   readonly deduped: number;
-}
-
-/** Absolute path to the rejections log; anchored to cwd so tests can supply a temp dir. */
-function rejectionsPath(cwd: string): string {
-  return join(resolve(cwd), ".triage-questions-rejections.json");
 }
 
 /** Ensures the directory exists, creating it (and parents) if absent. */
@@ -171,7 +166,7 @@ export async function runTriageQuestions(args: {
   const { cwd, nowISO, skipLLM } = args;
   const cwdResolved = resolve(cwd);
 
-  const rejections = readJsonState<string[]>(rejectionsPath(cwd), []);
+  const rejections = readProposalRejections<string>(cwd, "triage-questions");
   const rejectionSet = new Set(rejections);
   const existingIds = new Set(readQueue(cwd).map((p) => p.id));
 
@@ -233,9 +228,7 @@ export async function runTriageQuestions(args: {
       continue;
     }
 
-    let draft: TriageDraft | null = null;
-
-    draft = await runToolCall({
+    const draftResult = await runToolCall({
       tier: "balanced",
       maxTokens: 1024,
       systemPrompt: SYSTEM_PROMPT,
@@ -250,9 +243,10 @@ export async function runTriageQuestions(args: {
       tool: TRIAGE_TOOL,
     });
 
-    if (!draft) {
+    if (!draftResult) {
       continue;
     }
+    const draft = draftResult.data;
 
     if (draft.relevanceScore < 0.4) {
       moveTo(filePath, join(cwdResolved, "submissions", "_skipped"));
@@ -299,6 +293,15 @@ export async function runTriageQuestions(args: {
         title: `Answer to ${submission.questionSlug} from ${responderLabel}`,
         preview: `${submission.questionSlug}: answer from ${responderLabel}${scoreLabel}. ${draft.reasoning}`,
         payload,
+        provenance: {
+          process_id: "triage-questions",
+          event_type: "content_triage",
+          actor: { kind: "llm", model: draftResult.model },
+          started_at: nowISO,
+          source_objects: [objectRef("questions", submission.questionSlug)],
+          target_objects: [objectRef("questions", submission.questionSlug)],
+          tags: ["ai", "provenance", "questions"],
+        },
       },
       cwd,
     );
@@ -325,10 +328,11 @@ const handler = {
   },
   async apply(
     proposal: QueuedProposal & { payload: QuestionAnswerCuratePayload },
+    ctx: HandlerContext,
   ): Promise<string> {
     if (!proposal.target) throw new Error("triage-questions apply: missing target path");
     const { payload } = proposal;
-    const cwd = resolve(process.cwd());
+    const cwd = resolve(ctx.cwd);
     const submissionAbs = resolve(cwd, payload.submissionPath);
     const heading = answerHeading(payload.responder.name, payload.receivedAt);
     const body = answerSectionBody(payload.suggestedAnswer, payload.pointers);
@@ -339,31 +343,36 @@ const handler = {
     if (existsSync(submissionAbs)) moveToAccepted(cwd, submissionAbs, payload.questionSlug);
     return `appended answer from ${payload.responder.name} to ${proposal.target}`;
   },
-  async edit(proposal: QueuedProposal & { payload: QuestionAnswerCuratePayload }): Promise<string> {
+  async edit(
+    proposal: QueuedProposal & { payload: QuestionAnswerCuratePayload },
+    ctx: HandlerContext,
+  ): Promise<string> {
     if (!proposal.target) throw new Error("triage-questions edit: missing target path");
     const { payload } = proposal;
-    const cwd = resolve(process.cwd());
+    const cwd = resolve(ctx.cwd);
     const submissionAbs = resolve(cwd, payload.submissionPath);
-    const raw = readFileSync(proposal.target, "utf8");
-    const edited = await editInEditor(raw, ".md");
-    const parsedMatter = matter(edited);
-    questionSchema.parse(parsedMatter.data);
-    writeFileSync(proposal.target, edited, "utf8");
+    const result = await editMarkdownWithSchema("questions", proposal.target);
+    if (!result.ok) throw new Error(`triage-questions edit: ${result.reason}`);
     if (existsSync(submissionAbs)) moveToAccepted(cwd, submissionAbs, payload.questionSlug);
     return `edited ${proposal.target}`;
   },
-  async reject(proposal: QueuedProposal & { payload: QuestionAnswerCuratePayload }): Promise<void> {
+  async reject(
+    proposal: QueuedProposal & { payload: QuestionAnswerCuratePayload },
+    ctx: HandlerContext,
+  ): Promise<void> {
     const { payload } = proposal;
-    const cwd = resolve(process.cwd());
+    const cwd = resolve(ctx.cwd);
     const submissionAbs = resolve(cwd, payload.submissionPath);
     const submissionId = basename(payload.submissionPath, ".json");
     if (existsSync(submissionAbs)) {
       moveTo(submissionAbs, join(cwd, "submissions", "_rejected", payload.questionSlug));
     }
-    const rejections = readJsonState<string[]>(rejectionsPath(cwd), []);
-    if (!rejections.includes(submissionId)) {
-      writeJsonState(rejectionsPath(cwd), [...rejections, submissionId]);
-    }
+    appendUniqueProposalRejection(
+      cwd,
+      "triage-questions",
+      submissionId,
+      (entry) => entry === submissionId,
+    );
   },
 };
 

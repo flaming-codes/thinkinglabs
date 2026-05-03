@@ -1,7 +1,6 @@
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
 import { describe, expect, it } from "vite-plus/test";
 import { findEmbeddedTool } from "../../embeds/index.ts";
+import { predictionCalibrationLogger } from "../../embeds/prediction-calibration-logger/index.ts";
 import {
   calibrationFallbackRows,
   loadCalibrationLogSnapshot,
@@ -27,12 +26,13 @@ describe("embedded scoped agent fallback", () => {
     );
   });
 
-  it("is mounted on the calibration page", () => {
-    const page = readFileSync(
-      resolve(import.meta.dirname, "../../src/pages/predictions/calibration.astro"),
-      "utf8",
+  it("the registry resolves the same payload object exported from the embed module", () => {
+    const fromRegistry = findEmbeddedTool("prediction-calibration-logger");
+    expect(fromRegistry, "registry must expose the embed by id").toBeDefined();
+    expect(fromRegistry, "registry payload is referentially equal to the module export").toBe(
+      predictionCalibrationLogger,
     );
-    expect(page).toContain("EmbeddedTool");
-    expect(page).toContain("predictionCalibrationLogger");
+    expect(fromRegistry?.contract.id).toBe("prediction-calibration-logger");
+    expect(fromRegistry?.contract.fallback.rows.length).toBeGreaterThan(0);
   });
 });

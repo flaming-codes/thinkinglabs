@@ -66,7 +66,7 @@ describe("post-section-restamp handler", () => {
     const target = writePost(postsDir, "confirm-post");
     const proposal = makeProposal(target, "confirm-still-true");
     const handler = getHandler("post-section-restamp");
-    await handler.apply(proposal);
+    await handler.apply(proposal, { cwd: root });
     const content = readFileSync(target, "utf8");
     expect(content).not.toContain('last_verified="2025-12-31"');
     expect(content).toMatch(/last_verified="\d{4}-\d{2}-\d{2}"/);
@@ -78,7 +78,7 @@ describe("post-section-restamp handler", () => {
     const target = writePost(postsDir, "fm-preserve-post");
     const proposal = makeProposal(target, "confirm-still-true");
     const handler = getHandler("post-section-restamp");
-    await handler.apply(proposal);
+    await handler.apply(proposal, { cwd: root });
     const content = readFileSync(target, "utf8");
     expect(content).toContain("title: fm-preserve-post");
   });
@@ -89,7 +89,7 @@ describe("post-section-restamp handler", () => {
     const target = writePost(postsDir, "deprecate-post");
     const proposal = makeProposal(target, "deprecate");
     const handler = getHandler("post-section-restamp");
-    await handler.apply(proposal);
+    await handler.apply(proposal, { cwd: root });
     const content = readFileSync(target, "utf8");
     expect(content).toContain("Deprecated");
   });
@@ -103,7 +103,7 @@ describe("post-section-restamp handler", () => {
     process.env["EDITOR"] = "cat";
     try {
       const handler = getHandler("post-section-restamp");
-      const result = await handler.apply(proposal);
+      const result = await handler.apply(proposal, { cwd: root });
       expect(result).toContain("revise-post");
     } finally {
       if (prev === undefined) delete process.env["EDITOR"];
@@ -120,7 +120,7 @@ describe("post-section-restamp handler", () => {
     process.env["EDITOR"] = "cat";
     try {
       const handler = getHandler("post-section-restamp");
-      const result = await handler.edit(proposal);
+      const result = await handler.edit(proposal, { cwd: root });
       expect(result).toContain("edit-post");
     } finally {
       if (prev === undefined) delete process.env["EDITOR"];
@@ -134,7 +134,8 @@ describe("post-section-restamp handler", () => {
     const target = writePost(postsDir, "reject-post");
     const proposal = makeProposal(target, "confirm-still-true");
     const handler = getHandler("post-section-restamp");
-    if (handler.reject) await expect(handler.reject(proposal)).resolves.toBeUndefined();
+    if (handler.reject)
+      await expect(handler.reject(proposal, { cwd: root })).resolves.toBeUndefined();
   });
 
   it("apply throws when target is null", async () => {
@@ -143,6 +144,6 @@ describe("post-section-restamp handler", () => {
     const proposal = makeProposal("/dev/null", "confirm-still-true");
     const noTarget = { ...proposal, target: null };
     const handler = getHandler("post-section-restamp");
-    await expect(handler.apply(noTarget)).rejects.toThrow("missing target path");
+    await expect(handler.apply(noTarget, { cwd: root })).rejects.toThrow("missing target path");
   });
 });

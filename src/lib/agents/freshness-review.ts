@@ -1,18 +1,19 @@
-import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import matter from "gray-matter";
 import { z } from "zod";
 import { runToolCall } from "../llm.ts";
 import { nowISO } from "../clock.ts";
-import { walkMarkdown } from "../walk-content.ts";
+import { loadContent } from "../content-repo.ts";
 import { deprecateSectionCallout, restampSectionVerified } from "../body-append.ts";
-import { editInEditor } from "../editor.ts";
+import { editMarkdownWithSchema } from "../edit-markdown.ts";
 import { freshnessState } from "../freshness.ts";
 import { enqueue, proposalId, readQueue } from "../proposal-queue.ts";
 import type { QueuedProposal } from "../proposal-queue.ts";
-import { registerHandler } from "../proposal-dispatch.ts";
+import { registerHandler, type HandlerContext } from "../proposal-dispatch.ts";
 import { parseSectionStamps } from "../section-stamps.ts";
 import { walkFileHistory } from "../git.ts";
+import { objectRef } from "../provenance.ts";
 
 /** Zod schema for the LLM freshness-review tool output. */
 export const FreshnessReviewDraft = z.object({
@@ -111,7 +112,11 @@ function recentBrainDiffSince(cwd: string, sinceISO: string): string {
       const history = walkFileHistory(cwd, `${dir}/${f}`);
       for (const entry of history) {
         if (new Date(entry.isoDate).getTime() > since && entry.subject) {
-          entries.push({ isoDate: entry.isoDate, subject: entry.subject, path: `${dir}/${f}` });
+          entries.push({
+            isoDate: entry.isoDate,
+            subject: entry.subject,
+            path: `${dir}/${f}`,
+          });
         }
       }
     }
@@ -156,7 +161,7 @@ export async function runFreshnessReview(args: {
   const { cwd, nowISO, skipLLM } = args;
   const thresholdDays = args.thresholdDays ?? 90;
 
-  const posts = walkMarkdown({ cwd, kind: "posts" });
+  const posts = loadContent("posts", { cwd });
   const existingIds = new Set(readQueue(cwd).map((p) => p.id));
 
   let scanned = 0;
@@ -167,7 +172,7 @@ export async function runFreshnessReview(args: {
 
   for (const post of posts) {
     scanned++;
-    const stamps = parseSectionStamps(post.content);
+    const stamps = parseSectionStamps(post.body);
 
     for (const stamp of stamps) {
       const { state, daysAgo } = freshnessState(stamp.lastVerifiedISO, nowISO);
@@ -180,10 +185,10 @@ export async function runFreshnessReview(args: {
         continue;
       }
 
-      const sectionBody = extractSectionBody(post.content, stamp.headingText);
+      const sectionBody = extractSectionBody(post.body, stamp.headingText);
       const brainDiff = recentBrainDiffSince(cwd, stamp.lastVerifiedISO);
 
-      const draft = await runToolCall({
+      const draftResult = await runToolCall({
         tier: "balanced",
         maxTokens: 768,
         systemPrompt: SYSTEM_PROMPT,
@@ -197,13 +202,14 @@ export async function runFreshnessReview(args: {
         tool: FLAG_TOOL,
       });
 
-      if (!draft) {
+      if (!draftResult) {
         process.stderr.write(
           `freshness-review: LLM returned no result for ${post.slug}#${stamp.anchor}, skipping\n`,
         );
         skippedDueToLLM++;
         continue;
       }
+      const draft = draftResult.data;
 
       const payload: PostSectionRestampPayload = {
         postSlug: post.slug,
@@ -216,7 +222,7 @@ export async function runFreshnessReview(args: {
         reasoning: draft.reasoning,
       };
 
-      const id = proposalId("freshness-review", "post-section-restamp", post.path, {
+      const id = proposalId("freshness-review", "post-section-restamp", post.filePath, {
         lastVerifiedISO: stamp.lastVerifiedISO,
         sectionAnchor: stamp.anchor,
       });
@@ -232,10 +238,19 @@ export async function runFreshnessReview(args: {
           source: "freshness-review",
           type: "post-section-restamp",
           createdAt: nowISO,
-          target: post.path,
+          target: post.filePath,
           title: `Restamp ${post.slug}#${stamp.anchor}`,
           preview: `${post.slug} § ${stamp.headingText} — ${daysAgo} days since verified. ${draft.reasoning}`,
           payload,
+          provenance: {
+            process_id: "freshness-review",
+            event_type: "change_scoring",
+            actor: { kind: "llm", model: draftResult.model },
+            started_at: nowISO,
+            source_objects: [objectRef("posts", post.slug)],
+            target_objects: [objectRef("posts", post.slug)],
+            tags: ["ai", "provenance", "freshness"],
+          },
         },
         cwd,
       );
@@ -247,11 +262,6 @@ export async function runFreshnessReview(args: {
   return { scanned, flagged, proposed, deduped, skippedDueToLLM };
 }
 
-/** Read the full raw markdown (frontmatter + body) for a post file. */
-function readPostRaw(filePath: string): string {
-  return readFileSync(filePath, "utf8");
-}
-
 /** Handler registered at module load for the review-proposals CLI. */
 const handler = {
   type: "post-section-restamp" as const,
@@ -259,7 +269,10 @@ const handler = {
   parse(proposal: QueuedProposal): PostSectionRestampPayload {
     return PostSectionRestampPayload.parse(proposal.payload);
   },
-  async apply(proposal: QueuedProposal & { payload: PostSectionRestampPayload }): Promise<string> {
+  async apply(
+    proposal: QueuedProposal & { payload: PostSectionRestampPayload },
+    _ctx: HandlerContext,
+  ): Promise<string> {
     if (!proposal.target) throw new Error("post-section-restamp apply: missing target path");
     const now = nowISO();
 
@@ -269,11 +282,10 @@ const handler = {
     }
 
     if (proposal.payload.recommendation === "revise") {
-      const raw = readPostRaw(proposal.target);
-      const edited = await editInEditor(raw, ".md");
-      writeFileSync(proposal.target, edited, "utf8");
-      const editedParsed = matter(edited);
-      const stamps = parseSectionStamps(editedParsed.content);
+      const result = await editMarkdownWithSchema("posts", proposal.target);
+      if (!result.ok) throw new Error(`post-section-restamp revise: ${result.reason}`);
+      const reread = matter(readFileSync(proposal.target, "utf8"));
+      const stamps = parseSectionStamps(reread.content);
       if (!stamps.find((s) => s.anchor === proposal.payload.sectionAnchor)) {
         restampSectionVerified(proposal.target, proposal.payload.sectionHeading, now);
       }
@@ -283,14 +295,19 @@ const handler = {
     deprecateSectionCallout(proposal.target, proposal.payload.sectionHeading);
     return `${proposal.target}#${proposal.payload.sectionAnchor} → deprecated`;
   },
-  async edit(proposal: QueuedProposal & { payload: PostSectionRestampPayload }): Promise<string> {
+  async edit(
+    proposal: QueuedProposal & { payload: PostSectionRestampPayload },
+    _ctx: HandlerContext,
+  ): Promise<string> {
     if (!proposal.target) throw new Error("post-section-restamp edit: missing target path");
-    const raw = readPostRaw(proposal.target);
-    const edited = await editInEditor(raw, ".md");
-    writeFileSync(proposal.target, edited, "utf8");
+    const result = await editMarkdownWithSchema("posts", proposal.target);
+    if (!result.ok) throw new Error(`post-section-restamp edit: ${result.reason}`);
     return `edited ${proposal.target}`;
   },
-  reject(_proposal: QueuedProposal & { payload: PostSectionRestampPayload }): Promise<void> {
+  reject(
+    _proposal: QueuedProposal & { payload: PostSectionRestampPayload },
+    _ctx: HandlerContext,
+  ): Promise<void> {
     return Promise.resolve();
   },
 };

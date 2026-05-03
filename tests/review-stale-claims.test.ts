@@ -109,9 +109,12 @@ describe("detectStaleClaims — pure logic", () => {
   it("with mocked LLM returning shifted=true the flag carries evidence-shift", async () => {
     vi.doMock("../src/lib/llm.ts", () => ({
       runToolCall: async () => ({
-        shifted: true,
-        contradicts: false,
-        reasoning: "New evidence found.",
+        data: {
+          shifted: true,
+          contradicts: false,
+          reasoning: "New evidence found.",
+        },
+        model: { provider: "openai", model: "gpt-test", tier: "balanced" },
       }),
     }));
     const { detectStaleClaims } = await import("../src/lib/review-stale-claims.ts");

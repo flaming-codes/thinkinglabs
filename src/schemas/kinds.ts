@@ -9,6 +9,7 @@ export const KINDS = [
   "questions",
   "posts",
   "inputs",
+  "provenance",
 ] as const;
 
 /** Literal union of every kind directory under content/. */

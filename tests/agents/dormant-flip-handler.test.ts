@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, utimesSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import matter from "gray-matter";
@@ -9,9 +9,11 @@ function writeProject(dir: string, slug: string): string {
   const path = join(dir, `${slug}.md`);
   writeFileSync(
     path,
-    `---\ntitle: ${slug}\nstatus: alive\nstarted: 2026-01-01\nlast_touched: 2025-12-01\ntags: []\nlinks: {}\nrelated_thoughts: []\nrelated_claims: []\n---\nBody.\n`,
+    `---\ntitle: ${slug}\nstatus: alive\nstarted: 2026-01-01\ntags: []\nlinks: {}\nrelated_thoughts: []\nrelated_claims: []\n---\nBody.\n`,
     "utf8",
   );
+  const touchedAt = new Date("2025-12-01T00:00:00.000Z");
+  utimesSync(path, touchedAt, touchedAt);
   return path;
 }
 
@@ -58,7 +60,7 @@ describe("dormant-flip handler", () => {
     const target = writeProject(projectsDir, "my-project");
     const proposal = makeProposal(target);
     const handler = getHandler("project-flip-dormant");
-    await handler.apply(proposal);
+    await handler.apply(proposal, { cwd: root });
     const { data } = matter(readFileSync(target, "utf8"));
     expect(data["status"]).toBe("dormant");
   });
@@ -72,7 +74,7 @@ describe("dormant-flip handler", () => {
     process.env["EDITOR"] = "cat";
     try {
       const handler = getHandler("project-flip-dormant");
-      const result = await handler.edit(proposal);
+      const result = await handler.edit(proposal, { cwd: root });
       expect(result).toContain("edit-project");
     } finally {
       if (prev === undefined) delete process.env["EDITOR"];
@@ -87,7 +89,7 @@ describe("dormant-flip handler", () => {
     const target = writeProject(projectsDir, "reject-project");
     const proposal = makeProposal(target);
     const handler = getHandler("project-flip-dormant");
-    if (handler.reject) await handler.reject(proposal);
+    if (handler.reject) await handler.reject(proposal, { cwd: root });
     const rejections = readJsonState<Array<{ slug: string; lastTouchedISO: string | null }>>(
       join(root, ".dormant-flip-rejections.json"),
       [],
@@ -122,7 +124,7 @@ describe("dormant-flip handler", () => {
       },
     };
     const handler = getHandler("project-flip-dormant");
-    if (handler.reject) await handler.reject(typed);
+    if (handler.reject) await handler.reject(typed, { cwd: root });
 
     vi.spyOn(process, "cwd").mockReturnValue(root);
     const { enqueue: _e, readQueue: _r } = await import("../../src/lib/proposal-queue.ts");

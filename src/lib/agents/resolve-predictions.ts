@@ -1,16 +1,15 @@
-import { readFileSync, writeFileSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { readFileSync } from "node:fs";
 import matter from "gray-matter";
 import { z } from "zod";
 import { runToolCall } from "../llm.ts";
-import { walkMarkdown } from "../walk-content.ts";
-import { editInEditor } from "../editor.ts";
+import { loadContent } from "../content-repo.ts";
+import { editMarkdownWithSchema } from "../edit-markdown.ts";
 import { patchFrontmatter } from "../frontmatter.ts";
-import { readJsonState, writeJsonState } from "../json-state.ts";
 import { enqueue, proposalId, readQueue } from "../proposal-queue.ts";
 import type { QueuedProposal } from "../proposal-queue.ts";
-import { registerHandler } from "../proposal-dispatch.ts";
-import { predictionSchema } from "../../schemas/prediction.ts";
+import { registerHandler, type HandlerContext } from "../proposal-dispatch.ts";
+import { readProposalRejections, upsertProposalRejection } from "../proposal-rejections.ts";
+import { objectRef } from "../provenance.ts";
 
 /** Zod schema for the LLM resolution draft tool output. */
 export const ResolutionDraft = z.object({
@@ -68,11 +67,6 @@ const DRAFT_TOOL = {
   schema: ResolutionDraft,
 };
 
-/** Absolute path to the rejections file; resolved from cwd so tests can override. */
-function rejectionsPath(cwd: string): string {
-  return join(resolve(cwd), ".resolve-predictions-rejections.json");
-}
-
 /** Normalise a raw frontmatter date to an ISO string. */
 function rawToISO(raw: unknown): string {
   if (raw instanceof Date) return raw.toISOString();
@@ -83,7 +77,7 @@ function rawToISO(raw: unknown): string {
 /** Build the user-turn prompt with prediction context and recent inputs. */
 function buildUserPrompt(
   predData: Record<string, unknown>,
-  recentInputs: Array<{ slug: string; content: string }>,
+  recentInputs: Array<{ slug: string; body: string }>,
 ): string {
   const ctx = [
     `prediction: ${String(predData["prediction"] ?? "")}`,
@@ -95,7 +89,7 @@ function buildUserPrompt(
 
   const inputsText =
     recentInputs.length > 0
-      ? `\n\nRecent inputs from the prediction window:\n${recentInputs.map((i) => `[input/${i.slug}]\n${i.content.slice(0, 600)}`).join("\n\n---\n\n")}`
+      ? `\n\nRecent inputs from the prediction window:\n${recentInputs.map((i) => `[input/${i.slug}]\n${i.body.slice(0, 600)}`).join("\n\n---\n\n")}`
       : "";
 
   return `Prediction:\n${ctx}${inputsText}`;
@@ -108,10 +102,10 @@ export async function runResolvePredictions(args: {
   skipLLM: boolean;
 }): Promise<ResolvePredictionsSummary> {
   const { cwd, nowISO, skipLLM } = args;
-  const predictions = walkMarkdown({ cwd, kind: "predictions" });
-  const inputs = walkMarkdown({ cwd, kind: "inputs" });
+  const predictions = loadContent("predictions", { cwd });
+  const inputs = loadContent("inputs", { cwd });
 
-  const rejections = readJsonState<RejectionEntry[]>(rejectionsPath(cwd), []);
+  const rejections = readProposalRejections<RejectionEntry>(cwd, "resolve-predictions");
   const rejectionMap = new Map(rejections.map((r) => [r.slug, r.predictionLastModified]));
 
   const now = new Date(nowISO).getTime();
@@ -123,34 +117,36 @@ export async function runResolvePredictions(args: {
   let scanned = 0;
 
   for (const pred of predictions) {
-    const resolution = pred.data["resolution"];
+    const predData = pred.data as Record<string, unknown>;
+    const resolution = predData["resolution"];
     if (resolution !== "pending") continue;
 
-    const resolvesISO = rawToISO(pred.data["resolves"]);
+    const resolvesISO = rawToISO(predData["resolves"]);
     if (!resolvesISO || new Date(resolvesISO).getTime() > now) continue;
 
     scanned++;
 
-    const madeISO = rawToISO(pred.data["made"]);
+    const madeISO = rawToISO(predData["made"]);
 
     const rejectedSnapshot = rejectionMap.get(pred.slug);
     if (rejectedSnapshot !== undefined) {
-      const currentModified = rawToISO(pred.data["updated"]) || madeISO;
+      const currentModified = rawToISO(predData["updated"]) || madeISO;
       if (rejectedSnapshot === currentModified) continue;
     }
 
     const windowInputs = inputs
       .filter((i) => {
-        const consumedISO = rawToISO(i.data["consumed"]);
+        const inputData = i.data as Record<string, unknown>;
+        const consumedISO = rawToISO(inputData["consumed"]);
         if (!consumedISO) return false;
         const t = new Date(consumedISO).getTime();
         return t >= new Date(madeISO).getTime() && t <= new Date(resolvesISO).getTime();
       })
-      .sort(
-        (a, b) =>
-          new Date(rawToISO(b.data["consumed"])).getTime() -
-          new Date(rawToISO(a.data["consumed"])).getTime(),
-      )
+      .sort((a, b) => {
+        const aISO = rawToISO((a.data as Record<string, unknown>)["consumed"]);
+        const bISO = rawToISO((b.data as Record<string, unknown>)["consumed"]);
+        return new Date(bISO).getTime() - new Date(aISO).getTime();
+      })
       .slice(0, 10);
 
     if (skipLLM) {
@@ -158,21 +154,25 @@ export async function runResolvePredictions(args: {
       continue;
     }
 
-    const draft = await runToolCall({
+    const draftResult = await runToolCall({
       tier: "balanced",
       maxTokens: 1024,
       systemPrompt: SYSTEM_PROMPT,
-      userPrompt: buildUserPrompt(pred.data, windowInputs),
+      userPrompt: buildUserPrompt(
+        predData,
+        windowInputs.map((i) => ({ slug: i.slug, body: i.body })),
+      ),
       tool: DRAFT_TOOL,
     });
 
-    if (!draft) {
+    if (!draftResult) {
       process.stderr.write(
         `resolve-predictions: LLM returned no result for ${pred.slug}, skipping\n`,
       );
       skippedDueToLLM++;
       continue;
     }
+    const draft = draftResult.data;
 
     const payload: PredictionResolvePayload = {
       resolution: draft.resolution,
@@ -181,9 +181,9 @@ export async function runResolvePredictions(args: {
       resolvedOnISO: nowISO,
     };
 
-    const id = proposalId("resolve-predictions", "prediction-resolve", pred.path, {
+    const id = proposalId("resolve-predictions", "prediction-resolve", pred.filePath, {
       madeISO,
-      prediction: String(pred.data["prediction"] ?? ""),
+      prediction: String(predData["prediction"] ?? ""),
       resolvesISO,
     });
 
@@ -198,10 +198,22 @@ export async function runResolvePredictions(args: {
         source: "resolve-predictions",
         type: "prediction-resolve",
         createdAt: nowISO,
-        target: pred.path,
+        target: pred.filePath,
         title: `Resolve prediction: ${pred.slug}`,
         preview: `${pred.slug} resolves as ${draft.resolution}. ${draft.reasoning}`,
         payload,
+        provenance: {
+          process_id: "resolve-predictions",
+          event_type: "content_resolution",
+          actor: { kind: "llm", model: draftResult.model },
+          started_at: nowISO,
+          source_objects: [
+            objectRef("predictions", pred.slug),
+            ...windowInputs.map((input) => objectRef("inputs", input.slug)),
+          ],
+          target_objects: [objectRef("predictions", pred.slug)],
+          tags: ["ai", "provenance", "predictions"],
+        },
       },
       cwd,
     );
@@ -219,7 +231,10 @@ const handler = {
   parse(proposal: QueuedProposal): PredictionResolvePayload {
     return PredictionResolvePayload.parse(proposal.payload);
   },
-  async apply(proposal: QueuedProposal & { payload: PredictionResolvePayload }): Promise<string> {
+  async apply(
+    proposal: QueuedProposal & { payload: PredictionResolvePayload },
+    _ctx: HandlerContext,
+  ): Promise<string> {
     if (!proposal.target) throw new Error("prediction-resolve apply: missing target path");
     await patchFrontmatter(proposal.target, (data) => {
       data["resolution"] = proposal.payload.resolution;
@@ -228,19 +243,21 @@ const handler = {
     });
     return `${proposal.target} → resolution: ${proposal.payload.resolution}`;
   },
-  async edit(proposal: QueuedProposal & { payload: PredictionResolvePayload }): Promise<string> {
+  async edit(
+    proposal: QueuedProposal & { payload: PredictionResolvePayload },
+    _ctx: HandlerContext,
+  ): Promise<string> {
     if (!proposal.target) throw new Error("prediction-resolve edit: missing target path");
-    const raw = readFileSync(proposal.target, "utf8");
-    const edited = await editInEditor(raw, ".md");
-    const parsed = matter(edited);
-    predictionSchema.parse(parsed.data);
-    writeFileSync(proposal.target, edited, "utf8");
+    const result = await editMarkdownWithSchema("predictions", proposal.target);
+    if (!result.ok) throw new Error(`prediction-resolve edit: ${result.reason}`);
     return `edited ${proposal.target}`;
   },
-  async reject(proposal: QueuedProposal & { payload: PredictionResolvePayload }): Promise<void> {
+  async reject(
+    proposal: QueuedProposal & { payload: PredictionResolvePayload },
+    ctx: HandlerContext,
+  ): Promise<void> {
     if (!proposal.target) return;
     const slug = proposal.target.replace(/.*\//, "").replace(/\.md$/, "");
-    const cwd = resolve(process.cwd());
     let predictionLastModified = "";
     try {
       const raw = readFileSync(proposal.target, "utf8");
@@ -250,10 +267,15 @@ const handler = {
     } catch {
       predictionLastModified = new Date().toISOString();
     }
-    const rejections = readJsonState<RejectionEntry[]>(rejectionsPath(cwd), []);
-    const filtered = rejections.filter((r) => r.slug !== slug);
-    filtered.push({ slug, predictionLastModified });
-    writeJsonState(rejectionsPath(cwd), filtered);
+    upsertProposalRejection(
+      ctx.cwd,
+      "resolve-predictions",
+      {
+        slug,
+        predictionLastModified,
+      },
+      (entry) => entry.slug === slug,
+    );
   },
 };
 

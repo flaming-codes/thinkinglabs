@@ -1,6 +1,6 @@
 # Tom — wild.as
 
-> Personal thinking surface. Markdown source-of-truth at https://github.com/tom/me. Every page below renders from `content/<kind>/`.
+> Personal thinking surface. Markdown source-of-truth at https://github.com/flaming-codes/thinkinglabs. Every page below renders from `content/<kind>/`.
 
 ## Pages
 
@@ -37,8 +37,8 @@
 ## JSON APIs
 
 - [Claims JSON](/api/claims.json): All claims as JSON.
-- [Inputs JSON](/api/inputs.json): All inputs as JSON.
 - [Thoughts JSON](/api/thoughts.json): All thoughts as JSON.
+- [Inputs JSON](/api/inputs.json): All inputs as JSON.
 - [Projects JSON](/api/projects.json): All projects as JSON.
 - [Predictions JSON](/api/predictions.json): All predictions as JSON.
 - [Changed-my-mind JSON](/api/changed-my-mind.json): All belief revisions as JSON.
@@ -51,12 +51,15 @@
 
 - [Contact JSON](/contact.json): Structured contact surface.
 - [llms.txt](/llms.txt): Agent-readable surface index.
-- [Personal MCP server](mcp://stdio/pnpm%20mcp:me): Stdio MCP entrypoint exposing public resources and tools from this repo.
+- [Personal MCP server](mcp://stdio/pnpm%20mcp:thinkinglabs): Stdio MCP entrypoint exposing public resources and tools from this repo.
 
 ## Feeds
 
-- [Brain-diff (Atom)](/feed/brain-diff.xml): Substantive changes across tracked content.
-- [Brain-diff (JSON)](/feed/brain-diff.json): Substantive changes as JSON.
-- [Predictions resolved](/feed/predictions-resolved.json): Predictions transitioning out of pending.
-- [Claims revised](/feed/claims-revised.json): Claim updates across history.
-- [Decisions reversed](/feed/decisions-reversed.json): Decision reversals and superseding records.
+- [Brain-diff (Atom)](/feed/brain-diff.xml): Substantive changes across tracked content (generated locally by `pnpm artifacts:scored`, or unscored by `pnpm artifacts`).
+- [Brain-diff (JSON)](/feed/brain-diff.json): Substantive changes as JSON (generated locally by `pnpm artifacts:scored`, or unscored by `pnpm artifacts`).
+- [Brain-diff predictions resolved](/feed/brain-diff-predictions-resolved.json): Prediction resolution changes from the local brain-diff artifact run.
+- [Brain-diff claims revised](/feed/brain-diff-claims-revised.json): Claim creation, revision, and deprecation changes from the local brain-diff artifact run.
+- [Brain-diff decisions reversed](/feed/brain-diff-decisions-reversed.json): Decision reversal changes from the local brain-diff artifact run.
+- [Predictions resolved](/feed/predictions-resolved.json): JSON Feed 1.1 for predictions transitioning out of pending (regenerated every site build).
+- [Claims revised](/feed/claims-revised.json): JSON Feed 1.1 for claims with non-active status or supersedes/superseded_by links (regenerated every site build).
+- [Decisions reversed](/feed/decisions-reversed.json): JSON Feed 1.1 for decisions marked reversed/superseded or with a `reverses` link (regenerated every site build).

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { runToolCall } from "./llm.ts";
+import type { ModelRef } from "../schemas/provenance.ts";
 
 /** Rough proposal an LLM emits before reviewer judgment; payload of a ReviewProposal. */
 export interface ClaimProposal {
@@ -10,6 +11,7 @@ export interface ClaimProposal {
   readonly reasoning: string;
   readonly suggestedSlug: string;
   readonly mergeCandidates: ReadonlyArray<{ slug: string; reason: string }>;
+  readonly model?: ModelRef;
 }
 
 /** Existing claim summary fed to the LLM for merge detection. */
@@ -99,7 +101,10 @@ export async function proposeClaimsForThought(
     tool: TOOL,
   });
   if (!result) return [];
-  return result.proposals as ReadonlyArray<ClaimProposal>;
+  return result.data.proposals.map((proposal) => ({
+    ...proposal,
+    model: result.model,
+  })) as ReadonlyArray<ClaimProposal>;
 }
 
 /** Serializes a proposal into a `content/claims/<slug>.md` markdown+frontmatter string ready to write. */

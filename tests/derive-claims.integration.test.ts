@@ -4,17 +4,20 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vite-plus/test";
 
-/** Resolves whether `git` is callable. */
-function gitAvailable(): boolean {
+/** Asserts `git` is on PATH at module load; fail loudly rather than silently skipping coverage. */
+function assertGitAvailable(): void {
   try {
     execFileSync("git", ["--version"], { stdio: "ignore" });
-    return true;
   } catch {
-    return false;
+    throw new Error(
+      "git is required for this integration test but was not found on PATH. " +
+        "Install git or run in an environment that ships it.",
+    );
   }
 }
+assertGitAvailable();
 
-describe.runIf(gitAvailable())("derive-claims CLI (integration, --no-llm --dry-run)", () => {
+describe("derive-claims CLI (integration, --no-llm --dry-run)", () => {
   it("exits 0 and writes no files when thoughts dir is empty", () => {
     const root = mkdtempSync(join(tmpdir(), "derive-claims-int-"));
     try {

@@ -144,6 +144,9 @@ vite.config.ts.timestamp-*
 
 # Astro
 .astro/
+debug-storybook.log
+storybook-server/
+storybook-static/
 
 # Editors
 .idea/
@@ -168,3 +171,11 @@ vite.config.ts.timestamp-*
 
 # Triage-questions submission inbox (written by MCP tool at M6)
 submissions/
+
+# Playwright outputs
+test-results/
+playwright-report/
+
+# Timestamped local brain-diff feed artifacts
+public/feed/brain-diff*.json
+public/feed/brain-diff*.xml

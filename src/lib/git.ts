@@ -1,4 +1,5 @@
 import { execFile, execFileSync } from "node:child_process";
+import { statSync } from "node:fs";
 import { promisify } from "node:util";
 
 const exec = promisify(execFile);
@@ -6,17 +7,30 @@ const exec = promisify(execFile);
 /** Per-build memoization so multiple renderer call-sites for the same path share one git invocation. */
 const cache = new Map<string, Promise<string | null>>();
 
+function cacheKey(filePath: string, cwd: string): string {
+  return `${cwd}\u0000${filePath}`;
+}
+
+function fileMtimeISO(filePath: string): string | null {
+  try {
+    return statSync(filePath).mtime.toISOString();
+  } catch {
+    return null;
+  }
+}
+
 /** Latest commit ISO date for `filePath`, or null if untracked; mtime fallback is the consumer's responsibility. */
-export function lastTouched(filePath: string): Promise<string | null> {
-  const cached = cache.get(filePath);
+export function lastTouched(filePath: string, cwd = process.cwd()): Promise<string | null> {
+  const key = cacheKey(filePath, cwd);
+  const cached = cache.get(key);
   if (cached) return cached;
-  const p = exec("git", ["log", "-1", "--format=%cI", "--", filePath])
+  const p = exec("git", ["log", "-1", "--format=%cI", "--", filePath], { cwd })
     .then(({ stdout }) => {
       const t = stdout.trim();
       return t.length > 0 ? t : null;
     })
     .catch(() => null);
-  cache.set(filePath, p);
+  cache.set(key, p);
   return p;
 }
 
@@ -32,6 +46,19 @@ export function lastTouchedSync(filePath: string, cwd: string): string | null {
   } catch {
     return null;
   }
+}
+
+/** Canonical last_touched resolution: git date when available, otherwise filesystem mtime. */
+export async function resolvedLastTouched(
+  filePath: string,
+  cwd = process.cwd(),
+): Promise<string | null> {
+  return (await lastTouched(filePath, cwd)) ?? fileMtimeISO(filePath);
+}
+
+/** Synchronous canonical last_touched resolution for build-time callers. */
+export function resolvedLastTouchedSync(filePath: string, cwd: string): string | null {
+  return lastTouchedSync(filePath, cwd) ?? fileMtimeISO(filePath);
 }
 
 /** Run `git` with the given args from `cwd`; returns stdout and lets non-zero exits throw. */
