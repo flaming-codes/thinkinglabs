@@ -2,7 +2,7 @@
 import BrandLogo from "./BrandLogo.astro";
 
 interface Props {
-  activeNav?: "Index" | "Now" | "Calibration" | "Brain-diff" | "About";
+  activeNav?: "Index" | "Now" | "Calibration" | "Brain-diff" | "Agents" | "About";
 }
 
 const { activeNav = "Index" } = Astro.props;
@@ -11,6 +11,7 @@ const navItems: Array<{ label: Props["activeNav"]; href: string }> = [
   { label: "Now", href: "/now" },
   { label: "Calibration", href: "/predictions/calibration" },
   { label: "Brain-diff", href: "/feed/brain-diff.xml" },
+  { label: "Agents", href: "/agents" },
   { label: "About", href: "/about" },
 ];
 ---

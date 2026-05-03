@@ -1,0 +1,285 @@
+---
+import AppShell from "../components/AppShell.astro";
+
+interface Resource {
+  uri: string;
+  description: string;
+}
+
+interface Tool {
+  name: string;
+  title: string;
+  description: string;
+}
+
+const staticResources: Resource[] = [
+  { uri: "thinkinglabs://thoughts", description: "Rough-draft prose; the unstructured side of the corpus." },
+  { uri: "thinkinglabs://claims", description: "Atomic structured assertions with confidence in [0,1]." },
+  { uri: "thinkinglabs://claims/recent", description: "The most recent claim revisions." },
+  { uri: "thinkinglabs://projects", description: "Active and archived projects with state and links." },
+  { uri: "thinkinglabs://projects/active", description: "Just the live ones." },
+  { uri: "thinkinglabs://decisions", description: "Decisions made and the reversals that followed." },
+  { uri: "thinkinglabs://decisions/recent", description: "Latest decisions and reversals." },
+  { uri: "thinkinglabs://predictions", description: "Dated predictions, all states." },
+  { uri: "thinkinglabs://predictions/pending", description: "Predictions still waiting on reality." },
+  { uri: "thinkinglabs://predictions/resolved", description: "Predictions graded against the world." },
+  { uri: "thinkinglabs://predictions/calibration", description: "Stated confidence vs realized accuracy." },
+  { uri: "thinkinglabs://inputs", description: "Things I've read, watched, or listened to." },
+  { uri: "thinkinglabs://inputs/recent", description: "The latest inputs." },
+  { uri: "thinkinglabs://questions", description: "Open questions I'm tracking." },
+  { uri: "thinkinglabs://current_focus", description: "What I'm actively working on right now." },
+];
+
+const templateResources: Resource[] = [
+  { uri: "thinkinglabs://claims/by-tag/{tag}", description: "All claims under a single tag." },
+  { uri: "thinkinglabs://{kind}/{slug}", description: "A single object by slug — claims, thoughts, projects, decisions, predictions, inputs, questions, posts, changed-my-mind." },
+];
+
+const metaResources: Resource[] = [
+  { uri: "thinkinglabs://schema/version", description: "MCP schema version for consumers that pin contracts." },
+  { uri: "thinkinglabs://ai/current-models", description: "The env-resolved model refs by capability tier." },
+];
+
+const tools: Tool[] = [
+  { name: "query_view", title: "Query public view", description: "Filter one public view by free text, tags, and limit." },
+  { name: "contact.precheck", title: "Precheck contact intent", description: "Check a proposed inquiry against the public contact policy before sending." },
+  { name: "contact.send", title: "Prepare contact handoff", description: "Validate a message and return the public email handoff. The server does not send mail." },
+  { name: "subscribe_brain_diff", title: "Subscribe to brain diff", description: "Return public feed URLs and optionally recent deterministic entries from git history." },
+  { name: "question.submit", title: "Submit answer to open question", description: "Write a structured reader answer into the submissions queue for later triage." },
+];
+
+const apis: { url: string; description: string }[] = [
+  { url: "/api/claims.json", description: "All claims with confidence, status, evidence." },
+  { url: "/api/thoughts.json", description: "All draft thoughts with their derived claims." },
+  { url: "/api/inputs.json", description: "Read/watch/listen log with citations." },
+  { url: "/api/projects.json", description: "Project metadata and current state." },
+  { url: "/api/predictions.json", description: "Predictions with stated confidence and resolution." },
+  { url: "/api/decisions.json", description: "Decisions made and their reversals." },
+  { url: "/api/questions.json", description: "Open questions with submission count." },
+  { url: "/api/posts.json", description: "Long-form essays with metadata." },
+  { url: "/api/changed-my-mind.json", description: "Public reversals with before/after." },
+];
+
+const feeds: { url: string; description: string }[] = [
+  { url: "/feed/brain-diff.xml", description: "Substantive changes across all kinds (Atom)." },
+  { url: "/feed/brain-diff.json", description: "Same brain-diff, JSON Feed 1.1." },
+  { url: "/feed/predictions-resolved.json", description: "Predictions transitioning out of pending." },
+  { url: "/feed/claims-revised.json", description: "Claims with non-active status or supersedes links." },
+  { url: "/feed/decisions-reversed.json", description: "Decisions marked reversed, superseded, or with a `reverses` link." },
+];
+---
+
+<AppShell activeNav="Agents">
+  <section class="tl-page-head is-spacious">
+    <div class="tl-eyebrow">§ /agents</div>
+    <h1>For agents.</h1>
+    <p class="tl-page-sub">
+      A markdown corpus exposed as machine-readable surfaces — an index, a stdio MCP server,
+      JSON APIs, and brain-diff feeds — so language models, scrapers, and your own scripts can
+      read this site without parsing HTML.
+    </p>
+  </section>
+
+  <section class="tl-agents-thesis">
+    <div class="tl-eyebrow">↳ Why bother</div>
+    <p>
+      The site is a by-product of a markdown repo, not the other way round. If an agent wants the
+      same view a human gets, it should not have to scrape a layout. Every page below has a
+      structured analogue, regenerated on every build, addressable by URI, and stable enough to
+      pin against.
+    </p>
+  </section>
+
+  <section>
+    <header class="tl-about-section-head is-compact">
+      <div class="tl-eyebrow">§ 01 / llms.txt</div>
+      <h2>
+        An index of every
+        <br />
+        public surface.
+      </h2>
+    </header>
+    <div class="tl-agents-prose">
+      <p>
+        <a class="tl-agents-link" href="/llms.txt">/llms.txt</a> is a single text file that lists
+        every page, listing, detail pattern, JSON API, data file, and feed on the site, grouped
+        by section. It is regenerated at build time from the same surface inventory the top
+        navigation uses, so it never drifts.
+      </p>
+      <p class="is-muted">
+        Hand it to a model as a starting point and it will know what is here without crawling.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <header class="tl-about-section-head is-compact">
+      <div class="tl-eyebrow">§ 02 / MCP server</div>
+      <h2>
+        Stdio MCP — public
+        <br />
+        resources, local tools.
+      </h2>
+    </header>
+    <div class="tl-agents-prose">
+      <p>
+        <code>servers/thinkinglabs-mcp/</code> is a stdio
+        <a class="tl-agents-link" href="https://modelcontextprotocol.io">Model Context Protocol</a>
+        server built on
+        <code>@modelcontextprotocol/sdk</code>. The store prefers the derived
+        <code>dist/index.sqlite</code> and falls back to validated markdown under
+        <code>content/</code>. Schema version <code>0.1.0</code>; public-only; auth disabled.
+      </p>
+    </div>
+
+    <div class="tl-agents-subhead">
+      <div class="tl-eyebrow">Static views</div>
+      <div class="tl-mono is-right">{staticResources.length} resources</div>
+    </div>
+    <div class="tl-agents-list">
+      {staticResources.map((res) => (
+        <article class="tl-agents-row">
+          <code class="tl-agents-uri">{res.uri}</code>
+          <p>{res.description}</p>
+        </article>
+      ))}
+    </div>
+
+    <div class="tl-agents-subhead">
+      <div class="tl-eyebrow">Templates</div>
+      <div class="tl-mono is-right">parameterised</div>
+    </div>
+    <div class="tl-agents-list">
+      {templateResources.map((res) => (
+        <article class="tl-agents-row">
+          <code class="tl-agents-uri">{res.uri}</code>
+          <p>{res.description}</p>
+        </article>
+      ))}
+    </div>
+
+    <div class="tl-agents-subhead">
+      <div class="tl-eyebrow">Meta</div>
+      <div class="tl-mono is-right">contracts &amp; models</div>
+    </div>
+    <div class="tl-agents-list">
+      {metaResources.map((res) => (
+        <article class="tl-agents-row">
+          <code class="tl-agents-uri">{res.uri}</code>
+          <p>{res.description}</p>
+        </article>
+      ))}
+    </div>
+
+    <div class="tl-agents-subhead">
+      <div class="tl-eyebrow">Tools</div>
+      <div class="tl-mono is-right">{tools.length} callable</div>
+    </div>
+    <div class="tl-agents-list">
+      {tools.map((tool) => (
+        <article class="tl-agents-row">
+          <code class="tl-agents-uri">{tool.name}</code>
+          <div>
+            <h3 class="tl-agents-tool-title">{tool.title}</h3>
+            <p>{tool.description}</p>
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section>
+    <header class="tl-about-section-head is-compact">
+      <div class="tl-eyebrow">§ 03 / JSON APIs</div>
+      <h2>
+        One endpoint per kind,
+        <br />
+        no auth.
+      </h2>
+    </header>
+    <div class="tl-agents-prose">
+      <p>
+        Every listed kind also has a flat JSON dump at
+        <code>/api/&lt;kind&gt;.json</code>. Useful when you want the full set in one round-trip
+        instead of paging an MCP view.
+      </p>
+    </div>
+    <div class="tl-agents-list">
+      {apis.map((api) => (
+        <article class="tl-agents-row">
+          <code class="tl-agents-uri"><a href={api.url}>{api.url}</a></code>
+          <p>{api.description}</p>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section>
+    <header class="tl-about-section-head is-compact">
+      <div class="tl-eyebrow">§ 04 / Brain-diff feeds</div>
+      <h2>
+        Subscribe to the
+        <br />
+        deltas, not the dump.
+      </h2>
+    </header>
+    <div class="tl-agents-prose">
+      <p>
+        The brain-diff is a filtered view of substantive changes — claim revisions, prediction
+        resolutions, decision reversals — derived from git history. Boring edits are dropped so a
+        feed reader sees only the meaningful updates.
+      </p>
+    </div>
+    <div class="tl-agents-list">
+      {feeds.map((feed) => (
+        <article class="tl-agents-row">
+          <code class="tl-agents-uri"><a href={feed.url}>{feed.url}</a></code>
+          <p>{feed.description}</p>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section>
+    <header class="tl-about-section-head is-compact">
+      <div class="tl-eyebrow">§ 05 / connect</div>
+      <h2>
+        Wire it up
+        <br />
+        in three lines.
+      </h2>
+    </header>
+    <div class="tl-agents-prose">
+      <p>
+        Clone the repo, install dependencies, and run the MCP entrypoint. Any MCP-aware client
+        (Claude Code, Claude Desktop, your own) can then read public resources and call the five
+        tools.
+      </p>
+    </div>
+    <div class="tl-agents-code-block">
+      <div class="tl-eyebrow">Local clone</div>
+      <pre><code>git clone https://github.com/thinkinglabs/thinkinglabs.git
+cd thinkinglabs
+pnpm install
+pnpm mcp:thinkinglabs</code></pre>
+    </div>
+    <div class="tl-agents-code-block">
+      <div class="tl-eyebrow">Claude Desktop config</div>
+      <pre><code>{`{
+  "mcpServers": {
+    "thinkinglabs": {
+      "command": "pnpm",
+      "args": ["mcp:thinkinglabs"],
+      "cwd": "/absolute/path/to/thinkinglabs"
+    }
+  }
+}`}</code></pre>
+    </div>
+    <div class="tl-agents-prose">
+      <p class="is-muted">
+        For agents that just need a starting URL, point them at
+        <a class="tl-agents-link" href="/llms.txt">/llms.txt</a> and let them fan out from there.
+      </p>
+    </div>
+  </section>
+</AppShell>

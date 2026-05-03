@@ -7,6 +7,7 @@
 - [Home](/): Site root and entry points.
 - [Now](/now): What I'm currently focused on.
 - [About](/about): About this site and the author.
+- [For agents](/agents): MCP server, llms.txt, JSON APIs, and brain-diff feeds — machine-readable surfaces.
 - [Contact](/contact): Human-readable contact surface.
 - [Calibration](/predictions/calibration): Stated confidence vs realized accuracy.
 

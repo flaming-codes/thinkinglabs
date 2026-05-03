@@ -71,6 +71,13 @@ const STATIC_PAGES: ReadonlyArray<Surface> = [
     section: "page",
   },
   {
+    title: "For agents",
+    url: "/agents",
+    description:
+      "MCP server, llms.txt, JSON APIs, and brain-diff feeds — machine-readable surfaces.",
+    section: "page",
+  },
+  {
     title: "Contact",
     url: "/contact",
     description: "Human-readable contact surface.",

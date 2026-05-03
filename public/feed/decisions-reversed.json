@@ -1,7 +1,7 @@
 {
   "version": "https://jsonfeed.org/version/1.1",
   "title": "Decisions reversed",
-  "home_page_url": "https://tom.wild.as/decisions",
-  "feed_url": "https://tom.wild.as/feed/decisions-reversed.json",
+  "home_page_url": "https://thinkinglabs.run/decisions",
+  "feed_url": "https://thinkinglabs.run/feed/decisions-reversed.json",
   "items": []
 }

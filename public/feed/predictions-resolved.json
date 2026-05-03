@@ -1,7 +1,7 @@
 {
   "version": "https://jsonfeed.org/version/1.1",
   "title": "Predictions resolved",
-  "home_page_url": "https://tom.wild.as/predictions",
-  "feed_url": "https://tom.wild.as/feed/predictions-resolved.json",
+  "home_page_url": "https://thinkinglabs.run/predictions",
+  "feed_url": "https://thinkinglabs.run/feed/predictions-resolved.json",
   "items": []
 }
