@@ -9,7 +9,7 @@ interface Props {
 const { activeNav = "Index" } = Astro.props;
 ---
 
-<article class="tl-shell">
+<article class="tl-shell" id="top">
   <SiteHeader activeNav={activeNav} />
   <slot />
 </article>
