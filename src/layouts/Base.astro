@@ -2,6 +2,7 @@
 import { NAV_SURFACES } from "../lib/surfaces.ts";
 import JsonLd from "../components/JsonLd.astro";
 import { buildPageGraph, canonicalUrl, type StructuredData } from "../lib/structured-data.ts";
+import { SITE_NAME } from "../lib/site.ts";
 
 interface Props {
   title: string;
@@ -26,7 +27,7 @@ const jsonLd = buildPageGraph({ site, url: canonical, title, description, struct
     {description ? <meta name="description" content={description} /> : null}
     <link rel="canonical" href={canonical} />
     <meta property="og:type" content={ogType} />
-    <meta property="og:site_name" content="Tom — wild.as" />
+    <meta property="og:site_name" content={SITE_NAME} />
     <meta property="og:title" content={title} />
     {description ? <meta property="og:description" content={description} /> : null}
     <meta property="og:url" content={canonical} />
@@ -125,7 +126,7 @@ const jsonLd = buildPageGraph({ site, url: canonical, title, description, struct
   <body>
     <header class="site">
       <div class="inner">
-        <a href="/" class="brand">Tom — wild.as</a>
+        <a href="/" class="brand">{SITE_NAME}</a>
         {NAV_SURFACES.map((s) => (
           <a class="nav" href={s.url} aria-current={path === s.url ? "page" : undefined}>{s.title}</a>
         ))}

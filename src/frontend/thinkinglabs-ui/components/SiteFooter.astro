@@ -1,42 +1,62 @@
 ---
 import BrandLogo from "./BrandLogo.astro";
+import { CONTACT_EMAIL, GITHUB_URL } from "../../../lib/site.ts";
 
 const year = new Date().getFullYear();
 ---
 
 <footer class="tl-site-footer">
   <div class="tl-site-footer-inner">
-    <div class="tl-site-footer-top">
-      <div class="tl-site-footer-brand">
-        <BrandLogo class="tl-site-footer-logo" ariaLabel="thinkinglabs" />
-        <p class="tl-site-footer-lede">
-          A project in mind?
-          <span class="is-muted">I keep score in public — feel free to send something I should read.</span>
-        </p>
-      </div>
-      <div class="tl-site-footer-cols">
-        <div class="tl-site-footer-col">
-          <h3>Surfaces</h3>
-          <a href="/llms.txt">llms.txt</a>
-          <a href="/feed/brain-diff.xml">JSON feeds</a>
-          <a href="mcp://stdio/pnpm%20mcp:thinkinglabs">MCP server</a>
-        </div>
-        <div class="tl-site-footer-col">
-          <h3>Discover</h3>
-          <a href="/now">Now</a>
-          <a href="/predictions/calibration">Calibration</a>
-          <a href="/feed/brain-diff.xml">Brain-diff</a>
-        </div>
-        <div class="tl-site-footer-col">
-          <h3>Contact</h3>
-          <a href="mailto:tom@wild.as">tom@wild.as</a>
-          <a href="https://github.com/flaming-codes/thinkinglabs">github</a>
-        </div>
-      </div>
+    <div class="tl-site-footer-mark">
+      <BrandLogo class="tl-site-footer-logo" ariaLabel="thinkinglabs" />
     </div>
+    <p class="tl-site-footer-lede">
+      A project in mind?
+      <span class="is-muted">I keep score in public — feel free to send something I should read.</span>
+    </p>
+    <div class="tl-site-footer-rule" aria-hidden="true"></div>
+    <nav class="tl-site-footer-cols" aria-label="Footer">
+      <div class="tl-site-footer-col">
+        <h3>Surfaces</h3>
+        <a href="/llms.txt">llms.txt</a>
+        <a href="/feed/brain-diff.xml">JSON feeds</a>
+        <a href="mcp://stdio/pnpm%20mcp:thinkinglabs">MCP server</a>
+      </div>
+      <div class="tl-site-footer-col">
+        <h3>Discover</h3>
+        <a href="/now">Now</a>
+        <a href="/predictions/calibration">Calibration</a>
+        <a href="/feed/brain-diff.xml">Brain-diff</a>
+      </div>
+      <div class="tl-site-footer-col">
+        <h3>Contact</h3>
+        <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
+        <a href={GITHUB_URL}>github</a>
+      </div>
+    </nav>
     <div class="tl-site-footer-bottom">
       <span class="tl-site-footer-copy">© {year} thinkinglabs · built in public</span>
       <a href="#top" class="tl-site-footer-top-link" aria-label="Back to top">Back to top ↑</a>
     </div>
   </div>
 </footer>
+
+<script is:inline>
+  (() => {
+    const footer = document.querySelector(".tl-site-footer");
+    if (!(footer instanceof HTMLElement)) return;
+    const root = document.documentElement;
+    const sync = () => {
+      root.style.setProperty("--tl-footer-h", footer.offsetHeight + "px");
+    };
+    sync();
+    if ("ResizeObserver" in window) {
+      new ResizeObserver(sync).observe(footer);
+    } else {
+      window.addEventListener("resize", sync);
+    }
+    footer.addEventListener("focusin", () => {
+      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+    });
+  })();
+</script>

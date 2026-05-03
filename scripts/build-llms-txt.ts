@@ -3,6 +3,7 @@ import { writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { loadContact } from "../src/lib/contact.ts";
 import { SECTION_ORDER, SECTION_TITLES, SURFACES } from "../src/lib/surfaces.ts";
+import { GITHUB_URL, SITE_NAME } from "../src/lib/site.ts";
 
 /** Generates `public/llms.txt` from the shared surfaces inventory; runs as a `prebuild` step so the file exists before astro copies `public/`. */
 function main(): void {
@@ -14,9 +15,9 @@ function main(): void {
     sections.set(s.section, list);
   }
   const lines: string[] = [
-    "# Tom — wild.as",
+    `# ${SITE_NAME}`,
     "",
-    "> Personal thinking surface. Markdown source-of-truth at https://github.com/flaming-codes/thinkinglabs. Every page below renders from `content/<kind>/`.",
+    `> Personal thinking surface. Markdown source-of-truth at ${GITHUB_URL}. Every page below renders from \`content/<kind>/\`.`,
     "",
   ];
   for (const key of SECTION_ORDER) {

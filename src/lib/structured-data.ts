@@ -25,6 +25,7 @@ import type { Prediction } from "../schemas/prediction.ts";
 import type { Project } from "../schemas/project.ts";
 import type { Question } from "../schemas/question.ts";
 import type { Thought } from "../schemas/thought.ts";
+import { SITE_NAME } from "./site.ts";
 
 /** Page-specific Schema.org nodes passed from routes into the shared page graph builder. */
 export interface StructuredData {
@@ -45,7 +46,6 @@ interface DetailEntry<T> {
   readonly data: T;
 }
 
-const SITE_NAME = "Tom — wild.as";
 const AUTHOR_NAME = "Tom";
 const LANGUAGE = "en";
 

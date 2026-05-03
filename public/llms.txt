@@ -1,4 +1,4 @@
-# Tom — wild.as
+# thinkinglabs
 
 > Personal thinking surface. Markdown source-of-truth at https://github.com/flaming-codes/thinkinglabs. Every page below renders from `content/<kind>/`.
 

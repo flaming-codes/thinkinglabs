@@ -3,7 +3,7 @@ import { z } from "zod";
 /** Zod schema for every environment variable read across the codebase; defaults are documented per-field. */
 const envSchema = z.object({
   /** Canonical public site URL; used by Astro, structured-data checks, feed builders, and MCP handlers. */
-  SITE_URL: z.url().default("https://tom.wild.as"),
+  SITE_URL: z.url().default("https://thinkinglabs.run"),
   /** Optional repo-root override for the MCP server when invoked from another working directory. */
   THINKINGLABS_MCP_REPO_ROOT: z.string().optional(),
   /** Frozen "now" for deterministic builds; ISO-8601. Falls back to `new Date().toISOString()` when absent. */

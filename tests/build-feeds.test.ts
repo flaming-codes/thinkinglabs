@@ -100,15 +100,15 @@ describe("buildClaimsRevised", () => {
     const feed = buildClaimsRevised({ cwd: root });
     expect(feed.version).toBe("https://jsonfeed.org/version/1.1");
     expect(feed.title).toBe("Claims revised");
-    expect(feed.feed_url).toBe("https://tom.wild.as/feed/claims-revised.json");
-    expect(feed.home_page_url).toBe("https://tom.wild.as/claims");
+    expect(feed.feed_url).toBe("https://thinkinglabs.run/feed/claims-revised.json");
+    expect(feed.home_page_url).toBe("https://thinkinglabs.run/claims");
     expect(feed.items).toHaveLength(3);
     expect(feed.items.map((i) => i.id)).toEqual([
-      "https://tom.wild.as/claims/c-superseded-link",
-      "https://tom.wild.as/claims/b-deprecated",
-      "https://tom.wild.as/claims/d-supersedes",
+      "https://thinkinglabs.run/claims/c-superseded-link",
+      "https://thinkinglabs.run/claims/b-deprecated",
+      "https://thinkinglabs.run/claims/d-supersedes",
     ]);
-    expect(feed.items[0]?.url).toBe("https://tom.wild.as/claims/c-superseded-link");
+    expect(feed.items[0]?.url).toBe("https://thinkinglabs.run/claims/c-superseded-link");
     expect(feed.items[0]?.title).toBe("Claim c-superseded-link.");
     expect(feed.items[0]?.date_published).toBe("2026-05-01");
   });
@@ -124,9 +124,9 @@ describe("buildDecisionsReversed", () => {
     const feed = buildDecisionsReversed({ cwd: root });
     expect(feed.title).toBe("Decisions reversed");
     expect(feed.items.map((i) => i.id)).toEqual([
-      "https://tom.wild.as/decisions/b-reverses",
-      "https://tom.wild.as/decisions/c-reversed",
-      "https://tom.wild.as/decisions/d-superseded",
+      "https://thinkinglabs.run/decisions/b-reverses",
+      "https://thinkinglabs.run/decisions/c-reversed",
+      "https://thinkinglabs.run/decisions/d-superseded",
     ]);
     expect(feed.items[0]?.title).toBe("Decision b-reverses.");
     expect(feed.items[0]?.content_text).toContain("reverses=decisions/old");
@@ -145,9 +145,9 @@ describe("buildPredictionsResolved", () => {
     expect(feed.title).toBe("Predictions resolved");
     expect(feed.items).toHaveLength(3);
     expect(feed.items.map((i) => i.id)).toEqual([
-      "https://tom.wild.as/predictions/c-false",
-      "https://tom.wild.as/predictions/d-ambiguous",
-      "https://tom.wild.as/predictions/b-true",
+      "https://thinkinglabs.run/predictions/c-false",
+      "https://thinkinglabs.run/predictions/d-ambiguous",
+      "https://thinkinglabs.run/predictions/b-true",
     ]);
     expect(feed.items[0]?.content_text).toContain("resolution=false");
     expect(feed.items[0]?.date_published).toBe("2026-05-01");
@@ -176,9 +176,9 @@ describe("writeFeeds", () => {
     expect(claims.items).toHaveLength(1);
     expect(decisions.items).toHaveLength(1);
     expect(predictions.items).toHaveLength(1);
-    expect(claims.items[0]?.id).toBe("https://tom.wild.as/claims/a-deprecated");
-    expect(decisions.items[0]?.id).toBe("https://tom.wild.as/decisions/b-reverses");
-    expect(predictions.items[0]?.id).toBe("https://tom.wild.as/predictions/c-true");
+    expect(claims.items[0]?.id).toBe("https://thinkinglabs.run/claims/a-deprecated");
+    expect(decisions.items[0]?.id).toBe("https://thinkinglabs.run/decisions/b-reverses");
+    expect(predictions.items[0]?.id).toBe("https://thinkinglabs.run/predictions/c-true");
   });
 
   it("writes empty `items` arrays when no content matches", () => {
