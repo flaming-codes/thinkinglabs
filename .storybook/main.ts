@@ -1,16 +1,15 @@
 import { fileURLToPath } from "node:url";
 import type { StorybookConfig } from "@storybook-astro/framework";
-import type { Plugin } from "vite";
 
 /** Stubs Astro virtual modules that only exist inside the Astro dev server (e.g. `astro:toolbar:internal`), so Storybook's Vite can resolve transitive imports from `astro/dist/runtime/client`. */
-const astroVirtualStubs = (): Plugin => ({
+const astroVirtualStubs = () => ({
   name: "thinkinglabs:astro-virtual-stubs",
-  enforce: "pre",
-  resolveId(id) {
+  enforce: "pre" as const,
+  resolveId(id: string) {
     if (id === "astro:toolbar:internal") return `\0${id}`;
     return null;
   },
-  load(id) {
+  load(id: string) {
     if (id === "\0astro:toolbar:internal") {
       return "export const loadDevToolbarApps = () => {};\n";
     }
