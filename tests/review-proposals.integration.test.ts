@@ -57,6 +57,22 @@ describe("review-proposals CLI (integration)", () => {
     }
   }, 30_000);
 
+  it("exits non-zero with an explicit error when queue state is malformed", () => {
+    const root = mkdtempSync(join(tmpdir(), "review-proposals-int-"));
+    try {
+      writeJsonState(join(root, ".proposal-queue.json"), { proposals: "bad-shape" });
+      const result = spawnSync("tsx", [SCRIPT], {
+        cwd: root,
+        encoding: "utf8",
+        timeout: 30_000,
+      });
+      expect(result.status).toBe(1);
+      expect(result.stderr).toContain("malformed queue file");
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  }, 30_000);
+
   it("accepting a queued LLM proposal writes provenance before removing it", () => {
     const root = mkdtempSync(join(tmpdir(), "review-proposals-prov-"));
     try {

@@ -7,17 +7,22 @@ import { contactSchema, type Contact } from "../../src/schemas/contact.ts";
 import type { Prediction } from "../../src/schemas/prediction.ts";
 import {
   DETAIL_KINDS,
-  PUBLIC_VIEWS,
   titleFor,
   type FrontmatterPredicate,
   type PublicViewSpec,
 } from "../../src/lib/registry.ts";
 import { KINDS, type Kind } from "../../src/schemas/index.ts";
-import type { QueryViewArgs, PublicView, ViewItem, ViewResult } from "./types.ts";
+import {
+  MCP_PUBLIC_VIEWS,
+  type QueryViewArgs,
+  type PublicView,
+  type ViewItem,
+  type ViewResult,
+} from "./types.ts";
 
 /** Derived `view -> spec` lookup; widened to `PublicViewSpec` so optional fields (`kinds`, `predicates`) are visible to callers. */
 const VIEW_SPEC: Record<PublicView, PublicViewSpec> = Object.fromEntries(
-  PUBLIC_VIEWS.map((v) => [v.view, v as PublicViewSpec]),
+  MCP_PUBLIC_VIEWS.map((v) => [v.view, v as PublicViewSpec]),
 ) as Record<PublicView, PublicViewSpec>;
 
 /** Set of kinds a view requests when reading the index (defaults to `[v.kind]`). */

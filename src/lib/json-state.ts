@@ -3,9 +3,17 @@ import { readFileSync, renameSync, writeFileSync } from "node:fs";
 /** Parses a small JSON state file at the repo root; returns the fallback when the file does not exist. */
 export function readJsonState<T>(path: string, fallback: T): T {
   try {
-    return JSON.parse(readFileSync(path, "utf8")) as T;
-  } catch {
-    return fallback;
+    const raw = readFileSync(path, "utf8");
+    try {
+      return JSON.parse(raw) as T;
+    } catch (e) {
+      const reason = e instanceof Error ? e.message : String(e);
+      throw new Error(`json-state: malformed JSON in ${path}: ${reason}`);
+    }
+  } catch (e) {
+    const err = e as NodeJS.ErrnoException;
+    if (err.code === "ENOENT") return fallback;
+    throw e;
   }
 }
 

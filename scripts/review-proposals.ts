@@ -6,6 +6,13 @@ import { readQueue, removeFromQueue, type QueuedProposal } from "../src/lib/prop
 import { getHandler, allHandlers } from "../src/lib/proposal-dispatch.ts";
 import type { ProposalSource } from "../src/lib/proposal-queue.ts";
 import { writeProvenanceEvent } from "../src/lib/provenance.ts";
+import {
+  beginProposalReview,
+  getProposalReviewEntry,
+  markProposalApplied,
+  markProposalFinalized,
+  markProposalProvenanceWritten,
+} from "../src/lib/proposal-review-state.ts";
 
 /** Side-effect import of every agent module so each `registerHandler` call runs at startup; derived from the registry. */
 async function loadAgentHandlers(): Promise<void> {
@@ -104,6 +111,27 @@ function writeQueuedProvenance(
   });
 }
 
+/** Finalizes a previously-applied proposal without replaying its side effects. */
+function finalizeWithoutReplay(args: {
+  cwd: string;
+  proposal: QueuedProposal;
+  outcome: "accepted" | "edited";
+  output: Writable;
+}): void {
+  const { cwd, proposal, outcome, output } = args;
+  const entry = getProposalReviewEntry(proposal.id, cwd);
+  if (!entry || entry.outcome !== outcome) {
+    throw new Error(`review-proposals-state: missing ${outcome} replay record for ${proposal.id}`);
+  }
+  if (!entry.provenanceWritten && proposal.provenance) {
+    writeQueuedProvenance(cwd, proposal, outcome);
+    markProposalProvenanceWritten(proposal.id, outcome, cwd);
+  }
+  removeFromQueue(proposal.id, cwd);
+  if (entry.phase !== "finalized") markProposalFinalized(proposal.id, outcome, cwd);
+  output.write(`already ${outcome}: ${proposal.id}; finalized without replay\n`);
+}
+
 /** Summary returned by runProposalsReview. */
 export interface ReviewRunSummary {
   readonly accepted: number;
@@ -161,9 +189,21 @@ export async function runProposalsReview(args: {
         if (dryRun) {
           output.write(`[dry-run] would accept: ${p.id}\n`);
         } else {
+          beginProposalReview(p.id, "accepted", cwd);
+          const previous = getProposalReviewEntry(p.id, cwd);
+          if (previous && previous.phase !== "applying") {
+            finalizeWithoutReplay({ cwd, proposal: p, outcome: "accepted", output });
+            tally.accepted++;
+            return "accepted";
+          }
           const summary = await handler.apply(typed, ctx);
-          writeQueuedProvenance(cwd, p, "accepted");
+          markProposalApplied(p.id, "accepted", cwd);
+          if (p.provenance) {
+            writeQueuedProvenance(cwd, p, "accepted");
+            markProposalProvenanceWritten(p.id, "accepted", cwd);
+          }
           removeFromQueue(p.id, cwd);
+          markProposalFinalized(p.id, "accepted", cwd);
           output.write(`accepted: ${summary}\n`);
         }
         tally.accepted++;
@@ -179,9 +219,21 @@ export async function runProposalsReview(args: {
         if (dryRun) {
           output.write(`[dry-run] would edit: ${p.id}\n`);
         } else {
+          beginProposalReview(p.id, "edited", cwd);
+          const previous = getProposalReviewEntry(p.id, cwd);
+          if (previous && previous.phase !== "applying") {
+            finalizeWithoutReplay({ cwd, proposal: p, outcome: "edited", output });
+            tally.edited++;
+            return "edited";
+          }
           const summary = await handler.edit(typed, ctx);
-          writeQueuedProvenance(cwd, p, "edited");
+          markProposalApplied(p.id, "edited", cwd);
+          if (p.provenance) {
+            writeQueuedProvenance(cwd, p, "edited");
+            markProposalProvenanceWritten(p.id, "edited", cwd);
+          }
           removeFromQueue(p.id, cwd);
+          markProposalFinalized(p.id, "edited", cwd);
           output.write(`edited: ${summary}\n`);
         }
         tally.edited++;

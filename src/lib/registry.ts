@@ -206,7 +206,7 @@ export const KIND_REGISTRY = {
     titleField: "title",
     dateField: "accepted_at",
     nav: false,
-    api: true,
+    api: false,
     mcp: { detail: true, listView: "provenance" },
     description: "AI provenance events for accepted, edited, or merged content effects.",
     listingTitle: "Provenance",

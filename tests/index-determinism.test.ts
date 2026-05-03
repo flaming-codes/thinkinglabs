@@ -37,4 +37,25 @@ describe("index builder", () => {
       rmSync(root, { recursive: true, force: true });
     }
   }, 15_000);
+
+  it("surfaces malformed frontmatter with kind/slug and relative path", () => {
+    const root = mkdtempSync(join(tmpdir(), "me-index-"));
+    try {
+      const content = join(root, "content");
+      for (const k of KINDS) {
+        mkdirSync(join(content, k), { recursive: true });
+      }
+      writeFileSync(
+        join(content, "posts", "broken.md"),
+        ["---", "title: *missing", "---", "Body."].join("\n"),
+      );
+      const run = () => collectObjects(content, root);
+      expect(run).toThrow(/posts\/broken/);
+      expect(run).toThrow(/content\/posts\/broken\.md/);
+      expect(run).toThrow(/frontmatter parse error/);
+      expect(run).toThrow(/Fix the YAML between the leading and trailing --- delimiters/);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
 });

@@ -60,6 +60,20 @@ const queuedProposalSchema = z.object({
 /** Zod schema for the entire queue file shape. */
 const queueFileSchema = z.object({ proposals: z.array(queuedProposalSchema) });
 
+/** Builds a stable, explicit malformed-queue error. */
+function malformedQueueError(path: string, message: string): Error {
+  return new Error(`proposal-queue: malformed queue file at ${path}: ${message}`);
+}
+
+/** Parse queue-file JSON and throw on malformed shape instead of silently dropping proposals. */
+function parseQueueFile(raw: unknown, path: string): z.infer<typeof queueFileSchema> {
+  const parsed = queueFileSchema.safeParse(raw);
+  if (!parsed.success) {
+    throw malformedQueueError(path, parsed.error.message);
+  }
+  return parsed.data;
+}
+
 /** Absolute path to the queue file; resolved from the supplied repo root or process cwd. */
 function queuePath(cwd = process.cwd()): string {
   return join(resolve(cwd), ".proposal-queue.json");
@@ -157,13 +171,10 @@ function withQueueLock<T>(cwd: string | undefined, fn: () => T): T {
 
 /** Read all pending proposals in deterministic order (createdAt asc, id tiebreak). */
 export function readQueue(cwd?: string): ReadonlyArray<QueuedProposal> {
-  const raw = readJsonState<unknown>(queuePath(cwd), { proposals: [] });
-  const parsed = queueFileSchema.safeParse(raw);
-  if (!parsed.success) {
-    process.stderr.write(`proposal-queue: malformed queue file, returning empty queue\n`);
-    return [];
-  }
-  return [...parsed.data.proposals].sort((a, b) => {
+  const path = queuePath(cwd);
+  const raw = readJsonState<unknown>(path, { proposals: [] });
+  const parsed = parseQueueFile(raw, path);
+  return [...parsed.proposals].sort((a, b) => {
     const t = a.createdAt.localeCompare(b.createdAt);
     return t !== 0 ? t : a.id.localeCompare(b.id);
   });
@@ -172,21 +183,21 @@ export function readQueue(cwd?: string): ReadonlyArray<QueuedProposal> {
 /** Append a proposal; idempotent on identical id (no duplicate entries). */
 export function enqueue(proposal: QueuedProposal, cwd?: string): void {
   withQueueLock(cwd, () => {
-    const raw = readJsonState<unknown>(queuePath(cwd), { proposals: [] });
-    const parsed = queueFileSchema.safeParse(raw);
-    const existing = parsed.success ? parsed.data.proposals : [];
+    const path = queuePath(cwd);
+    const raw = readJsonState<unknown>(path, { proposals: [] });
+    const existing = parseQueueFile(raw, path).proposals;
     if (existing.some((p) => p.id === proposal.id)) return;
-    writeJsonState(queuePath(cwd), { proposals: [...existing, proposal] });
+    writeJsonState(path, { proposals: [...existing, proposal] });
   });
 }
 
 /** Remove one proposal by id; no-op if missing. */
 export function removeFromQueue(id: string, cwd?: string): void {
   withQueueLock(cwd, () => {
-    const raw = readJsonState<unknown>(queuePath(cwd), { proposals: [] });
-    const parsed = queueFileSchema.safeParse(raw);
-    if (!parsed.success) return;
-    writeJsonState(queuePath(cwd), { proposals: parsed.data.proposals.filter((p) => p.id !== id) });
+    const path = queuePath(cwd);
+    const raw = readJsonState<unknown>(path, { proposals: [] });
+    const parsed = parseQueueFile(raw, path);
+    writeJsonState(path, { proposals: parsed.proposals.filter((p) => p.id !== id) });
   });
 }
 

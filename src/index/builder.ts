@@ -1,8 +1,10 @@
-import { existsSync, readFileSync, readdirSync, rmSync, statSync } from "node:fs";
-import { extname, join, relative } from "node:path";
+import { existsSync, readFileSync, rmSync, statSync } from "node:fs";
+import { join, relative } from "node:path";
 import Database from "better-sqlite3";
-import matter from "gray-matter";
 import { resolvedLastTouchedSync } from "../lib/git.ts";
+import { formatFrontmatterParseError } from "../lib/frontmatter-errors.ts";
+import { parseFrontmatterStrict } from "../lib/frontmatter-parse.ts";
+import { walkMarkdownFiles } from "../lib/markdown-walk.ts";
 import { stripKindPrefix, stripMdExt } from "../lib/refs.ts";
 import { titleFor } from "../lib/registry.ts";
 import { KIND_SCHEMAS, KINDS, type Kind } from "../schemas/index.ts";
@@ -60,28 +62,6 @@ CREATE TABLE embeddings (
 );
 `;
 
-/** Recursive directory walk yielding markdown leaves only; underscore-prefixed files (test fixtures) are included intentionally. */
-function walkMarkdown(root: string): string[] {
-  const out: string[] = [];
-  const stack: string[] = [root];
-  while (stack.length > 0) {
-    const dir = stack.pop()!;
-    let entries: string[];
-    try {
-      entries = readdirSync(dir);
-    } catch {
-      continue;
-    }
-    for (const name of entries) {
-      const full = join(dir, name);
-      const st = statSync(full);
-      if (st.isDirectory()) stack.push(full);
-      else if (st.isFile() && extname(name) === ".md") out.push(full);
-    }
-  }
-  return out.sort();
-}
-
 /** Slug = path under content/<kind>/ minus extension; nested directories preserved as `/` so collisions are explicit. */
 function deriveSlug(filePath: string, kindRoot: string): string {
   const rel = relative(kindRoot, filePath).replaceAll("\\", "/");
@@ -104,7 +84,20 @@ function normalizeLinkTarget(raw: string): string {
 function readObject(kind: Kind, kindRoot: string, file: string, repoRoot: string): IndexedObject {
   const slug = deriveSlug(file, kindRoot);
   const raw = readFileSync(file, "utf8");
-  const parsed = matter(raw);
+  let parsed: ReturnType<typeof parseFrontmatterStrict>;
+  try {
+    parsed = parseFrontmatterStrict(raw);
+  } catch (error) {
+    throw new Error(
+      formatFrontmatterParseError({
+        kind,
+        slug,
+        filePath: file,
+        repoRoot,
+        error,
+      }),
+    );
+  }
   const spec = KIND_SCHEMAS[kind];
   const result = spec.schema.safeParse(parsed.data);
   if (!result.success) {
@@ -142,7 +135,7 @@ export function collectObjects(contentRoot: string, repoRoot: string): IndexedOb
   const out: IndexedObject[] = [];
   for (const kind of KINDS) {
     const kindRoot = join(contentRoot, kind);
-    for (const file of walkMarkdown(kindRoot)) {
+    for (const file of walkMarkdownFiles(kindRoot)) {
       out.push(readObject(kind, kindRoot, file, repoRoot));
     }
   }

@@ -68,7 +68,7 @@ describe("collectionJson — empty kind", () => {
     }));
 
     const { collectionJson } = await import("../../src/lib/api.ts");
-    const handler = collectionJson("provenance" as never);
+    const handler = collectionJson("predictions" as never);
     const response = (await handler(emptyContext() as never)) as Response;
 
     expect(response.status).toBe(200);
@@ -90,5 +90,19 @@ describe("collectionJson — empty kind", () => {
     const response = (await handler(emptyContext() as never)) as Response;
     const body = (await response.json()) as Array<{ id: string; body: string }>;
     expect(body[0]?.body).toBe("");
+  });
+
+  it("returns 404 for non-public kinds", async () => {
+    const getCollection = vi.fn(async () => []);
+    vi.doMock("astro:content", () => ({
+      getCollection,
+    }));
+
+    const { collectionJson } = await import("../../src/lib/api.ts");
+    const handler = collectionJson("provenance" as never);
+    const response = (await handler(emptyContext() as never)) as Response;
+
+    expect(response.status).toBe(404);
+    expect(getCollection).not.toHaveBeenCalled();
   });
 });

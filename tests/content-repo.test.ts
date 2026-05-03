@@ -2,6 +2,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
+import { collectObjects } from "../src/index/builder.ts";
 import { loadContent, loadContentSafe } from "../src/lib/content-repo.ts";
 
 /** Writes a minimal post markdown file with valid frontmatter. */
@@ -82,6 +83,33 @@ describe("loadContent", () => {
     expect(entries[0]!.slug).toBe("real");
   });
 
+  /** Content loader and index builder intentionally differ on seed/hidden inclusion. */
+  it("keeps seed/hidden filtering explicit between loader and builder", () => {
+    const dir = join(tmp, "content", "posts");
+    mkdirSync(dir, { recursive: true });
+    writePost(
+      join(dir, "real.md"),
+      { title: "Real", created: "2026-01-01", updated: "2026-01-02" },
+      "body",
+    );
+    writePost(
+      join(dir, "_seed-fixture.md"),
+      { title: "Seed", created: "2026-01-01", updated: "2026-01-02" },
+      "seed",
+    );
+    writePost(
+      join(dir, ".hidden.md"),
+      { title: "Hidden", created: "2026-01-01", updated: "2026-01-02" },
+      "hidden",
+    );
+
+    const loaded = loadContent("posts", { cwd: tmp });
+    expect(loaded.map((e) => e.slug)).toEqual(["real"]);
+
+    const indexed = collectObjects(join(tmp, "content"), tmp).filter((o) => o.kind === "posts");
+    expect(indexed.map((o) => o.slug)).toEqual([".hidden", "_seed-fixture", "real"]);
+  });
+
   /** Throws on invalid frontmatter rather than silently dropping the file. */
   it("throws on schema-invalid frontmatter", () => {
     const dir = join(tmp, "content", "posts");
@@ -134,5 +162,29 @@ describe("loadContentSafe", () => {
     expect(entries.map((e) => e.slug)).toEqual(["ok"]);
     expect(errors).toHaveLength(1);
     expect(errors[0]!.message).toContain("posts/bad");
+  });
+
+  /** Surfaces malformed YAML frontmatter as a targeted parse error. */
+  it("reports malformed frontmatter parse errors", () => {
+    const dir = join(tmp, "content", "posts");
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(
+      join(dir, "broken.md"),
+      ["---", "title: *missing", "---", "body"].join("\n"),
+      "utf8",
+    );
+
+    expect(() => loadContent("posts", { cwd: tmp })).toThrow(/posts\/broken/);
+    expect(() => loadContent("posts", { cwd: tmp })).toThrow(/frontmatter parse error/);
+    expect(() => loadContent("posts", { cwd: tmp })).toThrow(/content\/posts\/broken\.md/);
+    expect(() => loadContent("posts", { cwd: tmp })).toThrow(
+      /Fix the YAML between the leading and trailing --- delimiters/,
+    );
+
+    const { entries, errors } = loadContentSafe("posts", { cwd: tmp });
+    expect(entries).toEqual([]);
+    expect(errors).toHaveLength(1);
+    expect(errors[0]!.message).toContain("posts/broken");
+    expect(errors[0]!.message).toContain("frontmatter parse error");
   });
 });

@@ -1,4 +1,4 @@
-import { type Kind } from "../schemas/index.ts";
+import { KINDS, type Kind } from "../schemas/index.ts";
 import { KIND_REGISTRY, LISTING_KINDS, type KindRegistryEntry } from "./registry.ts";
 
 export { LISTING_KINDS } from "./registry.ts";
@@ -53,6 +53,12 @@ const DETAIL_DISPLAY_ORDER = [
 const DETAIL_ORDERED: ReadonlyArray<Kind> = DETAIL_DISPLAY_ORDER.filter((k) =>
   LISTING_KINDS.includes(k),
 );
+
+/** Display order for API surfaces: listing APIs keep historical order; non-nav API kinds append in canonical kind order. */
+const API_ORDERED: ReadonlyArray<Kind> = [
+  ...LISTING_ORDERED.filter((k) => KIND_REGISTRY[k].api),
+  ...KINDS.filter((k) => KIND_REGISTRY[k].api && !LISTING_KINDS.includes(k)),
+];
 
 /** Static (non-per-kind) page surfaces; ordering reflects rendering order in `llms.txt` and top nav. */
 const STATIC_PAGES: ReadonlyArray<Surface> = [
@@ -191,7 +197,7 @@ function detailSurface(kind: Kind): Surface {
 /** Per-kind JSON API surface derived from the registry. */
 function apiSurface(kind: Kind): Surface | null {
   const spec = KIND_REGISTRY[kind] as KindSpecRuntime;
-  if (!spec.api || !spec.route) return null;
+  if (!spec.api) return null;
   return {
     title: spec.apiTitle ?? `${spec.listingTitle} JSON`,
     url: `/api/${kind}.json`,
@@ -206,7 +212,7 @@ export const SURFACES: ReadonlyArray<Surface> = [
   ...LISTING_ORDERED.map(listingSurface),
   ...EXTRA_PAGES,
   ...DETAIL_ORDERED.map(detailSurface),
-  ...LISTING_ORDERED.map(apiSurface).filter((s): s is Surface => s !== null),
+  ...API_ORDERED.map(apiSurface).filter((s): s is Surface => s !== null),
   ...TAIL_SURFACES,
 ];
 

@@ -12,9 +12,9 @@ import {
   subscribeBrainDiffInputSchema,
 } from "./handlers.ts";
 import { getObject, predictionCalibration, queryView } from "./store.ts";
-import { publicViewSchema, type PublicView } from "./types.ts";
+import { MCP_PUBLIC_VIEWS, publicViewSchema, type PublicView } from "./types.ts";
 import { currentModelRefs } from "../../src/lib/llm.ts";
-import { DETAIL_KINDS as registryDetailKinds, PUBLIC_VIEWS } from "../../src/lib/registry.ts";
+import { DETAIL_KINDS as registryDetailKinds } from "../../src/lib/registry.ts";
 
 /** Options controlling which checkout the MCP server reads. */
 export interface ThinkinglabsMcpServerOptions {
@@ -22,10 +22,10 @@ export interface ThinkinglabsMcpServerOptions {
 }
 
 /** MCP detail kinds derived from the kind registry. */
-const DETAIL_KINDS = registryDetailKinds;
+const DETAIL_KINDS = registryDetailKinds.filter((kind) => kind !== "provenance");
 
 /** MCP static-view resource (view, uri) pairs derived from the kind registry. */
-const STATIC_RESOURCES = PUBLIC_VIEWS.filter((v) => v.resource === "static").map(
+const STATIC_RESOURCES = MCP_PUBLIC_VIEWS.filter((v) => v.resource === "static").map(
   (v) => [v.view, v.uri] as const,
 ) as ReadonlyArray<readonly [PublicView, string]>;
 

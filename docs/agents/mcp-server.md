@@ -31,26 +31,25 @@ Fixed JSON views at:
 - `thinkinglabs://inputs`
 - `thinkinglabs://inputs/recent`
 - `thinkinglabs://questions`
-- `thinkinglabs://provenance`
 - `thinkinglabs://current_focus`
 - `thinkinglabs://schema/version`
 
-Per-object detail templates use `thinkinglabs://<kind>/{slug}` for `thoughts`, `claims`, `projects`, `decisions`, `predictions`, `inputs`, `questions`, `posts`, `changed-my-mind`, and `provenance`.
+Per-object detail templates use `thinkinglabs://<kind>/{slug}` for `thoughts`, `claims`, `projects`, `decisions`, `predictions`, `inputs`, `questions`, `posts`, and `changed-my-mind`.
 
 ## Local-only tools (write/intake)
 
 These tools are stdio-only and intended for local agent use:
 
-- `query_view` — filters one public view by text, tags, and limit; includes the `provenance` view for accepted AI-assisted effects.
+- `query_view` — filters one public view by text, tags, and limit.
 - `contact.precheck` — checks a proposed inquiry against `public/contact.json`.
 - `contact.send` — validates a message and returns the public email handoff; it does not send mail.
 - `question.submit` — writes a structured answer into `submissions/questions/<slug>/` for `triage-questions`.
 - `subscribe_brain_diff` — returns public feed URLs and can include deterministic recent entries from git history.
 
-## Model and provenance resources
+## Model resource
 
-Records of accepted AI-assisted effects and the active model configuration. Provenance is committed to the source tree but is intentionally not surfaced on the public web (see ADR-007); local agents reach it here.
+The active model configuration is exposed as a read-only resource.
 
-- `thinkinglabs://provenance` — all provenance objects (one per accepted AI-assisted effect, recording `provider`, `model`, `tier`, source, target).
-- `thinkinglabs://provenance/{slug}` — individual provenance object detail.
 - `thinkinglabs://ai/current-models` — the env-resolved `ModelRef` per capability tier under the current configuration (mirrors `currentModelRefs()` from `src/lib/llm.ts`).
+
+Provenance remains in source (`content/provenance`) but is intentionally not exposed via MCP runtime resources or views.

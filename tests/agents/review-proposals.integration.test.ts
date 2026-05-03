@@ -6,6 +6,7 @@ import { PassThrough } from "node:stream";
 import matter from "gray-matter";
 import { describe, expect, it } from "vite-plus/test";
 import { runDormantFlip } from "../../src/lib/agents/dormant-flip.ts";
+import { writeJsonState } from "../../src/lib/json-state.ts";
 import { runProposalsReview } from "../../scripts/review-proposals.ts";
 import { readQueue } from "../../src/lib/proposal-queue.ts";
 
@@ -162,5 +163,92 @@ describe("dormant-flip + review-proposals round-trip (integration)", () => {
         rmSync(root, { recursive: true, force: true });
       }
     }, 60_000);
+
+    it("does not replay accept side effects when prior run already reached applied state", async () => {
+      const root = mkdtempSync(join(tmpdir(), "rp-int-replay-guard-"));
+      try {
+        const proposal = {
+          id: "replay-guard-proposal",
+          source: "dormant-flip" as const,
+          type: "project-flip-dormant" as const,
+          createdAt: "2026-05-02T00:00:00.000Z",
+          target: null,
+          title: "Replay guard proposal",
+          preview: "Should not re-run apply when already marked applied.",
+          payload: { daysSinceTouched: 100, thresholdDays: 60, lastTouchedISO: null },
+        };
+        writeJsonState(join(root, ".proposal-queue.json"), { proposals: [proposal] });
+        writeJsonState(join(root, ".review-proposals-state.json"), {
+          entries: {
+            [proposal.id]: {
+              outcome: "accepted",
+              phase: "applied",
+              provenanceWritten: false,
+              updatedAt: "2026-05-02T00:00:00.000Z",
+            },
+          },
+        });
+
+        const input = new PassThrough();
+        const output = new PassThrough();
+        let stdout = "";
+        output.on("data", (chunk) => {
+          stdout += String(chunk);
+        });
+
+        const reviewPromise = runProposalsReview({ cwd: root, io: { input, output } });
+        input.push("a");
+        const summary = await reviewPromise;
+
+        expect(summary.accepted).toBe(1);
+        expect(summary.queueSize).toBe(0);
+        expect(stdout).toContain("already accepted");
+        expect(readQueue(root)).toHaveLength(0);
+        const state = JSON.parse(
+          readFileSync(join(root, ".review-proposals-state.json"), "utf8"),
+        ) as {
+          entries: Record<string, { phase: string }>;
+        };
+        expect(state.entries[proposal.id]?.phase).toBe("finalized");
+      } finally {
+        rmSync(root, { recursive: true, force: true });
+      }
+    }, 30_000);
+
+    it("refuses to replay when proposal state is stuck in applying phase", async () => {
+      const root = mkdtempSync(join(tmpdir(), "rp-int-replay-block-"));
+      try {
+        const proposal = {
+          id: "in-flight-proposal",
+          source: "dormant-flip" as const,
+          type: "project-flip-dormant" as const,
+          createdAt: "2026-05-02T00:00:00.000Z",
+          target: null,
+          title: "In-flight proposal",
+          preview: "Crash left this in applying state.",
+          payload: { daysSinceTouched: 100, thresholdDays: 60, lastTouchedISO: null },
+        };
+        writeJsonState(join(root, ".proposal-queue.json"), { proposals: [proposal] });
+        writeJsonState(join(root, ".review-proposals-state.json"), {
+          entries: {
+            [proposal.id]: {
+              outcome: "accepted",
+              phase: "applying",
+              provenanceWritten: false,
+              updatedAt: "2026-05-02T00:00:00.000Z",
+            },
+          },
+        });
+
+        const input = new PassThrough();
+        const output = new PassThrough();
+        const reviewPromise = runProposalsReview({ cwd: root, io: { input, output } });
+        input.push("a");
+        await expect(reviewPromise).rejects.toThrow(/already in applying phase/);
+        expect(readQueue(root)).toHaveLength(1);
+      } finally {
+        rmSync(root, { recursive: true, force: true });
+      }
+    }, 30_000);
   });
 });

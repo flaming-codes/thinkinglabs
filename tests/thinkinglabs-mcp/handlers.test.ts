@@ -5,6 +5,7 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import Database from "better-sqlite3";
 import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
+import { z } from "zod";
 import { writeIndex, collectObjects } from "../../src/index/builder.ts";
 import {
   handleContactPrecheck,
@@ -12,6 +13,7 @@ import {
   handleQueryView,
   handleQuestionSubmit,
   handleSubscribeBrainDiff,
+  queryViewInputSchema,
 } from "../../servers/thinkinglabs-mcp/handlers.ts";
 import { createThinkinglabsMcpServer } from "../../servers/thinkinglabs-mcp/server.ts";
 import { getObject } from "../../servers/thinkinglabs-mcp/store.ts";
@@ -81,6 +83,12 @@ beforeEach(() => {
     'title: "Old Tool"\nstatus: "dormant"\nstarted: "2025-01-01"\nlinks: {}\nrelated_thoughts: []\nrelated_claims: []\ntags: []\n',
     "Parked.",
   );
+  writeMd(
+    "provenance",
+    "mcp-provenance-event",
+    'title: "AI provenance for MCP tests"\nevent_type: "content_derivation"\nprocess_id: "derive-claims"\nactor:\n  kind: llm\n  model:\n    provider: openai\n    model: gpt-5.4\n    tier: balanced\nstarted_at: "2026-04-02T00:00:00.000Z"\naccepted_at: "2026-04-02T00:00:10.000Z"\nsource_objects:\n  - id: thoughts/mcp-notes\ntarget_objects:\n  - id: claims/mcp-claim\noutcome: accepted\ntags: ["ai", "provenance"]\n',
+    "Provenance body.",
+  );
 });
 
 afterEach(() => {
@@ -119,6 +127,11 @@ describe("thinkinglabs-mcp handlers", () => {
       "mcp-question",
     ]);
   }, 15_000);
+
+  it("rejects provenance as a query_view target", () => {
+    const schema = z.object(queryViewInputSchema);
+    expect(() => schema.parse({ view: "provenance" })).toThrow();
+  });
 
   it("prechecks contact intent against public policy", () => {
     const result = handleContactPrecheck(
@@ -283,7 +296,6 @@ describe("thinkinglabs-mcp handlers", () => {
           "thinkinglabs://decisions/recent",
           "thinkinglabs://predictions/pending",
           "thinkinglabs://predictions/resolved",
-          "thinkinglabs://provenance",
           "thinkinglabs://schema/version",
           "thinkinglabs://predictions/calibration",
           "thinkinglabs://thoughts/mcp-notes",
@@ -303,7 +315,6 @@ describe("thinkinglabs-mcp handlers", () => {
           "thinkinglabs://inputs/{slug}",
           "thinkinglabs://posts/{slug}",
           "thinkinglabs://predictions/{slug}",
-          "thinkinglabs://provenance/{slug}",
           "thinkinglabs://projects/{slug}",
           "thinkinglabs://questions/{slug}",
           "thinkinglabs://thoughts/{slug}",
@@ -324,6 +335,10 @@ describe("thinkinglabs-mcp handlers", () => {
       );
       const tagged = claimsByTag.contents[0];
       expect(tagged && "text" in tagged ? tagged.text : "").toContain("mcp-claim");
+      await expect(client.readResource({ uri: "thinkinglabs://provenance" })).rejects.toThrow();
+      await expect(
+        client.readResource({ uri: "thinkinglabs://provenance/mcp-provenance-event" }),
+      ).rejects.toThrow();
     } finally {
       await client.close();
       await server.close();

@@ -1,7 +1,9 @@
-import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
-import { basename, extname, join, relative, resolve } from "node:path";
-import matter from "gray-matter";
+import { readFileSync } from "node:fs";
+import { join, relative, resolve } from "node:path";
 import type { z } from "zod";
+import { formatFrontmatterParseError } from "./frontmatter-errors.ts";
+import { parseFrontmatterStrict } from "./frontmatter-parse.ts";
+import { walkMarkdownFiles } from "./markdown-walk.ts";
 import { KIND_SCHEMAS, type Kind } from "../schemas/index.ts";
 
 /** One typed entry returned by `loadContent`; `data` is the validated frontmatter, `body` is the markdown body. */
@@ -16,41 +18,6 @@ export interface TypedEntry<K extends Kind> {
 export interface WalkError {
   readonly path: string;
   readonly message: string;
-}
-
-/** Recursive depth-first markdown walk; mirrors `src/index/builder.ts:63`. Skips files starting with `_seed` or `.`. */
-function walkMarkdownFiles(root: string): string[] {
-  const out: string[] = [];
-  if (!existsSync(root)) return out;
-  const stack: string[] = [root];
-  while (stack.length > 0) {
-    const dir = stack.pop()!;
-    let entries: string[];
-    try {
-      entries = readdirSync(dir);
-    } catch {
-      continue;
-    }
-    for (const name of entries) {
-      const full = join(dir, name);
-      let st;
-      try {
-        st = statSync(full);
-      } catch {
-        continue;
-      }
-      if (st.isDirectory()) {
-        stack.push(full);
-        continue;
-      }
-      if (!st.isFile()) continue;
-      if (extname(name) !== ".md") continue;
-      const base = basename(name);
-      if (base.startsWith(".") || base.startsWith("_seed")) continue;
-      out.push(full);
-    }
-  }
-  return out.sort();
 }
 
 /** Slug = path under content/<kind>/ with `.md` stripped; nested dirs preserved as `/`. */
@@ -69,6 +36,7 @@ function readEntry<K extends Kind>(
   kind: K,
   kindRoot: string,
   filePath: string,
+  repoRoot: string,
 ): { ok: true; entry: TypedEntry<K> } | { ok: false; error: WalkError } {
   const slug = deriveSlug(filePath, kindRoot);
   let raw: string;
@@ -80,13 +48,22 @@ function readEntry<K extends Kind>(
       error: { path: filePath, message: `${kind}/${slug}: read error: ${String(e)}` },
     };
   }
-  let parsed: matter.GrayMatterFile<string>;
+  let parsed: ReturnType<typeof parseFrontmatterStrict>;
   try {
-    parsed = matter(raw);
+    parsed = parseFrontmatterStrict(raw);
   } catch (e) {
     return {
       ok: false,
-      error: { path: filePath, message: `${kind}/${slug}: frontmatter parse error: ${String(e)}` },
+      error: {
+        path: filePath,
+        message: formatFrontmatterParseError({
+          kind,
+          slug,
+          filePath,
+          repoRoot,
+          error: e,
+        }),
+      },
     };
   }
   const spec = KIND_SCHEMAS[kind];
@@ -111,10 +88,10 @@ function readEntry<K extends Kind>(
 export function loadContent<K extends Kind>(kind: K, opts?: { cwd?: string }): TypedEntry<K>[] {
   const cwd = resolve(opts?.cwd ?? process.cwd());
   const kindRoot = join(cwd, "content", kind);
-  const files = walkMarkdownFiles(kindRoot);
+  const files = walkMarkdownFiles(kindRoot, { includeDotfiles: false, includeSeedFiles: false });
   const entries: TypedEntry<K>[] = [];
   for (const file of files) {
-    const r = readEntry(kind, kindRoot, file);
+    const r = readEntry(kind, kindRoot, file, cwd);
     if (!r.ok) throw new Error(r.error.message);
     entries.push(r.entry);
   }
@@ -128,11 +105,11 @@ export function loadContentSafe<K extends Kind>(
 ): { entries: TypedEntry<K>[]; errors: WalkError[] } {
   const cwd = resolve(opts?.cwd ?? process.cwd());
   const kindRoot = join(cwd, "content", kind);
-  const files = walkMarkdownFiles(kindRoot);
+  const files = walkMarkdownFiles(kindRoot, { includeDotfiles: false, includeSeedFiles: false });
   const entries: TypedEntry<K>[] = [];
   const errors: WalkError[] = [];
   for (const file of files) {
-    const r = readEntry(kind, kindRoot, file);
+    const r = readEntry(kind, kindRoot, file, cwd);
     if (r.ok) entries.push(r.entry);
     else errors.push(r.error);
   }

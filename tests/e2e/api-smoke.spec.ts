@@ -20,6 +20,11 @@ test.describe("collection JSON endpoints", () => {
       expect(Array.isArray(body), `${endpoint} body must be an array`).toBe(true);
     });
   }
+
+  test("/api/provenance.json returns 404", async ({ request }) => {
+    const response = await request.get("/api/provenance.json");
+    expect(response.status()).toBe(404);
+  });
 });
 
 test.describe("embed JSON endpoint", () => {

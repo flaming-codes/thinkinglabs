@@ -123,14 +123,11 @@ describe("proposal-queue", () => {
     expect(withDifferentModel).toBe(base);
   });
 
-  it("a malformed queue file causes readQueue to return [] without throwing", async () => {
+  it("a malformed queue file causes readQueue to throw an explicit error", async () => {
     const { readQueue } = await import("../src/lib/proposal-queue.ts");
     const dir = process.cwd();
     writeJsonState(join(dir, ".proposal-queue.json"), { proposals: "not-an-array" });
-    const stderrSpy = vi.spyOn(process.stderr, "write").mockImplementation(() => true);
-    const result = readQueue();
-    stderrSpy.mockRestore();
-    expect(result).toEqual([]);
+    expect(() => readQueue()).toThrow(/malformed queue file/);
   });
 
   it("recovers from a stale lock left behind by a dead pid", async () => {
