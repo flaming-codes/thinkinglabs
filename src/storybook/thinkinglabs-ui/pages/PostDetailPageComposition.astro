@@ -1,0 +1,161 @@
+---
+import AppShell from "../components/AppShell.astro";
+import FigureChartPlate from "../components/FigureChartPlate.astro";
+import type { PostDetail, ThemeKey } from "../types";
+
+interface Props {
+  themeKey?: ThemeKey;
+  post: PostDetail;
+}
+
+const { themeKey = "forum", post } = Astro.props;
+---
+
+<AppShell themeKey={themeKey} activeNav="Index">
+  <section class="tl-post-detail-page">
+    <div class="tl-post-detail-main">
+      <div class="tl-eyebrow">§ /posts/{post.slug}</div>
+      <div class="tl-mono">Essay · {post.topic} · {post.minutes} min</div>
+
+      <header class="tl-post-detail-head">
+        <p class="tl-post-epigraph">“{post.epigraph.text}”</p>
+        <p class="tl-post-epigraph-by">— {post.epigraph.by}</p>
+        <h1>{post.title}</h1>
+        <p class="tl-post-detail-deck">{post.deck}</p>
+        <div class="tl-post-featured-meta">
+          <span class="tl-mono">published {post.date}</span>
+          <span class="tl-mono">updated {post.updated}</span>
+          <span class="tl-mono">{post.minutes} min · {post.words.toLocaleString()} words</span>
+          <span class="tl-mono">filed {post.topic}</span>
+        </div>
+      </header>
+
+      {post.sections.map((section) => (
+        <section class="tl-post-section">
+          <header>
+            <div class="tl-eyebrow">§ {section.number}</div>
+            <h2>{section.title}</h2>
+          </header>
+          <div class="tl-post-prose">
+            {section.blocks.map((block) => {
+              if (block.type === "p") {
+                return (
+                  <p class="tl-post-paragraph">
+                    {block.drop ? <span class="tl-dropcap">{block.text.charAt(0)}</span> : null}
+                    {block.drop ? block.text.slice(1) : block.text}
+                  </p>
+                );
+              }
+
+              if (block.type === "pull") {
+                return (
+                  <blockquote class="tl-post-pull">
+                    “{block.text}”
+                  </blockquote>
+                );
+              }
+
+              if (block.type === "fig") {
+                return (
+                  <figure class="tl-post-figure">
+                    <div class="tl-post-figure-plate">
+                      <FigureChartPlate />
+                    </div>
+                    <figcaption>
+                      <span class="tl-mono">Fig. 01</span>
+                      <span>{block.caption}</span>
+                      <span class="tl-mono is-right">{block.source}</span>
+                    </figcaption>
+                  </figure>
+                );
+              }
+
+              if (block.type === "list") {
+                return (
+                  <ol class="tl-post-list">
+                    {block.items.map((item, itemIndex) => (
+                      <li>
+                        <span class="tl-mono">{String(itemIndex + 1).padStart(2, "0")}</span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ol>
+                );
+              }
+
+              return null;
+            })}
+          </div>
+        </section>
+      ))}
+
+      <section class="tl-post-footnotes">
+        <div class="tl-eyebrow">§ Footnotes</div>
+        <div>
+          {post.footnotes.map((note, index) => (
+            <article class="tl-post-footnote-row">
+              <span class="tl-mono">{String(index + 1).padStart(2, "0")}</span>
+              <p>{note.text}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section class="tl-post-related">
+        <div class="tl-eyebrow">§ Connects to</div>
+        <div>
+          <h2>Where this sits in the graph.</h2>
+          {post.related.map((rel) => (
+            <article class="tl-rel-row">
+              <span class="tl-mono">{rel.kind}</span>
+              <h3>{rel.title}</h3>
+              <span class="tl-mono is-right">{rel.conf !== undefined ? rel.conf.toFixed(2) : ""}</span>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <footer class="tl-quote-foot is-inline">
+        <p>“If a piece is here, it's because I'd be willing to defend it.”</p>
+        <span>
+          {post.license}
+          <br />
+          {post.citation}
+        </span>
+      </footer>
+    </div>
+
+    <aside class="tl-post-rail">
+      <div>
+        <div class="tl-eyebrow">§ Essay</div>
+        <p>{post.title}</p>
+      </div>
+      <div>
+        <div class="tl-eyebrow">Published</div>
+        <p>{post.date}</p>
+        <p>updated {post.updated}</p>
+      </div>
+      <div>
+        <div class="tl-eyebrow">Length</div>
+        <p>{post.minutes} min read</p>
+        <p>{post.words.toLocaleString()} words</p>
+      </div>
+      <div>
+        <div class="tl-eyebrow">Filed</div>
+        <p>{post.topic}</p>
+      </div>
+      <div>
+        <div class="tl-eyebrow">Backlinks</div>
+        <p>{post.backlinks} entries</p>
+      </div>
+      <div>
+        <div class="tl-eyebrow">License</div>
+        <p>{post.license}</p>
+      </div>
+      <div>
+        <div class="tl-eyebrow">Cite</div>
+        <p>{post.citation}</p>
+      </div>
+    </aside>
+  </section>
+</AppShell>

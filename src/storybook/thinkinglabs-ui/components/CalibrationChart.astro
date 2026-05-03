@@ -1,0 +1,53 @@
+---
+import type { CalibrationBin } from "../types";
+
+interface Props {
+  bins: CalibrationBin[];
+}
+
+const { bins } = Astro.props;
+const resolved = bins.filter((bin) => bin.hit !== null);
+const width = 1360;
+const height = 360;
+const pad = 40;
+const innerWidth = width - pad * 2;
+const innerHeight = height - pad * 2;
+
+const x = (value: number) => pad + value * innerWidth;
+const y = (value: number) => pad + (1 - value) * innerHeight;
+const points = resolved.map((bin) => `${x(bin.stated)},${y(bin.hit ?? 0)}`).join(" ");
+const ticks = [0, 0.25, 0.5, 0.75, 1];
+---
+
+<svg width={width} height={height} class="tl-calibration-chart" aria-label="Calibration chart">
+  {
+    ticks.map((tick) => (
+      <g>
+        <line x1={x(tick)} y1={pad} x2={x(tick)} y2={height - pad} class="tl-calibration-grid" />
+        <line x1={pad} y1={y(tick)} x2={width - pad} y2={y(tick)} class="tl-calibration-grid" />
+        <text x={x(tick)} y={height - pad + 18} class="tl-calibration-axis" text-anchor="middle">
+          {tick.toFixed(2)}
+        </text>
+        <text x={pad - 10} y={y(tick) + 4} class="tl-calibration-axis" text-anchor="end">
+          {tick.toFixed(2)}
+        </text>
+      </g>
+    ))
+  }
+  <line x1={x(0)} y1={y(0)} x2={x(1)} y2={y(1)} class="tl-calibration-diagonal" />
+  <polyline fill="none" class="tl-calibration-line" points={points}></polyline>
+  {
+    resolved.map((bin) => (
+      <g>
+        <circle cx={x(bin.stated)} cy={y(bin.hit ?? 0)} r={6 + bin.n * 2.4} class="tl-calibration-bubble" />
+        <circle cx={x(bin.stated)} cy={y(bin.hit ?? 0)} r={2.5} class="tl-calibration-dot" />
+      </g>
+    ))
+  }
+  <text x={width / 2} y={height - 4} class="tl-calibration-axis-label" text-anchor="middle">
+    STATED CONFIDENCE →
+  </text>
+  <text x={14} y={height / 2} class="tl-calibration-axis-label" text-anchor="middle" transform={`rotate(-90, 14, ${height / 2})`}>
+    ← REALISED ACCURACY
+  </text>
+</svg>

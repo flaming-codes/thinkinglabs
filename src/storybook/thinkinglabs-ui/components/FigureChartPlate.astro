@@ -1,0 +1,68 @@
+---
+const width = 1200;
+const height = 420;
+const pad = 56;
+const series = [
+  {
+    label: "autonomous",
+    values: [0.22, 0.31, 0.28, 0.35, 0.33, 0.3, 0.28, 0.26],
+    tone: "muted",
+    dash: "4,4",
+  },
+  {
+    label: "review-after",
+    values: [0.4, 0.48, 0.55, 0.62, 0.66, 0.69, 0.71, 0.72],
+    tone: "mid",
+    dash: "",
+  },
+  {
+    label: "verify-fast",
+    values: [0.42, 0.55, 0.66, 0.74, 0.8, 0.84, 0.86, 0.87],
+    tone: "ink",
+    dash: "",
+  },
+];
+
+const x = (idx: number, count: number) => pad + (idx / (count - 1)) * (width - pad * 2);
+const y = (value: number) => height - pad - value * (height - pad * 2);
+---
+
+<svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" class="tl-plate-chart" aria-label="Keepable output chart">
+  {
+    [0, 0.25, 0.5, 0.75, 1].map((grid) => (
+      <line x1={pad} y1={y(grid)} x2={width - pad} y2={y(grid)} class="tl-plate-grid" />
+    ))
+  }
+  {
+    series.map((line, lineIndex) => (
+      <polyline
+        fill="none"
+        class:list={["tl-plate-series", `is-${line.tone}`]}
+        stroke-dasharray={line.dash}
+        stroke-width={lineIndex === 2 ? 2.4 : 1.6}
+        points={line.values.map((value, valueIndex) => `${x(valueIndex, line.values.length)},${y(value)}`).join(" ")}
+      />
+    ))
+  }
+  {
+    series.map((line) => {
+      const lastValue = line.values.at(-1);
+      if (lastValue === undefined) {
+        return null;
+      }
+
+      return (
+        <text
+          x={width - pad - 8}
+          y={y(lastValue) - 8}
+          class:list={["tl-plate-label", `is-${line.tone}`]}
+          text-anchor="end"
+        >
+          {line.label}
+        </text>
+      );
+    })
+  }
+  <text x={pad} y={height - 18} class="tl-plate-axis">QUARTER →</text>
+  <text x={20} y={pad + 4} class="tl-plate-axis">↑ KEEPABLE OUTPUT</text>
+</svg>

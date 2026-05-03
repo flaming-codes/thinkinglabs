@@ -1,0 +1,46 @@
+---
+import { themeVars } from "../theme";
+import type { ThemeKey } from "../types";
+import SiteHeader from "./SiteHeader.astro";
+
+interface Props {
+  themeKey?: ThemeKey;
+  activeNav?: "Index" | "Now" | "Calibration" | "Brain-diff" | "About";
+  showFooter?: boolean;
+}
+
+const { themeKey = "forum", activeNav = "Index", showFooter = false } = Astro.props;
+---
+
+<article class="tl-shell" style={themeVars(themeKey)}>
+  <SiteHeader activeNav={activeNav} />
+  <slot />
+  {
+    showFooter && (
+      <footer class="tl-default-footer">
+        <p class="tl-default-footer-lede">
+          A project in mind?
+          <span class="is-muted"> I keep score in public — feel free to send something I should read.</span>
+        </p>
+        <div class="tl-default-footer-col">
+          <h3>Surfaces</h3>
+          <a href="#">llms.txt</a>
+          <a href="#">JSON feeds</a>
+          <a href="#">MCP server</a>
+        </div>
+        <div class="tl-default-footer-col">
+          <h3>Discover</h3>
+          <a href="#">Now</a>
+          <a href="#">Calibration</a>
+          <a href="#">Brain-diff</a>
+        </div>
+        <div class="tl-default-footer-col">
+          <h3>Contact</h3>
+          <a href="#">tom@wild.as</a>
+          <a href="#">github</a>
+          <span class="tl-footer-copy">2026 © thinkinglabs</span>
+        </div>
+      </footer>
+    )
+  }
+</article>

@@ -7,6 +7,8 @@ Personal agentic space — a public operating surface for my work. The git repo 
 ```sh
 pnpm install
 pnpm dev               # Astro dev server for the site
+pnpm storybook         # Storybook v10 dev server for UI review with mocks
+pnpm storybook:build   # Storybook static build
 pnpm artifacts         # offline artifact build: brain-diff feeds, site, llms.txt, JSON feeds, dist/index.sqlite
 pnpm artifacts:scored  # same artifact build, but require LLM-scored brain-diff output
 pnpm verify            # local verification: empty-content path + fixture-content path
@@ -18,6 +20,16 @@ pnpm mcp:thinkinglabs  # run the personal MCP server over stdio
 ```
 
 `pnpm verify` runs both validation shapes that used to live in hosted automation: the empty-content path runs typecheck, `vp check`, site build, structured-data check, index generation, and tests; the fixture path builds seeded fixture pages and checks their structured data. Day-to-day, use `pnpm dev` while writing and `pnpm artifacts` after content edits to regenerate every local derived artifact. Use `pnpm artifacts:scored` when `OPENAI_API_KEY` (or `OLLAMA_API_KEY` with `LLM_PROVIDER=ollama`) is set and you want publish-quality brain-diff summaries.
+
+## Storybook UI review surfaces
+
+Storybook stories for UI-layer review live under `src/storybook/thinkinglabs-ui/`.
+
+- `mocks/` keeps handoff-derived mock data separate from presentation.
+- `components/` holds reusable primitives (header, confidence meter, status tags, charts).
+- `pages/` holds full-page compositions used in `stories/`.
+
+Run `pnpm storybook` for interactive review and `pnpm storybook:build` to verify static composition output.
 
 ## Architecture and workflow
 

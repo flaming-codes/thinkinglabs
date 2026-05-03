@@ -1,0 +1,15 @@
+---
+interface Props {
+  label: string;
+  value: string;
+  hint?: string;
+}
+
+const { label, value, hint } = Astro.props;
+---
+
+<div class="tl-metric-tile">
+  <div class="tl-metric-label">{label}</div>
+  <div class="tl-metric-value">{value}</div>
+  {hint && <div class="tl-metric-hint">{hint}</div>}
+</div>

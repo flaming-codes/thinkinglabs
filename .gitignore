@@ -144,6 +144,9 @@ vite.config.ts.timestamp-*
 
 # Astro
 .astro/
+debug-storybook.log
+storybook-server/
+storybook-static/
 
 # Editors
 .idea/
