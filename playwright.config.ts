@@ -1,6 +1,6 @@
 import { defineConfig, devices } from "@playwright/test";
 
-/** Playwright config — runs against `astro preview` over the fixtures build (see CI: build:fixtures precedes test:e2e). */
+/** Playwright config — runs against `astro preview` over the fixtures build. */
 export default defineConfig({
   testDir: "./tests/e2e",
   testMatch: "*.spec.ts",

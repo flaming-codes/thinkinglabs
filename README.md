@@ -7,14 +7,135 @@ Personal agentic space — a public operating surface for my work. The git repo 
 ```sh
 pnpm install
 pnpm dev               # Astro dev server for the site
-pnpm verify            # local CI: clean, typecheck, check, build, structured-data:empty, build:fixtures, structured-data:fixtures, build:index, test
-pnpm test:e2e          # Playwright against the fixture preview (requires `playwright install`)
+pnpm artifacts         # offline artifact build: brain-diff feeds, site, llms.txt, JSON feeds, dist/index.sqlite
+pnpm artifacts:scored  # same artifact build, but require LLM-scored brain-diff output
+pnpm verify            # local verification: empty-content path + fixture-content path
+pnpm setup:e2e         # install Chromium for local Playwright runs
+pnpm test:e2e          # build fixtures, then run Playwright against the fixture preview
 pnpm verify:full       # verify + e2e in one shot
 pnpm build:index       # rebuild dist/index.sqlite (the agent-facing query layer)
 pnpm mcp:thinkinglabs  # run the personal MCP server over stdio
 ```
 
-`pnpm verify` is what CI runs; it validates every frontmatter file via the Astro build, builds the sqlite index, and runs the test suite. Day-to-day, `pnpm dev` for the site and `pnpm build:index` to refresh the query index after content edits.
+`pnpm verify` runs both validation shapes that used to live in hosted automation: the empty-content path runs typecheck, `vp check`, site build, structured-data check, index generation, and tests; the fixture path builds seeded fixture pages and checks their structured data. Day-to-day, use `pnpm dev` while writing and `pnpm artifacts` after content edits to regenerate every local derived artifact. Use `pnpm artifacts:scored` when `OPENAI_API_KEY` (or `OLLAMA_API_KEY` with `LLM_PROVIDER=ollama`) is set and you want publish-quality brain-diff summaries.
+
+## Architecture and workflow
+
+```mermaid
+flowchart TB
+  Human["Human author / local agent"]
+
+  subgraph Authoring["Authoring and curation"]
+    Editor["Markdown editor"]
+    DeriveClaims["pnpm derive-claims<br/>thoughts to structured claims"]
+    AgentScans["Background agent CLIs<br/>dormant-flip, review-decisions,<br/>resolve-predictions, freshness-review,<br/>triage-questions"]
+    ReviewQueue["pnpm review-proposals<br/>human accepts, edits, rejects"]
+  end
+
+  subgraph Source["Canonical local state"]
+    Content["content/{kind}/*.md<br/>YAML frontmatter + Markdown body"]
+    Provenance["content/provenance/*.md<br/>accepted AI-assisted effects"]
+    ContactJson["public/contact.json"]
+    ProposalQueue[".proposal-queue.json<br/>gitignored proposal queue"]
+    RejectionMemory[".*-rejections.json<br/>gitignored rejection memory"]
+    Submissions["submissions/questions/*<br/>gitignored MCP intake inbox"]
+  end
+
+  subgraph Contracts["Shared contracts"]
+    Schemas["src/schemas/*<br/>KIND_SCHEMAS"]
+    Collections["src/content.config.ts<br/>Astro collections"]
+    Registry["src/lib/registry.ts<br/>kind metadata"]
+    Surfaces["src/lib/surfaces.ts<br/>public surface inventory"]
+    LlmChokePoint["src/lib/llm.ts<br/>provider, model tier, key guard"]
+  end
+
+  subgraph BuildArtifacts["Local artifact builders"]
+    LlmsTxt["scripts/build-llms-txt.ts<br/>public/llms.txt"]
+    JsonFeeds["scripts/build-feeds.ts<br/>JSON Feed 1.1 files"]
+    BrainDiff["scripts/brain-diff.ts<br/>git history + optional LLM scoring"]
+    IndexBuild["scripts/build-index.ts<br/>dist/index.sqlite"]
+    AstroBuild["astro build<br/>static site + API routes"]
+  end
+
+  subgraph Commands["Command workflows"]
+    Dev["pnpm dev<br/>interactive site work"]
+    Artifacts["pnpm artifacts<br/>offline local artifacts"]
+    ArtifactsScored["pnpm artifacts:scored<br/>publish-quality brain-diff"]
+    Verify["pnpm verify<br/>empty + fixture validation"]
+    E2E["pnpm test:e2e<br/>fixture build + Playwright"]
+    McpCommand["pnpm mcp:thinkinglabs<br/>stdio MCP server"]
+  end
+
+  subgraph Outputs["Generated outputs"]
+    PublicSite["dist/<br/>static website"]
+    PublicFeeds["public/feed/*.json<br/>deterministic JSON feeds"]
+    BrainFeeds["public/feed/brain-diff*<br/>timestamped local artifacts, gitignored"]
+    LlmsOutput["public/llms.txt<br/>agent-readable surface map"]
+    Sqlite["dist/index.sqlite<br/>agent query layer, gitignored"]
+  end
+
+  subgraph RuntimeSurfaces["Read and interaction surfaces"]
+    WebPages["src/pages/*<br/>listings, details, JSON APIs, embeds"]
+    McpServer["servers/thinkinglabs-mcp<br/>resources + tools"]
+    PublicUsers["Readers, crawlers, agents"]
+  end
+
+  Human --> Editor
+  Human --> DeriveClaims
+  Human --> ReviewQueue
+  Editor --> Content
+  DeriveClaims --> Content
+  DeriveClaims --> Provenance
+  AgentScans --> ProposalQueue
+  AgentScans --> RejectionMemory
+  ReviewQueue --> ProposalQueue
+  ReviewQueue --> Content
+  McpServer --> Submissions
+
+  Content --> Schemas
+  Schemas --> Collections
+  Registry --> Surfaces
+  Surfaces --> LlmsTxt
+  Collections --> AstroBuild
+  Content --> JsonFeeds
+  Content --> IndexBuild
+  Content --> BrainDiff
+  Content --> McpServer
+  ContactJson --> AstroBuild
+  LlmChokePoint -. scored mode .-> BrainDiff
+  LlmChokePoint -. AI curation .-> DeriveClaims
+  LlmChokePoint -. AI proposals .-> AgentScans
+
+  Dev --> WebPages
+  Artifacts --> BrainDiff
+  Artifacts --> AstroBuild
+  Artifacts --> IndexBuild
+  ArtifactsScored --> LlmChokePoint
+  ArtifactsScored --> BrainDiff
+  ArtifactsScored --> AstroBuild
+  ArtifactsScored --> IndexBuild
+  Verify --> AstroBuild
+  Verify --> JsonFeeds
+  Verify --> IndexBuild
+  E2E --> AstroBuild
+  McpCommand --> McpServer
+
+  BrainDiff --> BrainFeeds
+  JsonFeeds --> PublicFeeds
+  LlmsTxt --> LlmsOutput
+  AstroBuild --> PublicSite
+  IndexBuild --> Sqlite
+
+  PublicFeeds --> AstroBuild
+  BrainFeeds --> AstroBuild
+  LlmsOutput --> AstroBuild
+  WebPages --> PublicSite
+  PublicSite --> PublicUsers
+  Sqlite --> McpServer
+  McpServer --> PublicUsers
+```
+
+The direction is intentional: source files under `content/` are the only durable knowledge state; builds, feeds, indexes, MCP responses, and the website are projections. Proposal agents can enqueue local suggestions, but accepted mutations still flow back through the human review step before touching content.
 
 ## What ships today
 

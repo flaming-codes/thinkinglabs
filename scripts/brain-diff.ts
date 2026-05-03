@@ -3,11 +3,13 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import {
   applyGenericGate,
+  brainDiffSpecializedFeedFilename,
   buildEntries,
   FEED_PREDICATES,
   formatAtom,
   formatJson,
   walkCommits,
+  type BrainDiffSpecializedFeedKind,
   type FeedEntry,
 } from "../src/lib/brain-diff.ts";
 import { scoreCommitFiles } from "../src/lib/brain-diff-score.ts";
@@ -45,10 +47,14 @@ async function main(): Promise<void> {
   mkdirSync(outDir, { recursive: true });
 
   const generic = applyGenericGate(entries);
-  writeFileSync(resolve(outDir, "brain-diff.xml"), formatAtom(generic));
-  writeFileSync(resolve(outDir, "brain-diff.json"), formatJson(generic, "brain-diff"));
-  for (const [kind, predicate] of Object.entries(FEED_PREDICATES)) {
-    writeFileSync(resolve(outDir, `${kind}.json`), formatJson(entries.filter(predicate), kind));
+  writeFileSync(resolve(outDir, "brain-diff.xml"), `${formatAtom(generic)}\n`);
+  writeFileSync(resolve(outDir, "brain-diff.json"), `${formatJson(generic, "brain-diff")}\n`);
+  for (const kind of Object.keys(FEED_PREDICATES) as BrainDiffSpecializedFeedKind[]) {
+    const predicate = FEED_PREDICATES[kind];
+    writeFileSync(
+      resolve(outDir, brainDiffSpecializedFeedFilename(kind)),
+      `${formatJson(entries.filter(predicate), kind)}\n`,
+    );
   }
   process.stdout.write(`wrote ${entries.length} entries to ${outDir}\n`);
 }

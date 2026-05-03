@@ -9,15 +9,14 @@ import { runDormantFlip } from "../../src/lib/agents/dormant-flip.ts";
 import { runProposalsReview } from "../../scripts/review-proposals.ts";
 import { readQueue } from "../../src/lib/proposal-queue.ts";
 
-/** Asserts `git` is on PATH at module load. CI must provision git; we fail loudly rather than
- *  silently skip so a runner regression cannot disguise itself as green coverage. */
+/** Asserts `git` is on PATH at module load; fail loudly rather than silently skipping coverage. */
 function assertGitAvailable(): void {
   try {
     execFileSync("git", ["--version"], { stdio: "ignore" });
   } catch {
     throw new Error(
       "git is required for this integration test but was not found on PATH. " +
-        "Install git or run on a runner that ships it (ubuntu-latest does).",
+        "Install git or run in an environment that ships it.",
     );
   }
 }
@@ -27,7 +26,7 @@ assertGitAvailable();
 const DORMANT_FLIP_SCRIPT = join(process.cwd(), "scripts", "dormant-flip.ts");
 const REVIEW_SCRIPT = join(process.cwd(), "scripts", "review-proposals.ts");
 
-/** Frozen "now" so the test is deterministic across runs and CI clocks. Honours BUILD_NOW_ISO. */
+/** Frozen "now" so the test is deterministic across runs. Honours BUILD_NOW_ISO. */
 const FROZEN_NOW_ISO = process.env["BUILD_NOW_ISO"] ?? "2026-05-02T00:00:00.000Z";
 const FROZEN_NOW_MS = new Date(FROZEN_NOW_ISO).getTime();
 

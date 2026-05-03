@@ -19,7 +19,7 @@ The first embed is `prediction-calibration-logger`. Its data comes from embed-ow
 
 ## Consequences
 
-Future embedded agents can share the component and contract tests while keeping their data and scope local to `embeds/<id>/`. CI can validate contracts, fallback shape, and static data without launching a browser.
+Future embedded agents can share the component and contract tests while keeping their data and scope local to `embeds/<id>/`. Local verification can validate contracts, fallback shape, and static data without launching a browser.
 
 ## Caveats
 

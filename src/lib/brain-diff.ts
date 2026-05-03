@@ -57,6 +57,7 @@ const TRACKED_PREFIXES = [
 
 /** True iff `path` is one of the tracked content kinds; pure so the walker, classifier, and predicates share it. */
 export function isTrackedPath(path: string): boolean {
+  if (!path.endsWith(".md")) return false;
   return (
     TRACKED_PREFIXES.some((p) => path.startsWith(`content/${p}`)) ||
     TRACKED_PREFIXES.some((p) => path.startsWith(p))
@@ -247,6 +248,14 @@ export const FEED_PREDICATES = {
     e.type === "claim-revised" || e.type === "new-claim" || e.type === "claim-deprecated",
   "decisions-reversed": (e: FeedEntry) => e.type === "decision-reversed",
 } as const;
+
+/** Key for a specialized brain-diff feed predicate. */
+export type BrainDiffSpecializedFeedKind = keyof typeof FEED_PREDICATES;
+
+/** Public filename for brain-diff specialized feeds; prefixed so JSON Feed 1.1 files keep ownership of their URLs. */
+export function brainDiffSpecializedFeedFilename(kind: BrainDiffSpecializedFeedKind): string {
+  return `brain-diff-${kind}.json`;
+}
 
 /** Score threshold below which entries are excluded from the *generic* brain-diff feed only. */
 export const GENERIC_FEED_MIN_SCORE = 4;

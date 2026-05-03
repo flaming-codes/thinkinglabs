@@ -172,3 +172,7 @@ submissions/
 # Playwright outputs
 test-results/
 playwright-report/
+
+# Timestamped local brain-diff feed artifacts
+public/feed/brain-diff*.json
+public/feed/brain-diff*.xml

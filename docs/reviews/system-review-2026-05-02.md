@@ -20,7 +20,7 @@ Local verification:
 
 The system has a strong foundation: Zod schemas, deterministic index generation, one-line JSON endpoint factories, an LLM choke point, explicit proposal queues, and a broad Vitest suite. The main risk is not lack of structure; it is that several core contracts have been re-declared outside the strongest primitives.
 
-The highest-priority issues are contract drift across MCP/web/API surfaces, inconsistent content loading and validation paths, calibration logic already diverging across public surfaces, quality gates that do not validate the same things locally and in CI, missing browser/e2e coverage for real client behavior, and stale operational docs around LLM providers and feed publication.
+The highest-priority issues are contract drift across MCP/web/API surfaces, inconsistent content loading and validation paths, calibration logic already diverging across public surfaces, quality gates that do not validate the same things locally and in hosted automation, missing browser/e2e coverage for real client behavior, and stale operational docs around LLM providers and feed publication.
 
 ## Priority 0 / 1 Action Items
 
@@ -74,21 +74,23 @@ Action:
 
 Make MCP call the shared `calibration()` helper and adapt only the response envelope. Add a cross-surface fixture test that asserts web-domain and MCP-domain calibration agree.
 
-### P1. Align CI And Local Verification Gates
+### P1. Align Hosted And Local Verification Gates
 
 Evidence:
 
 - `pnpm verify` runs `pnpm build` and `pnpm check:structured-data`, but does not run `pnpm build:fixtures`.
-- CI runs `pnpm build:fixtures` in the fixture matrix but does not run `check:structured-data`.
+- The removed hosted workflow ran `pnpm build:fixtures` in its fixture matrix but did not run `check:structured-data`.
 - `scripts/check-structured-data.ts` has fixture-specific assertions that no default gate reliably exercises after fixture build.
 
 Why it matters:
 
-Local verification and CI do not validate the same artifact shapes. Fixture-specific JSON-LD regressions can slip through both default paths.
+Local and hosted verification did not validate the same artifact shapes. Fixture-specific JSON-LD regressions could slip through both default paths.
 
 Action:
 
-Run `check:structured-data` after both empty-content and fixture builds in CI, or split explicit scripts such as `check:structured-data:empty` and `check:structured-data:fixtures`. Update `pnpm verify` to mirror CI.
+Split explicit scripts such as `check:structured-data:empty` and `check:structured-data:fixtures`, then make `pnpm verify` run both shapes locally.
+
+Current resolution (2026-05-03): `pnpm verify` now runs `verify:empty` plus `verify:fixtures`; `verify:empty` covers typecheck, `vp check`, empty site build, structured-data, index, and tests, while `verify:fixtures` covers fixture build plus fixture structured-data.
 
 ### P1. Add Browser/E2E Coverage
 
@@ -106,21 +108,23 @@ Action:
 
 Add a small Playwright gate against `astro preview` after fixture build. Cover `/predictions/calibration`, the local record flow, no-JS fallback, top navigation, and at least one `/api/*.json` endpoint.
 
-### P1. Fix Stale LLM Provider Wiring In CI And Env Docs
+### P1. Fix Stale LLM Provider Wiring In Hosted Automation And Env Docs
 
 Evidence:
 
-- `.github/workflows/ci.yml` tells operators to configure `ANTHROPIC_API_KEY` and passes that secret to `pnpm brain-diff`.
+- The removed hosted workflow told operators to configure `ANTHROPIC_API_KEY` and passed that secret to `pnpm brain-diff`.
 - The active LLM layer uses `OPENAI_API_KEY` by default or `OLLAMA_API_KEY` when `LLM_PROVIDER=ollama`.
-- `.env.example` still documents `ANTHROPIC_API_KEY` for CI brain-diff.
+- `.env.example` still documents `ANTHROPIC_API_KEY` for hosted brain-diff.
 
 Why it matters:
 
-Brain-diff can silently fall back to unscored output while CI still passes and uploads feeds.
+Brain-diff can silently fall back to unscored output while automation still passes and uploads feeds.
 
 Action:
 
-Update CI and env docs to the provider abstraction. Use `OPENAI_API_KEY` or explicit `LLM_PROVIDER`/provider-specific secrets. Consider failing the brain-diff job, or marking artifacts clearly, when scoring is unavailable in CI.
+Update automation and env docs to the provider abstraction. Use `OPENAI_API_KEY` or explicit `LLM_PROVIDER`/provider-specific secrets. Consider failing the scored brain-diff path, or marking artifacts clearly, when scoring is unavailable.
+
+Current resolution (2026-05-03): `pnpm brain-diff:scored` and `pnpm artifacts:scored` call `check:llm-key` and fail fast when the active provider key is missing. `pnpm artifacts` remains the offline path.
 
 ## Priority 2 Action Items
 
@@ -130,11 +134,13 @@ Evidence:
 
 - `public/llms.txt` lists `/feed/brain-diff.xml`, `/feed/brain-diff.json`, `/feed/predictions-resolved.json`, `/feed/claims-revised.json`, and `/feed/decisions-reversed.json`.
 - The normal site build does not generate these files.
-- CI currently uploads `public/feed/` as an artifact and comments say deployment is future work.
+- The removed hosted workflow produced `public/feed/` separately from the normal site build and comments said deployment was future work.
 
 Action:
 
 Either generate feeds as part of the deployable site build or remove/mark those surfaces as artifact-backed until they are actually published.
+
+Current resolution (2026-05-03): `pnpm artifacts` generates brain-diff feeds before `astro build`, then builds the site so `dist/` receives the current local feed artifacts. Brain-diff-specific JSON files use `brain-diff-*` filenames and no longer overwrite JSON Feed 1.1 outputs from `build:feeds`.
 
 ### P2. Introduce An Agent/Proposal Registry
 
@@ -246,7 +252,7 @@ Several integration tests skip or degrade when git is unavailable.
 
 Action:
 
-Make CI fail early if git is unavailable, or split a required `test:integration` gate with explicit prerequisites.
+Make local verification fail early if git is unavailable, or split a required `test:integration` gate with explicit prerequisites.
 
 ## Strong Existing Design Choices
 
@@ -259,7 +265,7 @@ Make CI fail early if git is unavailable, or split a required `test:integration`
 
 ## Recommended Execution Order
 
-1. Fix CI/env/feed/docs drift: LLM secrets, structured-data gates, README, feed claims.
+1. Fix automation/env/feed/docs drift: LLM secrets, structured-data gates, README, feed claims.
 2. Fix real behavior divergence: MCP calibration and MCP/public kind inventory.
 3. Build a typed content repository and migrate agents off raw `walkMarkdown`.
 4. Add Playwright e2e coverage for the calibration embed, fallback behavior, navigation, and JSON endpoint smoke.

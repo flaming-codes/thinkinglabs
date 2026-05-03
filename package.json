@@ -14,9 +14,13 @@
     "build:index": "tsx scripts/build-index.ts",
     "check:structured-data:empty": "tsx scripts/check-structured-data.ts --mode=empty",
     "check:structured-data:fixtures": "tsx scripts/check-structured-data.ts --mode=fixtures",
+    "check:llm-key": "tsx scripts/check-llm-key.ts",
     "preview": "astro preview",
-    "test:e2e": "playwright test",
+    "setup:e2e": "playwright install chromium",
+    "test:e2e": "pnpm build:fixtures && playwright test",
     "brain-diff": "tsx scripts/brain-diff.ts",
+    "brain-diff:offline": "pnpm brain-diff --no-llm",
+    "brain-diff:scored": "pnpm check:llm-key && pnpm brain-diff",
     "mcp:thinkinglabs": "tsx servers/thinkinglabs-mcp/cli.ts",
     "derive-claims": "tsx scripts/derive-claims.ts",
     "review-stale-claims": "tsx scripts/review-stale-claims.ts",
@@ -31,7 +35,12 @@
     "format": "vp fmt",
     "check": "vp check",
     "test": "vp test run",
-    "verify": "pnpm clean && pnpm typecheck && pnpm check && pnpm build && pnpm check:structured-data:empty && pnpm build:fixtures && pnpm check:structured-data:fixtures && pnpm build:index && pnpm test",
+    "artifacts": "pnpm artifacts:offline",
+    "artifacts:offline": "pnpm brain-diff:offline && pnpm build && pnpm build:index",
+    "artifacts:scored": "pnpm brain-diff:scored && pnpm build && pnpm build:index",
+    "verify:empty": "pnpm clean && pnpm typecheck && pnpm check && pnpm build && pnpm check:structured-data:empty && pnpm build:index && pnpm test",
+    "verify:fixtures": "pnpm clean && pnpm typecheck && pnpm check && pnpm build:fixtures && pnpm check:structured-data:fixtures",
+    "verify": "pnpm verify:empty && pnpm verify:fixtures",
     "verify:full": "pnpm verify && pnpm test:e2e",
     "prepare": "vp config"
   },
@@ -62,7 +71,7 @@
     "vitest": "npm:@voidzero-dev/vite-plus-test@latest"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=22.12.0"
   },
   "packageManager": "pnpm@10.33.2+sha512.a90faf6feeab71ad6c6e57f94e0fe1a12f5dcc22cd754db40ae9593eb6a3e0b6b12e3540218bb37ae083404b1f2ce6db2a4121e979829b4aff94b99f49da1cf8",
   "pnpm": {

@@ -19,7 +19,7 @@ Per-agent rejection memory lives in `.<agent>-rejections.json` files at the repo
 
 `dormant-flip` and `review-decisions` are pure deterministic scanners with no SDK dependency. `resolve-predictions`, `freshness-review`, and `triage-questions` call `runToolCall` (the M4.5 SDK choke-point) behind a `skipLLM` flag. When `OPENAI_API_KEY` is absent the CLI sets `skipLLM = true` and produces zero proposals — scan logic runs, LLM calls do not.
 
-**Scheduling: launchd, not CI cron.** State files live in the repo working tree and are gitignored. A CI clean checkout resets them on every run, causing rejected proposals to recur indefinitely. launchd preserves the working tree between invocations, keeping rejection memory intact. LLM-mediated agents additionally require `OPENAI_API_KEY` locally. The CI workflow (build, typecheck, tests, brain-diff) is unaffected; agents are not CI concerns.
+**Scheduling: launchd, not hosted cron.** State files live in the repo working tree and are gitignored. A fresh hosted checkout would reset them on every run, causing rejected proposals to recur indefinitely. launchd preserves the working tree between invocations, keeping rejection memory intact. LLM-mediated agents additionally require `OPENAI_API_KEY` locally. Local verification and artifact commands are separate from these agents; agents are not build concerns.
 
 ## Consequences
 
@@ -33,7 +33,7 @@ Every agent scan is idempotent and non-destructive. The queue accumulates until 
 
 ## Alternatives considered
 
-CI cron was rejected because gitignored state files are wiped on every clean checkout, defeating rejection memory. Running only the two non-LLM agents in CI was rejected because mixing CI and launchd adds complexity without benefit. A central rejection store was rejected because per-agent files give independent rejection semantics; `freshness-review`'s no-op rejection is harder to model in a shared schema.
+Hosted cron was rejected because gitignored state files are wiped on every clean checkout, defeating rejection memory. Running only the two non-LLM agents in hosted automation was rejected because mixing hosted automation and launchd adds complexity without benefit. A central rejection store was rejected because per-agent files give independent rejection semantics; `freshness-review`'s no-op rejection is harder to model in a shared schema.
 
 ### Current state (2026-05-02)
 

@@ -7,7 +7,7 @@
 
 ## Context
 
-The brain-diff feed publishes meaningful changes across `thoughts/`, `claims/`, `decisions/`, `predictions/`, `projects/`, `posts/`. The naive design sends every commit to an LLM with the full diff and asks "is this substantive?", which couples every feed-build to LLM availability, inflates cost, and leaves the structural information (path, frontmatter shape) unused. Specialized feeds (`predictions-resolved`, `claims-revised`, `decisions-reversed`) need to work in CI environments without `OPENAI_API_KEY` so contributors can validate the pipeline locally and rebuild the feed during outages.
+The brain-diff feed publishes meaningful changes across `thoughts/`, `claims/`, `decisions/`, `predictions/`, `projects/`, `posts/`. The naive design sends every commit to an LLM with the full diff and asks "is this substantive?", which couples every feed-build to LLM availability, inflates cost, and leaves the structural information (path, frontmatter shape) unused. Specialized brain-diff feeds (`brain-diff-predictions-resolved`, `brain-diff-claims-revised`, `brain-diff-decisions-reversed`) need to work without `OPENAI_API_KEY` so local artifact generation and outage-time rebuilds remain possible.
 
 ## Decision
 

@@ -4,7 +4,7 @@ Listing pages, detail pages, the per-collection JSON APIs under `/api/`, and `pu
 
 The site renderer never reads `dist/index.sqlite`; the index is for agents. Schemas are the single source of typing for both runtime validation and `getCollection` return types. Per-kind logic stays in the page file (or a kind-specific helper in `src/lib/`); shared components in `src/components/` (`StatusPill`, `Tags`, `MetaBlock`, `EmptyState`) accept generic props and stay schema-agnostic.
 
-Markdown bodies pass through two custom plugins wired in `astro.config.mjs`. `src/markdown/remark-section-freshness.ts` lifts Pandoc-style heading attributes (`## Title {#id last_verified="YYYY-MM-DD"}`) into `hProperties`. `src/markdown/rehype-section-freshness.ts` appends a `<span class="freshness-pill">` to any heading carrying `data-last-verified`, color-coded by age via `src/lib/freshness.ts`. Both plugins no-op on content that lacks the syntax, so they cost effectively nothing on non-posts kinds. The build-time "now" honors `FRESHNESS_NOW_ISO` for deterministic test and CI builds.
+Markdown bodies pass through two custom plugins wired in `astro.config.mjs`. `src/markdown/remark-section-freshness.ts` lifts Pandoc-style heading attributes (`## Title {#id last_verified="YYYY-MM-DD"}`) into `hProperties`. `src/markdown/rehype-section-freshness.ts` appends a `<span class="freshness-pill">` to any heading carrying `data-last-verified`, color-coded by age via `src/lib/freshness.ts`. Both plugins no-op on content that lacks the syntax, so they cost effectively nothing on non-posts kinds. The build-time "now" honors `FRESHNESS_NOW_ISO` for deterministic tests and local builds.
 
 ## Claim history rendering
 

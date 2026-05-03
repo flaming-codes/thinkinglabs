@@ -15,13 +15,13 @@ Three different timestamps shape how the system reasons about content age, fresh
 
 **Renames preserve history.** `git log --follow` is _not_ used; the bare `git log` walks the file path as-is, so a renamed file's `last_touched` advances to the rename commit. This is correct: a rename is a meaningful touch. Consumers needing pre-rename history must walk it explicitly via `walkFileHistory`.
 
-**Shallow clones are a known limitation.** CI checkouts use `fetch-depth: 0` (`.github/workflows/ci.yml:24,53`) so the entire history is available; the brain-diff job depends on this. Other shallow checkouts will see truncated `last_touched` values, falling back to mtime where the commit is unreachable. This is acceptable: the only consumer that _requires_ deep history is the brain-diff feed pipeline, which is already deep-cloned.
+**Shallow clones are a known limitation.** The brain-diff feed pipeline depends on full git history for accurate change feeds. Shallow checkouts will see truncated `last_touched` values, falling back to mtime where the commit is unreachable. This is acceptable for casual local rendering, but `pnpm artifacts` / `pnpm artifacts:scored` should be run from a full clone when feed accuracy matters.
 
 **`last_reviewed` is a claim-level frontmatter field, hand-edited or written by the `review-stale-claims` agent's accepted proposals.** It expresses "when did the human last reaffirm this claim?", not "when did the file change?". Schemas enforce ISO-date format via `isoDate` (`src/schemas/_base.ts`). The freshness/stale-claim agents threshold on `now - last_reviewed`, never on `last_touched`.
 
 **`last_verified` is a section-level heading attribute parsed by the remark plugin** (ADR-005). It lives in markdown body, not frontmatter, and is editorial — it expresses "when did the author re-read this paragraph and reaffirm it?". The rehype plugin renders the freshness pill from this value alone; it never falls back to `last_touched` or file mtime. Sections without `last_verified` get no pill.
 
-**`FRESHNESS_NOW_ISO` is the deterministic clock for tests and CI builds** (`src/lib/freshness.ts`, `src/lib/clock.ts`). When unset, the system uses real `Date.now()`. Build pipelines that snapshot HTML for diffing (none currently, but anticipated) should set this to a stable ISO string so freshness pills don't drift between rebuilds of identical source.
+**`FRESHNESS_NOW_ISO` is the deterministic clock for tests and local builds** (`src/lib/freshness.ts`, `src/lib/clock.ts`). When unset, the system uses real `Date.now()`. Build pipelines that snapshot HTML for diffing (none currently, but anticipated) should set this to a stable ISO string so freshness pills don't drift between rebuilds of identical source.
 
 ## Consequences
 

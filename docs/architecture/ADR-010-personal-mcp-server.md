@@ -21,7 +21,7 @@ Agents get structured public data without a new database or CMS. The fixed resou
 
 ## Alternatives considered
 
-HTTP-first hosting was rejected for M6 because stdio is simpler to install locally and test in CI. Reading only `dist/index.sqlite` was rejected because a clean clone should still serve public content before the derived index exists.
+HTTP-first hosting was rejected for M6 because stdio is simpler to install and test locally. Reading only `dist/index.sqlite` was rejected because a clean clone should still serve public content before the derived index exists.
 
 ### Current state (2026-05-02)
 

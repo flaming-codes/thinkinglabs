@@ -112,34 +112,54 @@ const TAIL_SURFACES: ReadonlyArray<Surface> = [
     title: "Brain-diff (Atom)",
     url: "/feed/brain-diff.xml",
     description:
-      "Substantive changes across tracked content (scored daily by `pnpm brain-diff`; not yet auto-deployed — currently published as a CI artifact only).",
+      "Substantive changes across tracked content (generated locally by `pnpm artifacts:scored`, or unscored by `pnpm artifacts`).",
     section: "feed",
   },
   {
     title: "Brain-diff (JSON)",
     url: "/feed/brain-diff.json",
     description:
-      "Substantive changes as JSON (scored daily by `pnpm brain-diff`; not yet auto-deployed — currently published as a CI artifact only).",
+      "Substantive changes as JSON (generated locally by `pnpm artifacts:scored`, or unscored by `pnpm artifacts`).",
+    section: "feed",
+  },
+  {
+    title: "Brain-diff predictions resolved",
+    url: "/feed/brain-diff-predictions-resolved.json",
+    description: "Prediction resolution changes from the local brain-diff artifact run.",
+    section: "feed",
+  },
+  {
+    title: "Brain-diff claims revised",
+    url: "/feed/brain-diff-claims-revised.json",
+    description:
+      "Claim creation, revision, and deprecation changes from the local brain-diff artifact run.",
+    section: "feed",
+  },
+  {
+    title: "Brain-diff decisions reversed",
+    url: "/feed/brain-diff-decisions-reversed.json",
+    description: "Decision reversal changes from the local brain-diff artifact run.",
     section: "feed",
   },
   {
     title: "Predictions resolved",
     url: "/feed/predictions-resolved.json",
-    description: "Predictions transitioning out of pending (live, regenerated every site build).",
+    description:
+      "JSON Feed 1.1 for predictions transitioning out of pending (regenerated every site build).",
     section: "feed",
   },
   {
     title: "Claims revised",
     url: "/feed/claims-revised.json",
     description:
-      "Claims with non-active status or supersedes/superseded_by links (live, regenerated every site build).",
+      "JSON Feed 1.1 for claims with non-active status or supersedes/superseded_by links (regenerated every site build).",
     section: "feed",
   },
   {
     title: "Decisions reversed",
     url: "/feed/decisions-reversed.json",
     description:
-      "Decisions marked reversed/superseded or with a `reverses` link (live, regenerated every site build).",
+      "JSON Feed 1.1 for decisions marked reversed/superseded or with a `reverses` link (regenerated every site build).",
     section: "feed",
   },
 ];
