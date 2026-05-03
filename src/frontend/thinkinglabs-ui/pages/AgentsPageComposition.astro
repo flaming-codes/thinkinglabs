@@ -1,5 +1,6 @@
 ---
 import AppShell from "../components/AppShell.astro";
+import { GITHUB_URL } from "../../../lib/site.ts";
 
 interface Resource {
   uri: string;
@@ -74,9 +75,9 @@ const feeds: { url: string; description: string }[] = [
     <div class="tl-eyebrow">§ /agents</div>
     <h1>For agents.</h1>
     <p class="tl-page-sub">
-      A markdown corpus exposed as machine-readable surfaces — an index, a stdio MCP server,
+      A markdown corpus exposed as machine-readable surfaces — an index, a remote MCP endpoint,
       JSON APIs, and brain-diff feeds — so language models, scrapers, and your own scripts can
-      read this site without parsing HTML.
+      read this site without parsing HTML or cloning the repo.
     </p>
   </section>
 
@@ -116,20 +117,35 @@ const feeds: { url: string; description: string }[] = [
     <header class="tl-about-section-head is-compact">
       <div class="tl-eyebrow">§ 02 / MCP server</div>
       <h2>
-        Stdio MCP — public
+        One server,
         <br />
-        resources, local tools.
+        two transports.
       </h2>
     </header>
     <div class="tl-agents-prose">
       <p>
-        <code>servers/thinkinglabs-mcp/</code> is a stdio
+        Built on
         <a class="tl-agents-link" href="https://modelcontextprotocol.io">Model Context Protocol</a>
-        server built on
-        <code>@modelcontextprotocol/sdk</code>. The store prefers the derived
-        <code>dist/index.sqlite</code> and falls back to validated markdown under
-        <code>content/</code>. Schema version <code>0.1.0</code>; public-only; auth disabled.
+        and <code>@modelcontextprotocol/sdk</code>. The same factory backs a stdio entrypoint
+        (<code>servers/thinkinglabs-mcp/</code>) and a remote
+        <strong>Streamable HTTP</strong> entrypoint (<code>servers/thinkinglabs-mcp-http/</code>),
+        so the resources, tools, and store-fallback semantics are identical regardless of how you
+        connect. Schema version <code>0.1.0</code>; public-only; auth disabled.
       </p>
+    </div>
+
+    <div class="tl-agents-list">
+      <article class="tl-agents-row">
+        <code class="tl-agents-uri">https://mcp.thinkinglabs.run/mcp</code>
+        <p>
+          Remote endpoint. Streamable HTTP transport in stateless mode — every POST is one JSON
+          request, one JSON response. No clone required.
+        </p>
+      </article>
+      <article class="tl-agents-row">
+        <code class="tl-agents-uri">pnpm mcp:thinkinglabs -- --repo-root &lt;path&gt;</code>
+        <p>Local stdio entrypoint. Reads from your checkout; useful when iterating on the corpus.</p>
+      </article>
     </div>
 
     <div class="tl-agents-subhead">
@@ -246,34 +262,42 @@ const feeds: { url: string; description: string }[] = [
       <h2>
         Wire it up
         <br />
-        in three lines.
+        without cloning.
       </h2>
     </header>
     <div class="tl-agents-prose">
       <p>
-        Clone the repo, install dependencies, and run the MCP entrypoint. Any MCP-aware client
-        (Claude Code, Claude Desktop, your own) can then read public resources and call the five
-        tools.
+        For most agents, the remote URL is enough. Hand it to any MCP-aware client and the
+        handshake takes care of everything. The local stdio entrypoint is here for cases where you
+        want to point the server at a different checkout.
       </p>
     </div>
     <div class="tl-agents-code-block">
-      <div class="tl-eyebrow">Local clone</div>
-      <pre><code>git clone https://github.com/thinkinglabs/thinkinglabs.git
-cd thinkinglabs
-pnpm install
-pnpm mcp:thinkinglabs</code></pre>
-    </div>
-    <div class="tl-agents-code-block">
-      <div class="tl-eyebrow">Claude Desktop config</div>
+      <div class="tl-eyebrow">Remote — Claude Desktop / Claude Code</div>
       <pre><code>{`{
   "mcpServers": {
     "thinkinglabs": {
-      "command": "pnpm",
-      "args": ["mcp:thinkinglabs"],
-      "cwd": "/absolute/path/to/thinkinglabs"
+      "url": "https://mcp.thinkinglabs.run/mcp"
     }
   }
 }`}</code></pre>
+    </div>
+    <div class="tl-agents-code-block">
+      <div class="tl-eyebrow">Remote — programmatic (TypeScript SDK)</div>
+      <pre><code>{`import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+
+const client = new Client({ name: "demo", version: "0.0.1" });
+await client.connect(
+  new StreamableHTTPClientTransport(new URL("https://mcp.thinkinglabs.run/mcp"))
+);`}</code></pre>
+    </div>
+    <div class="tl-agents-code-block">
+      <div class="tl-eyebrow">Local — stdio against your own checkout</div>
+      <pre><code>{`git clone ${GITHUB_URL}.git
+cd thinkinglabs
+pnpm install
+pnpm mcp:thinkinglabs -- --repo-root .`}</code></pre>
     </div>
     <div class="tl-agents-prose">
       <p class="is-muted">

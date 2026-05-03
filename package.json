@@ -22,6 +22,7 @@
     "brain-diff:offline": "pnpm brain-diff --no-llm",
     "brain-diff:scored": "pnpm check:llm-key && pnpm brain-diff",
     "mcp:thinkinglabs": "tsx servers/thinkinglabs-mcp/cli.ts",
+    "mcp:thinkinglabs:http": "tsx servers/thinkinglabs-mcp-http/cli.ts",
     "derive-claims": "tsx scripts/derive-claims.ts",
     "review-stale-claims": "tsx scripts/review-stale-claims.ts",
     "dormant-flip": "tsx scripts/dormant-flip.ts",

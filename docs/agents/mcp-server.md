@@ -1,6 +1,8 @@
-# Personal MCP Server
+# Personal MCP Server (stdio)
 
 `servers/thinkinglabs-mcp/` exposes the public personal repo as a stdio MCP server using `@modelcontextprotocol/sdk`.
+
+> **Looking for the remote endpoint?** The same server factory is also exposed over Streamable HTTP at `servers/thinkinglabs-mcp-http/` (run with `pnpm mcp:thinkinglabs:http`, deployed at `https://mcp.thinkinglabs.run/mcp`). Resources, tools, and store-fallback semantics are identical to the stdio variant. See [`mcp-http-server.md`](./mcp-http-server.md). Architectural rationale for the split is in [`../architecture/ADR-013-remote-mcp-http.md`](../architecture/ADR-013-remote-mcp-http.md).
 
 Run locally with:
 
@@ -36,9 +38,9 @@ Fixed JSON views at:
 
 Per-object detail templates use `thinkinglabs://<kind>/{slug}` for `thoughts`, `claims`, `projects`, `decisions`, `predictions`, `inputs`, `questions`, `posts`, and `changed-my-mind`.
 
-## Local-only tools (write/intake)
+## Tools
 
-These tools are stdio-only and intended for local agent use:
+These tools are available on both transports (stdio and remote HTTP). `question.submit` writes to the local filesystem, so it is only meaningful when pointed at a checkout.
 
 - `query_view` — filters one public view by text, tags, and limit.
 - `contact.precheck` — checks a proposed inquiry against `public/contact.json`.

@@ -116,9 +116,10 @@ const TAIL_SURFACES: ReadonlyArray<Surface> = [
     section: "data",
   },
   {
-    title: "Personal MCP server",
-    url: "mcp://stdio/pnpm%20mcp:thinkinglabs",
-    description: "Stdio MCP entrypoint exposing public resources and tools from this repo.",
+    title: "Remote MCP endpoint",
+    url: "https://mcp.thinkinglabs.run/mcp",
+    description:
+      "Streamable HTTP MCP server in stateless mode; exposes public resources and tools without cloning the repo.",
     section: "data",
   },
   {

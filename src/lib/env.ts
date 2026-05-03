@@ -6,6 +6,16 @@ const envSchema = z.object({
   SITE_URL: z.url().default("https://thinkinglabs.run"),
   /** Optional repo-root override for the MCP server when invoked from another working directory. */
   THINKINGLABS_MCP_REPO_ROOT: z.string().optional(),
+  /** Bind address for the remote MCP HTTP server. Defaults to loopback inside the CLI. */
+  MCP_HTTP_HOST: z.string().optional(),
+  /** TCP port for the remote MCP HTTP server. */
+  MCP_HTTP_PORT: z.coerce.number().int().positive().max(65535).optional(),
+  /** Comma-separated `Host`-header allowlist for DNS-rebinding protection. */
+  MCP_HTTP_ALLOWED_HOSTS: z.string().optional(),
+  /** Comma-separated `Origin` allowlist for CORS and DNS-rebinding protection. */
+  MCP_HTTP_ALLOWED_ORIGINS: z.string().optional(),
+  /** Set to `1` to trust `X-Forwarded-For` for rate-limit keying. Only behind a known proxy. */
+  MCP_HTTP_TRUST_PROXY: z.enum(["0", "1"]).optional(),
   /** Frozen "now" for deterministic builds; ISO-8601. Falls back to `new Date().toISOString()` when absent. */
   BUILD_NOW_ISO: z.string().optional(),
   /** Frozen "now" for the freshness pipeline; ISO-8601. Independent of `BUILD_NOW_ISO`. */

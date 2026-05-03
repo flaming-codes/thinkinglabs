@@ -25,4 +25,8 @@ HTTP-first hosting was rejected for M6 because stdio is simpler to install and t
 
 ### Current state (2026-05-02)
 
-The server ships at `servers/thinkinglabs-mcp/` and is launched via `pnpm mcp:thinkinglabs`. The fixed resource taxonomy now also exposes provenance for accepted AI-assisted effects: `thinkinglabs://provenance` (list), `thinkinglabs://provenance/{slug}` (detail), and `thinkinglabs://ai/current-models` (the env-resolved `ModelRef` per capability tier). Provenance is committed to the source tree but is intentionally **not** surfaced on the public web — it is only reachable through MCP resources or `dist/index.sqlite`. The full resource and tool list lives in `docs/agents/mcp-server.md`. The authenticated tier remains deferred.
+The server ships at `servers/thinkinglabs-mcp/` and is launched via `pnpm mcp:thinkinglabs`. The fixed resource taxonomy includes `thinkinglabs://ai/current-models` (the env-resolved `ModelRef` per capability tier). Provenance is committed to the source tree but is intentionally **not** exposed via MCP resources — `kind !== "provenance"` is filtered out of `DETAIL_KINDS` in `servers/thinkinglabs-mcp/server.ts`. The full resource and tool list lives in `docs/agents/mcp-server.md`. The authenticated tier remains deferred.
+
+### Update (2026-05-03): remote HTTP transport added
+
+The "HTTP-first hosting was rejected" note above is superseded by [ADR-013](./ADR-013-remote-mcp-http.md), which adds a Streamable HTTP entrypoint at `servers/thinkinglabs-mcp-http/` (`pnpm mcp:thinkinglabs:http`). It wraps the same `createThinkinglabsMcpServer` factory, so the resource and tool taxonomy described here applies unchanged. Stdio is still the default for local agents that want to point at a specific checkout; the HTTP transport is for remote agents that should not need to clone.

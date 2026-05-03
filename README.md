@@ -16,7 +16,8 @@ pnpm setup:e2e         # install Chromium for local Playwright runs
 pnpm test:e2e          # build fixtures, then run Playwright against the fixture preview
 pnpm verify:full       # verify + e2e in one shot
 pnpm build:index       # rebuild dist/index.sqlite (the agent-facing query layer)
-pnpm mcp:thinkinglabs  # run the personal MCP server over stdio
+pnpm mcp:thinkinglabs       # run the personal MCP server over stdio
+pnpm mcp:thinkinglabs:http   # run the same server over Streamable HTTP (remote, default :8787)
 ```
 
 `pnpm verify` runs both validation shapes that used to live in hosted automation: the empty-content path runs typecheck, `vp check`, site build, structured-data check, index generation, and tests; the fixture path builds seeded fixture pages and checks their structured data. Day-to-day, use `pnpm dev` while writing and `pnpm artifacts` after content edits to regenerate every local derived artifact. Use `pnpm artifacts:scored` when `OPENAI_API_KEY` (or `OLLAMA_API_KEY` with `LLM_PROVIDER=ollama`) is set and you want publish-quality brain-diff summaries.
@@ -76,6 +77,7 @@ flowchart TB
     Verify["pnpm verify<br/>empty + fixture validation"]
     E2E["pnpm test:e2e<br/>fixture build + Playwright"]
     McpCommand["pnpm mcp:thinkinglabs<br/>stdio MCP server"]
+    McpHttpCommand["pnpm mcp:thinkinglabs:http<br/>remote Streamable HTTP MCP server"]
   end
 
   subgraph Outputs["Generated outputs"]
@@ -88,7 +90,8 @@ flowchart TB
 
   subgraph RuntimeSurfaces["Read and interaction surfaces"]
     WebPages["src/pages/*<br/>listings, details, JSON APIs, embeds"]
-    McpServer["servers/thinkinglabs-mcp<br/>resources + tools"]
+    McpServer["servers/thinkinglabs-mcp<br/>stdio resources + tools"]
+    McpHttp["servers/thinkinglabs-mcp-http<br/>Streamable HTTP transport<br/>(stateless, rate-limited)"]
     PublicUsers["Readers, crawlers, agents"]
   end
 
@@ -131,6 +134,10 @@ flowchart TB
   Verify --> IndexBuild
   E2E --> AstroBuild
   McpCommand --> McpServer
+  McpHttpCommand --> McpHttp
+  Content --> McpHttp
+  Sqlite --> McpHttp
+  McpHttp --> PublicUsers
 
   BrainDiff --> BrainFeeds
   JsonFeeds --> PublicFeeds
@@ -152,7 +159,10 @@ The direction is intentional: source files under `content/` are the only durable
 ## What ships today
 
 - **The Astro site** under `src/pages/` (rendered from `getCollection(kind)` plus the surface inventory in `src/lib/surfaces.ts`).
-- **A personal MCP server** at `servers/thinkinglabs-mcp/` exposing fixed JSON resources and tools over stdio. Run it with `pnpm mcp:thinkinglabs`. Resource taxonomy, tool list, and the `dist/index.sqlite` fallback path are documented in [`docs/agents/mcp-server.md`](./docs/agents/mcp-server.md).
+- **A personal MCP server** at `servers/thinkinglabs-mcp/` exposing fixed JSON resources and tools, with two transports against a shared factory:
+  - **Stdio** (`pnpm mcp:thinkinglabs`) for local clients pointed at this checkout — see [`docs/agents/mcp-server.md`](./docs/agents/mcp-server.md).
+  - **Streamable HTTP** (`pnpm mcp:thinkinglabs:http`, deployed at `https://mcp.thinkinglabs.run/mcp`) for remote agents that should not need to clone — stateless, raw `node:http`, with DNS-rebinding protection, CORS, a per-IP token-bucket rate limiter, and a `GET /healthz` probe. See [`docs/agents/mcp-http-server.md`](./docs/agents/mcp-http-server.md).
+    Resource taxonomy, tool list, and the `dist/index.sqlite` fallback path are shared between both.
 - **Five background agents** (`dormant-flip`, `review-decisions`, `resolve-predictions`, `freshness-review`, `triage-questions`) that scan content and enqueue typed proposals; the human drains the queue with `pnpm review-proposals`. Architecture in [`docs/agents/proposal-pipeline.md`](./docs/agents/proposal-pipeline.md); launchd installation in [`scripts/launchd/README.md`](./scripts/launchd/README.md).
 
-Architectural decisions are in [`docs/architecture/`](./docs/architecture/) (ADR-001 through ADR-012). Read the relevant ADR before changing a pipeline — they capture _why_, not just what.
+Architectural decisions are in [`docs/architecture/`](./docs/architecture/) (ADR-001 through ADR-013). Read the relevant ADR before changing a pipeline — they capture _why_, not just what.

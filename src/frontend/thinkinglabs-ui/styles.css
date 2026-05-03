@@ -2399,7 +2399,7 @@ body {
   font-size: var(--tl-type-mono-sm);
   line-height: 1.55;
   color: var(--tl-ink);
-  background: #fafafa;
+  background: var(--tl-foot-ink);
 }
 
 .tl-agents-code-block code {

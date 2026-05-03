@@ -52,7 +52,7 @@
 
 - [Contact JSON](/contact.json): Structured contact surface.
 - [llms.txt](/llms.txt): Agent-readable surface index.
-- [Personal MCP server](mcp://stdio/pnpm%20mcp:thinkinglabs): Stdio MCP entrypoint exposing public resources and tools from this repo.
+- [Remote MCP endpoint](https://mcp.thinkinglabs.run/mcp): Streamable HTTP MCP server in stateless mode; exposes public resources and tools without cloning the repo.
 
 ## Feeds
 
