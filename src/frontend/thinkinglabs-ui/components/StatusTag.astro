@@ -8,3 +8,13 @@ const { label, tone = "default" } = Astro.props;
 ---
 
 <span class:list={["tl-status-tag", `is-${tone}`]}>{label}</span>
+
+<style>
+  .tl-status-tag {
+    display: inline;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    line-height: 1.2;
+  }
+</style>

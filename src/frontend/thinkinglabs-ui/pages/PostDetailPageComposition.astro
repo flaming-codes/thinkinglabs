@@ -13,7 +13,7 @@ const { post } = Astro.props;
 <AppShell activeNav="Index">
   <section class="tl-post-detail-page">
     <div class="tl-post-detail-main">
-      <div class="tl-eyebrow">§ /posts/{post.slug}</div>
+      <div class="tl-eyebrow">/posts/{post.slug}</div>
       <div class="tl-mono">Essay · {post.topic} · {post.minutes} min</div>
 
       <header class="tl-post-detail-head">
@@ -32,7 +32,7 @@ const { post } = Astro.props;
       {post.sections.map((section) => (
         <section class="tl-post-section">
           <header>
-            <div class="tl-eyebrow">§ {section.number}</div>
+            <div class="tl-eyebrow">{section.number}</div>
             <h2>{section.title}</h2>
           </header>
           <div class="tl-post-prose">
@@ -89,7 +89,7 @@ const { post } = Astro.props;
       ))}
 
       <section class="tl-post-footnotes">
-        <div class="tl-eyebrow">§ Footnotes</div>
+        <div class="tl-eyebrow">Footnotes</div>
         <div>
           {post.footnotes.map((note, index) => (
             <article class="tl-post-footnote-row">
@@ -101,7 +101,7 @@ const { post } = Astro.props;
       </section>
 
       <section class="tl-post-related">
-        <div class="tl-eyebrow">§ Connects to</div>
+        <div class="tl-eyebrow">Connects to</div>
         <div>
           <h2>Where this sits in the graph.</h2>
           {post.related.map((rel) => (
@@ -126,7 +126,7 @@ const { post } = Astro.props;
 
     <aside class="tl-post-rail">
       <div>
-        <div class="tl-eyebrow">§ Essay</div>
+        <div class="tl-eyebrow">Essay</div>
         <p>{post.title}</p>
       </div>
       <div>

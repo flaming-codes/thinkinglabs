@@ -14,7 +14,7 @@ const { calibration } = Astro.props;
 
 <AppShell activeNav="Calibration">
   <section class="tl-page-head">
-    <div class="tl-eyebrow">§ /predictions/calibration</div>
+    <div class="tl-eyebrow">/predictions/calibration</div>
     <div class="tl-page-head-grid">
       <h1>Kept score.</h1>
       <p>
@@ -39,6 +39,50 @@ const { calibration } = Astro.props;
     <CalibrationChart bins={calibration.bins} />
   </section>
 
+  <section class="embedded-tool" data-embedded-tool="local-prediction-calibration-logger">
+    <header class="tl-split-header is-tight">
+      <h2>Local calibration log.</h2>
+      <div class="tl-mono" data-local-summary aria-live="polite">No local entries stored.</div>
+    </header>
+    <form class="tl-embed-form" data-local-calibration-form>
+      <label>
+        Confidence
+        <input name="confidence" type="number" min="0" max="100" step="1" value="50" />
+      </label>
+      <label>
+        Resolved
+        <select name="resolved">
+          <option value="true">True</option>
+          <option value="false">False</option>
+        </select>
+      </label>
+      <button type="submit" data-record disabled>Record</button>
+    </form>
+    <table class="embedded-tool__fallback">
+      <thead>
+        <tr>
+          <th scope="col">Metric</th>
+          <th scope="col">Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Resolved predictions</td>
+          <td>{calibration.resolved}</td>
+        </tr>
+        <tr>
+          <td>Pending predictions</td>
+          <td>{calibration.pending}</td>
+        </tr>
+        <tr>
+          <td>Brier score</td>
+          <td>{calibration.brier.toFixed(2)}</td>
+        </tr>
+      </tbody>
+    </table>
+    <noscript>Local logging requires JavaScript; the static calibration table remains available.</noscript>
+  </section>
+
   <section>
     <header class="tl-split-header is-tight">
       <h2>Recent predictions.</h2>
@@ -60,3 +104,46 @@ const { calibration } = Astro.props;
     ))}
   </section>
 </AppShell>
+
+<script>
+  const storageKey = "me.embed.prediction-calibration-logger.v1";
+  const root = document.querySelector(
+    "[data-embedded-tool='local-prediction-calibration-logger']",
+  );
+  const form = root?.querySelector("[data-local-calibration-form]") as HTMLFormElement | null;
+  const summary = root?.querySelector("[data-local-summary]");
+  const button = root?.querySelector("button[data-record]") as HTMLButtonElement | null;
+
+  function readEntries(): Array<{ confidence: number; resolved: boolean }> {
+    try {
+      const raw = window.localStorage.getItem(storageKey);
+      return raw === null ? [] : JSON.parse(raw);
+    } catch {
+      return [];
+    }
+  }
+
+  function writeSummary(): void {
+    if (!summary) return;
+    const entries = readEntries();
+    summary.textContent =
+      entries.length === 1
+        ? "1 local entry stored"
+        : `${entries.length} local entries stored`;
+  }
+
+  if (form && button) {
+    button.disabled = false;
+    writeSummary();
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const data = new FormData(form);
+      const confidence = Number(data.get("confidence")) / 100;
+      const resolved = data.get("resolved") === "true";
+      const entries = readEntries();
+      entries.push({ confidence, resolved });
+      window.localStorage.setItem(storageKey, JSON.stringify(entries));
+      writeSummary();
+    });
+  }
+</script>

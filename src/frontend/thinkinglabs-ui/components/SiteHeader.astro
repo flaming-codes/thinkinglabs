@@ -1,6 +1,4 @@
 ---
-import BrandLogo from "./BrandLogo.astro";
-
 interface Props {
   activeNav?: "Index" | "Now" | "Calibration" | "Brain-diff" | "Agents" | "About";
 }
@@ -10,21 +8,55 @@ const navItems: Array<{ label: Props["activeNav"]; href: string }> = [
   { label: "Index", href: "/" },
   { label: "Now", href: "/now" },
   { label: "Calibration", href: "/predictions/calibration" },
-  { label: "Brain-diff", href: "/feed/brain-diff.xml" },
+  { label: "Brain-diff", href: "/brain-diff" },
   { label: "Agents", href: "/agents" },
   { label: "About", href: "/about" },
 ];
 ---
 
-<header class="tl-header">
-  <a href="/" class="tl-brand" aria-label="thinkinglabs">
-    <BrandLogo class="tl-brand-logo" />
-  </a>
-  <nav class="tl-nav" aria-label="Primary navigation">
-    {navItems.map((item) => (
-      <a href={item.href} class:list={["tl-nav-item", item.label !== activeNav && "is-muted"]}>
-        {item.label}
-      </a>
-    ))}
-  </nav>
+<header class="tl-header site">
+  <div class="inner">
+    <button
+      class="tl-menu-button"
+      type="button"
+      aria-label="Open menu"
+      aria-expanded="false"
+      aria-controls="tl-menu"
+    >
+      <span class="tl-header-dot" aria-hidden="true"></span>
+    </button>
+    <nav class="tl-menu" id="tl-menu" aria-label="Primary navigation" hidden>
+      {navItems.map((item) => (
+        <a href={item.href} class:list={["nav", item.label === activeNav && "is-active"]}>
+          {item.label}
+        </a>
+      ))}
+    </nav>
+  </div>
 </header>
+
+<script>
+  const header = document.querySelector(".tl-header");
+  const button = header?.querySelector(".tl-menu-button") as HTMLButtonElement | null;
+  const menu = header?.querySelector(".tl-menu") as HTMLElement | null;
+
+  if (button && menu) {
+    const setOpen = (open: boolean) => {
+      button.setAttribute("aria-expanded", String(open));
+      button.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+      menu.hidden = !open;
+    };
+
+    button.addEventListener("click", () => {
+      setOpen(button.getAttribute("aria-expanded") !== "true");
+    });
+
+    document.addEventListener("click", (event) => {
+      if (event.target instanceof Node && !header?.contains(event.target)) setOpen(false);
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") setOpen(false);
+    });
+  }
+</script>

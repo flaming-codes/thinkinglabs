@@ -1,11 +1,4 @@
-/**
- * Per-key token bucket. In-memory, no external dependency.
- *
- * Each `consume(key)` call refills the bucket based on elapsed wall-clock time, then
- * tries to take one token. Keys with no traffic for `idleTtlMs` are evicted on the next
- * consume so a cold instance does not grow unbounded.
- */
-
+/** Options for an in-memory per-key token bucket. */
 export interface TokenBucketOptions {
   /** Maximum tokens in the bucket (burst size). */
   readonly capacity: number;
@@ -20,6 +13,7 @@ interface BucketState {
   lastRefillMs: number;
 }
 
+/** In-memory per-key token bucket. */
 export interface TokenBucket {
   readonly consume: (key: string) => boolean;
   readonly size: () => number;
@@ -27,13 +21,12 @@ export interface TokenBucket {
   readonly destroy: () => void;
 }
 
+/** Create a token bucket that refills on each consume and periodically evicts idle keys. */
 export function createTokenBucket(options: TokenBucketOptions): TokenBucket {
   const { capacity, refillPerSecond } = options;
   const idleTtlMs = options.idleTtlMs ?? 10 * 60 * 1000;
   const buckets = new Map<string, BucketState>();
 
-  // Evict idle keys on a period equal to the idle TTL so a small set of low-traffic
-  // IPs does not accumulate indefinitely.
   const evictTimer = setInterval(() => {
     evictIdle(buckets, Date.now(), idleTtlMs);
   }, idleTtlMs);

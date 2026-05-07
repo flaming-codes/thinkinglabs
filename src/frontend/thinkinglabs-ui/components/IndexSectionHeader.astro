@@ -5,9 +5,10 @@ interface Props {
 }
 
 const { label, title } = Astro.props;
+const cleanLabel = label.replace(/^§\s*/, "");
 ---
 
 <header class="tl-index-section-head">
-  <div class="tl-index-section-label">{label}</div>
+  <div class="tl-index-section-label">{cleanLabel}</div>
   <h2 class="tl-index-section-title"><Fragment set:html={title} /></h2>
 </header>

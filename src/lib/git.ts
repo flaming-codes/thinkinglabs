@@ -6,6 +6,7 @@ const exec = promisify(execFile);
 
 /** Per-build memoization so multiple renderer call-sites for the same path share one git invocation. */
 const cache = new Map<string, Promise<string | null>>();
+const workTreeCache = new Map<string, boolean>();
 
 function cacheKey(filePath: string, cwd: string): string {
   return `${cwd}\u0000${filePath}`;
@@ -17,6 +18,24 @@ function fileMtimeISO(filePath: string): string | null {
   } catch {
     return null;
   }
+}
+
+function isInsideWorkTree(cwd: string): boolean {
+  const cached = workTreeCache.get(cwd);
+  if (cached !== undefined) return cached;
+  let inside = false;
+  try {
+    inside =
+      execFileSync("git", ["rev-parse", "--is-inside-work-tree"], {
+        cwd,
+        stdio: ["ignore", "pipe", "ignore"],
+        encoding: "utf8",
+      }).trim() === "true";
+  } catch {
+    inside = false;
+  }
+  workTreeCache.set(cwd, inside);
+  return inside;
 }
 
 /** Latest commit ISO date for `filePath`, or null if untracked; mtime fallback is the consumer's responsibility. */
@@ -36,6 +55,7 @@ export function lastTouched(filePath: string, cwd = process.cwd()): Promise<stri
 
 /** Synchronous variant for build-time consumers (the index builder); same null-on-untracked semantics, no memoization needed. */
 export function lastTouchedSync(filePath: string, cwd: string): string | null {
+  if (!isInsideWorkTree(cwd)) return null;
   try {
     const out = execFileSync("git", ["log", "-1", "--format=%cI", "--", filePath], {
       cwd,

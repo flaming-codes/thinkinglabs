@@ -9,12 +9,11 @@ interface Props {
 const { value, previous = null, showDelta = true, compact = false } = Astro.props;
 const delta = previous === null ? null : value - previous;
 const tone = delta === null || delta === 0 ? "neutral" : delta > 0 ? "positive" : "negative";
+const percent = Math.round(Math.min(1, Math.max(0, value)) * 100);
 ---
 
-<div class:list={["tl-confidence", compact && "is-compact"]}>
-  <div class="tl-confidence-track">
-    <div class="tl-confidence-fill" style={`width:${Math.round(value * 100)}%`}></div>
-  </div>
+<div class:list={["tl-confidence", compact && "is-compact"]} style={`--confidence:${percent}%`}>
+  <div class="tl-confidence-track" aria-hidden="true"></div>
   <span class="tl-confidence-value">{value.toFixed(2)}</span>
   {
     showDelta && (
@@ -24,3 +23,34 @@ const tone = delta === null || delta === 0 ? "neutral" : delta > 0 ? "positive" 
     )
   }
 </div>
+
+<style>
+  .tl-confidence {
+    display: inline-grid;
+    grid-template-columns: minmax(56px, 96px) auto auto;
+    gap: 8px;
+    align-items: baseline;
+  }
+
+  .tl-confidence.is-compact {
+    grid-template-columns: minmax(48px, 72px) auto auto;
+  }
+
+  .tl-confidence-track {
+    align-self: center;
+    height: 1px;
+    background:
+      linear-gradient(
+        to right,
+        var(--tl-ink) 0,
+        var(--tl-ink) var(--confidence),
+        var(--tl-line) var(--confidence),
+        var(--tl-line) 100%
+      );
+  }
+
+  .tl-confidence-value,
+  .tl-confidence-delta {
+    line-height: 1.2;
+  }
+</style>

@@ -1,5 +1,6 @@
 ---
 import AppShell from "../components/AppShell.astro";
+import HandDrawnWordmark from "../components/HandDrawnWordmark.astro";
 import type { KindSummary } from "../types";
 
 interface Props {
@@ -12,23 +13,18 @@ const total = kinds.reduce((sum, kind) => sum + kind.count, 0);
 
 <AppShell activeNav="Index">
   <section class="tl-home-hero">
-    <p class="tl-home-hero-left">
-      From a markdown
-      <br />
-      tree
-      <br />
-      to a public
-      <br />
-      thinking surface.
-    </p>
-    <h1 class="tl-home-lede">
-      One mind, kept in plain text — with
-      <span class="tl-home-lede-accent"> stated confidence, dated predictions, and a public record of every reversal.</span>
-    </h1>
+    <div class="tl-home-mark">
+      <h1 class="tl-home-wordmark-heading">
+        <span class="tl-visually-hidden">thinkinglabs</span>
+        <HandDrawnWordmark />
+      </h1>
+      <div class="tl-gradient-block tl-home-gradient" aria-hidden="true"></div>
+      <p class="tl-home-subline">A public thinking system for claims, reversals, and predictions.</p>
+    </div>
   </section>
 
   <section class="tl-home-thesis-row">
-    <div class="tl-eyebrow">↳ The thesis</div>
+    <div class="tl-eyebrow">The thesis</div>
     <p>
       Most personal sites are static essays. This one is a queryable corpus: each claim has confidence
       in [0,1], each prediction is graded against reality, and reversals stay visible rather than
@@ -36,7 +32,7 @@ const total = kinds.reduce((sum, kind) => sum + kind.count, 0);
     </p>
   </section>
 
-  <section>
+  <section class="tl-home-index">
     <header class="tl-split-header">
       <div class="tl-eyebrow">Index of kinds</div>
       <div class="tl-mono">{total} entries · last build 2026-05-03</div>
@@ -54,7 +50,7 @@ const total = kinds.reduce((sum, kind) => sum + kind.count, 0);
   </section>
 
   <section class="tl-home-agents">
-    <div class="tl-eyebrow">↳ For agents</div>
+    <div class="tl-gradient-block tl-gradient-block--short" aria-hidden="true"></div>
     <div class="tl-home-agents-body">
       <h2>
         Readable by humans.
