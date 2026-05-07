@@ -13,7 +13,7 @@ const archive = featured ? posts.filter((post) => post.slug !== featured.slug) :
 
 <AppShell activeNav="Index">
   <section class="tl-page-head is-spacious">
-    <div class="tl-eyebrow">§ /posts · {posts.length} essays</div>
+    <div class="tl-eyebrow">/posts · {posts.length} essays</div>
     <h1>Posts.</h1>
     <p class="tl-page-sub">
       Long-form pieces. The polished layer of the system — fewer than thoughts, finished enough to
@@ -22,7 +22,7 @@ const archive = featured ? posts.filter((post) => post.slug !== featured.slug) :
   </section>
 
   <section class="tl-post-featured">
-    <div class="tl-eyebrow">§ latest</div>
+    <div class="tl-eyebrow">latest</div>
     {featured ? (
       <div>
         <h2>{featured.href ? <a href={featured.href}>{featured.title}</a> : featured.title}</h2>
@@ -42,7 +42,7 @@ const archive = featured ? posts.filter((post) => post.slug !== featured.slug) :
 
   <section>
     <header class="tl-about-section-head is-compact">
-      <div class="tl-eyebrow">§ archive</div>
+      <div class="tl-eyebrow">archive</div>
       <h2>{archive.length} earlier pieces.</h2>
     </header>
 

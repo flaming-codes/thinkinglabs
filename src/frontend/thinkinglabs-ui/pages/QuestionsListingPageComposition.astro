@@ -43,12 +43,7 @@ const sorted = [...view.questions].sort((a, b) => b.heat - a.heat);
           <p class="tl-questions-resolve">{q.wouldResolve}</p>
         </div>
         <div class="tl-questions-side">
-          <span class="tl-heat-label">Heat</span>
-          <div class="tl-heat-row">
-            {[1, 2, 3, 4, 5].map((n) => (
-              <span class:list={["tl-heat-dot", n <= q.heat && "is-filled"]} />
-            ))}
-          </div>
+          <span class="tl-heat-label">Heat {q.heat}/5</span>
           <span class="tl-pred-topic">{q.topic}</span>
           {q.related.length > 0 && (
             <div class="tl-questions-related">
@@ -67,7 +62,7 @@ const sorted = [...view.questions].sort((a, b) => b.heat - a.heat);
   </section>
 
   <footer class="tl-index-bottom">
-    <div class="tl-index-section-label">§ rules</div>
+    <div class="tl-index-section-label">rules</div>
     <p>
       “A question stays here until I either turn it into a claim with a confidence number
       or admit it isn't actually a question I care about. Sometimes that takes a long time.

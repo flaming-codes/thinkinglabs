@@ -12,7 +12,7 @@ const { thought } = Astro.props;
 
 <AppShell activeNav="Index">
   <section class="tl-page-head is-detail is-spacious">
-    <div class="tl-eyebrow">§ /thoughts/{thought.slug}</div>
+    <div class="tl-eyebrow">/thoughts/{thought.slug}</div>
     <div class="tl-mono">Thought · {thought.minutes} min · {thought.words.toLocaleString()} words</div>
     <h1>{thought.title}</h1>
     <div class="tl-thought-detail-meta">

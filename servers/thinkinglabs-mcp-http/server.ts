@@ -37,11 +37,7 @@ const DEFAULT_PATH = "/mcp";
 const MAX_BODY_BYTES = 1 << 20;
 const REQUEST_TIMEOUT_MS = 30_000;
 
-/**
- * Build and start a stateless Streamable-HTTP MCP server. Each POST gets a fresh transport and
- * `McpServer` instance, so the process is safe to scale horizontally. GET and DELETE return 405
- * because the stateless transport does not support resumable streams or session teardown.
- */
+/** Build and start a stateless Streamable-HTTP MCP server. */
 export async function startMcpHttpServer(
   options: McpHttpServerOptions,
 ): Promise<McpHttpServerHandle> {
@@ -117,7 +113,6 @@ async function handle(
 ): Promise<void> {
   applyCorsHeaders(res, req, ctx.allowedOrigins);
 
-  // Validate Host header before any response that could be used to grant cross-origin access.
   if (ctx.allowedHosts.length > 0) {
     const host = (headerString(req, "host") ?? "").split(":")[0] ?? "";
     if (!ctx.allowedHosts.includes(host)) {
@@ -173,9 +168,7 @@ async function handle(
     return;
   }
 
-  // Omitting `sessionIdGenerator` enables stateless mode in the SDK (see
-  // simpleStatelessStreamableHttp example). The SDK's option type is `?: () => string`, so under
-  // `exactOptionalPropertyTypes` we omit the key rather than passing `undefined`.
+  /** Omit `sessionIdGenerator` to enable stateless mode and satisfy exact optional types. */
   const transport = new StreamableHTTPServerTransport({
     enableJsonResponse: true,
     enableDnsRebindingProtection: ctx.allowedHosts.length > 0 || ctx.allowedOrigins.length > 0,
@@ -189,8 +182,7 @@ async function handle(
     void server.close();
   });
 
-  // SDK's class declares `onclose` as a getter that may return `undefined`, which does not satisfy
-  // the `Transport` interface under `exactOptionalPropertyTypes`. Cast through the interface.
+  /** Cast through `Transport` because the SDK getter can return `undefined`. */
   await server.connect(transport as unknown as Transport);
   await transport.handleRequest(req, res, body);
 }
@@ -206,8 +198,6 @@ function applyCorsHeaders(
   if (allowed) {
     if (allowedOrigins.length === 0) {
       res.setHeader("access-control-allow-origin", "*");
-      // Omit Vary when the value is a wildcard — Vary+* is semantically redundant and
-      // can confuse CDN caches.
     } else {
       res.setHeader("access-control-allow-origin", origin ?? "*");
       res.setHeader("vary", "origin");

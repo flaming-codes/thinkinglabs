@@ -8,9 +8,10 @@ interface Props {
 }
 
 const { eyebrow, crumb, title, deck, layout = "stacked" } = Astro.props;
+const cleanEyebrow = eyebrow.replace(/^§\s*/, "");
 ---
 
-<div class="tl-index-eyebrow">{eyebrow}</div>
+<div class="tl-index-eyebrow">{cleanEyebrow}</div>
 <div class="tl-index-crumb">{crumb}</div>
 <section class:list={["tl-index-hero", layout === "split" && "is-split"]}>
   {layout === "split" ? (

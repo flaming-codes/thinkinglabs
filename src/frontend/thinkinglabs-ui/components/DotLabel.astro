@@ -5,9 +5,21 @@ interface Props {
 }
 
 const { label, filled = false } = Astro.props;
+const tone = filled ? "filled" : "open";
 ---
 
-<span class="tl-dot-label">
-  <span class:list={["tl-dot", filled && "is-filled"]} />
+<span class:list={["tl-dot-label", `is-${tone}`]}>
   {label}
 </span>
+
+<style>
+  .tl-dot-label {
+    gap: 0;
+    color: var(--tl-muted);
+    line-height: 1.2;
+  }
+
+  .tl-dot-label.is-filled {
+    color: var(--tl-ink);
+  }
+</style>

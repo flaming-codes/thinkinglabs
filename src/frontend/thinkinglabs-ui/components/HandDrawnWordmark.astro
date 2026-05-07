@@ -1,0 +1,44 @@
+---
+const letters = [
+  { id: "t", x: -1, width: 21, delay: 120, duration: 260 },
+  { id: "h", x: 17, width: 32, delay: 280, duration: 360 },
+  { id: "i-1", x: 45, width: 18, delay: 560, duration: 210 },
+  { id: "n-1", x: 59, width: 38, delay: 700, duration: 360 },
+  { id: "k", x: 92, width: 30, delay: 980, duration: 320 },
+  { id: "i-2", x: 117, width: 19, delay: 1210, duration: 210 },
+  { id: "n-2", x: 132, width: 38, delay: 1350, duration: 360 },
+  { id: "g", x: 165, width: 43, delay: 1640, duration: 420 },
+  { id: "l", x: 202, width: 20, delay: 2000, duration: 230 },
+  { id: "a", x: 217, width: 38, delay: 2150, duration: 350 },
+  { id: "b", x: 250, width: 40, delay: 2430, duration: 370 },
+  { id: "s", x: 285, width: 31, delay: 2730, duration: 300 },
+];
+---
+
+<svg
+  class="tl-hand-wordmark"
+  viewBox="0 0 430 105"
+  preserveAspectRatio="xMinYMid meet"
+  aria-hidden="true"
+  focusable="false"
+>
+  <defs>
+    {letters.map((letter) => (
+      <mask id={`tl-wordmark-mask-${letter.id}`} maskUnits="userSpaceOnUse">
+        <rect
+          class="tl-hand-wordmark-mask"
+          x={letter.x}
+          y="0"
+          width={letter.width}
+          height="105"
+          style={`--delay: ${letter.delay}ms; --duration: ${letter.duration}ms; transform-origin: ${letter.x}px 52px;`}
+        />
+      </mask>
+    ))}
+  </defs>
+  {letters.map((letter) => (
+    <text class="tl-hand-wordmark-letter" x="0" y="76" mask={`url(#tl-wordmark-mask-${letter.id})`}>
+      thinkinglabs
+    </text>
+  ))}
+</svg>
