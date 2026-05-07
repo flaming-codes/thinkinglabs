@@ -1,8 +1,6 @@
 ---
 import BrandLogo from "./BrandLogo.astro";
 import { CONTACT_EMAIL, GITHUB_URL } from "../../../lib/site.ts";
-
-const year = new Date().getFullYear();
 ---
 
 <footer class="tl-site-footer">
@@ -34,10 +32,6 @@ const year = new Date().getFullYear();
         <a href={GITHUB_URL}>github</a>
       </div>
     </nav>
-    <div class="tl-site-footer-bottom">
-      <span class="tl-site-footer-copy">© {year} thinkinglabs · built in public</span>
-      <a href="#top" class="tl-site-footer-top-link" aria-label="Back to top">Back to top ↑</a>
-    </div>
   </div>
 </footer>
 
