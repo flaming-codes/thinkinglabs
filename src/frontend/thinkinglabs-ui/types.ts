@@ -193,6 +193,33 @@ interface IndexStat {
   sub: string;
 }
 
+interface EntityIndexRow {
+  kicker: string;
+  title: string;
+  href?: string | undefined;
+  summary?: string | undefined;
+  meta?: string[] | undefined;
+  value?: string | undefined;
+  valueLabel?: string | undefined;
+}
+
+interface EntityIndexSection {
+  label: string;
+  title: string;
+  rows: EntityIndexRow[];
+}
+
+interface EntityIndexPage {
+  slug: string;
+  eyebrow: string;
+  title: string;
+  deck: string;
+  count: string;
+  stats: IndexStat[];
+  sections: EntityIndexSection[];
+  footer?: string | undefined;
+}
+
 interface ProjectRow {
   slug: string;
   title: string;
@@ -365,6 +392,9 @@ export type {
   DecisionsView,
   DiffDay,
   DiffEntry,
+  EntityIndexPage,
+  EntityIndexRow,
+  EntityIndexSection,
   FlipSummary,
   IndexStat,
   InputCitation,

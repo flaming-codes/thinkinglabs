@@ -1,66 +1,37 @@
 ---
-import AppShell from "../components/AppShell.astro";
-import IndexHero from "../components/IndexHero.astro";
-import IndexSectionHeader from "../components/IndexSectionHeader.astro";
-import StatBand from "../components/StatBand.astro";
-import type { ChangedMyMindView } from "../types";
+import EntityIndexPageComposition from "./EntityIndexPageComposition.astro";
+import type { ChangedMyMindView, EntityIndexPage } from "../types";
 
 interface Props {
   view: ChangedMyMindView;
 }
 
 const { view } = Astro.props;
+
+const page: EntityIndexPage = {
+  slug: "changed-my-mind",
+  eyebrow: "/changed-my-mind",
+  title: "Changed my mind.",
+  deck: "Beliefs that lost enough support to deserve a public correction. The old view stays visible because the lag is part of the record.",
+  count: `${view.total} flips`,
+  stats: view.stats,
+  sections: [
+    {
+      label: "Most recent",
+      title: "What broke.",
+      rows: view.flips.map((flip) => ({
+        kicker: flip.flippedOn,
+        title: flip.title,
+        href: flip.href,
+        summary: flip.tipper,
+        meta: [`held ${flip.held}`, flip.topic],
+        value: `${flip.confThen.toFixed(2)} -> ${flip.confNow.toFixed(2)}`,
+        valueLabel: "confidence",
+      })),
+    },
+  ],
+  footer: "The embarrassing part is rarely the flip. It is the time spent defending the old view after the evidence moved.",
+};
 ---
 
-<AppShell activeNav="Index">
-  <IndexHero
-    eyebrow="§ /changed-my-mind"
-    crumb={`Index · ${view.total} flips on file`}
-    title={`Things I no<br/><em>longer</em> believe.`}
-    deck="Beliefs I held with confidence and have since walked back. The page exists because the act of writing the old view down — verbatim, dated — is the only thing that has ever made me update on schedule."
-  />
-
-  <StatBand stats={view.stats} />
-
-  <IndexSectionHeader
-    label="§ all flips · most recent first"
-    title="What broke,<br/>and when."
-  />
-
-  <section class="tl-index-list">
-    {view.flips.map((f) => (
-      <article class="tl-flip-row">
-        <div>
-          <div class="tl-flip-date-big">{f.flippedOn.slice(5)}</div>
-          <div class="tl-flip-date">{f.flippedOn.slice(0, 4)}</div>
-          <div class="tl-flip-date" style="margin-top: 14px;">held {f.held}</div>
-        </div>
-        <div>
-          <h3 class="tl-flip-title">
-            {f.href ? <a href={f.href}>{f.title}</a> : f.title}
-          </h3>
-          <p class="tl-flip-tipper">“{f.tipper}”</p>
-          <div class="tl-flip-meta">{f.topic}</div>
-        </div>
-        <div class="tl-flip-delta">
-          <div class="tl-flip-delta-row">
-            <span class="tl-flip-before">{f.confThen.toFixed(2)}</span>
-            <span class="tl-flip-arrow">→</span>
-            <span class="tl-flip-after">{f.confNow.toFixed(2)}</span>
-          </div>
-          <div class="tl-flip-swing">Δ {(f.confNow - f.confThen).toFixed(2)}</div>
-        </div>
-      </article>
-    ))}
-  </section>
-
-  <footer class="tl-index-bottom">
-    <div class="tl-index-section-label">on flipping</div>
-    <p>
-      “Most of these I'm glad I changed my mind on. A few I'm embarrassed by — embarrassed
-      not by the flip, but by how long I held the old view past the point I had the
-      evidence to flip earlier. The point of writing them down is so future-me can see the
-      lag.”
-    </p>
-  </footer>
-</AppShell>
+<EntityIndexPageComposition page={page} />

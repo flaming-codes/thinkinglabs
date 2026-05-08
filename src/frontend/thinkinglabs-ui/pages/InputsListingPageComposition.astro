@@ -1,51 +1,37 @@
 ---
-import AppShell from "../components/AppShell.astro";
-import IndexHero from "../components/IndexHero.astro";
-import IndexSectionHeader from "../components/IndexSectionHeader.astro";
-import StatBand from "../components/StatBand.astro";
-import type { InputsView } from "../types";
+import EntityIndexPageComposition from "./EntityIndexPageComposition.astro";
+import type { EntityIndexPage, InputsView } from "../types";
 
 interface Props {
   view: InputsView;
 }
 
 const { view } = Astro.props;
-
 const sorted = [...view.inputs].sort((a, b) => b.influence - a.influence);
+
+const page: EntityIndexPage = {
+  slug: "inputs",
+  eyebrow: "/inputs",
+  title: "Inputs.",
+  deck: "Books, papers, essays, talks, and other outside material that changed the downstream graph. Influence is counted by citations, not vibes.",
+  count: `${view.total} inputs`,
+  stats: view.stats,
+  sections: [
+    {
+      label: "Most cited",
+      title: "What shaped the system.",
+      rows: sorted.map((input) => ({
+        kicker: input.kind,
+        title: input.title,
+        href: input.href,
+        summary: input.note,
+        meta: [input.by, `read ${input.date}`, input.year],
+        value: String(input.influence),
+        valueLabel: "citations",
+      })),
+    },
+  ],
+};
 ---
 
-<AppShell activeNav="Index">
-  <IndexHero
-    eyebrow="§ /inputs"
-    crumb={`Index · ${view.total} on file · sorted by influence`}
-    title="Inputs."
-    deck="Things I read, watched, or listened to that left a mark on the system. Influence here is counted, not asserted: the number on each entry is the count of claims, posts, and decisions that explicitly cite it."
-  />
-
-  <StatBand stats={view.stats} />
-
-  <IndexSectionHeader
-    label="§ all inputs · sorted by influence"
-    title="What's shaping the system."
-  />
-
-  <section class="tl-index-list">
-    {sorted.map((it) => (
-      <article class="tl-inputs-row">
-        <div class="tl-inputs-kind">{it.kind}</div>
-        <div class="tl-inputs-year">{it.year}</div>
-        <div>
-          <h3>{it.href ? <a href={it.href}>{it.title}</a> : it.title}</h3>
-          <div class="tl-inputs-by">{it.by}</div>
-          <p class="tl-inputs-note">{it.note}</p>
-        </div>
-        <div>
-          <div class="tl-inputs-influence-label">Cited</div>
-          <div class="tl-inputs-influence">{it.influence}</div>
-          <div class="tl-inputs-influence-label">times</div>
-        </div>
-        <div class="tl-inputs-row-date">read<br />{it.date}</div>
-      </article>
-    ))}
-  </section>
-</AppShell>
+<EntityIndexPageComposition page={page} />

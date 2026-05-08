@@ -1,72 +1,38 @@
 ---
-import AppShell from "../components/AppShell.astro";
-import IndexHero from "../components/IndexHero.astro";
-import IndexSectionHeader from "../components/IndexSectionHeader.astro";
-import StatBand from "../components/StatBand.astro";
-import type { QuestionsView } from "../types";
+import EntityIndexPageComposition from "./EntityIndexPageComposition.astro";
+import type { EntityIndexPage, QuestionsView } from "../types";
 
 interface Props {
   view: QuestionsView;
 }
 
 const { view } = Astro.props;
-
 const sorted = [...view.questions].sort((a, b) => b.heat - a.heat);
+
+const page: EntityIndexPage = {
+  slug: "questions",
+  eyebrow: "/questions",
+  title: "Questions.",
+  deck: "Open questions upstream of confidence. Each one names what would actually resolve it, so it cannot hide behind more thinking.",
+  count: `${view.total} open questions`,
+  stats: view.stats,
+  sections: [
+    {
+      label: "Hottest first",
+      title: "What is unresolved.",
+      rows: sorted.map((question) => ({
+        kicker: question.asked,
+        title: question.title,
+        href: question.href,
+        summary: question.deck,
+        meta: [`would resolve: ${question.wouldResolve}`, question.topic, ...question.related],
+        value: `${question.heat}/5`,
+        valueLabel: "heat",
+      })),
+    },
+  ],
+  footer: "A question stays open until it becomes a claim or gets admitted as not worth pursuing.",
+};
 ---
 
-<AppShell activeNav="Index">
-  <IndexHero
-    eyebrow="§ /questions"
-    crumb={`Index · ${view.total} open · sorted by heat`}
-    title="Questions."
-    deck="Things I'm sitting with. None of these has a confidence number yet — they're upstream of the claims page. Each one carries what would actually resolve it: not “more thinking,” but a specific kind of evidence I haven't gathered."
-  />
-
-  <StatBand stats={view.stats} />
-
-  <IndexSectionHeader
-    label="§ open questions · sorted by heat"
-    title="What I'm sitting with."
-  />
-
-  <section class="tl-index-list">
-    {sorted.map((q) => (
-      <article class="tl-questions-row">
-        <div>
-          <div class="tl-flip-date-big">{q.asked.slice(5)}</div>
-          <div class="tl-flip-date">{q.asked.slice(0, 4)}</div>
-        </div>
-        <div>
-          <h3>{q.href ? <a href={q.href}>{q.title}</a> : q.title}</h3>
-          <p class="tl-questions-deck">{q.deck}</p>
-          <div class="tl-questions-resolve-label">What would resolve it</div>
-          <p class="tl-questions-resolve">{q.wouldResolve}</p>
-        </div>
-        <div class="tl-questions-side">
-          <span class="tl-heat-label">Heat {q.heat}/5</span>
-          <span class="tl-pred-topic">{q.topic}</span>
-          {q.related.length > 0 && (
-            <div class="tl-questions-related">
-              near<br />
-              {q.related.map((r, i) => (
-                <span>
-                  {r}
-                  {i < q.related.length - 1 ? " · " : ""}
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
-      </article>
-    ))}
-  </section>
-
-  <footer class="tl-index-bottom">
-    <div class="tl-index-section-label">rules</div>
-    <p>
-      “A question stays here until I either turn it into a claim with a confidence number
-      or admit it isn't actually a question I care about. Sometimes that takes a long time.
-      The page exists so I can't quietly forget the ones that didn't go anywhere.”
-    </p>
-  </footer>
-</AppShell>
+<EntityIndexPageComposition page={page} />

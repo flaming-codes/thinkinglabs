@@ -1,10 +1,6 @@
 ---
-import AppShell from "../components/AppShell.astro";
-import DotLabel from "../components/DotLabel.astro";
-import IndexHero from "../components/IndexHero.astro";
-import IndexSectionHeader from "../components/IndexSectionHeader.astro";
-import StatBand from "../components/StatBand.astro";
-import type { PredictionRow, PredictionsView } from "../types";
+import EntityIndexPageComposition from "./EntityIndexPageComposition.astro";
+import type { EntityIndexPage, PredictionsView } from "../types";
 
 interface Props {
   view: PredictionsView;
@@ -12,61 +8,43 @@ interface Props {
 
 const { view } = Astro.props;
 
-const renderTitle = (p: PredictionRow) =>
-  p.href ? `<a href="${p.href}">${p.title}</a>` : p.title;
+const page: EntityIndexPage = {
+  slug: "predictions",
+  eyebrow: "/predictions",
+  title: "Predictions.",
+  deck: "Forecasts with a date, a number, and a resolution rule. The point is not to sound certain; it is to become measurable.",
+  count: `${view.open.length} open / ${view.resolved.length} resolved`,
+  stats: view.stats,
+  sections: [
+    {
+      label: "Open",
+      title: "Currently held.",
+      rows: view.open.map((prediction) => ({
+        kicker: `${prediction.days}d`,
+        title: prediction.title,
+        href: prediction.href,
+        summary: prediction.topic,
+        meta: [`resolves ${prediction.due}`, "open"],
+        value: prediction.conf.toFixed(2),
+        valueLabel: "confidence",
+      })),
+    },
+    {
+      label: "Resolved",
+      title: "Already settled.",
+      rows: view.resolved.map((prediction) => ({
+        kicker: prediction.outcome ?? "done",
+        title: prediction.title,
+        href: prediction.href,
+        summary: prediction.topic,
+        meta: [`resolved ${prediction.resolvedDate ?? prediction.due}`, `was ${prediction.conf.toFixed(2)}`],
+        value: prediction.outcome ?? "-",
+        valueLabel: "outcome",
+      })),
+    },
+  ],
+  footer: "A prediction resolves only against the rule written before the outcome was known.",
+};
 ---
 
-<AppShell activeNav="Index">
-  <IndexHero
-    eyebrow="§ /predictions"
-    crumb={`Index · ${view.open.length} open · ${view.resolved.length} resolved`}
-    title="Predictions."
-    deck="Forecasts with a date and a number. Each one resolves on a specific rule I committed to before I knew the outcome. The bell I get rung by when I'm wrong."
-  />
-
-  <StatBand stats={view.stats} />
-
-  <IndexSectionHeader
-    label="§ open · sorted by resolution date"
-    title="Currently held."
-  />
-  <section class="tl-index-list">
-    {view.open.map((p) => (
-      <article class="tl-pred-row">
-        <div class="tl-pred-conf">{p.conf.toFixed(2)}</div>
-        <div>
-          <div class="tl-pred-days-num">{p.days}d</div>
-          <div class="tl-pred-days-label">to resolve</div>
-        </div>
-        <p class="tl-pred-title"><Fragment set:html={renderTitle(p)} /></p>
-        <div class="tl-pred-days-label">{p.due}</div>
-        <div class="tl-pred-topic">{p.topic}</div>
-      </article>
-    ))}
-  </section>
-
-  <IndexSectionHeader label="§ resolved · most recent first" title="Already settled." />
-  <section class="tl-index-list">
-    {view.resolved.map((p) => (
-      <article class="tl-pred-row">
-        <span class="tl-pred-conf-strike">{p.conf.toFixed(2)}</span>
-        <div>
-          {p.outcome && (
-            <DotLabel label={p.outcome} filled={p.outcome === "true"} />
-          )}
-        </div>
-        <p class="tl-pred-title"><Fragment set:html={renderTitle(p)} /></p>
-        <div class="tl-pred-days-label">{p.resolvedDate}</div>
-        <div class="tl-pred-topic">{p.topic}</div>
-      </article>
-    ))}
-  </section>
-
-  <footer class="tl-pred-foot">
-    <div class="tl-index-section-label">how I keep score</div>
-    <div>
-      <p>“I count a prediction resolved only against the exact rule I wrote when I opened it. If the rule was sloppy, the prediction is sloppy — that's still on me.”</p>
-      <a href="/predictions/calibration">Calibration page →</a>
-    </div>
-  </footer>
-</AppShell>
+<EntityIndexPageComposition page={page} />

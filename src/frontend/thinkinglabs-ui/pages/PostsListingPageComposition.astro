@@ -1,66 +1,44 @@
 ---
-import AppShell from "../components/AppShell.astro";
-import type { PostSummary } from "../types";
+import EntityIndexPageComposition from "./EntityIndexPageComposition.astro";
+import type { EntityIndexPage, PostSummary } from "../types";
 
 interface Props {
   posts: PostSummary[];
 }
 
 const { posts } = Astro.props;
+const words = posts.reduce((sum, post) => sum + post.words, 0);
+const minutes = posts.reduce((sum, post) => sum + post.minutes, 0);
 const featured = posts.find((post) => post.featured) ?? posts[0];
-const archive = featured ? posts.filter((post) => post.slug !== featured.slug) : [];
+
+const page: EntityIndexPage = {
+  slug: "posts",
+  eyebrow: "/posts",
+  title: "Posts.",
+  deck: "Long-form pieces polished enough to stand alone. Fewer than thoughts, slower to publish, and easier to cite.",
+  count: `${posts.length} essays`,
+  stats: [
+    { label: "Essays", value: String(posts.length), sub: "published here" },
+    { label: "Words", value: words.toLocaleString(), sub: "across the archive" },
+    { label: "Read time", value: `${minutes}m`, sub: "estimated total" },
+  ],
+  sections: [
+    {
+      label: featured ? "Latest first" : "Archive",
+      title: "Finished writing.",
+      rows: posts.map((post) => ({
+        kicker: post.date,
+        title: post.title,
+        href: post.href,
+        summary: post.deck,
+        meta: [post.topic, `${post.minutes} min`, `${post.words.toLocaleString()} words`],
+        value: post.featured ? "latest" : post.topic,
+        valueLabel: "filed",
+      })),
+    },
+  ],
+  footer: "If a piece is here, it is because I would be willing to defend it.",
+};
 ---
 
-<AppShell activeNav="Index">
-  <section class="tl-page-head is-spacious">
-    <div class="tl-eyebrow">/posts · {posts.length} essays</div>
-    <h1>Posts.</h1>
-    <p class="tl-page-sub">
-      Long-form pieces. The polished layer of the system — fewer than thoughts, finished enough to
-      live under their own URL.
-    </p>
-  </section>
-
-  <section class="tl-post-featured">
-    <div class="tl-eyebrow">latest</div>
-    {featured ? (
-      <div>
-        <h2>{featured.href ? <a href={featured.href}>{featured.title}</a> : featured.title}</h2>
-        <p>{featured.deck}</p>
-        <div class="tl-post-featured-meta">
-          <span class="tl-mono">{featured.date}</span>
-          <span class="tl-mono">{featured.minutes} min read</span>
-          <span class="tl-mono">{featured.words.toLocaleString()} words</span>
-          <span class="tl-mono">filed under {featured.topic}</span>
-          <span class="tl-post-read-link">{featured.href ? <a href={featured.href}>Read essay →</a> : "Read essay →"}</span>
-        </div>
-      </div>
-    ) : (
-      <p>No posts yet.</p>
-    )}
-  </section>
-
-  <section>
-    <header class="tl-about-section-head is-compact">
-      <div class="tl-eyebrow">archive</div>
-      <h2>{archive.length} earlier pieces.</h2>
-    </header>
-
-    {archive.map((post) => (
-      <article class="tl-post-row">
-        <div class="tl-mono">{post.date}</div>
-        <div>
-          <h3>{post.href ? <a href={post.href}>{post.title}</a> : post.title}</h3>
-          <p>{post.deck}</p>
-        </div>
-        <div class="tl-mono">{post.topic}</div>
-        <div class="tl-mono is-right">{post.minutes} min</div>
-      </article>
-    ))}
-  </section>
-
-  <footer class="tl-quote-foot">
-    <p>“If a piece is here, it's because I'd be willing to defend it.”</p>
-    <span>/feed/posts.xml</span>
-  </footer>
-</AppShell>
+<EntityIndexPageComposition page={page} />

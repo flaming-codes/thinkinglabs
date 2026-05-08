@@ -1,114 +1,39 @@
 ---
-import AppShell from "../components/AppShell.astro";
-import DotLabel from "../components/DotLabel.astro";
-import IndexHero from "../components/IndexHero.astro";
-import IndexSectionHeader from "../components/IndexSectionHeader.astro";
-import StatBand from "../components/StatBand.astro";
-import type { DecisionRow, DecisionsView } from "../types";
+import EntityIndexPageComposition from "./EntityIndexPageComposition.astro";
+import type { DecisionRow, DecisionsView, EntityIndexPage } from "../types";
 
 interface Props {
   view: DecisionsView;
 }
 
 const { view } = Astro.props;
+const row = (decision: DecisionRow) => ({
+  kicker: decision.date,
+  title: decision.title,
+  href: decision.href,
+  summary: decision.summary,
+  meta: [
+    `status ${decision.state}`,
+    decision.review ? `review ${decision.review}` : "no scheduled review",
+    ...(decision.reversedBy ? [`reversed by ${decision.reversedBy}`] : []),
+  ],
+  value: decision.state,
+  valueLabel: "state",
+});
 
-const rowClass = (state: DecisionRow["state"]) =>
-  state === "active"
-    ? "tl-decisions-row"
-    : state === "reversed"
-      ? "tl-decisions-row is-muted is-reversed"
-      : "tl-decisions-row is-muted";
+const page: EntityIndexPage = {
+  slug: "decisions",
+  eyebrow: "/decisions",
+  title: "Decisions.",
+  deck: "Choices, rejected alternatives, and the question that would make a decision worth revisiting. Reversals stay on file.",
+  count: `${view.total} decisions`,
+  stats: view.stats,
+  sections: [
+    { label: "Active", title: "In force.", rows: view.active.map(row) },
+    { label: "Reversed", title: "Changed later.", rows: view.reversed.map(row) },
+    { label: "Archived", title: "Retired.", rows: view.archived.map(row) },
+  ],
+};
 ---
 
-<AppShell activeNav="Index">
-  <IndexHero
-    eyebrow="§ /decisions"
-    crumb={`Index · ${view.total} on file · ${view.active.length} active`}
-    title="Decisions."
-    deck="Choices I made, the alternatives I rejected, and the question I committed to ask myself when each one is up for review. Reversed decisions stay on file — the reasoning at the time is part of the record."
-  />
-
-  <StatBand stats={view.stats} />
-
-  {view.active.length > 0 && (
-    <>
-      <IndexSectionHeader label="§ active · most recent first" title="In force." />
-      <section class="tl-index-list">
-        {view.active.map((d, i) => (
-          <article class={rowClass(d.state)}>
-            <div class="tl-mono">{d.date}</div>
-            <div>
-              <h3>{d.href ? <a href={d.href}>{d.title}</a> : d.title}</h3>
-              <p class="tl-decisions-summary">{d.summary}</p>
-              {d.reversedBy && (
-                <div class="tl-decisions-reversed-by">Reversed by {d.reversedBy}</div>
-              )}
-            </div>
-            <div>
-              <DotLabel label={d.state} filled={d.state === "active"} />
-              {d.review ? (
-                <>
-                  <div class="tl-decisions-review-label">Review on</div>
-                  <div class="tl-decisions-review">{d.review}</div>
-                </>
-              ) : (
-                <div class="tl-decisions-review-none">No scheduled review</div>
-              )}
-            </div>
-            <div class="tl-mono is-right">{String(i + 1).padStart(2, "0")}</div>
-          </article>
-        ))}
-      </section>
-    </>
-  )}
-
-  {view.reversed.length > 0 && (
-    <>
-      <IndexSectionHeader
-        label="§ reversed · kept for the record"
-        title="What I changed my mind on."
-      />
-      <section class="tl-index-list">
-        {view.reversed.map((d, i) => (
-          <article class={rowClass(d.state)}>
-            <div class="tl-mono">{d.date}</div>
-            <div>
-              <h3>{d.href ? <a href={d.href}>{d.title}</a> : d.title}</h3>
-              <p class="tl-decisions-summary">{d.summary}</p>
-              {d.reversedBy && (
-                <div class="tl-decisions-reversed-by">Reversed by {d.reversedBy}</div>
-              )}
-            </div>
-            <div>
-              <DotLabel label={d.state} />
-              <div class="tl-decisions-review-none">No scheduled review</div>
-            </div>
-            <div class="tl-mono is-right">{String(i + 1).padStart(2, "0")}</div>
-          </article>
-        ))}
-      </section>
-    </>
-  )}
-
-  {view.archived.length > 0 && (
-    <>
-      <IndexSectionHeader label="§ archived · didn't pan out" title="Quietly retired." />
-      <section class="tl-index-list">
-        {view.archived.map((d, i) => (
-          <article class={rowClass(d.state)}>
-            <div class="tl-mono">{d.date}</div>
-            <div>
-              <h3>{d.href ? <a href={d.href}>{d.title}</a> : d.title}</h3>
-              <p class="tl-decisions-summary">{d.summary}</p>
-            </div>
-            <div>
-              <DotLabel label={d.state} />
-              <div class="tl-decisions-review-none">No scheduled review</div>
-            </div>
-            <div class="tl-mono is-right">{String(i + 1).padStart(2, "0")}</div>
-          </article>
-        ))}
-      </section>
-    </>
-  )}
-</AppShell>
+<EntityIndexPageComposition page={page} />
