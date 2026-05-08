@@ -23,8 +23,8 @@ const widthByIndex = ["16rem", "22rem", "16rem", "17.5rem", "22rem", "16rem", "1
           >
             <a class="tl-gallery-link" href={kind.href} aria-label={`${kind.title}: ${kind.description}`}>
               <span class="tl-gallery-label" aria-hidden="true">
-                <span>No.{String(index + 1).padStart(2, "0")}</span>
-                <span>Entity</span>
+                <span>{kind.title}</span>
+                <span>{kind.count} {kind.count === 1 ? "entry" : "entries"}</span>
               </span>
               <span class="tl-gallery-media">
                 <span class="tl-gallery-visual" data-entity={kind.slug}></span>

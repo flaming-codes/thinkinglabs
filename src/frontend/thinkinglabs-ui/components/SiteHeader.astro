@@ -2,23 +2,4 @@
   <a class="tl-brand-link" href="/" aria-label="thinkinglabs home">
     <span class="tl-wordmark">thinkinglabs</span>
   </a>
-  <p class="tl-time" aria-label="Vienna time">Vienna <span data-local-time>--:--:--</span></p>
 </header>
-
-<script>
-  const clock = document.querySelector<HTMLElement>("[data-local-time]");
-
-  const tick = () => {
-    if (!clock) return;
-    clock.textContent = new Intl.DateTimeFormat("en-GB", {
-      timeZone: "Europe/Vienna",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: false,
-    }).format(new Date());
-  };
-
-  tick();
-  window.setInterval(tick, 1000);
-</script>

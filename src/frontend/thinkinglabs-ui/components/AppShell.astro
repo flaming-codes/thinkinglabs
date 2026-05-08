@@ -7,6 +7,7 @@ interface Props {
 }
 
 const { activeNav = "Index" } = Astro.props;
+const showSelectedHud = activeNav !== "Index";
 ---
 
 <article class="tl-shell" id="top" data-active-nav={activeNav}>
@@ -16,10 +17,14 @@ const { activeNav = "Index" } = Astro.props;
       <slot />
     </div>
   </main>
-  <aside class="tl-selected-hud" aria-live="polite" aria-atomic="true">
-    <p class="tl-selected-kicker">Selected</p>
-    <p class="tl-selected-value" data-selected-text>{activeNav}</p>
-  </aside>
+  {
+    showSelectedHud && (
+      <aside class="tl-selected-hud" aria-live="polite" aria-atomic="true">
+        <p class="tl-selected-kicker">Selected</p>
+        <p class="tl-selected-value" data-selected-text>{activeNav}</p>
+      </aside>
+    )
+  }
 </article>
 <SiteFooter />
 
