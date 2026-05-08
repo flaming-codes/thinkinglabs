@@ -186,8 +186,7 @@ a {
   right: var(--tl-ui-x);
   display: flex;
   align-items: flex-start;
-  justify-content: flex-start;
-  gap: 24px;
+  justify-content: center;
 }
 
 .tl-brand-link,
@@ -230,7 +229,7 @@ a {
 }
 
 .tl-header .tl-wordmark {
-  font-size: clamp(16px, 1.2vw, 20px);
+  font-size: clamp(20px, 1.55vw, 26px);
   line-height: 1;
 }
 
