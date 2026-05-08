@@ -9,6 +9,7 @@ const { class: className, ariaLabel } = Astro.props;
 
 <span
   class:list={[className, "tl-wordmark"]}
+  data-wordmark="thinkinglabs"
   role={ariaLabel ? "img" : undefined}
   aria-label={ariaLabel}
   aria-hidden={ariaLabel ? undefined : "true"}

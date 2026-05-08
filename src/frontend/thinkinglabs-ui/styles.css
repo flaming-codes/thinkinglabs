@@ -10,14 +10,16 @@
     0 1px 1px rgba(7, 9, 13, 0.025), 0 10px 22px -16px rgba(7, 9, 13, 0.2),
     0 26px 54px -32px rgba(7, 9, 13, 0.18), 0 64px 112px -68px rgba(7, 9, 13, 0.16);
   --tl-font: "Geist", system-ui, sans-serif;
-  --tl-wordmark-font: "Grape Nuts", cursive;
+  --tl-wordmark-font: "Linefont", system-ui, sans-serif;
+  --tl-wordmark-hover-font: "Geist", system-ui, sans-serif;
   --tl-entity-gradient-thoughts: conic-gradient(
-    from 24deg at 42% 54%,
-    #edf4f7 0deg,
-    #d7e0e5 112deg,
-    #f8fafb 184deg,
-    #c9d4dc 286deg,
-    #edf4f7 360deg
+    from 34deg at 42% 55%,
+    #f7fbff 0deg,
+    #dceef7 68deg,
+    #7fb1c8 148deg,
+    #21394b 236deg,
+    #cddce6 306deg,
+    #f7fbff 360deg
   );
   --tl-entity-gradient-claims: conic-gradient(
     from 216deg at 45% 48%,
@@ -28,12 +30,13 @@
     #c9ddff 360deg
   );
   --tl-entity-gradient-projects: conic-gradient(
-    from 210deg at 48% 52%,
-    #ee5b4e 0deg,
-    #c82f2b 120deg,
-    #ff8273 230deg,
-    #da3a34 315deg,
-    #ee5b4e 360deg
+    from 204deg at 48% 52%,
+    #042f3f 0deg,
+    #0d8ba0 76deg,
+    #d8f95b 152deg,
+    #ffefe3 226deg,
+    #f24f36 304deg,
+    #042f3f 360deg
   );
   --tl-entity-gradient-predictions: conic-gradient(
     from 210deg at 50% 50%,
@@ -43,42 +46,49 @@
     #080d16
   );
   --tl-entity-gradient-changed-my-mind: conic-gradient(
-    from 224deg at 48% 50%,
-    #111827 0deg 165deg,
-    #f6f7fb 166deg 332deg,
-    #111827 333deg 360deg
+    from 228deg at 48% 50%,
+    #151923 0deg,
+    #59616f 74deg,
+    #f3efe3 154deg,
+    #ffba3d 232deg,
+    #d94a45 304deg,
+    #151923 360deg
   );
   --tl-entity-gradient-decisions: conic-gradient(
     from 218deg at 44% 54%,
-    #f5f6f8 0deg,
-    #ccd6dd 118deg,
-    #ffffff 205deg,
-    #bac8d2 302deg,
-    #f5f6f8 360deg
+    #fbf7e9 0deg,
+    #b8c8aa 72deg,
+    #3e6b59 156deg,
+    #14281f 236deg,
+    #e4d7b7 312deg,
+    #fbf7e9 360deg
   );
   --tl-entity-gradient-questions: conic-gradient(
-    from 216deg at 46% 50%,
-    #ff6659 0deg,
-    #f34132 106deg,
-    #9f2424 220deg,
-    #df382f 312deg,
-    #ff6659 360deg
+    from 214deg at 46% 50%,
+    #fff4b8 0deg,
+    #ffcf4a 62deg,
+    #ff6b50 140deg,
+    #7137a8 226deg,
+    #26164f 304deg,
+    #fff4b8 360deg
   );
   --tl-entity-gradient-posts: conic-gradient(
     from 32deg at 44% 52%,
-    #c8d5df 0deg,
-    #edf3f6 94deg,
-    #ffffff 176deg,
-    #afc0cc 288deg,
-    #c8d5df 360deg
+    #fff7ed 0deg,
+    #f2b880 76deg,
+    #b96d42 152deg,
+    #4b2e2a 240deg,
+    #d8dfe6 314deg,
+    #fff7ed 360deg
   );
   --tl-entity-gradient-inputs: conic-gradient(
     from 226deg at 46% 50%,
-    #ff6f60 0deg,
-    #e84c3d 98deg,
-    #b92725 214deg,
-    #f45b4e 304deg,
-    #ff6f60 360deg
+    #0e1f4f 0deg,
+    #3157d5 70deg,
+    #6dd8ff 146deg,
+    #f4fbff 224deg,
+    #70dfb2 302deg,
+    #0e1f4f 360deg
   );
   --tl-ui-x: clamp(18px, 3vw, 44px);
   --tl-ui-y: clamp(14px, 2vw, 28px);
@@ -227,8 +237,78 @@ a {
   text-transform: none;
 }
 
+.tl-wordmark {
+  position: relative;
+  display: inline-grid;
+  align-items: center;
+  justify-items: center;
+  --tl-wordmark-paint: var(--tl-ink);
+  --tl-wordmark-hover-paint: var(--tl-ink);
+  --tl-linefont-scale: 1;
+  --tl-linefont-size: 44px;
+  --tl-hover-font-size: 20px;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.tl-wordmark::before,
+.tl-wordmark::after {
+  grid-area: 1 / 1;
+  color: var(--tl-wordmark-paint);
+  content: attr(data-wordmark);
+  -webkit-text-fill-color: var(--tl-wordmark-paint);
+  transition:
+    opacity 360ms ease,
+    transform 360ms ease;
+  transform-origin: center;
+}
+
+.tl-wordmark::before {
+  font-family: var(--tl-wordmark-font);
+  font-optical-sizing: auto;
+  font-size: var(--tl-linefont-size);
+  font-style: normal;
+  font-weight: 300;
+  font-variation-settings: "wdth" 112.5;
+  opacity: 1;
+  transform: translateY(-0.08em) scale(var(--tl-linefont-scale));
+}
+
+.tl-wordmark::after {
+  color: var(--tl-wordmark-hover-paint);
+  font-family: var(--tl-wordmark-hover-font);
+  font-size: var(--tl-hover-font-size);
+  font-style: normal;
+  font-weight: 300;
+  font-variation-settings: normal;
+  -webkit-text-fill-color: var(--tl-wordmark-hover-paint);
+  opacity: 0;
+  transform: translateY(0.18em);
+}
+
+.tl-brand-link:hover .tl-wordmark::before,
+.tl-brand-link:focus-visible .tl-wordmark::before {
+  opacity: 0;
+  transform: translateY(-0.12em) scale(var(--tl-linefont-scale));
+}
+
+.tl-brand-link:hover .tl-wordmark::after,
+.tl-brand-link:focus-visible .tl-wordmark::after {
+  opacity: 1;
+  transform: translateY(0.14em);
+}
+
+.tl-header:has(.tl-brand-link:hover),
+.tl-header:has(.tl-brand-link:focus-visible) {
+  mix-blend-mode: normal;
+}
+
 .tl-header .tl-wordmark {
-  font-size: clamp(20px, 1.55vw, 26px);
+  --tl-wordmark-paint: #fff;
+  --tl-wordmark-hover-paint: #000;
+  --tl-linefont-scale: 1;
+  width: min(20rem, 80vw);
+  min-height: 3.25rem;
   line-height: 1;
 }
 
@@ -328,7 +408,7 @@ a {
 .tl-home-gallery {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 2.4rem;
   width: min(100%, 1120px);
   margin: 0 auto;
   padding: 25vh 0;
@@ -393,8 +473,27 @@ a {
 .tl-gallery-visual {
   position: absolute;
   inset: 0;
+  --tl-gradient-base-rotate: 0deg;
+  --tl-gradient-base-scale: 1.2;
   background: var(--tl-entity-gradient);
-  transform: scale(1.2);
+  transform: rotate(var(--tl-gradient-base-rotate)) scale(var(--tl-gradient-base-scale));
+  animation: tl-gallery-gradient-drift var(--tl-gradient-duration, 26s) ease-in-out infinite
+    alternate;
+  transform-origin: var(--tl-gradient-origin, 50% 50%);
+}
+
+@keyframes tl-gallery-gradient-drift {
+  0% {
+    transform: rotate(0deg) scale(1.2) translate3d(-0.4%, -0.25%, 0);
+  }
+
+  50% {
+    transform: rotate(2.4deg) scale(1.215) translate3d(0.25%, 0.45%, 0);
+  }
+
+  100% {
+    transform: rotate(-2deg) scale(1.21) translate3d(0.5%, -0.2%, 0);
+  }
 }
 
 .tl-gallery-link:hover,
@@ -413,38 +512,56 @@ a {
 
 .tl-gallery-visual[data-entity="claims"] {
   --tl-entity-gradient: var(--tl-entity-gradient-claims);
+  --tl-gradient-duration: 29s;
+  --tl-gradient-origin: 44% 48%;
 }
 
 .tl-gallery-visual[data-entity="thoughts"] {
   --tl-entity-gradient: var(--tl-entity-gradient-thoughts);
+  --tl-gradient-duration: 34s;
+  --tl-gradient-origin: 42% 55%;
 }
 
 .tl-gallery-visual[data-entity="inputs"] {
   --tl-entity-gradient: var(--tl-entity-gradient-inputs);
+  --tl-gradient-duration: 27s;
+  --tl-gradient-origin: 46% 50%;
 }
 
 .tl-gallery-visual[data-entity="projects"] {
   --tl-entity-gradient: var(--tl-entity-gradient-projects);
+  --tl-gradient-duration: 24s;
+  --tl-gradient-origin: 48% 52%;
 }
 
 .tl-gallery-visual[data-entity="predictions"] {
   --tl-entity-gradient: var(--tl-entity-gradient-predictions);
+  --tl-gradient-duration: 32s;
+  --tl-gradient-origin: 50% 50%;
 }
 
 .tl-gallery-visual[data-entity="changed-my-mind"] {
   --tl-entity-gradient: var(--tl-entity-gradient-changed-my-mind);
+  --tl-gradient-duration: 31s;
+  --tl-gradient-origin: 48% 50%;
 }
 
 .tl-gallery-visual[data-entity="decisions"] {
   --tl-entity-gradient: var(--tl-entity-gradient-decisions);
+  --tl-gradient-duration: 36s;
+  --tl-gradient-origin: 44% 54%;
 }
 
 .tl-gallery-visual[data-entity="questions"] {
   --tl-entity-gradient: var(--tl-entity-gradient-questions);
+  --tl-gradient-duration: 25s;
+  --tl-gradient-origin: 46% 50%;
 }
 
 .tl-gallery-visual[data-entity="posts"] {
   --tl-entity-gradient: var(--tl-entity-gradient-posts);
+  --tl-gradient-duration: 30s;
+  --tl-gradient-origin: 44% 52%;
 }
 
 .tl-gallery-title {
@@ -474,7 +591,7 @@ a {
 
     flex-direction: row;
     align-items: center;
-    gap: clamp(5.5rem, 9vw, 10rem);
+    gap: clamp(6.25rem, 10vw, 11rem);
     width: max-content;
     max-width: none;
     margin: 0;
@@ -749,62 +866,86 @@ a {
 .tl-entity-visual::before {
   position: absolute;
   inset: -18%;
-  background:
-    linear-gradient(
-      120deg,
-      rgba(255, 255, 255, 0.42),
-      transparent 28%,
-      rgba(255, 255, 255, 0.28) 62%,
-      transparent
-    ),
-    var(--tl-entity-gradient);
+  --tl-gradient-base-rotate: -4deg;
+  --tl-gradient-base-scale: 1.08;
+  background: var(--tl-entity-gradient);
   content: "";
-  filter: saturate(0.85);
-  transform: rotate(-4deg) scale(1.08);
+  transform: rotate(var(--tl-gradient-base-rotate)) scale(var(--tl-gradient-base-scale));
+  animation: tl-entity-gradient-drift var(--tl-gradient-duration, 28s) ease-in-out infinite
+    alternate;
+  transform-origin: var(--tl-gradient-origin, 50% 50%);
+}
+
+@keyframes tl-entity-gradient-drift {
+  0% {
+    transform: rotate(-4deg) scale(1.08) translate3d(-0.25%, -0.2%, 0);
+  }
+
+  50% {
+    transform: rotate(-1.6deg) scale(1.095) translate3d(0.25%, 0.35%, 0);
+  }
+
+  100% {
+    transform: rotate(-6deg) scale(1.09) translate3d(0.35%, -0.15%, 0);
+  }
 }
 
 .tl-entity-visual::after {
-  position: absolute;
-  inset: 0;
-  background: rgba(255, 255, 255, 0.28);
-  content: "";
-  backdrop-filter: blur(1px);
+  content: none;
 }
 
 .tl-entity-visual[data-entity="claims"] {
   --tl-entity-gradient: var(--tl-entity-gradient-claims);
+  --tl-gradient-duration: 29s;
+  --tl-gradient-origin: 44% 48%;
 }
 
 .tl-entity-visual[data-entity="thoughts"] {
   --tl-entity-gradient: var(--tl-entity-gradient-thoughts);
+  --tl-gradient-duration: 34s;
+  --tl-gradient-origin: 42% 55%;
 }
 
 .tl-entity-visual[data-entity="inputs"] {
   --tl-entity-gradient: var(--tl-entity-gradient-inputs);
+  --tl-gradient-duration: 27s;
+  --tl-gradient-origin: 46% 50%;
 }
 
 .tl-entity-visual[data-entity="projects"] {
   --tl-entity-gradient: var(--tl-entity-gradient-projects);
+  --tl-gradient-duration: 24s;
+  --tl-gradient-origin: 48% 52%;
 }
 
 .tl-entity-visual[data-entity="predictions"] {
   --tl-entity-gradient: var(--tl-entity-gradient-predictions);
+  --tl-gradient-duration: 32s;
+  --tl-gradient-origin: 50% 50%;
 }
 
 .tl-entity-visual[data-entity="changed-my-mind"] {
   --tl-entity-gradient: var(--tl-entity-gradient-changed-my-mind);
+  --tl-gradient-duration: 31s;
+  --tl-gradient-origin: 48% 50%;
 }
 
 .tl-entity-visual[data-entity="decisions"] {
   --tl-entity-gradient: var(--tl-entity-gradient-decisions);
+  --tl-gradient-duration: 36s;
+  --tl-gradient-origin: 44% 54%;
 }
 
 .tl-entity-visual[data-entity="questions"] {
   --tl-entity-gradient: var(--tl-entity-gradient-questions);
+  --tl-gradient-duration: 25s;
+  --tl-gradient-origin: 46% 50%;
 }
 
 .tl-entity-visual[data-entity="posts"] {
   --tl-entity-gradient: var(--tl-entity-gradient-posts);
+  --tl-gradient-duration: 30s;
+  --tl-gradient-origin: 44% 52%;
 }
 
 .tl-entity-visual > span {
@@ -1011,7 +1152,7 @@ code,
   }
 
   .tl-home-gallery {
-    gap: 2rem;
+    gap: 2.4rem;
     padding: 23vh 0;
   }
 
@@ -1124,5 +1265,15 @@ code,
 @media (prefers-reduced-motion: reduce) {
   .tl-scroll {
     scroll-behavior: auto;
+  }
+
+  .tl-gallery-visual,
+  .tl-entity-visual::before {
+    animation: none;
+  }
+
+  .tl-wordmark::before,
+  .tl-wordmark::after {
+    transition: none;
   }
 }
