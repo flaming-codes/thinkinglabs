@@ -1,19 +1,6 @@
----
-interface Props {
-  activeNav?: "Index" | "Now" | "Calibration" | "Brain-diff" | "Agents" | "About";
-}
-
-const { activeNav = "Index" } = Astro.props;
----
-
 <header class="tl-header">
   <a class="tl-brand-link" href="/" aria-label="thinkinglabs home">
-    <span class="tl-mark" aria-hidden="true">
-      <span></span>
-      <span></span>
-      <span></span>
-    </span>
-    <span class="tl-brand-context" data-brand-context>{activeNav === "Index" ? "thinkinglabs" : activeNav}</span>
+    <span class="tl-wordmark">thinkinglabs</span>
   </a>
   <p class="tl-time" aria-label="Vienna time">Vienna <span data-local-time>--:--:--</span></p>
 </header>

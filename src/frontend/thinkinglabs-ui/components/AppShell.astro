@@ -28,14 +28,12 @@ const { activeNav = "Index" } = Astro.props;
   const scroller = document.querySelector<HTMLElement>("[data-tl-scroll]");
   const selectedText = document.querySelector<HTMLElement>("[data-selected-text]");
   const brandContext = document.querySelector<HTMLElement>("[data-brand-context]");
-  const footerText = document.querySelector<HTMLElement>("[data-footer-text]");
   const candidates = Array.from(document.querySelectorAll<HTMLElement>("[data-selected-label]"));
   const fallback = shell?.dataset.activeNav ?? "Index";
 
   const setSelected = (label: string, meta?: string) => {
     if (selectedText) selectedText.textContent = label;
     if (brandContext) brandContext.textContent = meta ?? label;
-    if (footerText) footerText.textContent = label === "Data model" ? "Contact me" : "Send mail";
   };
 
   const updateSelected = () => {

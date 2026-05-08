@@ -7,45 +7,18 @@ interface Props {
 }
 
 const { kinds } = Astro.props;
-const total = kinds.reduce((sum, kind) => sum + kind.count, 0);
 const aspectByIndex = ["3 / 4", "4 / 3", "3 / 4", "1 / 1", "4 / 3", "3 / 4", "1 / 1"];
 const widthByIndex = ["16rem", "22rem", "16rem", "17.5rem", "22rem", "16rem", "17.5rem"];
 ---
 
 <AppShell activeNav="Index">
   <div class="tl-home-stage">
-    <section
-      class="tl-profile-section"
-      data-selected-label="Data model"
-      data-brand-context="thinkinglabs"
-    >
-      <div class="tl-profile-card">
-        <h1>DATA MODEL</h1>
-        <div class="tl-profile-thumb" aria-hidden="true"></div>
-        <div class="tl-profile-rows">
-          <p class="tl-profile-row">
-            <span>Source</span>
-            <span>Markdown frontmatter</span>
-          </p>
-          <p class="tl-profile-row">
-            <span>Registry</span>
-            <span>{kinds.length} entity kinds</span>
-          </p>
-          <p class="tl-profile-row">
-            <span>Entries</span>
-            <span>{total} indexed</span>
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <section class="tl-gallery-section" data-selected-label="Entities" data-brand-context="Entity index">
+    <section class="tl-gallery-section" data-selected-label="Entities">
       <div class="tl-home-gallery">
         {kinds.map((kind, index) => (
           <article
             class="tl-gallery-card"
             data-selected-label={kind.title}
-            data-brand-context={kind.title}
             style={`--card-width: ${widthByIndex[index % widthByIndex.length]}; --card-width-mobile: ${index % 3 === 1 ? "18rem" : "13.5rem"}; --card-aspect: ${aspectByIndex[index % aspectByIndex.length]};`}
           >
             <a class="tl-gallery-link" href={kind.href} aria-label={`${kind.title}: ${kind.description}`}>
