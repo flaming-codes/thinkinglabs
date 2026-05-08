@@ -4,59 +4,34 @@ interface Props {
 }
 
 const { activeNav = "Index" } = Astro.props;
-const navItems: Array<{ label: Props["activeNav"]; href: string }> = [
-  { label: "Index", href: "/" },
-  { label: "Now", href: "/now" },
-  { label: "Calibration", href: "/predictions/calibration" },
-  { label: "Brain-diff", href: "/brain-diff" },
-  { label: "Agents", href: "/agents" },
-  { label: "About", href: "/about" },
-];
 ---
 
-<header class="tl-header site">
-  <div class="inner">
-    <button
-      class="tl-menu-button"
-      type="button"
-      aria-label="Open menu"
-      aria-expanded="false"
-      aria-controls="tl-menu"
-    >
-      <span class="tl-header-dot" aria-hidden="true"></span>
-    </button>
-    <nav class="tl-menu" id="tl-menu" aria-label="Primary navigation" hidden>
-      {navItems.map((item) => (
-        <a href={item.href} class:list={["nav", item.label === activeNav && "is-active"]}>
-          {item.label}
-        </a>
-      ))}
-    </nav>
-  </div>
+<header class="tl-header">
+  <a class="tl-brand-link" href="/" aria-label="thinkinglabs home">
+    <span class="tl-mark" aria-hidden="true">
+      <span></span>
+      <span></span>
+      <span></span>
+    </span>
+    <span class="tl-brand-context" data-brand-context>{activeNav === "Index" ? "thinkinglabs" : activeNav}</span>
+  </a>
+  <p class="tl-time" aria-label="Vienna time">Vienna <span data-local-time>--:--:--</span></p>
 </header>
 
 <script>
-  const header = document.querySelector(".tl-header");
-  const button = header?.querySelector(".tl-menu-button") as HTMLButtonElement | null;
-  const menu = header?.querySelector(".tl-menu") as HTMLElement | null;
+  const clock = document.querySelector<HTMLElement>("[data-local-time]");
 
-  if (button && menu) {
-    const setOpen = (open: boolean) => {
-      button.setAttribute("aria-expanded", String(open));
-      button.setAttribute("aria-label", open ? "Close menu" : "Open menu");
-      menu.hidden = !open;
-    };
+  const tick = () => {
+    if (!clock) return;
+    clock.textContent = new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Europe/Vienna",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+    }).format(new Date());
+  };
 
-    button.addEventListener("click", () => {
-      setOpen(button.getAttribute("aria-expanded") !== "true");
-    });
-
-    document.addEventListener("click", (event) => {
-      if (event.target instanceof Node && !header?.contains(event.target)) setOpen(false);
-    });
-
-    document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape") setOpen(false);
-    });
-  }
+  tick();
+  window.setInterval(tick, 1000);
 </script>

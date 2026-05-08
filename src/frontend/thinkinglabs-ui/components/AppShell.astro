@@ -9,8 +9,59 @@ interface Props {
 const { activeNav = "Index" } = Astro.props;
 ---
 
-<article class="tl-shell" id="top">
+<article class="tl-shell" id="top" data-active-nav={activeNav}>
   <SiteHeader activeNav={activeNav} />
-  <slot />
+  <main class="tl-scroll" data-tl-scroll>
+    <div class="tl-scroll-content">
+      <slot />
+    </div>
+  </main>
+  <aside class="tl-selected-hud" aria-live="polite" aria-atomic="true">
+    <p class="tl-selected-kicker">Selected</p>
+    <p class="tl-selected-value" data-selected-text>{activeNav}</p>
+  </aside>
 </article>
 <SiteFooter />
+
+<script>
+  const shell = document.querySelector<HTMLElement>(".tl-shell");
+  const scroller = document.querySelector<HTMLElement>("[data-tl-scroll]");
+  const selectedText = document.querySelector<HTMLElement>("[data-selected-text]");
+  const brandContext = document.querySelector<HTMLElement>("[data-brand-context]");
+  const footerText = document.querySelector<HTMLElement>("[data-footer-text]");
+  const candidates = Array.from(document.querySelectorAll<HTMLElement>("[data-selected-label]"));
+  const fallback = shell?.dataset.activeNav ?? "Index";
+
+  const setSelected = (label: string, meta?: string) => {
+    if (selectedText) selectedText.textContent = label;
+    if (brandContext) brandContext.textContent = meta ?? label;
+    if (footerText) footerText.textContent = label === "Data model" ? "Contact me" : "Send mail";
+  };
+
+  const updateSelected = () => {
+    if (!scroller || candidates.length === 0) {
+      setSelected(fallback);
+      return;
+    }
+
+    const viewportMiddle = scroller.getBoundingClientRect().top + scroller.clientHeight * 0.52;
+    let active = candidates[0];
+    let activeDistance = Number.POSITIVE_INFINITY;
+
+    candidates.forEach((candidate) => {
+      const rect = candidate.getBoundingClientRect();
+      const middle = rect.top + rect.height * 0.5;
+      const distance = Math.abs(middle - viewportMiddle);
+      if (distance < activeDistance) {
+        active = candidate;
+        activeDistance = distance;
+      }
+    });
+
+    setSelected(active?.dataset.selectedLabel ?? fallback, active?.dataset.brandContext);
+  };
+
+  scroller?.addEventListener("scroll", updateSelected, { passive: true });
+  window.addEventListener("resize", updateSelected);
+  updateSelected();
+</script>

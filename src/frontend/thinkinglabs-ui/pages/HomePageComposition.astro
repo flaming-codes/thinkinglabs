@@ -1,6 +1,5 @@
 ---
 import AppShell from "../components/AppShell.astro";
-import HandDrawnWordmark from "../components/HandDrawnWordmark.astro";
 import type { KindSummary } from "../types";
 
 interface Props {
@@ -9,62 +8,59 @@ interface Props {
 
 const { kinds } = Astro.props;
 const total = kinds.reduce((sum, kind) => sum + kind.count, 0);
+const aspectByIndex = ["3 / 4", "4 / 3", "3 / 4", "1 / 1", "4 / 3", "3 / 4", "1 / 1"];
+const widthByIndex = ["16rem", "22rem", "16rem", "17.5rem", "22rem", "16rem", "17.5rem"];
 ---
 
 <AppShell activeNav="Index">
-  <section class="tl-home-hero">
-    <div class="tl-home-mark">
-      <h1 class="tl-home-wordmark-heading">
-        <span class="tl-visually-hidden">thinkinglabs</span>
-        <HandDrawnWordmark />
-      </h1>
-      <div class="tl-gradient-block tl-home-gradient" aria-hidden="true"></div>
-      <p class="tl-home-subline">A public thinking system for claims, reversals, and predictions.</p>
-    </div>
-  </section>
+  <div class="tl-home-stage">
+    <section
+      class="tl-profile-section"
+      data-selected-label="Data model"
+      data-brand-context="thinkinglabs"
+    >
+      <div class="tl-profile-card">
+        <h1>DATA MODEL</h1>
+        <div class="tl-profile-thumb" aria-hidden="true"></div>
+        <div class="tl-profile-rows">
+          <p class="tl-profile-row">
+            <span>Source</span>
+            <span>Markdown frontmatter</span>
+          </p>
+          <p class="tl-profile-row">
+            <span>Registry</span>
+            <span>{kinds.length} entity kinds</span>
+          </p>
+          <p class="tl-profile-row">
+            <span>Entries</span>
+            <span>{total} indexed</span>
+          </p>
+        </div>
+      </div>
+    </section>
 
-  <section class="tl-home-thesis-row">
-    <div class="tl-eyebrow">The thesis</div>
-    <p>
-      Most personal sites are static essays. This one is a queryable corpus: each claim has confidence
-      in [0,1], each prediction is graded against reality, and reversals stay visible rather than
-      quietly edited.
-    </p>
-  </section>
-
-  <section class="tl-home-index">
-    <header class="tl-split-header">
-      <div class="tl-eyebrow">Index of kinds</div>
-      <div class="tl-mono">{total} entries · last build 2026-05-03</div>
-    </header>
-      <div class="tl-kind-list">
+    <section class="tl-gallery-section" data-selected-label="Entities" data-brand-context="Entity index">
+      <div class="tl-home-gallery">
         {kinds.map((kind, index) => (
-          <article class="tl-kind-row">
-            <div class="tl-mono">{String(index + 1).padStart(2, "0")}</div>
-            <h3>{kind.href ? <a href={kind.href}>{kind.title}</a> : kind.title}</h3>
-            <p>{kind.description}</p>
-            <div class="tl-kind-count">{kind.count}</div>
+          <article
+            class="tl-gallery-card"
+            data-selected-label={kind.title}
+            data-brand-context={kind.title}
+            style={`--card-width: ${widthByIndex[index % widthByIndex.length]}; --card-width-mobile: ${index % 3 === 1 ? "18rem" : "13.5rem"}; --card-aspect: ${aspectByIndex[index % aspectByIndex.length]};`}
+          >
+            <a class="tl-gallery-link" href={kind.href} aria-label={`${kind.title}: ${kind.description}`}>
+              <span class="tl-gallery-label" aria-hidden="true">
+                <span>No.{String(index + 1).padStart(2, "0")}</span>
+                <span>Entity</span>
+              </span>
+              <span class="tl-gallery-media">
+                <span class="tl-gallery-visual" data-entity={kind.slug}></span>
+                <span class="tl-gallery-title" aria-hidden="true">{kind.title}</span>
+              </span>
+            </a>
           </article>
         ))}
       </div>
-  </section>
-
-  <section class="tl-home-agents">
-    <div class="tl-gradient-block tl-gradient-block--short" aria-hidden="true"></div>
-    <div class="tl-home-agents-body">
-      <h2>
-        Readable by humans.
-        <span class="tl-home-agents-accent">Queryable by everything else.</span>
-      </h2>
-      <p>
-        Every page above has a structured analogue: a single
-        <a href="/llms.txt">llms.txt</a> index, a remote
-        <a href="/agents">MCP endpoint</a> at <code>mcp.thinkinglabs.run/mcp</code> with public
-        resources and five tools, JSON dumps at <code>/api/&lt;kind&gt;.json</code>, and Atom/JSON
-        brain-diff feeds for the deltas. No clone required.
-      </p>
-      <a class="tl-home-agents-cta" href="/agents">Open the agents surface →</a>
-    </div>
-  </section>
-
+    </section>
+  </div>
 </AppShell>
