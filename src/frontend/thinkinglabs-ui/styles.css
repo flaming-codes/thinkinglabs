@@ -359,7 +359,7 @@ a {
   top: 50%;
   left: calc(100% + clamp(0.5rem, 1.2vw, 0.9rem));
   display: grid;
-  gap: 0.36rem;
+  gap: 0.18rem;
   color: var(--tl-ink);
   transform: translateY(-50%);
   pointer-events: none;
@@ -374,6 +374,15 @@ a {
   white-space: nowrap;
 }
 
+.tl-gallery-label span:first-child {
+  font-weight: 650;
+}
+
+.tl-gallery-label span:last-child {
+  color: rgba(12, 20, 36, 0.6);
+  font-weight: 420;
+}
+
 .tl-gallery-media {
   position: relative;
   display: block;
@@ -386,15 +395,6 @@ a {
   inset: 0;
   background: var(--tl-entity-gradient);
   transform: scale(1.2);
-  transition:
-    transform 0.95s cubic-bezier(0.22, 1, 0.36, 1),
-    filter 0.85s;
-}
-
-.tl-gallery-link:hover .tl-gallery-visual,
-.tl-gallery-link:focus-visible .tl-gallery-visual {
-  transform: scale(1.34);
-  filter: contrast(1.04);
 }
 
 .tl-gallery-link:hover,
@@ -404,6 +404,11 @@ a {
     0 14px 30px -18px rgba(7, 9, 13, 0.2),
     0 34px 72px -38px rgba(7, 9, 13, 0.2),
     0 86px 140px -76px rgba(7, 9, 13, 0.18);
+}
+
+.tl-shell .tl-gallery-link:hover,
+.tl-shell .tl-gallery-link:focus-visible {
+  opacity: 1;
 }
 
 .tl-gallery-visual[data-entity="claims"] {
@@ -839,9 +844,5 @@ code,
 @media (prefers-reduced-motion: reduce) {
   .tl-scroll {
     scroll-behavior: auto;
-  }
-
-  .tl-gallery-visual {
-    transition: none;
   }
 }
