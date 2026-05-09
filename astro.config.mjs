@@ -15,6 +15,9 @@ export default defineConfig({
     rehypePlugins: [rehypeSectionFreshness],
   },
   vite: {
+    preview: {
+      allowedHosts: ["thinkinglabs.run"],
+    },
     ssr: {
       external: ["@resvg/resvg-js"],
     },
