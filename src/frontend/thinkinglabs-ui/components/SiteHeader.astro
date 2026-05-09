@@ -534,69 +534,22 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
     }
   }
 
-  .tl-nav-card[data-entity="thoughts"] {
-    --tl-entity-card-aspect: 3 / 4;
-    --tl-entity-gradient: var(--tl-entity-gradient-thoughts);
-    --tl-gradient-duration: 34s;
-    --tl-gradient-origin: 42% 55%;
-  }
+  .tl-nav-card[data-entity="thoughts"] { --tl-entity-card-aspect: 3 / 4; }
+  .tl-nav-card[data-entity="predictions"] { --tl-entity-card-aspect: 1 / 1; }
+  .tl-nav-card[data-entity="changed-my-mind"] { --tl-entity-card-aspect: 4 / 3; }
+  .tl-nav-card[data-entity="decisions"] { --tl-entity-card-aspect: 3 / 4; }
+  .tl-nav-card[data-entity="questions"] { --tl-entity-card-aspect: 1 / 1; }
+  .tl-nav-card[data-entity="posts"] { --tl-entity-card-aspect: 3 / 4; }
+  .tl-nav-card[data-entity="inputs"] { --tl-entity-card-aspect: 4 / 3; }
 
   .tl-nav-card[data-entity="claims"] {
     --tl-entity-card-aspect: 4 / 3;
-    --tl-entity-gradient: var(--tl-entity-gradient-claims);
-    --tl-gradient-duration: 29s;
-    --tl-gradient-origin: 44% 48%;
     --tl-card-hover-shadow: 0 2px 3px rgba(7, 9, 13, 0.03), 0 16px 34px -20px rgba(7, 9, 13, 0.2), 0 42px 78px -44px rgba(7, 9, 13, 0.18), 0 96px 148px -84px rgba(7, 9, 13, 0.16);
   }
 
   .tl-nav-card[data-entity="projects"] {
     --tl-entity-card-aspect: 3 / 4;
-    --tl-entity-gradient: var(--tl-entity-gradient-projects);
-    --tl-gradient-duration: 24s;
-    --tl-gradient-origin: 48% 52%;
     --tl-card-hover-shadow: 0 2px 3px rgba(7, 9, 13, 0.035), 0 13px 28px -16px rgba(7, 9, 13, 0.24), 0 34px 70px -38px rgba(7, 9, 13, 0.2), 0 82px 128px -74px rgba(7, 9, 13, 0.18);
-  }
-
-  .tl-nav-card[data-entity="predictions"] {
-    --tl-entity-card-aspect: 1 / 1;
-    --tl-entity-gradient: var(--tl-entity-gradient-predictions);
-    --tl-gradient-duration: 32s;
-    --tl-gradient-origin: 50% 50%;
-  }
-
-  .tl-nav-card[data-entity="changed-my-mind"] {
-    --tl-entity-card-aspect: 4 / 3;
-    --tl-entity-gradient: var(--tl-entity-gradient-changed-my-mind);
-    --tl-gradient-duration: 31s;
-    --tl-gradient-origin: 48% 50%;
-  }
-
-  .tl-nav-card[data-entity="decisions"] {
-    --tl-entity-card-aspect: 3 / 4;
-    --tl-entity-gradient: var(--tl-entity-gradient-decisions);
-    --tl-gradient-duration: 36s;
-    --tl-gradient-origin: 44% 54%;
-  }
-
-  .tl-nav-card[data-entity="questions"] {
-    --tl-entity-card-aspect: 1 / 1;
-    --tl-entity-gradient: var(--tl-entity-gradient-questions);
-    --tl-gradient-duration: 25s;
-    --tl-gradient-origin: 46% 50%;
-  }
-
-  .tl-nav-card[data-entity="posts"] {
-    --tl-entity-card-aspect: 3 / 4;
-    --tl-entity-gradient: var(--tl-entity-gradient-posts);
-    --tl-gradient-duration: 30s;
-    --tl-gradient-origin: 44% 52%;
-  }
-
-  .tl-nav-card[data-entity="inputs"] {
-    --tl-entity-card-aspect: 4 / 3;
-    --tl-entity-gradient: var(--tl-entity-gradient-inputs);
-    --tl-gradient-duration: 27s;
-    --tl-gradient-origin: 46% 50%;
   }
 
   .tl-nav-card[data-entity="about"] {
@@ -674,21 +627,7 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
     content: "";
     transform: rotate(0deg) scale(1.2);
     transform-origin: var(--tl-gradient-origin, 50% 50%);
-    animation: tl-nav-card-drift var(--tl-gradient-duration, 26s) ease-in-out infinite alternate;
-  }
-
-  @keyframes tl-nav-card-drift {
-    0% {
-      transform: rotate(0deg) scale(1.2) translate3d(-0.4%, -0.25%, 0);
-    }
-
-    50% {
-      transform: rotate(2.4deg) scale(1.215) translate3d(0.25%, 0.45%, 0);
-    }
-
-    100% {
-      transform: rotate(-2deg) scale(1.21) translate3d(0.5%, -0.2%, 0);
-    }
+    animation: tl-entity-tile-drift var(--tl-gradient-duration, 26s) ease-in-out infinite alternate;
   }
 
   .tl-nav-card.is-site .tl-nav-card-visual {

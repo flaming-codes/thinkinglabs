@@ -139,3 +139,71 @@ a {
     --tl-ui-y: clamp(14px, 4vw, 18px);
   }
 }
+
+[data-entity="thoughts"] {
+  --tl-entity-gradient: var(--tl-entity-gradient-thoughts);
+  --tl-gradient-duration: 34s;
+  --tl-gradient-origin: 42% 55%;
+}
+
+[data-entity="claims"] {
+  --tl-entity-gradient: var(--tl-entity-gradient-claims);
+  --tl-gradient-duration: 29s;
+  --tl-gradient-origin: 44% 48%;
+}
+
+[data-entity="projects"] {
+  --tl-entity-gradient: var(--tl-entity-gradient-projects);
+  --tl-gradient-duration: 24s;
+  --tl-gradient-origin: 48% 52%;
+}
+
+[data-entity="predictions"] {
+  --tl-entity-gradient: var(--tl-entity-gradient-predictions);
+  --tl-gradient-duration: 32s;
+  --tl-gradient-origin: 50% 50%;
+}
+
+[data-entity="changed-my-mind"] {
+  --tl-entity-gradient: var(--tl-entity-gradient-changed-my-mind);
+  --tl-gradient-duration: 31s;
+  --tl-gradient-origin: 48% 50%;
+}
+
+[data-entity="decisions"] {
+  --tl-entity-gradient: var(--tl-entity-gradient-decisions);
+  --tl-gradient-duration: 36s;
+  --tl-gradient-origin: 44% 54%;
+}
+
+[data-entity="questions"] {
+  --tl-entity-gradient: var(--tl-entity-gradient-questions);
+  --tl-gradient-duration: 25s;
+  --tl-gradient-origin: 46% 50%;
+}
+
+[data-entity="posts"] {
+  --tl-entity-gradient: var(--tl-entity-gradient-posts);
+  --tl-gradient-duration: 30s;
+  --tl-gradient-origin: 44% 52%;
+}
+
+[data-entity="inputs"] {
+  --tl-entity-gradient: var(--tl-entity-gradient-inputs);
+  --tl-gradient-duration: 27s;
+  --tl-gradient-origin: 46% 50%;
+}
+
+@keyframes tl-entity-tile-drift {
+  0% {
+    transform: rotate(0deg) scale(1.2) translate3d(-0.4%, -0.25%, 0);
+  }
+
+  50% {
+    transform: rotate(2.4deg) scale(1.215) translate3d(0.25%, 0.45%, 0);
+  }
+
+  100% {
+    transform: rotate(-2deg) scale(1.21) translate3d(0.5%, -0.2%, 0);
+  }
+}

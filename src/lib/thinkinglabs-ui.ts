@@ -302,6 +302,7 @@ export function mapHomeKinds(counts: CountByKind): KindSummary[] {
 /** Map listing-kind counts into About page structure rows using registry descriptions and links. */
 export function mapAboutKinds(counts: CountByKind): AboutKind[] {
   return LISTING_KINDS.map((kind) => ({
+    slug: kind,
     name: KIND_REGISTRY[kind].listingTitle,
     gloss: KIND_REGISTRY[kind].description,
     count: counts[kind] ?? 0,

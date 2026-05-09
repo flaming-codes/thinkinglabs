@@ -116,39 +116,56 @@ const THOUGHT_DETAIL: ThoughtDetail = {
 };
 
 const ABOUT_KINDS: AboutKind[] = [
-  { name: "Thoughts", gloss: "Short-form essays. Some settled, many still moving.", count: 48 },
   {
+    slug: "thoughts",
+    name: "Thoughts",
+    gloss: "Short-form essays. Some settled, many still moving.",
+    count: 48,
+  },
+  {
+    slug: "claims",
     name: "Claims",
     gloss: "Things I believe, with a confidence number and the evidence I'd point to.",
     count: 132,
   },
   {
+    slug: "predictions",
     name: "Predictions",
     gloss: "Falsifiable forecasts with a stated probability and a resolution date.",
     count: 38,
   },
   {
+    slug: "decisions",
     name: "Decisions",
     gloss: "Choices made and reasoning kept honest by being read later.",
     count: 21,
   },
   {
+    slug: "changed-my-mind",
     name: "Changed my mind",
     gloss: "Where a claim or decision flipped, and what caused it.",
     count: 14,
   },
-  { name: "Questions", gloss: "Open ones. Tracked rather than answered.", count: 27 },
   {
+    slug: "questions",
+    name: "Questions",
+    gloss: "Open ones. Tracked rather than answered.",
+    count: 27,
+  },
+  {
+    slug: "posts",
     name: "Posts",
     gloss: "Long-form pieces polished enough to publish under their own URL.",
     count: 19,
   },
   {
+    slug: "projects",
     name: "Projects",
     gloss: "Active threads — what I'm currently spending attention on.",
     count: 4,
   },
   {
+    slug: "inputs",
     name: "Inputs",
     gloss: "Books, papers, talks. References the rest of the system points at.",
     count: 86,

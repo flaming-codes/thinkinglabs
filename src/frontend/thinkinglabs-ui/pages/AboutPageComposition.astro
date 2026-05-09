@@ -1,5 +1,6 @@
 ---
 import AppShell from "../components/AppShell.astro";
+import ScrollArrows from "../components/ScrollArrows.astro";
 import type { AboutKind } from "../types";
 
 interface Props {
@@ -48,8 +49,8 @@ const { kinds } = Astro.props;
     </p>
   </section>
 
-  <section class="tl-about-inventory" aria-labelledby="about-inventory-title">
-    <header>
+  <section class="tl-about-structure" aria-labelledby="about-inventory-title">
+    <header class="tl-about-structure-head">
       <div class="tl-eyebrow">structure</div>
       <h2 id="about-inventory-title">The public shape of the repository.</h2>
       <p>
@@ -58,20 +59,38 @@ const { kinds } = Astro.props;
       </p>
     </header>
 
-    <div class="tl-about-kind-list">
+    <div class="tl-about-structure-rail" data-tl-about-structure-rail>
       {
-        kinds.map((kind, index) => (
-          <article class="tl-about-kind-row">
-            <div class="tl-mono">{String(index + 1).padStart(2, "0")}</div>
-            <div>
-              <h3>{kind.href ? <a href={kind.href}>{kind.name}</a> : kind.name}</h3>
-              <p>{kind.gloss}</p>
-            </div>
-            <div class="tl-mono is-right">{kind.count} entries</div>
+        kinds.map((kind) => (
+          <article class="tl-about-structure-card">
+            <a
+              class="tl-about-structure-link"
+              href={kind.href}
+              aria-label={`${kind.name}: ${kind.gloss}`}
+            >
+              <span
+                class="tl-about-structure-visual"
+                data-entity={kind.slug}
+                aria-hidden="true"
+              />
+              <span class="tl-about-structure-meta">
+                <span class="tl-about-structure-kicker">
+                  {kind.count} {kind.count === 1 ? "entry" : "entries"}
+                </span>
+                <span class="tl-about-structure-title">{kind.name}</span>
+                <span class="tl-about-structure-gloss">{kind.gloss}</span>
+              </span>
+            </a>
           </article>
         ))
       }
     </div>
+    <ScrollArrows
+      target="[data-tl-about-structure-rail]"
+      items=".tl-about-structure-card"
+      label="Structure cards"
+      rowOnly
+    />
   </section>
 
   <section class="tl-about-prose tl-prose-body">
@@ -103,7 +122,6 @@ const { kinds } = Astro.props;
 <style>
   .tl-about-portrait,
   .tl-about-prose,
-  .tl-about-inventory,
   .tl-about-colophon {
     width: var(--tl-center);
     margin-inline: auto;
@@ -138,16 +156,18 @@ const { kinds } = Astro.props;
     margin-bottom: 1.35rem;
   }
 
-  .tl-about-inventory {
+  .tl-about-structure {
+    position: relative;
+    width: 100%;
     padding: clamp(4rem, 12vh, 8rem) 0;
   }
 
-  .tl-about-inventory header {
-    max-width: 36rem;
-    margin-bottom: clamp(2.75rem, 7vh, 4.5rem);
+  .tl-about-structure-head {
+    width: var(--tl-center);
+    margin: 0 auto clamp(2.75rem, 7vh, 4.5rem);
   }
 
-  .tl-about-inventory h2 {
+  .tl-about-structure-head h2 {
     margin-top: 1rem;
     max-width: 12ch;
     font-size: clamp(30px, 4vw, 50px);
@@ -156,44 +176,142 @@ const { kinds } = Astro.props;
     letter-spacing: -0.045em;
   }
 
-  .tl-about-inventory header p {
+  .tl-about-structure-head p {
+    max-width: 36rem;
     margin-top: 1.2rem;
     color: var(--tl-muted);
     font-size: 16px;
     line-height: 1.75;
   }
 
-  .tl-about-kind-list {
-    display: grid;
+  .tl-about-structure-rail {
+    display: flex;
+    align-items: center;
+    gap: clamp(3rem, 6vw, 6rem);
+    width: 100%;
+    padding-block: clamp(2rem, 5vh, 4rem);
+    overflow-x: auto;
+    overflow-y: visible;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
   }
 
-  .tl-about-kind-row {
+  .tl-about-structure-rail::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+
+  .tl-about-structure-card {
     position: relative;
+    flex: 0 0 auto;
+    width: clamp(var(--card-width, 16rem), 18vw, calc(var(--card-width, 16rem) + 6rem));
+    --card-width: 16rem;
+    --card-half: clamp(8rem, 9vw, 12.5rem);
+    --card-aspect: 1 / 1;
+    --tl-card-shadow: var(--tl-gallery-shadow);
+    --tl-card-hover-shadow:
+      0 2px 3px rgba(7, 9, 13, 0.03),
+      0 16px 34px -18px rgba(7, 9, 13, 0.22),
+      0 40px 82px -42px rgba(7, 9, 13, 0.22),
+      0 96px 154px -82px rgba(7, 9, 13, 0.18);
+    scroll-snap-align: center;
+  }
+
+  .tl-about-structure-card:nth-child(7n+1) { --card-width: 16rem;   --card-half: clamp(8rem, 9vw, 12.5rem);    --card-aspect: 3 / 4; }
+  .tl-about-structure-card:nth-child(7n+2) { --card-width: 22rem;   --card-half: clamp(11rem, 9vw, 15.5rem);   --card-aspect: 4 / 3; }
+  .tl-about-structure-card:nth-child(7n+3) { --card-width: 16rem;   --card-half: clamp(8rem, 9vw, 12.5rem);    --card-aspect: 3 / 4; }
+  .tl-about-structure-card:nth-child(7n+4) { --card-width: 17.5rem; --card-half: clamp(8.75rem, 9vw, 13.25rem); --card-aspect: 1 / 1; }
+  .tl-about-structure-card:nth-child(7n+5) { --card-width: 22rem;   --card-half: clamp(11rem, 9vw, 15.5rem);   --card-aspect: 4 / 3; }
+  .tl-about-structure-card:nth-child(7n+6) { --card-width: 16rem;   --card-half: clamp(8rem, 9vw, 12.5rem);    --card-aspect: 3 / 4; }
+  .tl-about-structure-card:nth-child(7n+7) { --card-width: 17.5rem; --card-half: clamp(8.75rem, 9vw, 13.25rem); --card-aspect: 1 / 1; }
+
+  .tl-about-structure-card:first-child {
+    margin-inline-start: calc(50vw - var(--card-half, 8rem));
+  }
+
+  .tl-about-structure-card:last-child {
+    margin-inline-end: calc(50vw - var(--card-half, 8rem));
+  }
+
+  .tl-about-structure-link {
     display: grid;
-    grid-template-columns: 56px minmax(0, 1fr) auto;
-    gap: 22px;
-    align-items: baseline;
-    padding: 26px 0;
-  }
-
-  .tl-about-kind-row h3 {
-    font-size: clamp(22px, 2.8vw, 34px);
-    font-weight: 600;
-    line-height: 1;
-    letter-spacing: -0.03em;
-  }
-
-  .tl-about-kind-row a {
+    gap: 1.1rem;
     color: inherit;
     text-decoration: none;
   }
 
-  .tl-about-kind-row p {
-    margin-top: 0.7rem;
-    max-width: 34rem;
-    color: var(--tl-muted);
-    font-size: 15px;
-    line-height: 1.65;
+  .tl-about-structure-link:focus-visible {
+    outline: none;
+  }
+
+  .tl-about-structure-link:focus-visible .tl-about-structure-visual {
+    outline: 2px solid #2f6bff;
+    outline-offset: 4px;
+  }
+
+  .tl-about-structure-visual {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    aspect-ratio: var(--card-aspect, 1 / 1);
+    background: var(--tl-entity-gradient, var(--tl-soft));
+    box-shadow: var(--tl-card-shadow);
+    transition: box-shadow 0.55s ease;
+  }
+
+  .tl-about-structure-visual::before {
+    position: absolute;
+    inset: -18%;
+    background: var(--tl-entity-gradient, var(--tl-soft));
+    content: "";
+    transform: rotate(0deg) scale(1.2);
+    transform-origin: var(--tl-gradient-origin, 50% 50%);
+    animation: tl-entity-tile-drift var(--tl-gradient-duration, 26s) ease-in-out infinite alternate;
+  }
+
+  .tl-about-structure-link:hover .tl-about-structure-visual,
+  .tl-about-structure-link:focus-visible .tl-about-structure-visual {
+    box-shadow: var(--tl-card-hover-shadow);
+  }
+
+  .tl-about-structure-meta {
+    display: grid;
+    gap: 0.42rem;
+    padding: 0 0.1rem;
+  }
+
+  .tl-about-structure-kicker {
+    color: rgba(12, 20, 36, 0.56);
+    font-size: 11px;
+    font-weight: 540;
+    line-height: 1;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .tl-about-structure-title {
+    color: var(--tl-ink);
+    font-size: clamp(18px, 1.8vw, 22px);
+    font-weight: 650;
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+  }
+
+  .tl-about-structure-gloss {
+    color: rgba(12, 20, 36, 0.66);
+    font-size: 14px;
+    font-weight: 420;
+    line-height: 1.5;
+  }
+
+  .tl-about-structure :global(.tl-scroll-arrows) {
+    position: static;
+    display: flex;
+    justify-content: center;
+    margin: 1.75rem auto 0;
+    transform: none;
   }
 
   .tl-about-colophon {
@@ -211,8 +329,11 @@ const { kinds } = Astro.props;
   @media (max-width: 767px) {
     .tl-about-portrait,
     .tl-about-prose,
-    .tl-about-inventory,
     .tl-about-colophon {
+      width: min(100% - 40px, 43.75rem);
+    }
+
+    .tl-about-structure-head {
       width: min(100% - 40px, 43.75rem);
     }
 
@@ -220,13 +341,33 @@ const { kinds } = Astro.props;
       margin-top: -4vh;
     }
 
-    .tl-about-kind-row {
-      grid-template-columns: 1fr;
-      gap: 10px;
+    .tl-about-structure-rail {
+      flex-direction: column;
+      align-items: center;
+      gap: 3rem;
+      padding-block: 1.5rem;
+      padding-inline: 20px;
+      overflow: visible;
+      scroll-snap-type: none;
     }
 
-    .tl-about-kind-row .is-right {
-      text-align: left;
+    .tl-about-structure-card {
+      width: min(100%, var(--card-width-mobile, 13.5rem));
+    }
+
+    .tl-about-structure-card:nth-child(3n+2) {
+      --card-width-mobile: 18rem;
+    }
+
+    .tl-about-structure-card:first-child,
+    .tl-about-structure-card:last-child {
+      margin-inline: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tl-about-structure-visual::before {
+      animation: none;
     }
   }
 </style>

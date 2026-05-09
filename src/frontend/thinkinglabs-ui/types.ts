@@ -85,6 +85,7 @@ interface ThoughtDetail {
 }
 
 interface AboutKind {
+  slug: string;
   name: string;
   gloss: string;
   count: number;
