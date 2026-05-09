@@ -23,6 +23,7 @@ Docs are local at `node_modules/vite-plus/docs` or online at https://viteplus.de
 Package manager is `pnpm` (v10, see `packageManager` in `package.json`). Node ≥ 22.19.0.
 
 - `pnpm dev` — Astro dev server for the site
+- `pnpm start` — `astro preview` on `0.0.0.0:${PORT:-4321}` (DigitalOcean entrypoint). Vite preview options live in `astro.config.mjs` under `vite.preview`, not `vite.config.js`.
 - `pnpm storybook` / `pnpm storybook:build` — Storybook v10 dev server and static build
 - `pnpm build` — `astro check && astro build` (typecheck + build; validates every frontmatter file against its Zod schema)
 - `pnpm build:index` — rebuild the derived `dist/index.sqlite` query layer

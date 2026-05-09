@@ -15,6 +15,7 @@ export default defineConfig({
     rehypePlugins: [rehypeSectionFreshness],
   },
   vite: {
+    // `pnpm start` (DO) runs `astro preview`, which only reads this `vite` field, not vite.config.js.
     preview: {
       allowedHosts: ["thinkinglabs.run"],
     },
