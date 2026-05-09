@@ -272,7 +272,6 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
 
   .tl-wordmark {
     position: relative;
-    top: -0.35rem;
     display: inline-block;
     width: min(20rem, 80vw);
     color: var(--tl-ink);
@@ -285,16 +284,12 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
     line-height: 1;
     letter-spacing: 0;
     text-align: center;
-    transition:
-      opacity 280ms ease,
-      transform 360ms cubic-bezier(0.32, 0.72, 0, 1);
-    transform-origin: center;
-    will-change: opacity, transform;
+    transition: opacity 280ms ease;
+    will-change: opacity;
   }
 
   .tl-header[data-tl-nav-open="true"] .tl-wordmark {
     opacity: 0;
-    transform: translateY(-0.32em) scale(0.96);
   }
 
   .tl-nav-toggle {
@@ -411,7 +406,7 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
     color: var(--tl-ink);
     pointer-events: none;
     opacity: 0;
-    transform: translateY(-8%);
+    transform: translateY(-1%);
     visibility: hidden;
     isolation: isolate;
     transition:
