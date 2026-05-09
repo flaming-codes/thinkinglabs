@@ -12,25 +12,24 @@ const { page } = Astro.props;
 <AppShell activeNav="Index">
   <section class="tl-entity-page" data-selected-label={page.title}>
     <article class="tl-entity-document">
-      <div class="tl-entity-visual" data-entity={page.slug}></div>
+      <div class="tl-entity-visual" data-entity={page.slug} aria-hidden="true"></div>
 
-      <div class="tl-entity-content">
-        <div class="tl-entity-head">
-          <div>
-            <h1>{page.title}</h1>
-            <p>{page.deck}</p>
-          </div>
-          <dl class="tl-entity-stats">
-            {page.stats.map((stat) => (
-              <div>
-                <dt>{stat.label}</dt>
-                <dd>{stat.value}</dd>
-                <small>{stat.sub}</small>
-              </div>
-            ))}
-          </dl>
-        </div>
+      <header class="tl-entity-head">
+        <h1>{page.title}</h1>
+        <p class="tl-entity-deck">{page.deck}</p>
 
+        <dl class="tl-entity-stats">
+          {page.stats.map((stat) => (
+            <div>
+              <dt>{stat.label}</dt>
+              <dd>{stat.value}</dd>
+              <small>{stat.sub}</small>
+            </div>
+          ))}
+        </dl>
+      </header>
+
+      <div class="tl-entity-body">
         {page.sections.map((section) => (
           <section class="tl-entity-section">
             <header>
@@ -43,18 +42,20 @@ const { page } = Astro.props;
                 section.rows.map((row) => (
                   <article class="tl-entity-row">
                     <div class="tl-entity-row-kicker">{row.kicker}</div>
-                    <div>
+                    <div class="tl-entity-row-main">
                       <h3>{row.href ? <a href={row.href}>{row.title}</a> : row.title}</h3>
                       {row.summary ? <p>{row.summary}</p> : null}
-                      {row.meta && row.meta.length > 0 ? (
+                      {(row.meta && row.meta.length > 0) || row.value ? (
                         <div class="tl-entity-row-meta">
-                          {row.meta.map((item) => <span>{item}</span>)}
+                          {row.value ? (
+                            <span class="tl-entity-row-status">
+                              <strong>{row.value}</strong>
+                              {row.valueLabel ? <em>{row.valueLabel}</em> : null}
+                            </span>
+                          ) : null}
+                          {row.meta?.map((item) => <span>{item}</span>)}
                         </div>
                       ) : null}
-                    </div>
-                    <div class="tl-entity-row-value">
-                      {row.value ? <strong>{row.value}</strong> : null}
-                      {row.valueLabel ? <span>{row.valueLabel}</span> : null}
                     </div>
                   </article>
                 ))
@@ -76,31 +77,31 @@ const { page } = Astro.props;
     min-height: 100vh;
     padding: clamp(5.75rem, 10vh, 8rem) 20px clamp(4rem, 9vh, 7rem);
     background: var(--tl-bg);
+    color: var(--tl-ink);
   }
 
   .tl-entity-document {
+    display: grid;
+    gap: clamp(1rem, 3vw, 2rem);
+    align-items: start;
     width: min(100%, 920px);
     margin: 0 auto;
   }
 
   .tl-entity-visual {
     position: relative;
-    display: grid;
-    min-height: clamp(19rem, 45vh, 34rem);
-    place-items: center;
     overflow: hidden;
-    color: var(--tl-ink);
+    width: 100%;
+    min-height: clamp(19rem, 45vh, 34rem);
     background: var(--tl-entity-gradient);
   }
 
   .tl-entity-visual::before {
     position: absolute;
     inset: -18%;
-    --tl-gradient-base-rotate: -4deg;
-    --tl-gradient-base-scale: 1.08;
     background: var(--tl-entity-gradient);
     content: "";
-    transform: rotate(var(--tl-gradient-base-rotate)) scale(var(--tl-gradient-base-scale));
+    transform: rotate(-4deg) scale(1.08);
     transform-origin: var(--tl-gradient-origin, 50% 50%);
     animation: tl-entity-gradient-drift var(--tl-gradient-duration, 28s) ease-in-out infinite
       alternate;
@@ -118,10 +119,6 @@ const { page } = Astro.props;
     100% {
       transform: rotate(-6deg) scale(1.09) translate3d(0.35%, -0.15%, 0);
     }
-  }
-
-  .tl-entity-visual::after {
-    content: none;
   }
 
   .tl-entity-visual[data-entity="claims"] {
@@ -178,97 +175,99 @@ const { page } = Astro.props;
     --tl-gradient-origin: 44% 52%;
   }
 
-  .tl-entity-visual > span {
-    position: absolute;
-    z-index: 1;
-    color: rgba(7, 9, 13, 0.72);
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-  }
-
-  .tl-entity-content {
-    padding: clamp(1.8rem, 5vw, 3.4rem) 0 0;
-  }
-
-  .tl-entity-kicker,
-  .tl-entity-section header span,
-  .tl-entity-row-kicker,
-  .tl-entity-row-meta,
-  .tl-entity-row-value span,
-  .tl-entity-stats dt,
-  .tl-entity-stats small {
-    color: var(--tl-muted);
-    font-size: 11px;
-    font-weight: 650;
-    line-height: 1.2;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-
   .tl-entity-head {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(11rem, 17rem);
-    gap: clamp(1.8rem, 5vw, 4rem);
-    align-items: start;
-    padding-top: 10px;
+    gap: 10px;
+    max-width: 42rem;
+    padding-top: clamp(1.35rem, 3vw, 2.25rem);
   }
 
   .tl-entity-head h1 {
-    max-width: 11ch;
-    font-size: clamp(38px, 7vw, 70px);
-    font-weight: 620;
-    line-height: 0.9;
-    letter-spacing: -0.05em;
-    text-transform: uppercase;
+    font-size: clamp(20px, 2.1vw, 29px);
+    font-weight: 560;
+    line-height: 1.08;
+    letter-spacing: -0.018em;
   }
 
-  .tl-entity-head p {
-    max-width: 46rem;
-    margin-top: 24px;
-    color: rgba(7, 9, 13, 0.68);
-    font-size: 15px;
-    line-height: 1.7;
+  .tl-entity-deck,
+  .tl-entity-row-main p,
+  .tl-entity-footer {
+    color: rgba(7, 9, 13, 0.58);
+    font-size: 13px;
+    line-height: 1.62;
   }
 
   .tl-entity-stats {
     display: grid;
-    gap: 18px;
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+    align-items: start;
+    width: max-content;
     margin: 0;
+    padding-top: 1.15rem;
   }
 
   .tl-entity-stats div {
-    padding-top: 14px;
-    border-top: 1px solid var(--tl-line);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    align-items: baseline;
+  }
+
+  .tl-entity-stats dt,
+  .tl-entity-section header span,
+  .tl-entity-row-kicker,
+  .tl-entity-row-meta,
+  .tl-entity-row-status em {
+    color: var(--tl-muted);
+    font-size: 11px;
+    font-weight: 650;
+    line-height: 1.1;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
   }
 
   .tl-entity-stats dd {
-    margin: 7px 0 4px;
-    font-size: clamp(28px, 5vw, 48px);
-    font-weight: 650;
-    line-height: 0.95;
-    letter-spacing: -0.045em;
+    margin: 0;
+    font-size: 18px;
+    font-weight: 560;
+    line-height: 1;
+    letter-spacing: -0.018em;
+  }
+
+  .tl-entity-stats small {
+    color: rgba(7, 9, 13, 0.5);
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  .tl-entity-body {
+    display: grid;
+    gap: clamp(2rem, 6vh, 4rem);
+    width: 100%;
+    padding-top: clamp(3rem, 8vh, 5.5rem);
   }
 
   .tl-entity-section {
-    margin-top: clamp(3.5rem, 9vh, 6.5rem);
+    display: grid;
+    grid-template-columns: minmax(7rem, 9rem) minmax(0, 1fr);
+    gap: clamp(1rem, 3vw, 2rem);
   }
 
   .tl-entity-section header {
-    display: grid;
-    grid-template-columns: 9rem minmax(0, 1fr);
-    gap: 24px;
-    align-items: end;
-    padding-bottom: 18px;
-    border-bottom: 1px solid var(--tl-line);
+    display: block;
+    padding: 0;
   }
 
   .tl-entity-section h2 {
-    font-size: clamp(28px, 4vw, 44px);
-    font-weight: 600;
-    line-height: 0.98;
-    letter-spacing: -0.04em;
+    margin-top: 7px;
+    color: rgba(7, 9, 13, 0.7);
+    font-size: 13px;
+    font-weight: 560;
+    line-height: 1.2;
   }
 
   .tl-entity-list {
@@ -277,63 +276,71 @@ const { page } = Astro.props;
 
   .tl-entity-row {
     display: grid;
-    grid-template-columns: 7rem minmax(0, 1fr) minmax(5.5rem, 8rem);
-    gap: clamp(1rem, 3vw, 2.4rem);
-    padding: 25px 0;
-    border-bottom: 1px solid var(--tl-line);
+    grid-template-columns: 4.5rem minmax(0, 1fr);
+    gap: clamp(1rem, 3vw, 1.7rem);
+    padding: 0 0 24px;
   }
 
-  .tl-entity-row h3 {
-    font-size: clamp(22px, 3vw, 34px);
-    font-weight: 600;
-    line-height: 1.04;
-    letter-spacing: -0.035em;
+  .tl-entity-row + .tl-entity-row {
+    padding-top: 2px;
   }
 
-  .tl-entity-row p {
-    margin-top: 10px;
-    color: rgba(7, 9, 13, 0.64);
-    font-size: 14px;
-    line-height: 1.55;
+  .tl-entity-row-main h3 {
+    font-size: clamp(15px, 1.4vw, 18px);
+    font-weight: 560;
+    line-height: 1.22;
+    letter-spacing: -0.012em;
+  }
+
+  .tl-entity-row-main h3 a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .tl-entity-row-main h3 a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .tl-entity-row-main p {
+    max-width: 54ch;
+    margin-top: 6px;
   }
 
   .tl-entity-row-meta {
     display: flex;
     flex-wrap: wrap;
-    gap: 7px 12px;
-    margin-top: 15px;
-    letter-spacing: 0.08em;
+    gap: 6px 10px;
+    align-items: baseline;
+    margin-top: 9px;
+    font-size: 10px;
+    letter-spacing: 0.12em;
   }
 
-  .tl-entity-row-value {
-    display: grid;
-    align-content: start;
-    justify-items: end;
-    gap: 7px;
-    text-align: right;
+  .tl-entity-row-status {
+    display: inline-flex;
+    gap: 6px;
+    align-items: baseline;
   }
 
-  .tl-entity-row-value strong {
-    font-size: clamp(20px, 3vw, 32px);
+  .tl-entity-row-status strong {
+    color: var(--tl-ink);
+    font-size: 10px;
     font-weight: 650;
-    line-height: 0.95;
-    letter-spacing: -0.04em;
-  }
-
-  .tl-entity-empty,
-  .tl-entity-footer {
-    color: rgba(7, 9, 13, 0.6);
-    font-size: 14px;
-    line-height: 1.6;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
   }
 
   .tl-entity-empty {
-    padding: 25px 0;
-    border-bottom: 1px solid var(--tl-line);
+    padding: 6px 0 24px;
+    color: rgba(7, 9, 13, 0.5);
+    font-size: 13px;
+    line-height: 1.6;
   }
 
   .tl-entity-footer {
-    margin-top: clamp(3rem, 7vh, 5rem);
+    grid-column: 1 / -1;
+    margin-top: clamp(1rem, 3vw, 2rem);
     padding-top: 18px;
     border-top: 1px solid var(--tl-line);
   }
@@ -343,38 +350,24 @@ const { page } = Astro.props;
       padding: 5rem 14px 3rem;
     }
 
-    .tl-entity-content {
-      padding: 24px 20px 28px;
-    }
-
-    .tl-entity-head,
-    .tl-entity-section header,
-    .tl-entity-row {
-      grid-template-columns: 1fr;
-      gap: 14px;
-    }
-
     .tl-entity-visual {
       min-height: 18rem;
     }
 
-    .tl-entity-head h1 {
-      max-width: none;
-      font-size: clamp(40px, 13vw, 58px);
-    }
-
     .tl-entity-stats {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      width: auto;
     }
 
-    .tl-entity-stats dd {
-      font-size: clamp(24px, 8vw, 34px);
+    .tl-entity-section {
+      grid-template-columns: 1fr;
+      gap: 18px;
     }
 
-    .tl-entity-row-value {
-      justify-items: start;
-      text-align: left;
+    .tl-entity-row {
+      grid-template-columns: 1fr;
+      gap: 14px;
     }
   }
 
