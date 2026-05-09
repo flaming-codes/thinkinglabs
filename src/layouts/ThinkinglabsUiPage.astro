@@ -1,6 +1,7 @@
 ---
 import "../frontend/thinkinglabs-ui/styles.css";
 import JsonLd from "../components/JsonLd.astro";
+import PwaHead from "../components/PwaHead.astro";
 import { absoluteFeedLinks, ogImageUrl } from "../lib/seo.ts";
 import { buildPageGraph, canonicalUrl, type StructuredData } from "../lib/structured-data.ts";
 import { SITE_NAME } from "../lib/site.ts";
@@ -27,6 +28,7 @@ const jsonLd = buildPageGraph({ site, url: canonical, title, description, struct
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <PwaHead />
     <title>{title}</title>
     {description ? <meta name="description" content={description} /> : null}
     {robots ? <meta name="robots" content={robots} /> : null}

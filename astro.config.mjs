@@ -14,6 +14,29 @@ export default defineConfig({
     remarkPlugins: [remarkSectionFreshness],
     rehypePlugins: [rehypeSectionFreshness],
   },
+  security: {
+    csp: {
+      algorithm: "SHA-256",
+      directives: [
+        "default-src 'self'",
+        "img-src 'self' data: blob:",
+        "font-src 'self' https://fonts.gstatic.com",
+        "connect-src 'self'",
+        "manifest-src 'self'",
+        "worker-src 'self'",
+        "base-uri 'self'",
+        "form-action 'self'",
+        "object-src 'none'",
+        "upgrade-insecure-requests",
+      ],
+      styleDirective: {
+        resources: ["'self'", "https://fonts.googleapis.com"],
+      },
+      scriptDirective: {
+        resources: ["'self'"],
+      },
+    },
+  },
   vite: {
     // `pnpm start` (DO) runs `astro preview`, which only reads this `vite` field, not vite.config.js.
     preview: {
