@@ -128,7 +128,7 @@ const POST_DETAIL = {
   words: 3420,
   topic: "Agents",
   license: "CC BY 4.0",
-  citation: "Tom Wild, “The verifier's asymmetry,” thinkinglabs, 30 Apr 2026.",
+  citation: "Tom, “The verifier's asymmetry,” thinkinglabs, 30 Apr 2026.",
   backlinks: 9,
   related: [
     {

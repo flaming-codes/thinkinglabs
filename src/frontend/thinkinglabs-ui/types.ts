@@ -112,10 +112,10 @@ interface PostRelated {
 }
 
 type PostBlock =
-  | { type: "p"; text: string; drop?: boolean }
-  | { type: "pull"; text: string; attrib?: string | null }
+  | { type: "p"; text: string; html: string; drop?: boolean }
+  | { type: "pull"; text: string; html: string; attrib?: string | null }
   | { type: "fig"; caption: string; source: string }
-  | { type: "list"; items: string[] };
+  | { type: "list"; items: string[]; itemsHtml: string[] };
 
 interface PostSection {
   number: string;
@@ -126,6 +126,7 @@ interface PostSection {
 interface PostFootnote {
   id: string;
   text: string;
+  html: string;
 }
 
 interface PostDetail {

@@ -339,7 +339,7 @@ function FashionVariation({ themeKey = "forum" }) {
         </div>
         <div style={s.footCol}>
           <div style={s.footHead}>Contact</div>
-          <a style={s.footLink}>tom@wild.as</a>
+          <a style={s.footLink}>tom@flaming.codes</a>
           <a style={s.footLink}>github</a>
           <span style={{ color: t.footMuted, fontSize: 11, display: "block", marginTop: 16 }}>
             2026 © thinkinglabs

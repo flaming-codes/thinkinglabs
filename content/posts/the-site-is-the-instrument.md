@@ -1,8 +1,8 @@
 ---
 title: The site is the instrument
 created: 2026-05-09
-updated: 2026-05-09
-summary: "How thinkinglabs.run became a markdown-canonical public working surface for writing, calibration, agents, and accountable change."
+updated: 2026-05-10
+summary: "How thinkinglabs became a markdown-canonical public working surface for writing, calibration, agents, and accountable change."
 related_claims: []
 related_thoughts: []
 tags: [systems, agents, writing, thinkinglabs]
@@ -10,7 +10,7 @@ tags: [systems, agents, writing, thinkinglabs]
 
 Most personal sites begin with a question of presentation. What should the homepage say? Which work should be featured? How should the archive be arranged so a stranger understands the shape of a life in a few polite clicks?
 
-thinkinglabs.run began somewhere else. The first question was not what the site should look like, but where truth should live.
+thinkinglabs began somewhere else. The first question was not what the site should look like, but where truth should live.
 
 That sounds severe for a small website. It is also the only question that made the rest of the design feel inevitable. If the web page is the source of truth, then everything important hides inside a renderer, a CMS, a dashboard, or a hosted database. If the database is the source of truth, then the history becomes hard to read, hard to review, and easy to quietly corrupt. If the notes app is the source of truth, then the public version is a performance after the fact.
 
@@ -28,7 +28,7 @@ That is why the repository has separate kinds instead of one undifferentiated st
 
 The distinction matters because each object has a different failure mode. A thought fails when it becomes too expensive to write. A claim fails when it becomes too vague to test. A prediction fails when it never has to meet a date. A decision fails when nobody can reconstruct why it made sense at the time. A site that wants to support all of those objects has to make room for their different kinds of accountability.
 
-This is the quiet ambition of thinkinglabs.run: not to publish more, but to make the cost of returning to an old belief lower than the cost of forgetting it.
+This is the quiet ambition of thinkinglabs: not to publish more, but to make the cost of returning to an old belief lower than the cost of forgetting it.
 
 ## Markdown as the durable object {#markdown-durable-object last_verified="2026-05-09"}
 
@@ -48,7 +48,7 @@ The project also exists because the audience for a website has changed. Some rea
 
 HTML is a fine surface for humans. It is a poor contract for agents. An agent should not have to infer that a large heading is a claim title, that a muted label is a confidence score, or that a card in a gallery corresponds to a content kind. It should not need to scrape a visual layout at all if the same repository can produce a structured surface.
 
-That is why thinkinglabs ships a small set of machine-readable entry points alongside the pages. `llms.txt` lists the public surfaces. `/api/<kind>.json` exposes collection data. The personal MCP server gives agents stable resource URIs such as `thinkinglabs://claims`, `thinkinglabs://predictions/calibration`, and `thinkinglabs://posts/{slug}`. The remote MCP endpoint at `https://mcp.thinkinglabs.run/mcp` exists so an external agent can connect without cloning the repository first.
+That is why thinkinglabs ships a small set of machine-readable entry points alongside the pages. `llms.txt` lists the public surfaces. `/api/<kind>.json` exposes collection data. The personal MCP server gives agents stable resource URIs such as `thinkinglabs://claims`, `thinkinglabs://predictions/calibration`, and `thinkinglabs://posts/{slug}`, and the remote endpoint exists so an external agent can connect without cloning the repository first.
 
 The important part is not the protocol fashion of the week. It is the direction of dependency. The machine surfaces are not a second product bolted onto the side of the website. They are sibling projections from the same markdown source. When the source changes, the pages and the agent views change together.
 
@@ -70,11 +70,11 @@ This is also why the build pipeline matters. A content edit is not done because 
 
 ## The shape arrived in layers {#shape-arrived-in-layers last_verified="2026-05-09"}
 
-The git history gives the compressed version. The initial commit landed on April 30, 2026. On May 1, a much larger commit built the personal agentic space: the Astro site, schemas, index builder, feeds, MCP server, embedded tools, review pipelines, background agents, and tests. On May 3, the remote Streamable HTTP MCP server and the `/agents` page arrived. By May 9, the project had been through several rounds of visual polishing: a quieter header, a gallery-like homepage, PWA assets, Open Graph images, privacy copy, and tighter mobile behavior.
+The shape did not arrive as a single revelation, and it would be false to describe it as though the design were waiting intact behind the curtain. It arrived in layers: first as a storage decision, then as a set of object kinds, then as a public surface that could be read by people without losing its usefulness to machines, and finally as a calmer visual language that stopped trying to explain the system and began to let the system be felt.
 
-Those dates make the site sound sudden. It was not sudden in the way that matters. The implementation landed quickly because the constraints had already been argued with: markdown over database as source, schema over convention at the boundary, derived index over canonical index, proposal over mutation, public surface over private notebook, agent-readable contracts over HTML scraping.
+What made the work feel quick, in retrospect, was not speed so much as accumulated constraint. Once markdown had become the durable source, once each kind of object had been given its own burden of evidence, once agents were allowed to notice without being allowed to silently rewrite, the remaining choices were no longer open in the vague and exhausting way early choices are open; they were narrower, more demanding, and easier to respect.
 
-There is a lesson in that sequence that I want to remember. Software often feels mysterious when the visible thing appears at the end. But the visible thing is usually the residue of decisions that have been made precise enough to execute. The homepage is just the last surface to admit what the system already believes.
+There is a lesson in that sequence that I want to remember, because software often looks mysterious when the visible thing appears near the end, even though the visible thing is usually only the residue of decisions that have become precise enough to execute. The homepage is just the last surface to admit what the system already believes.
 
 The current visual language follows that belief. The landing page is a quiet gallery of object kinds rather than a hero section explaining the site to itself. The about page calls it a public working surface. The agents page describes the structured doors. The privacy page says, plainly, that the static site is not trying to observe its readers. Even the design system insists on restraint: fewer panels, more whitespace, less dashboard, more artifact.
 
@@ -88,7 +88,7 @@ It tests the post schema. It tests section freshness stamps. It gives the posts 
 
 More importantly, it records the reason this place exists before the place starts accumulating reasons of its own.
 
-thinkinglabs.run is a bet that a personal site can be more than a shelf for finished thoughts. It can be an instrument: something that makes a certain kind of work easier to do honestly. It can ask for confidence when I make a prediction, evidence when I make a claim, context when I make a decision, and a date when I say a section is still fresh. It can let agents help without letting them silently rewrite the record. It can make the public version close enough to the working version that publishing stops feeling like a second job.
+thinkinglabs is a bet that a personal site can be more than a shelf for finished thoughts. It can be an instrument: something that makes a certain kind of work easier to do honestly. It can ask for confidence when I make a prediction, evidence when I make a claim, context when I make a decision, and a date when I say a section is still fresh. It can let agents help without letting them silently rewrite the record. It can make the public version close enough to the working version that publishing stops feeling like a second job.
 
 That is the hope, at least. The better test will come later, when some confident claim here turns out to be wrong, when a prediction resolves badly, when a decision reverses, when a section goes stale, or when an agent proposes a change I would have missed. The site will be doing its job if those moments feel less like embarrassment and more like maintenance.
 

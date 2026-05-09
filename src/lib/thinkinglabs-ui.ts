@@ -76,6 +76,32 @@ function stripInlineMarkdown(text: string): string {
     .trim();
 }
 
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+/** Convert inline markdown (links, code, bold, italic) to safe HTML; strips block-level syntax. */
+function inlineToHtml(text: string): string {
+  const escaped = escapeHtml(text.replace(/^>\s?/gm, "").replace(/^#{1,6}\s+/gm, ""));
+  return escaped
+    .replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, '<img alt="$1" src="$2" />')
+    .replace(
+      /\[([^\]]+)\]\(([^)\s]+)\)/g,
+      (_, label: string, href: string) => `<a href="${href}">${label}</a>`,
+    )
+    .replace(/`([^`]+)`/g, "<code>$1</code>")
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+    .replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g, "$1<em>$2</em>")
+    .replace(/(^|[^_])_([^_\n]+)_(?!_)/g, "$1<em>$2</em>")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function stripHeadingAttributeBlock(text: string): string {
   return text.replace(/\s+\{[^}]*\}\s*$/, "").trim();
 }
@@ -203,9 +229,11 @@ function buildSections(body: string): PostSection[] {
 
     for (const rawBlock of rawBlocks) {
       if (/^>\s*/.test(rawBlock)) {
+        const stripped = rawBlock.replace(/^>\s?/gm, " ");
         blocks.push({
           type: "pull",
-          text: stripInlineMarkdown(rawBlock.replace(/^>\s?/gm, " ")),
+          text: stripInlineMarkdown(stripped),
+          html: inlineToHtml(stripped),
         });
         continue;
       }
@@ -228,11 +256,11 @@ function buildSections(body: string): PostSection[] {
         listLines.length > 0 &&
         listLines.length === rawBlock.split("\n").filter(Boolean).length
       ) {
+        const stripped = listLines.map((line) => line.replace(/^([-*+]\s+|\d+\.\s+)/, ""));
         blocks.push({
           type: "list",
-          items: listLines.map((line) =>
-            stripInlineMarkdown(line.replace(/^([-*+]\s+|\d+\.\s+)/, "")),
-          ),
+          items: stripped.map((line) => stripInlineMarkdown(line)),
+          itemsHtml: stripped.map((line) => inlineToHtml(line)),
         });
         continue;
       }
@@ -240,7 +268,12 @@ function buildSections(body: string): PostSection[] {
       const paragraph = stripInlineMarkdown(rawBlock);
       if (paragraph.length === 0) continue;
       const drop = sectionIndex === 0 && !markedDrop;
-      blocks.push({ type: "p", text: paragraph, ...(drop ? { drop: true } : {}) });
+      blocks.push({
+        type: "p",
+        text: paragraph,
+        html: inlineToHtml(rawBlock),
+        ...(drop ? { drop: true } : {}),
+      });
       markedDrop = true;
     }
 
@@ -257,6 +290,7 @@ function extractFootnotes(body: string): PostFootnote[] {
   return Array.from(matches).map((match) => ({
     id: match[1] ?? "",
     text: stripInlineMarkdown(match[2] ?? ""),
+    html: inlineToHtml(match[2] ?? ""),
   }));
 }
 
@@ -613,7 +647,7 @@ export function mapPostDetail(args: {
     words,
     topic: postTopic(entry.data.tags),
     license: "See repository LICENSE",
-    citation: `Tom Wild, ${entry.data.title}, thinkinglabs, ${formatDate(entry.data.created)}.`,
+    citation: `Tom, ${entry.data.title}, thinkinglabs, ${formatDate(entry.data.created)}.`,
     backlinks: related.length,
     related,
     sections: sections.length > 0 ? sections : [{ number: "01", title: "Overview", blocks: [] }],

@@ -2,7 +2,7 @@
 export const SITE_NAME = "thinkinglabs";
 
 /** Primary contact email address; used in footer links and contact surfaces. */
-export const CONTACT_EMAIL = "tom@wild.as";
+export const CONTACT_EMAIL = "tom@flaming.codes";
 
 /** Canonical GitHub repository URL; used in footer links and llms.txt. */
 export const GITHUB_URL = "https://github.com/flaming-codes/thinkinglabs";

@@ -72,7 +72,7 @@ const POST_DETAIL: PostDetail = {
   words: 3420,
   topic: "Agents",
   license: "CC BY 4.0",
-  citation: "Tom Wild, The verifier's asymmetry, thinkinglabs, 30 Apr 2026.",
+  citation: "Tom, The verifier's asymmetry, thinkinglabs, 30 Apr 2026.",
   backlinks: 9,
   related: [
     {
@@ -98,14 +98,17 @@ const POST_DETAIL: PostDetail = {
           type: "p",
           drop: true,
           text: "There is a particular kind of mistake that only confident systems make. The system finishes the work and only on inspection does the wrongness reveal itself.",
+          html: "There is a particular kind of mistake that only confident systems make. The system finishes the work and only on inspection does the wrongness reveal itself.",
         },
         {
           type: "p",
           text: "Better evaluations and self-checks help, at the margin. They do not remove the separate labor of verification.",
+          html: "Better evaluations and self-checks help, at the margin. They do not remove the separate labor of verification.",
         },
         {
           type: "pull",
           text: "The verifier's job has to be cheaper than the agent's job, by a real margin. If review takes as long as writing it, you've gained nothing.",
+          html: "The verifier&#39;s job has to be cheaper than the agent&#39;s job, by a real margin. If review takes as long as writing it, you&#39;ve gained nothing.",
         },
       ],
     },
@@ -116,6 +119,7 @@ const POST_DETAIL: PostDetail = {
         {
           type: "p",
           text: "Treating the reviewer as a bottleneck to eliminate is backwards. The verifier is the layer that distinguishes useful output from confident-looking noise.",
+          html: "Treating the reviewer as a bottleneck to eliminate is backwards. The verifier is the layer that distinguishes useful output from confident-looking noise.",
         },
         {
           type: "fig",
@@ -137,6 +141,12 @@ const POST_DETAIL: PostDetail = {
             "Stay fast enough for the output rate.",
             "Allow explicit uncertainty when a verifier cannot judge.",
           ],
+          itemsHtml: [
+            "Make wrongness visible without forcing a full rewrite.",
+            "Capture why something is wrong, not just that it is.",
+            "Stay fast enough for the output rate.",
+            "Allow explicit uncertainty when a verifier cannot judge.",
+          ],
         },
       ],
     },
@@ -145,10 +155,12 @@ const POST_DETAIL: PostDetail = {
     {
       id: "fn1",
       text: "My first six months of building agentic pipelines optimised for fewer review steps. The hidden cost was poor keep-rate.",
+      html: "My first six months of building agentic pipelines optimised for fewer review steps. The hidden cost was poor keep-rate.",
     },
     {
       id: "fn2",
       text: "I would currently put at 0.45 the claim that the next widely-discussed AI product category will be verification tooling rather than autonomy.",
+      html: "I would currently put at 0.45 the claim that the next widely-discussed AI product category will be verification tooling rather than autonomy.",
     },
   ],
 };
