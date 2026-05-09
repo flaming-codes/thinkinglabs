@@ -15,109 +15,159 @@ const { kinds } = Astro.props;
     <h1>About.</h1>
   </section>
 
-  <section class="tl-about-lede">
-    <p>thinkinglabs is a single person's working surface, made public.</p>
+  <section class="tl-about-portrait" aria-label="Portrait">
+    <img
+      src="/images/about-portrait.jpg"
+      alt="Tom smiling in warm side light."
+      width="2048"
+      height="2048"
+      loading="eager"
+      decoding="async"
+    />
+  </section>
+
+  <section class="tl-about-prose tl-prose-body">
+    <p class="tl-about-lede">thinkinglabs is my public working surface.</p>
+
     <p>
-      I'm Tom. I work mostly on AI systems and the boring parts of getting them to behave. This site
-      is the room I think in — a filtered view of a markdown repo I edit every day.
+      It is not a portfolio and not quite a blog. It is closer to a desk left in public: rough
+      thoughts, stricter claims, predictions, project notes, decisions, questions, and the outside
+      inputs that changed the shape of the work.
+    </p>
+
+    <p>
+      I work mostly on AI systems and the operational layer around them. The parts I care about
+      tend to be the parts that make systems legible: what changed, why a decision was made, what
+      evidence supports a claim, and what would make me change my mind.
+    </p>
+
+    <p>
+      The site is generated from a markdown repository. The repository is the durable object. The
+      web UI, JSON feeds, SQLite index, and MCP surfaces are derived views over the same source.
+      That constraint keeps the place quiet: edit the files, rebuild the surfaces, let the public
+      version stay close to the working version.
     </p>
   </section>
 
-  <section>
-    <header class="tl-about-section-head">
-      <div class="tl-eyebrow">01 / structure</div>
-      <h2>
-        Nine kinds of entry,
-        <br />
-        one graph.
-      </h2>
+  <section class="tl-about-inventory" aria-labelledby="about-inventory-title">
+    <header>
+      <div class="tl-eyebrow">structure</div>
+      <h2 id="about-inventory-title">The public shape of the repository.</h2>
+      <p>
+        Each entry type has a job. Some are loose enough to catch a thought before it disappears;
+        others are strict enough to make drift visible.
+      </p>
     </header>
 
     <div class="tl-about-kind-list">
-      {kinds.map((kind, index) => (
-        <article class="tl-about-kind-row">
-          <div class="tl-mono">{String(index + 1).padStart(2, "0")}</div>
-          <div>
-            <h3>{kind.href ? <a href={kind.href}>{kind.name}</a> : kind.name}</h3>
-            <p>{kind.gloss}</p>
-          </div>
-          <div class="tl-mono is-right">{kind.count} entries</div>
-        </article>
-      ))}
+      {
+        kinds.map((kind, index) => (
+          <article class="tl-about-kind-row">
+            <div class="tl-mono">{String(index + 1).padStart(2, "0")}</div>
+            <div>
+              <h3>{kind.href ? <a href={kind.href}>{kind.name}</a> : kind.name}</h3>
+              <p>{kind.gloss}</p>
+            </div>
+            <div class="tl-mono is-right">{kind.count} entries</div>
+          </article>
+        ))
+      }
     </div>
   </section>
 
-  <section>
-    <header class="tl-about-section-head">
-      <div class="tl-eyebrow">02 / how it works</div>
-      <h2>
-        The site is the by-product,
-        <br />
-        not the point.
-      </h2>
-    </header>
-    <div class="tl-about-prose-grid">
-      <article>
-        <div class="tl-eyebrow">Markdown is canonical</div>
-        <h3>Every entry is a file in a git repository.</h3>
-        <p>
-          The site is rebuilt from those files. If the rendering layer disappeared tomorrow, the
-          source of truth would still exist.
-        </p>
-      </article>
-      <article>
-        <div class="tl-eyebrow">Calibration over rhetoric</div>
-        <h3>The numbers are not a performance.</h3>
-        <p>
-          Claims carry confidence values. Predictions resolve. Both are tracked over time so it is
-          harder to drift quietly.
-        </p>
-      </article>
-    </div>
+  <section class="tl-about-prose tl-prose-body">
+    <div class="tl-eyebrow">how to read it</div>
+    <p>
+      The pages here are allowed to be incomplete. A claim can be revised. A prediction can resolve
+      badly. A project can go dormant. The useful thing is not that every object is polished, but
+      that the system leaves enough structure behind to return later and inspect what happened.
+    </p>
+    <p>
+      I want the tone of the site to stay calm because the work benefits from calm. There should be
+      enough empty space to read a sentence, enough metadata to audit it, and not much more than
+      that.
+    </p>
   </section>
 
-  <section class="tl-about-colophon">
-    <div class="tl-eyebrow">colophon</div>
+  <section class="tl-about-colophon" aria-label="Colophon">
     <div>
-      <h3>Type</h3>
-      <p>Inter Tight</p>
-      <p>Grape Nuts wordmark</p>
-    </div>
-    <div>
-      <h3>Stack</h3>
-      <p>Markdown, git-tracked</p>
-      <p>Static build</p>
-      <p>SQLite as derived index</p>
-      <p>MCP for agent access</p>
-    </div>
-    <div>
-      <h3>Feeds</h3>
-      <p>brain-diff.xml</p>
-      <p>posts.xml</p>
-      <p>predictions.json</p>
+      <div class="tl-eyebrow">colophon</div>
+      <p>
+        Built with Astro, markdown content collections, deterministic feeds, a derived SQLite
+        index, and a small MCP server for agent access. The typography and navigation are meant to
+        make the repository feel like a working surface rather than a publication schedule.
+      </p>
     </div>
   </section>
 </AppShell>
 
 <style>
-  .tl-about-prose-grid {
+  .tl-about-portrait,
+  .tl-about-prose,
+  .tl-about-inventory,
+  .tl-about-colophon {
     width: var(--tl-center);
     margin-inline: auto;
   }
 
-  .tl-about-lede {
-    color: rgba(7, 9, 13, 0.76);
-    font-size: 17px;
-    line-height: 1.78;
+  .tl-about-portrait {
+    margin-top: -8vh;
+    margin-bottom: clamp(4.5rem, 12vh, 8rem);
   }
 
-  .tl-about-section-head {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 24px;
-    padding: 0 0 18px;
+  .tl-about-portrait img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 2px;
+  }
+
+  .tl-about-prose {
+    padding-bottom: clamp(4rem, 12vh, 8rem);
+  }
+
+  .tl-about-lede {
+    max-width: 16ch;
+    color: var(--tl-ink);
+    font-size: clamp(32px, 4.8vw, 58px);
+    font-weight: 620;
+    line-height: 0.98;
+    letter-spacing: -0.045em;
+  }
+
+  .tl-about-prose .tl-eyebrow {
+    margin-bottom: 1.35rem;
+  }
+
+  .tl-about-inventory {
+    padding: clamp(4rem, 12vh, 8rem) 0;
+    border-top: 1px solid var(--tl-line);
     border-bottom: 1px solid var(--tl-line);
+  }
+
+  .tl-about-inventory header {
+    max-width: 36rem;
+    margin-bottom: clamp(2.75rem, 7vh, 4.5rem);
+  }
+
+  .tl-about-inventory h2 {
+    margin-top: 1rem;
+    max-width: 12ch;
+    font-size: clamp(30px, 4vw, 50px);
+    font-weight: 620;
+    line-height: 0.98;
+    letter-spacing: -0.045em;
+  }
+
+  .tl-about-inventory header p {
+    margin-top: 1.2rem;
+    color: var(--tl-muted);
+    font-size: 16px;
+    line-height: 1.75;
+  }
+
+  .tl-about-kind-list {
+    display: grid;
   }
 
   .tl-about-kind-row {
@@ -126,35 +176,65 @@ const { kinds } = Astro.props;
     grid-template-columns: 56px minmax(0, 1fr) auto;
     gap: 22px;
     align-items: baseline;
-    padding: 30px 0;
+    padding: 26px 0;
+    border-top: 1px solid var(--tl-line);
+  }
+
+  .tl-about-kind-row:last-child {
     border-bottom: 1px solid var(--tl-line);
   }
 
-  .tl-about-kind-row h3,
-  .tl-about-section-head h2 {
-    font-size: clamp(25px, 3vw, 38px);
+  .tl-about-kind-row h3 {
+    font-size: clamp(22px, 2.8vw, 34px);
     font-weight: 600;
-    line-height: 1.02;
+    line-height: 1;
     letter-spacing: -0.03em;
   }
 
-  .tl-about-prose-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 24px;
-    padding: 8vh 0;
+  .tl-about-kind-row a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .tl-about-kind-row p {
+    margin-top: 0.7rem;
+    max-width: 34rem;
+    color: var(--tl-muted);
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  .tl-about-colophon {
+    padding: clamp(4rem, 12vh, 8rem) 0 18vh;
+  }
+
+  .tl-about-colophon p {
+    margin-top: 1.35rem;
+    max-width: 38rem;
+    color: rgba(7, 9, 13, 0.68);
+    font-size: 16px;
+    line-height: 1.75;
   }
 
   @media (max-width: 767px) {
-    .tl-about-prose-grid {
+    .tl-about-portrait,
+    .tl-about-prose,
+    .tl-about-inventory,
+    .tl-about-colophon {
       width: min(100% - 40px, 43.75rem);
-      grid-template-columns: 1fr;
-      gap: 12px;
+    }
+
+    .tl-about-portrait {
+      margin-top: -4vh;
     }
 
     .tl-about-kind-row {
       grid-template-columns: 1fr;
-      gap: 12px;
+      gap: 10px;
+    }
+
+    .tl-about-kind-row .is-right {
+      text-align: left;
     }
   }
 </style>

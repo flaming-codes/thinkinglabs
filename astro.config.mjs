@@ -30,7 +30,7 @@ export default defineConfig({
         "upgrade-insecure-requests",
       ],
       styleDirective: {
-        resources: ["'self'", "https://fonts.googleapis.com"],
+        resources: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       },
       scriptDirective: {
         resources: ["'self'"],

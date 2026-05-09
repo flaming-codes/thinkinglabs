@@ -13,119 +13,87 @@ import ThinkinglabsUiPage from "../layouts/ThinkinglabsUiPage.astro";
       <h1>Privacy.</h1>
     </section>
 
-    <section class="tl-privacy-lede">
-      <p>This site does not track you.</p>
+    <article class="tl-privacy-prose tl-prose-body">
+      <p class="tl-privacy-lede">This site does not track you.</p>
+
       <p>
-        No analytics. No cookies set by the site. No fingerprinting. No pixels, no logs of who you
-        are, no tooling that quietly aggregates a profile of your reading habits.
+        thinkinglabs is static HTML generated from a public markdown repository. There is no
+        analytics product sitting behind the pages, no cookie banner because there are no site
+        cookies to accept, and no client-side fingerprinting script trying to infer who you are.
       </p>
-    </section>
 
-    <section class="tl-privacy-grid">
-      <article>
-        <div class="tl-eyebrow">What is collected</div>
-        <h3>Nothing about you.</h3>
-        <p>
-          The site is static HTML rebuilt from a markdown repository. There is no application
-          server reading your requests, no third-party SDK loaded into the page, no
-          client-side analytics call.
-        </p>
-      </article>
+      <p>
+        The site does not write to localStorage, sessionStorage, IndexedDB, or any other browser
+        storage API. It does not include pixels, embedded trackers, or third-party SDKs that quietly
+        assemble a profile of your reading habits.
+      </p>
 
-      <article>
-        <div class="tl-eyebrow">What is stored</div>
-        <h3>Nothing on your device.</h3>
-        <p>
-          No first-party or third-party cookies. No localStorage, no sessionStorage, no IndexedDB
-          writes. If your browser has any storage entries from this origin, they are not put there
-          by this site.
-        </p>
-      </article>
+      <h2>Infrastructure logs</h2>
 
-      <article>
-        <div class="tl-eyebrow">Server logs</div>
-        <h3>The host may keep request logs.</h3>
-        <p>
-          Edge or origin infrastructure can keep transient request logs (IP, path, user agent) for
-          operational reasons such as abuse mitigation. Those logs are not read, joined, or shared
-          by the site itself.
-        </p>
-      </article>
+      <p>
+        The hosting layer may keep ordinary operational request logs, such as an IP address, path,
+        timestamp, user agent, or status code. Those records are the kind of transient plumbing
+        hosts use for abuse mitigation and debugging. They are not read, joined, sold, or used by
+        this site to identify readers.
+      </p>
 
-      <article>
-        <div class="tl-eyebrow">Embedded media</div>
-        <h3>External links open elsewhere.</h3>
-        <p>
-          Links to other domains follow your browser's normal behaviour and may be subject to those
-          sites' policies. Nothing is embedded inline that loads scripts or images from a tracker.
-        </p>
-      </article>
+      <h2>External places</h2>
 
-      <article>
-        <div class="tl-eyebrow">Contact</div>
-        <h3>Reach out directly.</h3>
-        <p>
-          Questions about privacy or anything else go through the channels listed on
-          <a href="/contact/">/contact</a>. The site has no form handlers.
-        </p>
-      </article>
-    </section>
+      <p>
+        Links to other domains leave this site. Once you follow one, your browser is interacting
+        with that domain and its own policies apply. The privacy promise here is intentionally
+        narrow: while you are reading thinkinglabs pages, the site itself is not trying to observe
+        you.
+      </p>
+
+      <h2>Contact</h2>
+
+      <p>
+        Questions about privacy or anything else can go through <a href="/contact/">/contact</a>.
+        There are no form handlers on this site; any conversation happens directly through the
+        channels listed there.
+      </p>
+    </article>
   </AppShell>
 </ThinkinglabsUiPage>
 
 <style>
+  .tl-privacy-prose {
+    width: var(--tl-center);
+    margin: -4vh auto 18vh;
+  }
+
   .tl-privacy-lede {
-    width: var(--tl-center);
-    margin: 0 auto;
-    padding: 6vh 0 9vh;
-    color: rgba(7, 9, 13, 0.78);
-    font-size: clamp(20px, 2.4vw, 30px);
-    font-weight: 480;
-    line-height: 1.32;
-    letter-spacing: -0.012em;
+    max-width: 15ch;
+    color: var(--tl-ink);
+    font-size: clamp(34px, 5vw, 64px);
+    font-weight: 620;
+    line-height: 0.96;
+    letter-spacing: -0.05em;
   }
 
-  .tl-privacy-lede p + p {
-    margin-top: 1.2em;
-    font-size: 17px;
-    line-height: 1.7;
-    color: rgba(7, 9, 13, 0.62);
-  }
-
-  .tl-privacy-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: clamp(2.4rem, 4vw, 3.4rem) clamp(2rem, 4vw, 3rem);
-    width: var(--tl-center);
-    margin: 0 auto 18vh;
-    padding-top: 4vh;
+  .tl-privacy-prose h2 {
+    margin-top: clamp(3.5rem, 9vh, 5.5rem);
+    padding-top: clamp(2.25rem, 6vh, 3.5rem);
     border-top: 1px solid var(--tl-line);
+    color: var(--tl-ink);
+    font-size: clamp(23px, 3vw, 36px);
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.035em;
   }
 
-  .tl-privacy-grid h3 {
-    margin-top: 8px;
-    font-size: clamp(18px, 2vw, 22px);
-    font-weight: 580;
-    line-height: 1.22;
-    letter-spacing: -0.018em;
-  }
-
-  .tl-privacy-grid p {
-    margin-top: 10px;
-    color: rgba(7, 9, 13, 0.64);
-    font-size: 14px;
-    line-height: 1.65;
-  }
-
-  .tl-privacy-grid a {
+  .tl-privacy-prose a {
     color: inherit;
     text-decoration: underline;
-    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 4px;
   }
 
   @media (max-width: 767px) {
-    .tl-privacy-grid {
-      grid-template-columns: 1fr;
+    .tl-privacy-prose {
+      width: min(100% - 40px, 43.75rem);
+      margin-top: -2vh;
     }
   }
 </style>
