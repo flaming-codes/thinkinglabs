@@ -11,7 +11,7 @@ export const prerender = true;
 
 interface OgImageProps {
   readonly subtitle: string;
-  readonly gradient: ConicGradient;
+  readonly gradient: EntityGradient;
 }
 
 interface StaticImage {
@@ -20,7 +20,10 @@ interface StaticImage {
   readonly gradientKey: EntityGradientKey;
 }
 
+type EntityGradient = ConicGradient | LinearGradient;
+
 interface ConicGradient {
+  readonly kind: "conic";
   readonly fromDeg: number;
   readonly atX: number;
   readonly atY: number;
@@ -30,6 +33,11 @@ interface ConicGradient {
 interface ConicStop {
   readonly color: string;
   readonly angleDeg: number;
+}
+
+interface LinearGradient {
+  readonly kind: "linear";
+  readonly css: string;
 }
 
 interface SatoriElement {
@@ -172,18 +180,24 @@ async function loadFont(family: "geist", weight: 400 | 500): Promise<ArrayBuffer
   return cached;
 }
 
-async function loadSharedEntityGradients(): Promise<Record<EntityGradientKey, ConicGradient>> {
+async function loadSharedEntityGradients(): Promise<Record<EntityGradientKey, EntityGradient>> {
   const css = await readFile("src/frontend/thinkinglabs-ui/styles.css", "utf8");
   return Object.fromEntries(
     SHARED_ENTITY_GRADIENT_KEYS.map((key) => {
       const variableName = `--tl-entity-gradient-${key}`;
-      const match = css.match(new RegExp(`${variableName}:\\s*(conic-gradient\\([\\s\\S]*?\\));`));
+      const match = css.match(
+        new RegExp(`${variableName}:\\s*((?:conic|linear)-gradient\\([\\s\\S]*?\\));`),
+      );
       if (!match?.[1]) {
         throw new Error(`Missing shared entity gradient ${variableName}`);
       }
-      return [key, parseConicGradient(match[1])] as const;
+      const value = match[1].trim();
+      const gradient: EntityGradient = value.startsWith("linear-gradient")
+        ? { kind: "linear", css: value.replace(/\s+/g, " ") }
+        : parseConicGradient(value);
+      return [key, gradient] as const;
     }),
-  ) as Record<EntityGradientKey, ConicGradient>;
+  ) as Record<EntityGradientKey, EntityGradient>;
 }
 
 function isEntityGradientKey(kind: Kind): kind is EntityGradientKey {
@@ -213,6 +227,7 @@ function parseConicGradient(value: string): ConicGradient {
 
   const lastIndex = Math.max(explicitStops.length - 1, 1);
   return {
+    kind: "conic",
     fromDeg: Number.parseFloat(match[1]),
     atX: Number.parseFloat(match[2]),
     atY: Number.parseFloat(match[3]),
@@ -251,16 +266,18 @@ async function getKindCollection(kind: Kind) {
 function renderImage(image: OgImageProps): SatoriElement {
   const subtitle = truncateLine(image.subtitle, 54);
 
+  const gradientChild =
+    image.gradient.kind === "linear"
+      ? div({ ...styles.gradientFill, backgroundImage: image.gradient.css })
+      : conicSvg({
+          canvasWidth: OG_IMAGE_WIDTH,
+          canvasHeight: OG_GRADIENT_HEIGHT,
+          gradient: image.gradient,
+        });
+
   return div(
     styles.root,
-    div(
-      styles.gradientBlock,
-      conicSvg({
-        canvasWidth: OG_IMAGE_WIDTH,
-        canvasHeight: OG_GRADIENT_HEIGHT,
-        gradient: image.gradient,
-      }),
-    ),
+    div(styles.gradientBlock, gradientChild),
     div(
       styles.bottomBlock,
       div(styles.copy, div(styles.title, "thinkinglabs"), div(styles.subtitle, subtitle)),
@@ -419,6 +436,12 @@ const styles = {
   svg: {
     position: "absolute",
     inset: 0,
+  },
+  gradientFill: {
+    position: "absolute",
+    inset: 0,
+    width: "100%",
+    height: "100%",
   },
   bottomBlock: {
     position: "relative",
