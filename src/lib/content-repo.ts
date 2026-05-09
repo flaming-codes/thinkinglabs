@@ -27,7 +27,7 @@ function deriveSlug(filePath: string, kindRoot: string): string {
 }
 
 /** Format a Zod issue list into a single-line summary. */
-function summarizeIssues(issues: z.ZodIssue[]): string {
+function summarizeIssues(issues: z.core.$ZodIssue[]): string {
   return issues.map((i) => `${i.path.join(".") || "(root)"}: ${i.message}`).join("; ");
 }
 
