@@ -370,6 +370,28 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
       align-items: center;
       justify-content: center;
     }
+
+    .tl-nav-toggle-icon,
+    .tl-nav-toggle-icon::before,
+    .tl-nav-toggle-icon::after {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+    }
+
+    .tl-nav-toggle-icon {
+      margin-top: -3.5px;
+      background: currentColor;
+    }
+
+    .tl-nav-toggle-icon::before,
+    .tl-nav-toggle-icon::after {
+      content: none;
+    }
+
+    .tl-header[data-tl-nav-open="true"] .tl-nav-toggle-icon {
+      background: currentColor;
+    }
   }
 
   .tl-nav-panel {

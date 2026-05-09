@@ -6,7 +6,7 @@ test.describe("top navigation", () => {
     expect(root, "navigation response").not.toBeNull();
     expect(root!.status()).toBe(200);
 
-    const links = page.locator("header.site .inner a.nav");
+    const links = page.locator("header[data-tl-nav] .tl-nav-rail a[href]");
     const count = await links.count();
     expect(count).toBeGreaterThan(0);
 

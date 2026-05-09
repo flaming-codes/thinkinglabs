@@ -25,6 +25,13 @@ const { kinds } = Astro.props;
                 <span class="tl-gallery-visual" data-entity={kind.slug}></span>
                 <span class="tl-gallery-title" aria-hidden="true">{kind.title}</span>
               </span>
+              <span class="tl-gallery-copy" aria-hidden="true">
+                <span class="tl-gallery-copy-kicker">
+                  {kind.count} {kind.count === 1 ? "entry" : "entries"}
+                </span>
+                <span class="tl-gallery-copy-title">{kind.title}</span>
+                <span class="tl-gallery-copy-description">{kind.description}</span>
+              </span>
             </a>
           </article>
         ))}
@@ -106,7 +113,9 @@ const { kinds } = Astro.props;
     display: block;
     overflow: hidden;
     background: rgba(255, 255, 255, 0.96);
+    color: inherit;
     box-shadow: var(--tl-card-shadow);
+    text-decoration: none;
     transition: box-shadow 0.55s ease;
   }
 
@@ -246,6 +255,10 @@ const { kinds } = Astro.props;
     display: none;
   }
 
+  .tl-gallery-copy {
+    display: none;
+  }
+
   @media (min-width: 768px) {
     :global(.tl-shell[data-layout="gallery"][data-active-nav="Index"]) :global(.tl-scroll) {
       overflow: auto hidden;
@@ -308,6 +321,35 @@ const { kinds } = Astro.props;
 
     .tl-gallery-label {
       display: none;
+    }
+
+    .tl-gallery-copy {
+      display: grid;
+      gap: 0.42rem;
+      padding: 1rem;
+    }
+
+    .tl-gallery-copy-kicker {
+      color: rgba(12, 20, 36, 0.56);
+      font-size: 11px;
+      font-weight: 540;
+      line-height: 1;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .tl-gallery-copy-title {
+      color: #0c1424;
+      font-size: 17px;
+      font-weight: 650;
+      line-height: 1.08;
+    }
+
+    .tl-gallery-copy-description {
+      color: rgba(12, 20, 36, 0.66);
+      font-size: 13px;
+      font-weight: 420;
+      line-height: 1.42;
     }
   }
 

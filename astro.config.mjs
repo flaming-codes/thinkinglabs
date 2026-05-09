@@ -11,6 +11,7 @@ export default defineConfig({
     enabled: false,
   },
   markdown: {
+    syntaxHighlight: "prism",
     remarkPlugins: [remarkSectionFreshness],
     rehypePlugins: [rehypeSectionFreshness],
   },
