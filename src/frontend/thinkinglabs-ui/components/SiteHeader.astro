@@ -1,28 +1,331 @@
-<header class="tl-header">
-  <a class="tl-brand-link" href="/" aria-label="thinkinglabs home">
-    <span class="tl-wordmark" data-wordmark="thinkinglabs" aria-hidden="true">thinkinglabs</span>
-  </a>
+---
+import PathWordmarkVariant from "./PathWordmarkVariant.astro";
+
+interface Props {
+  activeNav?: "Index" | "Now" | "Calibration" | "Brain-diff" | "Agents" | "About";
+}
+
+const { activeNav = "Index" } = Astro.props;
+
+const navCardAspects = ["3 / 4", "4 / 3", "3 / 4", "1 / 1", "4 / 3", "3 / 4", "1 / 1"];
+const navCardVisuals: Record<string, { gradient: string; duration: string; origin: string }> = {
+  claims: {
+    gradient: "var(--tl-entity-gradient-claims)",
+    duration: "29s",
+    origin: "44% 48%",
+  },
+  thoughts: {
+    gradient: "var(--tl-entity-gradient-thoughts)",
+    duration: "34s",
+    origin: "42% 55%",
+  },
+  inputs: {
+    gradient: "var(--tl-entity-gradient-inputs)",
+    duration: "27s",
+    origin: "46% 50%",
+  },
+  projects: {
+    gradient: "var(--tl-entity-gradient-projects)",
+    duration: "24s",
+    origin: "48% 52%",
+  },
+  predictions: {
+    gradient: "var(--tl-entity-gradient-predictions)",
+    duration: "32s",
+    origin: "50% 50%",
+  },
+  "changed-my-mind": {
+    gradient: "var(--tl-entity-gradient-changed-my-mind)",
+    duration: "31s",
+    origin: "48% 50%",
+  },
+  decisions: {
+    gradient: "var(--tl-entity-gradient-decisions)",
+    duration: "36s",
+    origin: "44% 54%",
+  },
+  questions: {
+    gradient: "var(--tl-entity-gradient-questions)",
+    duration: "25s",
+    origin: "46% 50%",
+  },
+  posts: {
+    gradient: "var(--tl-entity-gradient-posts)",
+    duration: "30s",
+    origin: "44% 52%",
+  },
+};
+
+const navCardStyle = (slug: string, index: number): string => {
+  const visual = navCardVisuals[slug];
+  const declarations = [
+    `--tl-entity-card-aspect: ${navCardAspects[index % navCardAspects.length] ?? "1 / 1"}`,
+  ];
+
+  if (visual) {
+    declarations.push(
+      `--tl-entity-gradient: ${visual.gradient}`,
+      `--tl-gradient-duration: ${visual.duration}`,
+      `--tl-gradient-origin: ${visual.origin}`,
+    );
+  }
+
+  return declarations.join("; ");
+};
+
+const navItems: Array<{
+  href: string;
+  label: string;
+  slug: string;
+  group: "entity" | "site";
+}> = [
+  { href: "/claims/", label: "Claims", slug: "claims", group: "entity" },
+  { href: "/thoughts/", label: "Thoughts", slug: "thoughts", group: "entity" },
+  { href: "/inputs/", label: "Inputs", slug: "inputs", group: "entity" },
+  { href: "/projects/", label: "Projects", slug: "projects", group: "entity" },
+  { href: "/predictions/", label: "Predictions", slug: "predictions", group: "entity" },
+  {
+    href: "/changed-my-mind/",
+    label: "Changed my mind",
+    slug: "changed-my-mind",
+    group: "entity",
+  },
+  { href: "/decisions/", label: "Decisions", slug: "decisions", group: "entity" },
+  { href: "/questions/", label: "Questions", slug: "questions", group: "entity" },
+  { href: "/posts/", label: "Posts", slug: "posts", group: "entity" },
+  { href: "/about/", label: "About", slug: "about", group: "site" },
+  { href: "/privacy/", label: "Privacy", slug: "privacy", group: "site" },
+];
+
+const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
+---
+
+<header class="tl-header" data-tl-nav data-tl-nav-active={activeNav}>
+  <div class="tl-header-bar">
+    <a class="tl-brand-link" href="/" aria-label="thinkinglabs home">
+      <span class="tl-wordmark">thinkinglabs</span>
+    </a>
+    <button
+      type="button"
+      class="tl-nav-toggle"
+      aria-expanded="false"
+      aria-controls="tl-global-nav"
+      aria-label="Open site navigation"
+      data-tl-nav-toggle
+    >
+      <span class="tl-nav-toggle-icon" aria-hidden="true"></span>
+    </button>
+  </div>
+
+  <div
+    class="tl-nav-panel"
+    id="tl-global-nav"
+    role="dialog"
+    aria-modal="false"
+    aria-label="Site navigation"
+    data-tl-nav-panel
+    inert
+  >
+    <div class="tl-nav-panel-inner">
+      <a class="tl-nav-brand" href="/" tabindex="-1" aria-label="thinkinglabs home">
+        <PathWordmarkVariant />
+      </a>
+
+      <nav class="tl-nav-rail" aria-label="Primary" data-tl-nav-rail>
+        <ul role="list">
+          {
+            navItems.map((item, index) => {
+              const itemPath = item.href.replace(/\/+$/, "/");
+              const isCurrent = currentPath === itemPath;
+              return (
+                <li class:list={["tl-nav-card", `is-${item.group}`]} style={navCardStyle(item.slug, index)}>
+                  <a
+                    href={item.href}
+                    aria-current={isCurrent ? "page" : undefined}
+                  >
+                    <span
+                      class="tl-nav-card-visual"
+                      data-entity={item.slug}
+                      aria-hidden="true"
+                    />
+                    <span class="tl-nav-card-label">
+                      <span>{item.label}</span>
+                    </span>
+                  </a>
+                </li>
+              );
+            })
+          }
+        </ul>
+      </nav>
+    </div>
+  </div>
 </header>
+
+<script>
+  const root = document.querySelector<HTMLElement>("[data-tl-nav]");
+  const toggle = document.querySelector<HTMLButtonElement>("[data-tl-nav-toggle]");
+  const panel = document.querySelector<HTMLElement>("[data-tl-nav-panel]");
+
+  if (root && toggle && panel) {
+    const HOVER_OPEN_DELAY = 90;
+    const HOVER_CLOSE_DELAY = 240;
+    const HOVER_PROBE_HEIGHT = 96;
+    const supportsHover = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    let openTimer = 0;
+    let closeTimer = 0;
+    let lockedOpen = false;
+    let withinRegion = false;
+    let lastFocus: HTMLElement | null = null;
+
+    const isOpen = () => root.getAttribute("data-tl-nav-open") === "true";
+
+    const setOpen = (open: boolean) => {
+      if (open) {
+        root.setAttribute("data-tl-nav-open", "true");
+        panel.removeAttribute("inert");
+        toggle.setAttribute("aria-expanded", "true");
+        toggle.setAttribute("aria-label", "Close site navigation");
+      } else {
+        root.removeAttribute("data-tl-nav-open");
+        panel.setAttribute("inert", "");
+        toggle.setAttribute("aria-expanded", "false");
+        toggle.setAttribute("aria-label", "Open site navigation");
+      }
+    };
+
+    const clearTimers = () => {
+      if (openTimer) {
+        window.clearTimeout(openTimer);
+        openTimer = 0;
+      }
+      if (closeTimer) {
+        window.clearTimeout(closeTimer);
+        closeTimer = 0;
+      }
+    };
+
+    const scheduleOpen = () => {
+      if (closeTimer) {
+        window.clearTimeout(closeTimer);
+        closeTimer = 0;
+      }
+      if (isOpen() || openTimer) return;
+      openTimer = window.setTimeout(() => {
+        openTimer = 0;
+        setOpen(true);
+      }, HOVER_OPEN_DELAY);
+    };
+
+    const scheduleClose = () => {
+      if (lockedOpen) return;
+      if (openTimer) {
+        window.clearTimeout(openTimer);
+        openTimer = 0;
+      }
+      if (!isOpen() || closeTimer) return;
+      closeTimer = window.setTimeout(() => {
+        closeTimer = 0;
+        setOpen(false);
+      }, HOVER_CLOSE_DELAY);
+    };
+
+    if (supportsHover) {
+      window.addEventListener(
+        "pointermove",
+        (event) => {
+          if (event.pointerType !== "mouse") return;
+          const probe = isOpen() ? panel.offsetHeight : HOVER_PROBE_HEIGHT;
+          const inRegion = event.clientY >= 0 && event.clientY <= probe;
+          if (inRegion === withinRegion) return;
+          withinRegion = inRegion;
+          if (inRegion) scheduleOpen();
+          else scheduleClose();
+        },
+        { passive: true }
+      );
+
+      window.addEventListener("blur", () => {
+        if (!isOpen() || lockedOpen) return;
+        clearTimers();
+        setOpen(false);
+        withinRegion = false;
+      });
+    }
+
+    toggle.addEventListener("click", () => {
+      const open = isOpen();
+      lockedOpen = !open;
+      clearTimers();
+      setOpen(!open);
+      if (!open) {
+        lastFocus = document.activeElement as HTMLElement | null;
+        const firstLink = panel.querySelector<HTMLAnchorElement>(".tl-nav-rail a");
+        firstLink?.focus({ preventScroll: true });
+      } else {
+        lastFocus?.focus({ preventScroll: true });
+        lastFocus = null;
+      }
+    });
+
+    root.addEventListener("focusin", () => {
+      clearTimers();
+      if (!isOpen()) setOpen(true);
+    });
+
+    root.addEventListener("focusout", (event) => {
+      const next = event.relatedTarget as Node | null;
+      if (next && root.contains(next)) return;
+      lockedOpen = false;
+      if (!withinRegion) scheduleClose();
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key !== "Escape" || !isOpen()) return;
+      lockedOpen = false;
+      clearTimers();
+      setOpen(false);
+      toggle.focus({ preventScroll: true });
+    });
+
+    document.addEventListener("pointerdown", (event) => {
+      if (!isOpen()) return;
+      const target = event.target as Node;
+      if (root.contains(target)) return;
+      lockedOpen = false;
+      clearTimers();
+      setOpen(false);
+    });
+  }
+</script>
 
 <style>
   .tl-header {
+    --tl-header-inset: clamp(10px, 1.4vw, 18px);
+    --tl-header-radius: 10px;
     position: fixed;
-    z-index: 40;
-    top: var(--tl-ui-y);
-    right: var(--tl-ui-x);
-    left: var(--tl-ui-x);
+    z-index: 60;
+    top: 0;
+    right: 0;
+    left: 0;
+    pointer-events: none;
+  }
+
+  .tl-header-bar {
+    position: relative;
+    z-index: 2;
     display: flex;
     align-items: flex-start;
     justify-content: center;
-    color: #fff;
-    mix-blend-mode: difference;
-    pointer-events: none;
+    padding-top: var(--tl-ui-y);
+    padding-right: var(--tl-ui-x);
+    padding-left: var(--tl-ui-x);
+    color: var(--tl-ink);
   }
 
   .tl-brand-link {
     display: inline-flex;
     align-items: center;
-    gap: 14px;
     min-width: 0;
     pointer-events: auto;
   }
@@ -30,82 +333,336 @@
   .tl-wordmark {
     position: relative;
     top: -0.35rem;
-    display: inline-grid;
-    align-items: center;
-    justify-items: center;
+    display: inline-block;
     width: min(20rem, 80vw);
-    min-height: 3.25rem;
-    color: transparent;
+    color: var(--tl-ink);
     font-family: var(--tl-wordmark-font);
     font-size: clamp(28px, 3vw, 44px);
-    font-weight: 400;
-    line-height: 1;
-    letter-spacing: 0;
-    text-transform: none;
-    -webkit-text-fill-color: transparent;
-    --tl-wordmark-paint: #fff;
-    --tl-wordmark-hover-paint: #000;
-    --tl-linefont-scale: 1;
-    --tl-linefont-size: 44px;
-    --tl-hover-font-size: 20px;
-  }
-
-  .tl-wordmark::before,
-  .tl-wordmark::after {
-    grid-area: 1 / 1;
-    color: var(--tl-wordmark-paint);
-    content: attr(data-wordmark);
-    -webkit-text-fill-color: var(--tl-wordmark-paint);
-    transition:
-      opacity 360ms ease,
-      transform 360ms ease;
-    transform-origin: center;
-  }
-
-  .tl-wordmark::before {
-    font-family: var(--tl-wordmark-font);
-    font-size: var(--tl-linefont-size);
     font-style: normal;
     font-weight: 300;
     font-optical-sizing: auto;
     font-variation-settings: "wdth" 112.5;
-    opacity: 1;
-    transform: translateY(-0.08em) scale(var(--tl-linefont-scale));
+    line-height: 1;
+    letter-spacing: 0;
+    text-align: center;
+    transition:
+      opacity 280ms ease,
+      transform 360ms cubic-bezier(0.32, 0.72, 0, 1);
+    transform-origin: center;
+    will-change: opacity, transform;
   }
 
-  .tl-wordmark::after {
-    color: var(--tl-wordmark-hover-paint);
-    font-family: var(--tl-wordmark-hover-font);
-    font-size: var(--tl-hover-font-size);
-    font-style: normal;
-    font-weight: 300;
-    font-variation-settings: normal;
+  .tl-header[data-tl-nav-open="true"] .tl-wordmark {
     opacity: 0;
-    -webkit-text-fill-color: var(--tl-wordmark-hover-paint);
-    transform: translateY(0.18em);
+    transform: translateY(-0.32em) scale(0.96);
   }
 
-  .tl-brand-link:hover .tl-wordmark::before,
-  .tl-brand-link:focus-visible .tl-wordmark::before {
+  .tl-nav-toggle {
+    position: absolute;
+    top: var(--tl-ui-y);
+    right: var(--tl-ui-x);
+    display: none;
+    width: 2.5rem;
+    height: 2.5rem;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--tl-ink);
+    cursor: pointer;
+    pointer-events: auto;
+  }
+
+  .tl-nav-toggle:focus-visible {
+    outline: 2px solid #2f6bff;
+    outline-offset: 4px;
+  }
+
+  .tl-nav-toggle-icon,
+  .tl-nav-toggle-icon::before,
+  .tl-nav-toggle-icon::after {
+    position: absolute;
+    left: 50%;
+    width: 22px;
+    height: 1.5px;
+    background: currentColor;
+    transition:
+      transform 280ms cubic-bezier(0.32, 0.72, 0, 1),
+      opacity 200ms ease;
+    transform: translateX(-50%);
+  }
+
+  .tl-nav-toggle-icon {
+    top: 50%;
+    margin-top: -0.75px;
+  }
+
+  .tl-nav-toggle-icon::before,
+  .tl-nav-toggle-icon::after {
+    content: "";
+  }
+
+  .tl-nav-toggle-icon::before {
+    top: -7px;
+  }
+
+  .tl-nav-toggle-icon::after {
+    top: 7px;
+  }
+
+  .tl-header[data-tl-nav-open="true"] .tl-nav-toggle-icon {
+    background: transparent;
+  }
+
+  .tl-header[data-tl-nav-open="true"] .tl-nav-toggle-icon::before {
+    top: 0;
+    transform: translateX(-50%) rotate(45deg);
+  }
+
+  .tl-header[data-tl-nav-open="true"] .tl-nav-toggle-icon::after {
+    top: 0;
+    transform: translateX(-50%) rotate(-45deg);
+  }
+
+  @media (hover: none), (pointer: coarse) {
+    .tl-nav-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  .tl-nav-panel {
+    position: absolute;
+    top: var(--tl-header-inset);
+    right: var(--tl-header-inset);
+    left: var(--tl-header-inset);
+    height: 33vh;
+    min-height: 15rem;
+    overflow: hidden;
+    border: 1px solid rgba(7, 9, 13, 0.06);
+    border-radius: var(--tl-header-radius);
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: saturate(180%) blur(28px);
+    -webkit-backdrop-filter: saturate(180%) blur(28px);
+    box-shadow: 0 22px 48px -36px rgba(7, 9, 13, 0.28);
+    color: var(--tl-ink);
+    pointer-events: none;
     opacity: 0;
-    transform: translateY(-0.12em) scale(var(--tl-linefont-scale));
+    transform: translateY(-8%);
+    visibility: hidden;
+    isolation: isolate;
+    transition:
+      transform 460ms cubic-bezier(0.32, 0.72, 0, 1),
+      opacity 280ms ease,
+      visibility 0s linear 460ms;
+    will-change: transform, opacity;
   }
 
-  .tl-brand-link:hover .tl-wordmark::after,
-  .tl-brand-link:focus-visible .tl-wordmark::after {
+  .tl-header[data-tl-nav-open="true"] .tl-nav-panel {
+    pointer-events: auto;
     opacity: 1;
-    transform: translateY(0.14em);
+    transform: translateY(0);
+    visibility: visible;
+    transition:
+      transform 460ms cubic-bezier(0.32, 0.72, 0, 1),
+      opacity 220ms ease,
+      visibility 0s linear 0s;
   }
 
-  .tl-header:has(.tl-brand-link:hover),
-  .tl-header:has(.tl-brand-link:focus-visible) {
-    mix-blend-mode: normal;
+  .tl-nav-panel-inner {
+    position: relative;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: clamp(0.7rem, 1.6vh, 1.2rem);
+    height: 100%;
+    padding: clamp(2rem, 4.5vh, 2.8rem) 0 clamp(1rem, 2.5vh, 1.6rem);
+  }
+
+  .tl-nav-brand {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: clamp(6.5rem, 11vw, 8.4rem);
+    height: auto;
+    margin: 0 auto;
+    padding: 0;
+    color: var(--tl-ink);
+    pointer-events: auto;
+  }
+
+  .tl-nav-brand :global(.tl-path-wordmark) {
+    width: 100%;
+    height: auto;
+  }
+
+  .tl-nav-brand :global(.tl-path-wordmark-segment) {
+    animation-play-state: paused;
+  }
+
+  .tl-header[data-tl-nav-open="true"] .tl-nav-brand :global(.tl-path-wordmark-segment) {
+    animation-play-state: running;
+  }
+
+  .tl-nav-rail {
+    --card-width: clamp(4.4rem, 6vw, 5.4rem);
+    --card-half: calc(var(--card-width) / 2);
+    display: flex;
+    align-items: center;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .tl-nav-rail::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+
+  .tl-nav-rail ul {
+    display: inline-flex;
+    gap: clamp(1.9rem, 3.2vw, 3rem);
+    align-items: center;
+    margin: 0;
+    padding: 0 calc(50% - var(--card-half));
+  }
+
+  .tl-nav-card {
+    flex: 0 0 auto;
+    width: var(--card-width);
+    list-style: none;
+  }
+
+  .tl-nav-card a {
+    display: grid;
+    grid-template-rows: auto auto;
+    gap: 0.42rem;
+    width: 100%;
+    height: auto;
+    color: var(--tl-ink);
+    text-decoration: none;
+  }
+
+  .tl-nav-card a:focus-visible {
+    outline: none;
+  }
+
+  .tl-nav-card a:focus-visible .tl-nav-card-visual {
+    outline: 2px solid #2f6bff;
+    outline-offset: 3px;
+  }
+
+  .tl-nav-card-visual {
+    position: relative;
+    display: block;
+    width: 100%;
+    aspect-ratio: var(--tl-entity-card-aspect, 1 / 1);
+    overflow: hidden;
+    background: var(--tl-entity-gradient, var(--tl-soft));
+    box-shadow: var(--tl-gallery-shadow);
+  }
+
+  .tl-nav-card-visual::before {
+    position: absolute;
+    inset: -18%;
+    background: var(--tl-entity-gradient, var(--tl-soft));
+    content: "";
+    transform: rotate(0deg) scale(1.2);
+    transform-origin: var(--tl-gradient-origin, 50% 50%);
+    animation: tl-nav-card-drift var(--tl-gradient-duration, 26s) ease-in-out infinite alternate;
+  }
+
+  @keyframes tl-nav-card-drift {
+    0% {
+      transform: rotate(0deg) scale(1.2) translate3d(-0.4%, -0.25%, 0);
+    }
+
+    50% {
+      transform: rotate(2.4deg) scale(1.215) translate3d(0.25%, 0.45%, 0);
+    }
+
+    100% {
+      transform: rotate(-2deg) scale(1.21) translate3d(0.5%, -0.2%, 0);
+    }
+  }
+
+  .tl-nav-card-visual[data-entity="about"] {
+    --tl-entity-gradient: linear-gradient(135deg, #1a1f2c 0%, #3f4757 60%, #1a1f2c 100%);
+    --tl-gradient-duration: 28s;
+  }
+
+  .tl-nav-card-visual[data-entity="privacy"] {
+    --tl-entity-gradient: linear-gradient(135deg, #11141a 0%, #2a2f3a 60%, #0d0f14 100%);
+    --tl-gradient-duration: 30s;
+  }
+
+  .tl-nav-card-label {
+    display: block;
+    color: var(--tl-ink);
+    font-size: 11px;
+    font-weight: 540;
+    line-height: 1.15;
+    letter-spacing: 0.005em;
+    text-align: center;
+  }
+
+  .tl-nav-card a[aria-current="page"] .tl-nav-card-visual {
+    box-shadow:
+      0 0 0 1.5px var(--tl-ink),
+      var(--tl-gallery-shadow);
+  }
+
+  .tl-nav-card a[aria-current="page"] .tl-nav-card-label {
+    font-weight: 640;
+  }
+
+  @media (max-width: 767px) {
+    .tl-nav-panel {
+      height: 50vh;
+      min-height: 22rem;
+    }
+
+    .tl-nav-panel-inner {
+      padding-top: clamp(2.6rem, 7vh, 3.6rem);
+    }
+
+    .tl-nav-brand {
+      width: clamp(6rem, 28vw, 8rem);
+    }
+
+    .tl-nav-rail {
+      --card-width: 5.4rem;
+    }
+
+    .tl-nav-rail ul {
+      gap: 2rem;
+    }
+
+    .tl-nav-card-label {
+      font-size: 12px;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .tl-wordmark::before,
-    .tl-wordmark::after {
+    .tl-nav-panel,
+    .tl-wordmark,
+    .tl-nav-toggle-icon,
+    .tl-nav-toggle-icon::before,
+    .tl-nav-toggle-icon::after,
+    .tl-nav-card a,
+    .tl-nav-card-visual {
       transition: none;
+    }
+
+    .tl-nav-card-visual::before {
+      animation: none;
+    }
+
+    .tl-header[data-tl-nav-open="true"] .tl-nav-panel {
+      transition: visibility 0s linear 0s;
     }
   }
 </style>

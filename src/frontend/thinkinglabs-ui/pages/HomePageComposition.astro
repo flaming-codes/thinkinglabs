@@ -226,7 +226,6 @@ const halfWidthClamp = (width: string) => {
   @media (min-width: 768px) {
     :global(.tl-shell[data-layout="gallery"][data-active-nav="Index"]) :global(.tl-scroll) {
       overflow: auto hidden;
-      scroll-snap-type: x proximity;
     }
 
     :global(.tl-shell[data-layout="gallery"][data-active-nav="Index"]) :global(.tl-scroll-content),
@@ -255,7 +254,6 @@ const halfWidthClamp = (width: string) => {
     .tl-gallery-card {
       flex: 0 0 auto;
       width: clamp(var(--card-width, 16rem), 18vw, calc(var(--card-width, 16rem) + 9rem));
-      scroll-snap-align: center;
     }
   }
 
