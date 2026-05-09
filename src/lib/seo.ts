@@ -1,4 +1,5 @@
 import { canonicalUrl } from "./structured-data.ts";
+import { SITE_NAME } from "./site.ts";
 
 /** One HTML feed-discovery link emitted by every layout. */
 export interface FeedLink {
@@ -25,6 +26,23 @@ export const DEFAULT_FEED_LINKS: ReadonlyArray<FeedLink> = [
     type: "application/feed+json",
   },
 ];
+
+const TITLE_SEPARATOR = "  ";
+const LEGACY_TITLE_SUFFIX = /\s+(?:[-–—]\s*)?(?:Tom(?:\s+Wild)?|thinkinglabs)$/i;
+const LEGACY_TITLE_PREFIX = /^Tom(?:\s+Wild)?\s*[-–—]\s*/i;
+
+/** Format page metadata titles as "<page>  thinkinglabs" without legacy personal-name copy. */
+export function metadataTitle(pageTitle: string): string {
+  const page = pageTitle
+    .trim()
+    .replace(LEGACY_TITLE_PREFIX, "")
+    .replace(LEGACY_TITLE_SUFFIX, "")
+    .trim();
+
+  return page.length > 0 && page.toLowerCase() !== SITE_NAME
+    ? `${page}${TITLE_SEPARATOR}${SITE_NAME}`
+    : SITE_NAME;
+}
 
 /** Convert feed links to absolute URLs under the configured public site URL. */
 export function absoluteFeedLinks(site: string | URL): ReadonlyArray<FeedLink> {

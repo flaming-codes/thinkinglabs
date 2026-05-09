@@ -10,13 +10,13 @@ import type { Kind } from "../../schemas/index.ts";
 export const prerender = true;
 
 interface OgImageProps {
-  readonly title: string;
+  readonly subtitle: string;
   readonly gradient: ConicGradient;
 }
 
 interface StaticImage {
   readonly path: string;
-  readonly title: string;
+  readonly subtitle: string;
   readonly gradientKey: EntityGradientKey;
 }
 
@@ -60,37 +60,37 @@ const SHARED_ENTITY_GRADIENT_KEYS = [
 const STATIC_IMAGES: ReadonlyArray<StaticImage> = [
   {
     path: "/",
-    title: "thinkinglabs",
+    subtitle: "personal thinking surface",
     gradientKey: "thoughts",
   },
   {
     path: "/now",
-    title: "Now",
+    subtitle: "Now",
     gradientKey: "projects",
   },
   {
     path: "/about",
-    title: "About",
+    subtitle: "About",
     gradientKey: "posts",
   },
   {
     path: "/agents",
-    title: "For agents",
+    subtitle: "For agents",
     gradientKey: "inputs",
   },
   {
     path: "/contact",
-    title: "Contact",
+    subtitle: "Contact",
     gradientKey: "questions",
   },
   {
     path: "/brain-diff",
-    title: "Brain-diff",
+    subtitle: "Brain-diff",
     gradientKey: "changed-my-mind",
   },
   {
     path: "/predictions/calibration",
-    title: "Calibration",
+    subtitle: "Calibration",
     gradientKey: "predictions",
   },
 ];
@@ -100,9 +100,9 @@ const fontCache = new Map<string, Promise<ArrayBuffer>>();
 /** Build one PNG route for every public HTML page and content detail page. */
 export const getStaticPaths: GetStaticPaths = async () => {
   const gradients = await loadSharedEntityGradients();
-  const paths = STATIC_IMAGES.map(({ path, title, gradientKey }) => ({
+  const paths = STATIC_IMAGES.map(({ path, subtitle, gradientKey }) => ({
     params: { slug: pathToOgSlug(path) },
-    props: { title, gradient: gradients[gradientKey] },
+    props: { subtitle, gradient: gradients[gradientKey] },
   }));
 
   for (const kind of LISTING_KINDS) {
@@ -112,7 +112,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
     paths.push({
       params: { slug: pathToOgSlug(route) },
       props: {
-        title: KIND_REGISTRY[kind].listingTitle,
+        subtitle: KIND_REGISTRY[kind].listingTitle,
         gradient: gradients[kind],
       },
     });
@@ -123,7 +123,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
       paths.push({
         params: { slug: pathToOgSlug(`${route}/${entry.id}`) },
         props: {
-          title: titleFor(kind, data, entry.id),
+          subtitle: titleFor(kind, data, entry.id),
           gradient: gradients[kind],
         },
       });
@@ -136,18 +136,13 @@ export const getStaticPaths: GetStaticPaths = async () => {
 /** Render the Satori SVG and convert it to PNG with ReSVG for social crawlers. */
 export const GET: APIRoute = async ({ props }) => {
   const image = props as OgImageProps;
-  const [regular, medium, grapeNuts] = await Promise.all([
-    loadFont("geist", 400),
-    loadFont("geist", 500),
-    loadFont("grape-nuts", 400),
-  ]);
+  const [regular, medium] = await Promise.all([loadFont("geist", 400), loadFont("geist", 500)]);
   const svg = await satori(renderImage(image) as Parameters<typeof satori>[0], {
     width: 1200,
     height: 630,
     fonts: [
       { name: "Geist", data: regular, weight: 400, style: "normal" },
       { name: "Geist", data: medium, weight: 500, style: "normal" },
-      { name: "Grape Nuts", data: grapeNuts, weight: 400, style: "normal" },
     ],
   });
   const png = new Resvg(svg).render().asPng();
@@ -159,14 +154,11 @@ export const GET: APIRoute = async ({ props }) => {
   });
 };
 
-async function loadFont(family: "geist" | "grape-nuts", weight: 400 | 500): Promise<ArrayBuffer> {
+async function loadFont(family: "geist", weight: 400 | 500): Promise<ArrayBuffer> {
   const key = `${family}-${weight}`;
   let cached = fontCache.get(key);
   if (!cached) {
-    const filename =
-      family === "geist"
-        ? `node_modules/@fontsource/geist/files/geist-latin-${weight}-normal.woff`
-        : "node_modules/@fontsource/grape-nuts/files/grape-nuts-latin-400-normal.woff";
+    const filename = `node_modules/@fontsource/geist/files/geist-latin-${weight}-normal.woff`;
     cached = readFile(filename).then((buffer) =>
       buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength),
     );
@@ -252,8 +244,7 @@ async function getKindCollection(kind: Kind) {
 }
 
 function renderImage(image: OgImageProps): SatoriElement {
-  const titleLines = wrapText(image.title, 24, 2);
-  const isWordmarkTitle = image.title === "thinkinglabs";
+  const subtitle = truncateLine(image.subtitle, 54);
 
   return div(
     styles.root,
@@ -267,13 +258,7 @@ function renderImage(image: OgImageProps): SatoriElement {
     ),
     div(
       styles.bottomBlock,
-      div(
-        styles.copy,
-        div(
-          isWordmarkTitle ? styles.wordmarkTitle : styles.title,
-          ...titleLines.map((line) => div(styles.line, line)),
-        ),
-      ),
+      div(styles.copy, div(styles.title, "thinkinglabs"), div(styles.subtitle, subtitle)),
     ),
   );
 }
@@ -398,29 +383,13 @@ function rgbToHex(rgb: { readonly r: number; readonly g: number; readonly b: num
     .join("")}`;
 }
 
-function wrapText(value: string, maxChars: number, maxLines: number): string[] {
-  const words = value.replace(/\s+/g, " ").trim().split(" ");
-  const lines: string[] = [];
-  let current = "";
-  let truncated = false;
-  for (const word of words) {
-    const next = current ? `${current} ${word}` : word;
-    if (next.length <= maxChars) {
-      current = next;
-      continue;
-    }
-    if (lines.length >= maxLines - 1) {
-      truncated = true;
-      continue;
-    }
-    if (current) lines.push(current);
-    current = word;
-  }
-  if (current && lines.length < maxLines) lines.push(current);
-  if (truncated && lines.length === maxLines) {
-    lines[lines.length - 1] = `${(lines[lines.length - 1] ?? "").replace(/[.,;:!?]$/, "")}...`;
-  }
-  return lines.length > 0 ? lines : ["thinkinglabs"];
+function truncateLine(value: string, maxChars: number): string {
+  const normalized = value.replace(/\s+/g, " ").trim();
+  if (normalized.length <= maxChars) return normalized;
+  return `${normalized
+    .slice(0, maxChars - 3)
+    .trimEnd()
+    .replace(/[.,;:!?]$/, "")}...`;
 }
 
 const styles = {
@@ -453,39 +422,35 @@ const styles = {
     width: "100%",
     height: 190,
     background: "#ffffff",
-    paddingLeft: 72,
-    paddingRight: 72,
+    paddingLeft: 56,
+    paddingRight: 56,
   },
   copy: {
     display: "flex",
     flexDirection: "column",
-    alignItems: "center",
+    alignItems: "flex-start",
     justifyContent: "center",
     flexGrow: 1,
   },
   title: {
     display: "flex",
-    flexDirection: "column",
     alignItems: "center",
     color: "#07090d",
-    fontSize: 62,
+    fontFamily: "Geist",
+    fontSize: 42,
     fontWeight: 500,
-    lineHeight: 1.05,
-    textAlign: "center",
+    lineHeight: 1,
+    textAlign: "left",
   },
-  wordmarkTitle: {
+  subtitle: {
     display: "flex",
-    flexDirection: "column",
     alignItems: "center",
-    color: "#07090d",
-    fontFamily: "Grape Nuts",
-    fontSize: 106,
+    color: "rgba(7, 9, 13, 0.42)",
+    fontFamily: "Geist",
+    fontSize: 31,
     fontWeight: 400,
-    lineHeight: 0.95,
-    marginTop: -16,
-    textAlign: "center",
-  },
-  line: {
-    display: "flex",
+    lineHeight: 1,
+    marginTop: 6,
+    textAlign: "left",
   },
 } satisfies Record<string, Record<string, unknown>>;
