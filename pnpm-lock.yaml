@@ -17,6 +17,9 @@ importers:
       '@fontsource/geist':
         specifier: ^5.2.8
         version: 5.2.8
+      '@fontsource/grape-nuts':
+        specifier: ^5.2.8
+        version: 5.2.8
       '@modelcontextprotocol/sdk':
         specifier: ^1.29.0
         version: 1.29.0(zod@4.4.1)
@@ -455,6 +458,9 @@ packages:
 
   '@fontsource/geist@5.2.8':
     resolution: {integrity: sha512-pI54klK6vz8fVpAVyV+iODGLEzw73cs1XJqV9PIXgW8MYMmBcwK6lKKaWqJrNHwEx8ppz9cuhussb6arXQ/PVQ==}
+
+  '@fontsource/grape-nuts@5.2.8':
+    resolution: {integrity: sha512-W8sRbxYavIAps1HbkNiyK6ppvgbIU2lirpd/zCnlVh54M8K+HNB9+EIKibWsUuAvX0d3q7Xd9+hKn64uenE36Q==}
 
   '@hono/node-server@1.19.14':
     resolution: {integrity: sha512-GwtvgtXxnWsucXvbQXkRgqksiH2Qed37H9xHZocE5sA3N8O8O8/8FA3uclQXxXVzc9XBZuEOMK7+r02FmSpHtw==}
@@ -4198,6 +4204,8 @@ snapshots:
     optional: true
 
   '@fontsource/geist@5.2.8': {}
+
+  '@fontsource/grape-nuts@5.2.8': {}
 
   '@hono/node-server@1.19.14(hono@4.12.16)':
     dependencies:
