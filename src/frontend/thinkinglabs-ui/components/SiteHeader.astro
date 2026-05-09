@@ -8,7 +8,10 @@ interface Props {
 const { activeNav = "Index" } = Astro.props;
 
 const navCardAspects = ["3 / 4", "4 / 3", "3 / 4", "1 / 1", "4 / 3", "3 / 4", "1 / 1"];
-const navCardVisuals: Record<string, { gradient: string; duration: string; origin: string }> = {
+const navCardVisuals: Record<
+  string,
+  { gradient: string; duration: string; origin: string; aspect?: string }
+> = {
   claims: {
     gradient: "var(--tl-entity-gradient-claims)",
     duration: "29s",
@@ -54,12 +57,26 @@ const navCardVisuals: Record<string, { gradient: string; duration: string; origi
     duration: "30s",
     origin: "44% 52%",
   },
+  about: {
+    gradient:
+      "conic-gradient(from 212deg at 50% 50%, #f6f7f8 0deg, #bfc3c8 92deg, #373b42 202deg, #d9dce0 306deg, #f6f7f8 360deg)",
+    duration: "28s",
+    origin: "50% 50%",
+    aspect: "1 / 1",
+  },
+  privacy: {
+    gradient:
+      "conic-gradient(from 38deg at 50% 50%, #111317 0deg, #4d5158 86deg, #e4e5e7 184deg, #8c9198 282deg, #111317 360deg)",
+    duration: "30s",
+    origin: "50% 50%",
+    aspect: "1 / 1",
+  },
 };
 
 const navCardStyle = (slug: string, index: number): string => {
   const visual = navCardVisuals[slug];
   const declarations = [
-    `--tl-entity-card-aspect: ${navCardAspects[index % navCardAspects.length] ?? "1 / 1"}`,
+    `--tl-entity-card-aspect: ${visual?.aspect ?? navCardAspects[index % navCardAspects.length] ?? "1 / 1"}`,
   ];
 
   if (visual) {
@@ -79,9 +96,8 @@ const navItems: Array<{
   slug: string;
   group: "entity" | "site";
 }> = [
-  { href: "/claims/", label: "Claims", slug: "claims", group: "entity" },
   { href: "/thoughts/", label: "Thoughts", slug: "thoughts", group: "entity" },
-  { href: "/inputs/", label: "Inputs", slug: "inputs", group: "entity" },
+  { href: "/claims/", label: "Claims", slug: "claims", group: "entity" },
   { href: "/projects/", label: "Projects", slug: "projects", group: "entity" },
   { href: "/predictions/", label: "Predictions", slug: "predictions", group: "entity" },
   {
@@ -93,6 +109,7 @@ const navItems: Array<{
   { href: "/decisions/", label: "Decisions", slug: "decisions", group: "entity" },
   { href: "/questions/", label: "Questions", slug: "questions", group: "entity" },
   { href: "/posts/", label: "Posts", slug: "posts", group: "entity" },
+  { href: "/inputs/", label: "Inputs", slug: "inputs", group: "entity" },
   { href: "/about/", label: "About", slug: "about", group: "site" },
   { href: "/privacy/", label: "Privacy", slug: "privacy", group: "site" },
 ];
@@ -589,14 +606,8 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
     }
   }
 
-  .tl-nav-card-visual[data-entity="about"] {
-    --tl-entity-gradient: linear-gradient(135deg, #1a1f2c 0%, #3f4757 60%, #1a1f2c 100%);
-    --tl-gradient-duration: 28s;
-  }
-
-  .tl-nav-card-visual[data-entity="privacy"] {
-    --tl-entity-gradient: linear-gradient(135deg, #11141a 0%, #2a2f3a 60%, #0d0f14 100%);
-    --tl-gradient-duration: 30s;
+  .tl-nav-card.is-site .tl-nav-card-visual {
+    border-radius: 50%;
   }
 
   .tl-nav-card-label {

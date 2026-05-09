@@ -24,11 +24,13 @@ const halfWidthClamp = (width: string) => {
         class="tl-home-gallery"
         style={`--first-card-half-width: ${halfWidthClamp(firstCardWidth)}; --last-card-half-width: ${halfWidthClamp(lastCardWidth)};`}
       >
-        {kinds.map((kind, index) => (
+        {kinds.map((kind, index) => {
+          const cardAspect = aspectByIndex[index % aspectByIndex.length] ?? "1 / 1";
+          return (
           <article
             class="tl-gallery-card"
             data-selected-label={kind.title}
-            style={`--card-width: ${widthByIndex[index % widthByIndex.length]}; --card-width-mobile: ${index % 3 === 1 ? "18rem" : "13.5rem"}; --card-aspect: ${aspectByIndex[index % aspectByIndex.length]};`}
+            style={`--card-width: ${widthByIndex[index % widthByIndex.length]}; --card-width-mobile: ${index % 3 === 1 ? "18rem" : "13.5rem"}; --card-aspect: ${cardAspect}; --tl-entity-card-aspect: ${cardAspect};`}
           >
             <a class="tl-gallery-link" href={kind.href} aria-label={`${kind.title}: ${kind.description}`}>
               <span class="tl-gallery-label" aria-hidden="true">
@@ -41,7 +43,8 @@ const halfWidthClamp = (width: string) => {
               </span>
             </a>
           </article>
-        ))}
+          );
+        })}
       </div>
     </section>
   </div>
