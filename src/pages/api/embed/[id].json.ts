@@ -14,10 +14,16 @@ export const GET: APIRoute = ({ params }) => {
   if (!tool) {
     return new Response(JSON.stringify({ error: "embed not found" }), {
       status: 404,
-      headers: { "content-type": "application/json; charset=utf-8" },
+      headers: {
+        "cache-control": "public, max-age=300, stale-while-revalidate=86400",
+        "content-type": "application/json; charset=utf-8",
+      },
     });
   }
   return new Response(JSON.stringify(tool, null, 2), {
-    headers: { "content-type": "application/json; charset=utf-8" },
+    headers: {
+      "cache-control": "public, max-age=300, stale-while-revalidate=86400",
+      "content-type": "application/json; charset=utf-8",
+    },
   });
 };

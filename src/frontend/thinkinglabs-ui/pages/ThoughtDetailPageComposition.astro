@@ -65,3 +65,50 @@ const { thought } = Astro.props;
     </div>
   </section>
 </AppShell>
+
+<style>
+  .tl-prose-shell,
+  .tl-aside-block {
+    width: var(--tl-center);
+    margin-inline: auto;
+  }
+
+  .tl-rel-list {
+    display: grid;
+  }
+
+  .tl-rel-row,
+  .tl-history-row {
+    position: relative;
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr) auto;
+    gap: 22px;
+    align-items: baseline;
+    padding: 30px 0;
+    border-bottom: 1px solid var(--tl-line);
+  }
+
+  .tl-rel-row h3 {
+    font-size: clamp(25px, 3vw, 38px);
+    font-weight: 600;
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+  }
+
+  .tl-aside-block {
+    padding-bottom: 18vh;
+  }
+
+  @media (max-width: 767px) {
+    .tl-prose-shell,
+    .tl-aside-block {
+      width: min(100% - 40px, 43.75rem);
+    }
+
+    .tl-rel-row,
+    .tl-history-row {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+  }
+</style>

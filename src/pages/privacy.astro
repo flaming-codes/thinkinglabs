@@ -1,0 +1,131 @@
+---
+import AppShell from "../frontend/thinkinglabs-ui/components/AppShell.astro";
+import ThinkinglabsUiPage from "../layouts/ThinkinglabsUiPage.astro";
+---
+
+<ThinkinglabsUiPage
+  title="Privacy — thinkinglabs"
+  description="thinkinglabs does not track visitors. No analytics, no cookies, no fingerprinting."
+>
+  <AppShell activeNav="Index">
+    <section class="tl-page-head is-spacious">
+      <div class="tl-eyebrow">/privacy</div>
+      <h1>Privacy.</h1>
+    </section>
+
+    <section class="tl-privacy-lede">
+      <p>This site does not track you.</p>
+      <p>
+        No analytics. No cookies set by the site. No fingerprinting. No pixels, no logs of who you
+        are, no tooling that quietly aggregates a profile of your reading habits.
+      </p>
+    </section>
+
+    <section class="tl-privacy-grid">
+      <article>
+        <div class="tl-eyebrow">What is collected</div>
+        <h3>Nothing about you.</h3>
+        <p>
+          The site is static HTML rebuilt from a markdown repository. There is no application
+          server reading your requests, no third-party SDK loaded into the page, no
+          client-side analytics call.
+        </p>
+      </article>
+
+      <article>
+        <div class="tl-eyebrow">What is stored</div>
+        <h3>Nothing on your device.</h3>
+        <p>
+          No first-party or third-party cookies. No localStorage, no sessionStorage, no IndexedDB
+          writes. If your browser has any storage entries from this origin, they are not put there
+          by this site.
+        </p>
+      </article>
+
+      <article>
+        <div class="tl-eyebrow">Server logs</div>
+        <h3>The host may keep request logs.</h3>
+        <p>
+          Edge or origin infrastructure can keep transient request logs (IP, path, user agent) for
+          operational reasons such as abuse mitigation. Those logs are not read, joined, or shared
+          by the site itself.
+        </p>
+      </article>
+
+      <article>
+        <div class="tl-eyebrow">Embedded media</div>
+        <h3>External links open elsewhere.</h3>
+        <p>
+          Links to other domains follow your browser's normal behaviour and may be subject to those
+          sites' policies. Nothing is embedded inline that loads scripts or images from a tracker.
+        </p>
+      </article>
+
+      <article>
+        <div class="tl-eyebrow">Contact</div>
+        <h3>Reach out directly.</h3>
+        <p>
+          Questions about privacy or anything else go through the channels listed on
+          <a href="/contact/">/contact</a>. The site has no form handlers.
+        </p>
+      </article>
+    </section>
+  </AppShell>
+</ThinkinglabsUiPage>
+
+<style>
+  .tl-privacy-lede {
+    width: var(--tl-center);
+    margin: 0 auto;
+    padding: 6vh 0 9vh;
+    color: rgba(7, 9, 13, 0.78);
+    font-size: clamp(20px, 2.4vw, 30px);
+    font-weight: 480;
+    line-height: 1.32;
+    letter-spacing: -0.012em;
+  }
+
+  .tl-privacy-lede p + p {
+    margin-top: 1.2em;
+    font-size: 17px;
+    line-height: 1.7;
+    color: rgba(7, 9, 13, 0.62);
+  }
+
+  .tl-privacy-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(2.4rem, 4vw, 3.4rem) clamp(2rem, 4vw, 3rem);
+    width: var(--tl-center);
+    margin: 0 auto 18vh;
+    padding-top: 4vh;
+    border-top: 1px solid var(--tl-line);
+  }
+
+  .tl-privacy-grid h3 {
+    margin-top: 8px;
+    font-size: clamp(18px, 2vw, 22px);
+    font-weight: 580;
+    line-height: 1.22;
+    letter-spacing: -0.018em;
+  }
+
+  .tl-privacy-grid p {
+    margin-top: 10px;
+    color: rgba(7, 9, 13, 0.64);
+    font-size: 14px;
+    line-height: 1.65;
+  }
+
+  .tl-privacy-grid a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  @media (max-width: 767px) {
+    .tl-privacy-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

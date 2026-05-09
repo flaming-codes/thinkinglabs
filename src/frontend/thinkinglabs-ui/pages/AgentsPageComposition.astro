@@ -1,4 +1,6 @@
 ---
+import { existsSync } from "node:fs";
+import { resolve } from "node:path";
 import AppShell from "../components/AppShell.astro";
 import { GITHUB_URL } from "../../../lib/site.ts";
 
@@ -61,9 +63,21 @@ const apis: { url: string; description: string }[] = [
   { url: "/api/changed-my-mind.json", description: "Public reversals with before/after." },
 ];
 
+const publicFileExists = (path: string) => existsSync(resolve(process.cwd(), "public", path));
+const optionalFeeds: { url: string; file: string; description: string }[] = [
+  {
+    url: "/feed/brain-diff.xml",
+    file: "feed/brain-diff.xml",
+    description: "Substantive changes across all kinds (Atom).",
+  },
+  {
+    url: "/feed/brain-diff.json",
+    file: "feed/brain-diff.json",
+    description: "Same brain-diff, JSON Feed 1.1.",
+  },
+];
 const feeds: { url: string; description: string }[] = [
-  { url: "/feed/brain-diff.xml", description: "Substantive changes across all kinds (Atom)." },
-  { url: "/feed/brain-diff.json", description: "Same brain-diff, JSON Feed 1.1." },
+  ...optionalFeeds.filter((feed) => publicFileExists(feed.file)),
   { url: "/feed/predictions-resolved.json", description: "Predictions transitioning out of pending." },
   { url: "/feed/claims-revised.json", description: "Claims with non-active status or supersedes links." },
   { url: "/feed/decisions-reversed.json", description: "Decisions marked reversed, superseded, or with a `reverses` link." },
@@ -75,9 +89,9 @@ const feeds: { url: string; description: string }[] = [
     <div class="tl-eyebrow">/agents</div>
     <h1>For agents.</h1>
     <p class="tl-page-sub">
-      A markdown corpus exposed as machine-readable surfaces — an index, a remote MCP endpoint,
-      JSON APIs, and brain-diff feeds — so language models, scrapers, and your own scripts can
-      read this site without parsing HTML or cloning the repo.
+        A markdown corpus exposed as machine-readable surfaces — an index, a remote MCP endpoint,
+        JSON APIs, and feeds — so language models, scrapers, and your own scripts can read this site
+        without parsing HTML or cloning the repo.
     </p>
   </section>
 
@@ -232,18 +246,17 @@ const feeds: { url: string; description: string }[] = [
 
   <section>
     <header class="tl-about-section-head is-compact">
-      <div class="tl-eyebrow">04 / Brain-diff feeds</div>
+      <div class="tl-eyebrow">04 / feeds</div>
       <h2>
         Subscribe to the
         <br />
-        deltas, not the dump.
+        deltas.
       </h2>
     </header>
     <div class="tl-agents-prose">
       <p>
-        The brain-diff is a filtered view of substantive changes — claim revisions, prediction
-        resolutions, decision reversals — derived from git history. Boring edits are dropped so a
-        feed reader sees only the meaningful updates.
+        The deterministic feeds are regenerated on every build. Brain-diff feeds are added to the
+        public surface list when the local artifact pipeline has generated them.
       </p>
     </div>
     <div class="tl-agents-list">
@@ -307,3 +320,82 @@ pnpm mcp:thinkinglabs -- --repo-root .`}</code></pre>
     </div>
   </section>
 </AppShell>
+
+<style>
+  .tl-agents-thesis,
+  .tl-agents-list {
+    width: var(--tl-center);
+    margin-inline: auto;
+  }
+
+  .tl-agents-thesis p {
+    color: var(--tl-muted);
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  .tl-agents-prose {
+    color: rgba(7, 9, 13, 0.76);
+    font-size: 17px;
+    line-height: 1.78;
+  }
+
+  .tl-about-section-head,
+  .tl-agents-subhead {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 0 0 18px;
+    border-bottom: 1px solid var(--tl-line);
+  }
+
+  .tl-about-section-head.is-compact {
+    padding-top: 64px;
+  }
+
+  .tl-agents-list {
+    display: grid;
+  }
+
+  .tl-agents-row {
+    position: relative;
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr) auto;
+    gap: 22px;
+    align-items: baseline;
+    padding: 30px 0;
+    border-bottom: 1px solid var(--tl-line);
+  }
+
+  .tl-agents-tool-title,
+  .tl-about-section-head h2 {
+    font-size: clamp(25px, 3vw, 38px);
+    font-weight: 600;
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+  }
+
+  .tl-agents-code-block {
+    background: var(--tl-panel);
+    box-shadow: var(--tl-shadow);
+    padding: clamp(1.1rem, 3vw, 2rem);
+  }
+
+  .tl-agents-uri {
+    font-family: var(--tl-font);
+    font-size: 0.88em;
+  }
+
+  @media (max-width: 767px) {
+    .tl-agents-thesis,
+    .tl-agents-list {
+      width: min(100% - 40px, 43.75rem);
+    }
+
+    .tl-agents-row {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+  }
+</style>

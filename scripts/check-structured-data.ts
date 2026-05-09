@@ -34,8 +34,20 @@ function main(): void {
     const rel = relative(dist, file);
     const canonical = extractTagValue(html, /<link\b[^>]*rel="canonical"[^>]*href="([^"]+)"/);
     const ogUrl = extractTagValue(html, /<meta\b[^>]*property="og:url"[^>]*content="([^"]+)"/);
+    const ogImage = extractTagValue(html, /<meta\b[^>]*property="og:image"[^>]*content="([^"]+)"/);
+    const twitterCard = extractTagValue(
+      html,
+      /<meta\b[^>]*name="twitter:card"[^>]*content="([^"]+)"/,
+    );
+    const twitterImage = extractTagValue(
+      html,
+      /<meta\b[^>]*name="twitter:image"[^>]*content="([^"]+)"/,
+    );
     assert(canonical.startsWith(`${SITE}/`), rel, `canonical must be absolute under ${SITE}`);
     assert(ogUrl === canonical, rel, "og:url must match canonical");
+    assert(ogImage.startsWith(`${SITE}/og/`), rel, `og:image must be absolute under ${SITE}/og/`);
+    assert(twitterCard === "summary_large_image", rel, "twitter:card must use summary_large_image");
+    assert(twitterImage === ogImage, rel, "twitter:image must match og:image");
 
     const jsonLd = extractJsonLd(html, rel);
     assert(jsonLd["@context"] === "https://schema.org", rel, "JSON-LD context must be schema.org");

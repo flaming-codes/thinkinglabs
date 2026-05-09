@@ -53,3 +53,29 @@ const { now } = Astro.props;
     </article>
   </section>
 </AppShell>
+
+<style>
+  .tl-now-two-col {
+    width: var(--tl-center);
+    margin-inline: auto;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+    padding: 8vh 0;
+  }
+
+  .tl-now-two-col h2 {
+    font-size: clamp(25px, 3vw, 38px);
+    font-weight: 600;
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+  }
+
+  @media (max-width: 767px) {
+    .tl-now-two-col {
+      width: min(100% - 40px, 43.75rem);
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+  }
+</style>

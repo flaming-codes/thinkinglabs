@@ -98,3 +98,63 @@ const { kinds } = Astro.props;
     </div>
   </section>
 </AppShell>
+
+<style>
+  .tl-about-prose-grid {
+    width: var(--tl-center);
+    margin-inline: auto;
+  }
+
+  .tl-about-lede {
+    color: rgba(7, 9, 13, 0.76);
+    font-size: 17px;
+    line-height: 1.78;
+  }
+
+  .tl-about-section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 0 0 18px;
+    border-bottom: 1px solid var(--tl-line);
+  }
+
+  .tl-about-kind-row {
+    position: relative;
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr) auto;
+    gap: 22px;
+    align-items: baseline;
+    padding: 30px 0;
+    border-bottom: 1px solid var(--tl-line);
+  }
+
+  .tl-about-kind-row h3,
+  .tl-about-section-head h2 {
+    font-size: clamp(25px, 3vw, 38px);
+    font-weight: 600;
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+  }
+
+  .tl-about-prose-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+    padding: 8vh 0;
+  }
+
+  @media (max-width: 767px) {
+    .tl-about-prose-grid {
+      width: min(100% - 40px, 43.75rem);
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .tl-about-kind-row {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+  }
+</style>

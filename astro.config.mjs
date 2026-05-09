@@ -7,8 +7,24 @@ import rehypeSectionFreshness from "./src/markdown/rehype-section-freshness.ts";
 export default defineConfig({
   site: env().SITE_URL,
   trailingSlash: "ignore",
+  devToolbar: {
+    enabled: false,
+  },
   markdown: {
     remarkPlugins: [remarkSectionFreshness],
     rehypePlugins: [rehypeSectionFreshness],
+  },
+  vite: {
+    ssr: {
+      external: ["@resvg/resvg-js"],
+    },
+    build: {
+      rollupOptions: {
+        external: ["@resvg/resvg-js"],
+      },
+    },
+    optimizeDeps: {
+      exclude: ["@resvg/resvg-js"],
+    },
   },
 });

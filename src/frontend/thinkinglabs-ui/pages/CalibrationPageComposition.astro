@@ -147,3 +147,62 @@ const { calibration } = Astro.props;
     });
   }
 </script>
+
+<style>
+  .tl-metric-grid,
+  .tl-chart-shell {
+    width: var(--tl-center);
+    margin-inline: auto;
+  }
+
+  .tl-metric-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+    padding: 8vh 0;
+  }
+
+  .tl-chart-shell,
+  .embedded-tool {
+    background: var(--tl-panel);
+    box-shadow: var(--tl-shadow);
+    padding: clamp(1.1rem, 3vw, 2rem);
+  }
+
+  .tl-chart-shell h2 {
+    font-size: clamp(25px, 3vw, 38px);
+    font-weight: 600;
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+  }
+
+  .tl-calibration-row {
+    position: relative;
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr) auto;
+    gap: 22px;
+    align-items: baseline;
+    padding: 30px 0;
+    border-bottom: 1px solid var(--tl-line);
+  }
+
+  .tl-claim-conf-big {
+    font-size: clamp(32px, 5vw, 70px);
+    font-weight: 650;
+    line-height: 0.9;
+    letter-spacing: -0.05em;
+  }
+
+  @media (max-width: 767px) {
+    .tl-metric-grid,
+    .tl-chart-shell {
+      width: min(100% - 40px, 43.75rem);
+    }
+
+    .tl-metric-grid,
+    .tl-calibration-row {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+  }
+</style>

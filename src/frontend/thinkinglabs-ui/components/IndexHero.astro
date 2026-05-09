@@ -26,3 +26,36 @@ const cleanEyebrow = eyebrow.replace(/^§\s*/, "");
     </>
   )}
 </section>
+
+<style>
+  .tl-index-hero {
+    width: var(--tl-center);
+    min-height: 72vh;
+    display: grid;
+    align-content: end;
+    margin-inline: auto;
+    padding: 18vh 0 10vh;
+  }
+
+  .tl-index-hero h1 {
+    margin: 14px 0 0;
+    font-size: clamp(44px, 7vw, 92px);
+    font-weight: 650;
+    line-height: 0.9;
+    letter-spacing: -0.05em;
+    text-transform: uppercase;
+  }
+
+  .tl-index-hero-deck {
+    margin: 0;
+    color: var(--tl-muted);
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  @media (max-width: 767px) {
+    .tl-index-hero {
+      width: min(100% - 40px, 43.75rem);
+    }
+  }
+</style>

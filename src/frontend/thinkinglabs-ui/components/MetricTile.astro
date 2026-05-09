@@ -13,3 +13,27 @@ const { label, value, hint } = Astro.props;
   <div class="tl-metric-value">{value}</div>
   {hint && <div class="tl-metric-hint">{hint}</div>}
 </div>
+
+<style>
+  .tl-metric-tile {
+    background: var(--tl-panel);
+    box-shadow: var(--tl-shadow);
+    padding: clamp(1.1rem, 3vw, 2rem);
+  }
+
+  .tl-metric-label,
+  .tl-metric-hint {
+    color: inherit;
+    font-size: 11px;
+    font-weight: 650;
+    line-height: 1;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+  }
+
+  .tl-metric-hint {
+    color: var(--tl-muted);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+  }
+</style>

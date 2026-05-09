@@ -17,3 +17,38 @@ const { stats } = Astro.props;
     </div>
   ))}
 </section>
+
+<style>
+  .tl-stat-band {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+    width: var(--tl-center);
+    margin-inline: auto;
+    padding: 8vh 0;
+  }
+
+  .tl-stat-label,
+  .tl-stat-sub {
+    color: inherit;
+    font-size: 11px;
+    font-weight: 650;
+    line-height: 1;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+  }
+
+  .tl-stat-sub {
+    color: var(--tl-muted);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+  }
+
+  @media (max-width: 767px) {
+    .tl-stat-band {
+      grid-template-columns: 1fr;
+      gap: 12px;
+      width: min(100% - 40px, 43.75rem);
+    }
+  }
+</style>
