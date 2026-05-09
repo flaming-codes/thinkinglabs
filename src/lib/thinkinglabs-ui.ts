@@ -36,7 +36,7 @@ import type { Kind } from "../schemas/index.ts";
 import { KINDS } from "../schemas/index.ts";
 import { calibration } from "./calibration.ts";
 import type { ClaimHistoryEntry } from "./claim-history.ts";
-import { formatDate } from "./route-helpers.ts";
+import { detailHref, formatDate, listingHref } from "./entity-routes.ts";
 import { KIND_REGISTRY, LISTING_KINDS, titleFor } from "./registry.ts";
 import { stripKindPrefix, stripMdExt } from "./refs.ts";
 import type { FileHistoryEntry } from "./git.ts";
@@ -76,6 +76,10 @@ function stripInlineMarkdown(text: string): string {
     .trim();
 }
 
+function stripHeadingAttributeBlock(text: string): string {
+  return text.replace(/\s+\{[^}]*\}\s*$/, "").trim();
+}
+
 function markdownParagraphs(markdown: string): string[] {
   return markdown
     .split(/\n{2,}/)
@@ -113,11 +117,11 @@ function parseRef(ref: string, fallbackKind: Kind): { kind: Kind; slug: string; 
   if (maybeKind !== undefined && KIND_SET.has(maybeKind as Kind) && rest.length > 0) {
     const kind = maybeKind as Kind;
     const slug = rest.join("/");
-    return { kind, slug, href: `/${kind}/${slug}` };
+    return { kind, slug, href: detailHref(kind, slug) };
   }
 
   const slug = stripKindPrefix(normalized);
-  return { kind: fallbackKind, slug, href: `/${fallbackKind}/${slug}` };
+  return { kind: fallbackKind, slug, href: detailHref(fallbackKind, slug) };
 }
 
 function titleFromLookup(
@@ -176,7 +180,7 @@ function buildSections(body: string): PostSection[] {
     const match = line.match(/^##\s+(.*)$/);
     if (match) {
       pushCurrent();
-      currentTitle = stripInlineMarkdown(match[1] ?? "Section");
+      currentTitle = stripInlineMarkdown(stripHeadingAttributeBlock(match[1] ?? "Section"));
       continue;
     }
     buffer.push(line);
@@ -295,7 +299,7 @@ export function mapHomeKinds(counts: CountByKind): KindSummary[] {
     description: KIND_REGISTRY[kind].description,
     count: counts[kind] ?? 0,
     accent: KIND_REGISTRY[kind].detailTitle,
-    href: `/${kind}`,
+    href: listingHref(kind),
   }));
 }
 
@@ -306,7 +310,7 @@ export function mapAboutKinds(counts: CountByKind): AboutKind[] {
     name: KIND_REGISTRY[kind].listingTitle,
     gloss: KIND_REGISTRY[kind].description,
     count: counts[kind] ?? 0,
-    href: `/${kind}`,
+    href: listingHref(kind),
   }));
 }
 
@@ -338,7 +342,7 @@ export function mapNowData(args: {
       currentQ: project.data.current_question ?? "No current question logged yet.",
       since: formatDate(project.data.started),
       pulse: pulseFromDate(project.data.last_touched ?? project.data.started),
-      href: `/projects/${project.id}`,
+      href: detailHref("projects", project.id),
     })),
     reading: sortedInputs.slice(0, 5).map((input) => {
       const source = input.data.source ? ` — ${input.data.source}` : "";
@@ -364,7 +368,7 @@ export function mapClaimSummaries(
       evidence: claim.data.evidence.length,
       opposing: claim.data.opposing.length,
       tags: claim.data.tags,
-      href: `/claims/${claim.id}`,
+      href: detailHref("claims", claim.id),
     }));
 }
 
@@ -452,7 +456,7 @@ export function mapThoughtSummaries(
         state: thoughtState(thought.data.tags),
         touched: formatDate(thought.data.updated),
         backlinks: thought.data.claims.length + thought.data.inputs.length,
-        href: `/thoughts/${thought.id}`,
+        href: detailHref("thoughts", thought.id),
       };
     });
 }
@@ -559,7 +563,7 @@ export function mapPostSummaries(posts: ReadonlyArray<CollectionEntry<"posts">>)
       words,
       topic: postTopic(post.data.tags),
       ...(index === 0 ? { featured: true } : {}),
-      href: `/posts/${post.id}`,
+      href: detailHref("posts", post.id),
     };
   });
 }
@@ -663,7 +667,7 @@ export function mapCalibrationData(
       ...(entry.data.resolution === "true" || entry.data.resolution === "false"
         ? { resolved: formatDate(entry.data.resolved_on ?? entry.data.resolves) }
         : { due: formatDate(entry.data.resolves) }),
-      href: `/predictions/${entry.id}`,
+      href: detailHref("predictions", entry.id),
     }));
 
   return {
@@ -715,7 +719,7 @@ export function mapProjectsView(args: {
       stack: entry.data.tags.join(" · ") || "—",
       why: entry.data.help_welcome ?? "—",
       next: entry.data.current_question ?? "Awaiting next move.",
-      href: `/projects/${entry.id}`,
+      href: detailHref("projects", entry.id),
     };
   });
 
@@ -756,7 +760,7 @@ export function mapPredictionsView(args: {
         topic: predictionTopic(entry.data.tags),
         outcome: entry.data.resolution as "true" | "false",
         resolvedDate: formatDate(entry.data.resolved_on ?? entry.data.resolves),
-        href: `/predictions/${entry.id}`,
+        href: detailHref("predictions", entry.id),
       });
     } else {
       const dueIso = entry.data.resolves;
@@ -768,7 +772,7 @@ export function mapPredictionsView(args: {
         days: daysBetween(dueIso, now),
         state: "open",
         topic: predictionTopic(entry.data.tags),
-        href: `/predictions/${entry.id}`,
+        href: detailHref("predictions", entry.id),
       });
     }
   }
@@ -852,7 +856,7 @@ export function mapChangedMyMindView(args: {
       confNow,
       tipper: entry.data.what_changed,
       topic: entry.data.tags[0] ?? "general",
-      href: `/changed-my-mind/${entry.id}`,
+      href: detailHref("changed-my-mind", entry.id),
     };
   });
 
@@ -900,7 +904,7 @@ export function mapDecisionsView(
     ...(entry.data.reverses[0]
       ? { reversedBy: stripKindPrefix(stripMdExt(entry.data.reverses[0])) }
       : {}),
-    href: `/decisions/${entry.id}`,
+    href: detailHref("decisions", entry.id),
   }));
 
   const active = rows.filter((row) => row.state === "active");
@@ -947,7 +951,7 @@ export function mapQuestionsView(args: {
     wouldResolve: entry.data.ideal_responder ?? "An informed take.",
     topic: entry.data.tags[0] ?? "general",
     related: entry.data.attempts.slice(0, 2),
-    href: `/questions/${entry.id}`,
+    href: detailHref("questions", entry.id),
   }));
 
   const hotCount = questions.filter((q) => q.heat >= 4).length;
@@ -991,7 +995,7 @@ export function mapInputsView(args: {
       date: formatDate(entry.data.consumed),
       influence: args.citationsBySlug?.get(entry.id) ?? 0,
       note: entry.data.note ?? "—",
-      href: `/inputs/${entry.id}`,
+      href: detailHref("inputs", entry.id),
     };
   });
 

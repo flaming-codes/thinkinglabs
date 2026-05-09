@@ -7,20 +7,21 @@ Personal agentic space — a public operating surface for my work. The git repo 
 ```sh
 pnpm install
 pnpm dev               # Astro dev server for the site
+pnpm build             # static build + dist/index.sqlite
 pnpm storybook         # Storybook v10 dev server for UI review with mocks
 pnpm storybook:build   # Storybook static build
 pnpm artifacts         # offline artifact build: brain-diff feeds, site, llms.txt, JSON feeds, dist/index.sqlite
 pnpm artifacts:scored  # same artifact build, but require LLM-scored brain-diff output
-pnpm verify            # local verification: empty-content path + fixture-content path
+pnpm verify            # local verification: typecheck, checks, build, metadata, index, tests
 pnpm setup:e2e         # install Chromium for local Playwright runs
-pnpm test:e2e          # build fixtures, then run Playwright against the fixture preview
+pnpm test:e2e          # build, then run Playwright against the preview
 pnpm verify:full       # verify + e2e in one shot
 pnpm build:index       # rebuild dist/index.sqlite (the agent-facing query layer)
 pnpm mcp:thinkinglabs       # run the personal MCP server over stdio
 pnpm mcp:thinkinglabs:http   # run the same server over Streamable HTTP (remote, default :8787)
 ```
 
-`pnpm verify` runs both validation shapes that used to live in hosted automation: the empty-content path runs typecheck, `vp check`, site build, structured-data check, index generation, and tests; the fixture path builds seeded fixture pages and checks their structured data. Day-to-day, use `pnpm dev` while writing and `pnpm artifacts` after content edits to regenerate every local derived artifact. Use `pnpm artifacts:scored` when `OPENAI_API_KEY` (or `OLLAMA_API_KEY` with `LLM_PROVIDER=ollama`) is set and you want publish-quality brain-diff summaries.
+`pnpm verify` runs the local validation path: typecheck, `vp check`, site build, structured-data check, index generation, and tests. Day-to-day, use `pnpm dev` while writing and `pnpm artifacts` after content edits to regenerate every local derived artifact. Use `pnpm artifacts:scored` when `OPENAI_API_KEY` (or `OLLAMA_API_KEY` with `LLM_PROVIDER=ollama`) is set and you want publish-quality brain-diff summaries.
 
 ## Storybook UI review surfaces
 
@@ -74,8 +75,8 @@ flowchart TB
     Dev["pnpm dev<br/>interactive site work"]
     Artifacts["pnpm artifacts<br/>offline local artifacts"]
     ArtifactsScored["pnpm artifacts:scored<br/>publish-quality brain-diff"]
-    Verify["pnpm verify<br/>empty + fixture validation"]
-    E2E["pnpm test:e2e<br/>fixture build + Playwright"]
+    Verify["pnpm verify<br/>build + checks + tests"]
+    E2E["pnpm test:e2e<br/>build + Playwright"]
     McpCommand["pnpm mcp:thinkinglabs<br/>stdio MCP server"]
     McpHttpCommand["pnpm mcp:thinkinglabs:http<br/>remote Streamable HTTP MCP server"]
   end

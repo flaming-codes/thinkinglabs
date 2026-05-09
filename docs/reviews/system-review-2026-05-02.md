@@ -78,9 +78,9 @@ Make MCP call the shared `calibration()` helper and adapt only the response enve
 
 Evidence:
 
-- `pnpm verify` runs `pnpm build` and `pnpm check:structured-data`, but does not run `pnpm build:fixtures`.
-- The removed hosted workflow ran `pnpm build:fixtures` in its fixture matrix but did not run `check:structured-data`.
-- `scripts/check-structured-data.ts` has fixture-specific assertions that no default gate reliably exercises after fixture build.
+- `pnpm verify` ran `pnpm build` and `pnpm check:structured-data`, but did not validate seeded detail pages.
+- The removed hosted workflow built seeded content in its matrix but did not run `check:structured-data`.
+- `scripts/check-structured-data.ts` had seeded-content assertions that no default gate reliably exercised.
 
 Why it matters:
 
@@ -88,9 +88,11 @@ Local and hosted verification did not validate the same artifact shapes. Fixture
 
 Action:
 
-Split explicit scripts such as `check:structured-data:empty` and `check:structured-data:fixtures`, then make `pnpm verify` run both shapes locally.
+Make local verification cover the same artifact shape as hosted validation, including detail-page structured data.
 
-Current resolution (2026-05-03): `pnpm verify` now runs `verify:empty` plus `verify:fixtures`; `verify:empty` covers typecheck, `vp check`, empty site build, structured-data, index, and tests, while `verify:fixtures` covers fixture build plus fixture structured-data.
+Historical resolution (2026-05-03): `pnpm verify` was split into separate empty-content and seeded-content paths.
+
+Superseded (2026-05-10): seeded fixture builds were removed after real content landed. `pnpm verify` now runs one real-content path covering typecheck, `vp check`, site build, structured-data, index generation, and tests.
 
 ### P1. Add Browser/E2E Coverage
 
@@ -106,7 +108,7 @@ Astro build and Vitest tests do not prove browser behavior, fallback rendering, 
 
 Action:
 
-Add a small Playwright gate against `astro preview` after fixture build. Cover `/predictions/calibration`, the local record flow, no-JS fallback, top navigation, and at least one `/api/*.json` endpoint.
+Add a small Playwright gate against `astro preview` after a normal build. Cover `/predictions/calibration`, the local record flow, no-JS fallback, top navigation, and at least one `/api/*.json` endpoint.
 
 ### P1. Fix Stale LLM Provider Wiring In Hosted Automation And Env Docs
 

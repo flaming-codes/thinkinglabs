@@ -1,5 +1,6 @@
 import { getCollection, type CollectionEntry } from "astro:content";
 import type { Kind } from "../schemas/index.ts";
+export { detailHref, formatDate, listingHref } from "./entity-routes.ts";
 
 /** Return shape for a single kind-detail static path; preserves the typed `entry` so Astro pages keep `data` inference. */
 export interface KindStaticPath<K extends Kind> {
@@ -14,10 +15,4 @@ export async function getKindStaticPaths<K extends Kind>(kind: K): Promise<KindS
     params: { slug: entry.id },
     props: { entry },
   }));
-}
-
-/** Format an ISO date or Date for display; returns the YYYY-MM-DD prefix used across listings. */
-export function formatDate(d: Date | string): string {
-  const iso = typeof d === "string" ? d : d.toISOString();
-  return iso.slice(0, 10);
 }
