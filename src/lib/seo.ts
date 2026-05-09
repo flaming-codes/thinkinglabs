@@ -59,6 +59,11 @@ export function ogImageUrl(pathname: string, site: string | URL): string {
   return canonicalUrl(`/og/${slug}.png`, site);
 }
 
+/** Resolve the canonical square logo URL for metadata consumers that support it. */
+export function logoUrl(site: string | URL): string {
+  return canonicalUrl("/maskable-icon-512x512.png", site);
+}
+
 /** Resolve the canonical sitemap URL for robots.txt and crawler metadata. */
 export function sitemapUrl(site: string | URL): string {
   return canonicalUrl("/sitemap.xml", site);

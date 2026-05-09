@@ -2,7 +2,7 @@
 import "../frontend/thinkinglabs-ui/styles.css";
 import JsonLd from "../components/JsonLd.astro";
 import PwaHead from "../components/PwaHead.astro";
-import { absoluteFeedLinks, metadataTitle, ogImageUrl } from "../lib/seo.ts";
+import { absoluteFeedLinks, logoUrl, metadataTitle, ogImageUrl } from "../lib/seo.ts";
 import { buildPageGraph, canonicalUrl, type StructuredData } from "../lib/structured-data.ts";
 import { SITE_NAME } from "../lib/site.ts";
 
@@ -18,6 +18,7 @@ const { title, description, structuredData, ogType = "website", robots } = Astro
 const site = Astro.site ?? new URL(Astro.url.origin);
 const canonical = canonicalUrl(Astro.url.pathname, site);
 const image = ogImageUrl(Astro.url.pathname, site);
+const logo = logoUrl(site);
 const titleMeta = metadataTitle(title);
 const imageAlt = `${titleMeta} social card`;
 const feeds = absoluteFeedLinks(site);
@@ -40,6 +41,7 @@ const jsonLd = buildPageGraph({ site, url: canonical, title: titleMeta, descript
     <meta property="og:title" content={titleMeta} />
     {description ? <meta property="og:description" content={description} /> : null}
     <meta property="og:url" content={canonical} />
+    <meta property="og:logo" content={logo} />
     <meta property="og:image" content={image} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="628" />
