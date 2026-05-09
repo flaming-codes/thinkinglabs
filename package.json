@@ -15,6 +15,7 @@
     "check:structured-data:empty": "tsx scripts/check-structured-data.ts --mode=empty",
     "check:structured-data:fixtures": "tsx scripts/check-structured-data.ts --mode=fixtures",
     "check:llm-key": "tsx scripts/check-llm-key.ts",
+    "start": "astro preview --host 0.0.0.0 --port ${PORT:-4321}",
     "preview": "astro preview",
     "setup:e2e": "playwright install chromium",
     "test:e2e": "pnpm build:fixtures && playwright test",
