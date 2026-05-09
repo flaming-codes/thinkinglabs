@@ -1,5 +1,5 @@
 #!/usr/bin/env tsx
-import { writeFileSync } from "node:fs";
+import { existsSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { loadContact } from "../src/lib/contact.ts";
 import { SECTION_ORDER, SECTION_TITLES, SURFACES } from "../src/lib/surfaces.ts";
@@ -9,7 +9,9 @@ import { GITHUB_URL, SITE_NAME } from "../src/lib/site.ts";
 function main(): void {
   loadContact();
   const sections = new Map<string, (typeof SURFACES)[number][]>();
+  const publicDir = resolve(process.cwd(), "public");
   for (const s of SURFACES) {
+    if (s.optionalPublicFile && !existsSync(resolve(publicDir, s.optionalPublicFile))) continue;
     const list = sections.get(s.section) ?? [];
     list.push(s);
     sections.set(s.section, list);

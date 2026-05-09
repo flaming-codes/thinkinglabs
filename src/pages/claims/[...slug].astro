@@ -28,6 +28,7 @@ const site = Astro.site ?? new URL(Astro.url.origin);
   title={`${entry.data.claim.slice(0, 60)} — Claims`}
   description={entry.data.claim}
   structuredData={claimStructuredData(entry, Astro.url, site)}
+  ogType="article"
 >
   <ClaimDetailPageComposition claim={claim} />
 </ThinkinglabsUiPage>

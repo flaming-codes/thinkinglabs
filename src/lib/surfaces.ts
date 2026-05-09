@@ -18,6 +18,7 @@ export interface Surface {
   readonly url: string;
   readonly description: string;
   readonly section: "page" | "listing" | "detail" | "api" | "data" | "feed";
+  readonly optionalPublicFile?: string;
 }
 
 /** Display order for kind-derived sections in `llms.txt` and the homepage; preserves the historical ordering of the hand-rolled inventory. */
@@ -73,8 +74,7 @@ const STATIC_PAGES: ReadonlyArray<Surface> = [
   {
     title: "For agents",
     url: "/agents",
-    description:
-      "MCP server, llms.txt, JSON APIs, and brain-diff feeds — machine-readable surfaces.",
+    description: "MCP server, llms.txt, JSON APIs, and feed surfaces.",
     section: "page",
   },
   {
@@ -128,6 +128,7 @@ const TAIL_SURFACES: ReadonlyArray<Surface> = [
     description:
       "Substantive changes across tracked content (generated locally by `pnpm artifacts:scored`, or unscored by `pnpm artifacts`).",
     section: "feed",
+    optionalPublicFile: "feed/brain-diff.xml",
   },
   {
     title: "Brain-diff (JSON)",
@@ -135,12 +136,14 @@ const TAIL_SURFACES: ReadonlyArray<Surface> = [
     description:
       "Substantive changes as JSON (generated locally by `pnpm artifacts:scored`, or unscored by `pnpm artifacts`).",
     section: "feed",
+    optionalPublicFile: "feed/brain-diff.json",
   },
   {
     title: "Brain-diff predictions resolved",
     url: "/feed/brain-diff-predictions-resolved.json",
     description: "Prediction resolution changes from the local brain-diff artifact run.",
     section: "feed",
+    optionalPublicFile: "feed/brain-diff-predictions-resolved.json",
   },
   {
     title: "Brain-diff claims revised",
@@ -148,12 +151,14 @@ const TAIL_SURFACES: ReadonlyArray<Surface> = [
     description:
       "Claim creation, revision, and deprecation changes from the local brain-diff artifact run.",
     section: "feed",
+    optionalPublicFile: "feed/brain-diff-claims-revised.json",
   },
   {
     title: "Brain-diff decisions reversed",
     url: "/feed/brain-diff-decisions-reversed.json",
     description: "Decision reversal changes from the local brain-diff artifact run.",
     section: "feed",
+    optionalPublicFile: "feed/brain-diff-decisions-reversed.json",
   },
   {
     title: "Predictions resolved",

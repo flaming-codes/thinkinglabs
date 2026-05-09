@@ -24,6 +24,7 @@ const site = Astro.site ?? new URL(Astro.url.origin);
   title={`${entry.data.decision.slice(0, 60)} — Decisions`}
   description={entry.data.why ?? entry.data.context ?? entry.data.decision}
   structuredData={decisionStructuredData(entry, Astro.url, site)}
+  ogType="article"
 >
   <h1>{entry.data.decision} <StatusPill status={entry.data.status} /></h1>
 

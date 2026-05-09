@@ -16,7 +16,10 @@ export function collectionJson<K extends CollectionKey>(kind: K): APIRoute {
     const entries: ReadonlyArray<CollectionEntry<K>> = await getCollection(kind);
     const body = entries.map((e) => ({ id: e.id, data: e.data, body: e.body ?? "" }));
     return new Response(JSON.stringify(body, null, 2), {
-      headers: { "content-type": "application/json; charset=utf-8" },
+      headers: {
+        "cache-control": "public, max-age=300, stale-while-revalidate=86400",
+        "content-type": "application/json; charset=utf-8",
+      },
     });
   };
 }

@@ -9,12 +9,21 @@ interface Props {
 const { kinds } = Astro.props;
 const aspectByIndex = ["3 / 4", "4 / 3", "3 / 4", "1 / 1", "4 / 3", "3 / 4", "1 / 1"];
 const widthByIndex = ["16rem", "22rem", "16rem", "17.5rem", "22rem", "16rem", "17.5rem"];
+const firstCardWidth = widthByIndex[0] ?? "16rem";
+const lastCardWidth = widthByIndex[(Math.max(kinds.length, 1) - 1) % widthByIndex.length] ?? firstCardWidth;
+const halfWidthClamp = (width: string) => {
+  const rem = Number.parseFloat(width);
+  return `clamp(${rem / 2}rem, 9vw, ${rem / 2 + 4.5}rem)`;
+};
 ---
 
 <AppShell activeNav="Index" mode="gallery">
   <div class="tl-home-stage">
     <section class="tl-gallery-section" data-selected-label="Entities">
-      <div class="tl-home-gallery">
+      <div
+        class="tl-home-gallery"
+        style={`--first-card-half-width: ${halfWidthClamp(firstCardWidth)}; --last-card-half-width: ${halfWidthClamp(lastCardWidth)};`}
+      >
         {kinds.map((kind, index) => (
           <article
             class="tl-gallery-card"

@@ -20,6 +20,7 @@ const site = Astro.site ?? new URL(Astro.url.origin);
   title={`${entry.data.title} — Inputs`}
   description={entry.data.note ?? entry.data.source ?? entry.data.title}
   structuredData={inputStructuredData(entry, Astro.url, site)}
+  ogType="article"
 >
   <InputDetailPageComposition input={input} />
 </ThinkinglabsUiPage>

@@ -49,11 +49,14 @@
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.55",
+    "@fontsource/geist": "^5.2.8",
     "@modelcontextprotocol/sdk": "^1.29.0",
+    "@resvg/resvg-js": "^2.6.2",
     "ai": "^6.0.173",
     "astro": "^6.2.1",
     "better-sqlite3": "^12.4.1",
     "gray-matter": "^4.0.3",
+    "satori": "^0.26.0",
     "unist-util-visit": "^5.1.0",
     "zod": "^4.1.8"
   },

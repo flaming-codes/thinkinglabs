@@ -583,19 +583,18 @@ a {
     width: max-content;
     min-width: 100vw;
     padding-block: clamp(5rem, 8vw, 9rem);
-    padding-inline: 0 clamp(6rem, 9vw, 10rem);
+    padding-inline: 0;
   }
 
   .tl-home-gallery {
-    --first-card-half-width: clamp(8rem, 9vw, 12.5rem);
-
     flex-direction: row;
     align-items: center;
-    gap: clamp(6.25rem, 10vw, 11rem);
+    gap: clamp(9rem, 13vw, 15rem);
     width: max-content;
     max-width: none;
     margin: 0;
-    padding: 0 0 0 calc(50vw - var(--first-card-half-width));
+    padding: 0 calc(50vw - var(--last-card-half-width, var(--first-card-half-width))) 0
+      calc(50vw - var(--first-card-half-width));
   }
 
   .tl-gallery-card {
@@ -1152,7 +1151,7 @@ code,
   }
 
   .tl-home-gallery {
-    gap: 2.4rem;
+    gap: 3.6rem;
     padding: 23vh 0;
   }
 

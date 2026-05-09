@@ -23,6 +23,7 @@ const site = Astro.site ?? new URL(Astro.url.origin);
   title={`${entry.data.title} — Projects`}
   description={entry.data.current_question ?? entry.data.help_welcome}
   structuredData={projectStructuredData(entry, Astro.url, site, lastTouched)}
+  ogType="article"
 >
   <h1>{entry.data.title} <StatusPill status={entry.data.status} /></h1>
   <MetaBlock
