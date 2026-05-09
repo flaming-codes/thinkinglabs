@@ -176,7 +176,12 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
         (event) => {
           if (event.pointerType !== "mouse") return;
           const probe = isOpen() ? panel.offsetHeight : HOVER_PROBE_HEIGHT;
-          const inRegion = event.clientY >= 0 && event.clientY <= probe;
+          const panelRect = panel.getBoundingClientRect();
+          const inRegion =
+            event.clientY >= 0 &&
+            event.clientY <= probe &&
+            event.clientX >= panelRect.left &&
+            event.clientX <= panelRect.right;
           if (inRegion === withinRegion) return;
           withinRegion = inRegion;
           if (inRegion) scheduleOpen();
