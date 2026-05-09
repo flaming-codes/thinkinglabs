@@ -46,3 +46,241 @@ const halfWidthClamp = (width: string) => {
     </section>
   </div>
 </AppShell>
+
+<style>
+  .tl-home-stage {
+    display: grid;
+  }
+
+  .tl-gallery-section {
+    position: relative;
+    display: grid;
+    align-items: center;
+    min-height: 100vh;
+    padding: clamp(4.5rem, 8vw, 9rem) clamp(1.5rem, 4vw, 3.5rem);
+  }
+
+  .tl-home-gallery {
+    display: flex;
+    flex-direction: column;
+    gap: 2.4rem;
+    width: min(100%, 1120px);
+    margin: 0 auto;
+    padding: 25vh 0;
+  }
+
+  .tl-gallery-card {
+    position: relative;
+    width: min(100%, clamp(var(--card-width, 16rem), 18vw, calc(var(--card-width, 16rem) + 9rem)));
+    margin: 0 auto;
+  }
+
+  .tl-gallery-link {
+    display: block;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: var(--tl-gallery-shadow);
+    transition: box-shadow 0.55s ease;
+  }
+
+  .tl-gallery-link:focus-visible {
+    outline: 2px solid #2f6bff;
+    outline-offset: 4px;
+  }
+
+  .tl-gallery-label {
+    position: absolute;
+    z-index: 2;
+    top: 50%;
+    left: calc(100% + clamp(0.5rem, 1.2vw, 0.9rem));
+    display: grid;
+    gap: 0.18rem;
+    color: var(--tl-ink);
+    pointer-events: none;
+    transform: translateY(-50%);
+  }
+
+  .tl-gallery-label span {
+    color: #0c1424;
+    font-size: 12px;
+    font-weight: 550;
+    line-height: 1;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+
+  .tl-gallery-label span:first-child {
+    font-weight: 650;
+  }
+
+  .tl-gallery-label span:last-child {
+    color: rgba(12, 20, 36, 0.6);
+    font-weight: 420;
+  }
+
+  .tl-gallery-media {
+    position: relative;
+    display: block;
+    aspect-ratio: var(--card-aspect, 1 / 1);
+    overflow: hidden;
+  }
+
+  .tl-gallery-visual {
+    position: absolute;
+    inset: 0;
+    --tl-gradient-base-rotate: 0deg;
+    --tl-gradient-base-scale: 1.2;
+    background: var(--tl-entity-gradient);
+    transform: rotate(var(--tl-gradient-base-rotate)) scale(var(--tl-gradient-base-scale));
+    transform-origin: var(--tl-gradient-origin, 50% 50%);
+    animation: tl-gallery-gradient-drift var(--tl-gradient-duration, 26s) ease-in-out infinite
+      alternate;
+  }
+
+  @keyframes tl-gallery-gradient-drift {
+    0% {
+      transform: rotate(0deg) scale(1.2) translate3d(-0.4%, -0.25%, 0);
+    }
+
+    50% {
+      transform: rotate(2.4deg) scale(1.215) translate3d(0.25%, 0.45%, 0);
+    }
+
+    100% {
+      transform: rotate(-2deg) scale(1.21) translate3d(0.5%, -0.2%, 0);
+    }
+  }
+
+  .tl-gallery-link:hover,
+  .tl-gallery-link:focus-visible {
+    box-shadow:
+      0 2px 3px rgba(7, 9, 13, 0.03),
+      0 14px 30px -18px rgba(7, 9, 13, 0.2),
+      0 34px 72px -38px rgba(7, 9, 13, 0.2),
+      0 86px 140px -76px rgba(7, 9, 13, 0.18);
+  }
+
+  :global(.tl-shell) .tl-gallery-link:hover,
+  :global(.tl-shell) .tl-gallery-link:focus-visible {
+    opacity: 1;
+  }
+
+  .tl-gallery-visual[data-entity="claims"] {
+    --tl-entity-gradient: var(--tl-entity-gradient-claims);
+    --tl-gradient-duration: 29s;
+    --tl-gradient-origin: 44% 48%;
+  }
+
+  .tl-gallery-visual[data-entity="thoughts"] {
+    --tl-entity-gradient: var(--tl-entity-gradient-thoughts);
+    --tl-gradient-duration: 34s;
+    --tl-gradient-origin: 42% 55%;
+  }
+
+  .tl-gallery-visual[data-entity="inputs"] {
+    --tl-entity-gradient: var(--tl-entity-gradient-inputs);
+    --tl-gradient-duration: 27s;
+    --tl-gradient-origin: 46% 50%;
+  }
+
+  .tl-gallery-visual[data-entity="projects"] {
+    --tl-entity-gradient: var(--tl-entity-gradient-projects);
+    --tl-gradient-duration: 24s;
+    --tl-gradient-origin: 48% 52%;
+  }
+
+  .tl-gallery-visual[data-entity="predictions"] {
+    --tl-entity-gradient: var(--tl-entity-gradient-predictions);
+    --tl-gradient-duration: 32s;
+    --tl-gradient-origin: 50% 50%;
+  }
+
+  .tl-gallery-visual[data-entity="changed-my-mind"] {
+    --tl-entity-gradient: var(--tl-entity-gradient-changed-my-mind);
+    --tl-gradient-duration: 31s;
+    --tl-gradient-origin: 48% 50%;
+  }
+
+  .tl-gallery-visual[data-entity="decisions"] {
+    --tl-entity-gradient: var(--tl-entity-gradient-decisions);
+    --tl-gradient-duration: 36s;
+    --tl-gradient-origin: 44% 54%;
+  }
+
+  .tl-gallery-visual[data-entity="questions"] {
+    --tl-entity-gradient: var(--tl-entity-gradient-questions);
+    --tl-gradient-duration: 25s;
+    --tl-gradient-origin: 46% 50%;
+  }
+
+  .tl-gallery-visual[data-entity="posts"] {
+    --tl-entity-gradient: var(--tl-entity-gradient-posts);
+    --tl-gradient-duration: 30s;
+    --tl-gradient-origin: 44% 52%;
+  }
+
+  .tl-gallery-title {
+    display: none;
+  }
+
+  @media (min-width: 768px) {
+    :global(.tl-shell[data-layout="gallery"][data-active-nav="Index"]) :global(.tl-scroll) {
+      overflow: auto hidden;
+      scroll-snap-type: x proximity;
+    }
+
+    :global(.tl-shell[data-layout="gallery"][data-active-nav="Index"]) :global(.tl-scroll-content),
+    .tl-home-stage {
+      min-width: max-content;
+    }
+
+    .tl-gallery-section {
+      width: max-content;
+      min-width: 100vw;
+      padding-block: clamp(5rem, 8vw, 9rem);
+      padding-inline: 0;
+    }
+
+    .tl-home-gallery {
+      flex-direction: row;
+      align-items: center;
+      gap: clamp(9rem, 13vw, 15rem);
+      width: max-content;
+      max-width: none;
+      margin: 0;
+      padding: 0 calc(50vw - var(--last-card-half-width, var(--first-card-half-width))) 0
+        calc(50vw - var(--first-card-half-width));
+    }
+
+    .tl-gallery-card {
+      flex: 0 0 auto;
+      width: clamp(var(--card-width, 16rem), 18vw, calc(var(--card-width, 16rem) + 9rem));
+      scroll-snap-align: center;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .tl-gallery-section {
+      padding-inline: 20px;
+    }
+
+    .tl-home-gallery {
+      gap: 3.6rem;
+      padding: 23vh 0;
+    }
+
+    .tl-gallery-card {
+      width: min(100%, var(--card-width-mobile, 18rem));
+    }
+
+    .tl-gallery-label {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tl-gallery-visual {
+      animation: none;
+    }
+  }
+</style>

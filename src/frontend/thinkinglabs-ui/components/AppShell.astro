@@ -69,3 +69,336 @@ const showSelectedHud = activeNav !== "Index";
   window.addEventListener("resize", updateSelected);
   updateSelected();
 </script>
+
+<style>
+  .tl-shell {
+    isolation: isolate;
+    width: 100%;
+    height: 100vh;
+    background: var(--tl-bg);
+    color: var(--tl-ink);
+    overflow: hidden;
+  }
+
+  .tl-shell,
+  .tl-shell :global(*) {
+    box-sizing: border-box;
+  }
+
+  .tl-shell :global(h1),
+  .tl-shell :global(h2),
+  .tl-shell :global(h3),
+  .tl-shell :global(p),
+  .tl-shell :global(figure),
+  .tl-shell :global(blockquote),
+  .tl-shell :global(ol) {
+    margin: 0;
+  }
+
+  .tl-shell :global(a:hover),
+  .tl-shell :global(button:hover) {
+    opacity: 0.68;
+  }
+
+  .tl-scroll {
+    height: 100vh;
+    overflow: hidden auto;
+    overscroll-behavior: none;
+    scrollbar-width: none;
+    scroll-behavior: smooth;
+  }
+
+  .tl-scroll::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+
+  .tl-scroll-content {
+    min-height: 100vh;
+  }
+
+  .tl-selected-hud {
+    position: fixed;
+    z-index: 40;
+    top: 50%;
+    left: var(--tl-ui-x);
+    display: grid;
+    gap: 9px;
+    width: min(35rem, calc(100vw - var(--tl-ui-x) * 2));
+    color: #fff;
+    mix-blend-mode: difference;
+    pointer-events: none;
+  }
+
+  .tl-selected-kicker {
+    color: inherit;
+    font-size: 11px;
+    font-weight: 650;
+    line-height: 1;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+  }
+
+  .tl-selected-value {
+    max-width: 30ch;
+    font-size: clamp(22px, 2vw, 34px);
+    font-weight: 550;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+  }
+
+  .tl-shell :global(.tl-eyebrow),
+  .tl-shell :global(.tl-mono),
+  .tl-shell :global(.tl-index-eyebrow),
+  .tl-shell :global(.tl-index-crumb),
+  .tl-shell :global(.tl-index-section-label),
+  .tl-shell :global(.tl-stat-label),
+  .tl-shell :global(.tl-stat-sub),
+  .tl-shell :global(.tl-metric-label),
+  .tl-shell :global(.tl-metric-hint) {
+    color: inherit;
+    font-size: 11px;
+    font-weight: 650;
+    line-height: 1;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+  }
+
+  .tl-shell :global(.tl-mono),
+  .tl-shell :global(.tl-index-crumb),
+  .tl-shell :global(.tl-stat-sub),
+  .tl-shell :global(.tl-metric-hint) {
+    color: var(--tl-muted);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+  }
+
+  .tl-shell :global(.tl-mono.is-right) {
+    text-align: right;
+  }
+
+  .tl-shell :global(.tl-ink) {
+    color: var(--tl-ink);
+  }
+
+  .tl-shell :global(.tl-muted),
+  .tl-shell :global(.is-muted) {
+    color: var(--tl-muted);
+  }
+
+  .tl-shell :global(.tl-line) {
+    border-color: var(--tl-line);
+  }
+
+  .tl-shell :global(.is-strike) {
+    color: var(--tl-muted);
+    text-decoration: line-through;
+  }
+
+  .tl-shell :global(code) {
+    font-family: var(--tl-font);
+    font-size: 0.88em;
+  }
+
+  .tl-shell :global(.tl-gradient-block) {
+    display: none;
+  }
+
+  .tl-shell :global(.tl-page-head),
+  .tl-shell :global(.tl-home-index),
+  .tl-shell :global(.tl-home-thesis-row),
+  .tl-shell :global(.tl-home-agents),
+  .tl-shell :global(.tl-index-list),
+  .tl-shell :global(.tl-filter-row),
+  .tl-shell :global(.tl-index-bottom) {
+    width: var(--tl-center);
+    margin-inline: auto;
+  }
+
+  .tl-shell :global(.tl-page-head) {
+    display: grid;
+    min-height: 72vh;
+    align-content: end;
+    padding: 18vh 0 10vh;
+  }
+
+  .tl-shell :global(.tl-page-head.is-spacious),
+  .tl-shell :global(.tl-page-head.is-detail) {
+    min-height: 78vh;
+  }
+
+  .tl-shell :global(.tl-page-head-grid) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(10rem, 16rem);
+    gap: 56px;
+    align-items: end;
+  }
+
+  .tl-shell :global(.tl-page-head h1) {
+    margin-top: 14px;
+    font-size: clamp(44px, 7vw, 92px);
+    font-weight: 650;
+    line-height: 0.9;
+    letter-spacing: -0.05em;
+    text-transform: uppercase;
+  }
+
+  .tl-shell :global(.tl-page-sub),
+  .tl-shell :global(.tl-page-head-grid p),
+  .tl-shell :global(.tl-projects-row p),
+  .tl-shell :global(.tl-thought-excerpt),
+  .tl-shell :global(.tl-inputs-note),
+  .tl-shell :global(.tl-questions-deck),
+  .tl-shell :global(.tl-decisions-summary),
+  .tl-shell :global(.tl-pred-topic),
+  .tl-shell :global(.tl-kind-row p),
+  .tl-shell :global(.tl-home-thesis-row p) {
+    color: var(--tl-muted);
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  .tl-shell :global(.tl-split-header),
+  .tl-shell :global(.tl-filter-row) {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 0 0 18px;
+    border-bottom: 1px solid var(--tl-line);
+  }
+
+  .tl-shell :global(.tl-split-header.is-tight) {
+    padding-top: 64px;
+  }
+
+  .tl-shell :global(.tl-kind-list),
+  .tl-shell :global(.tl-index-list) {
+    display: grid;
+  }
+
+  .tl-shell :global(.tl-kind-row),
+  .tl-shell :global(.tl-claims-row),
+  .tl-shell :global(.tl-thought-row),
+  .tl-shell :global(.tl-projects-row),
+  .tl-shell :global(.tl-post-row),
+  .tl-shell :global(.tl-pred-row),
+  .tl-shell :global(.tl-inputs-row),
+  .tl-shell :global(.tl-questions-row),
+  .tl-shell :global(.tl-decisions-row),
+  .tl-shell :global(.tl-flip-row),
+  .tl-shell :global(.tl-home-entity-link) {
+    position: relative;
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr) auto;
+    gap: 22px;
+    align-items: baseline;
+    padding: 30px 0;
+    border-bottom: 1px solid var(--tl-line);
+  }
+
+  .tl-shell :global(.tl-kind-row h3),
+  .tl-shell :global(.tl-claims-row h3),
+  .tl-shell :global(.tl-thought-row h3),
+  .tl-shell :global(.tl-projects-row h3),
+  .tl-shell :global(.tl-post-row h3),
+  .tl-shell :global(.tl-pred-title),
+  .tl-shell :global(.tl-questions-row h3),
+  .tl-shell :global(.tl-decisions-row h3),
+  .tl-shell :global(.tl-flip-title),
+  .tl-shell :global(.tl-home-entity-link h3),
+  .tl-shell :global(.tl-home-agents-body h2) {
+    font-size: clamp(25px, 3vw, 38px);
+    font-weight: 600;
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+  }
+
+  .tl-shell :global(.tl-home-hero),
+  .tl-shell :global(.tl-home-thesis-row),
+  .tl-shell :global(.tl-home-index),
+  .tl-shell :global(.tl-home-agents),
+  .tl-shell :global(.tl-home-modal),
+  .tl-shell :global(.tl-home-entity-more) {
+    display: none;
+  }
+
+  .tl-shell :global(.tl-pred-conf),
+  .tl-shell :global(.tl-flip-date-big),
+  .tl-shell :global(.tl-inputs-year),
+  .tl-shell :global(.tl-kind-count),
+  .tl-shell :global(.tl-thought-words) {
+    font-size: clamp(32px, 5vw, 70px);
+    font-weight: 650;
+    line-height: 0.9;
+    letter-spacing: -0.05em;
+  }
+
+  .tl-shell :global(.tl-heat-label) {
+    display: inline-flex;
+    align-items: center;
+    width: max-content;
+    padding: 0.35rem 0.55rem;
+    border: 1px solid var(--tl-line);
+    color: var(--tl-muted);
+  }
+
+  .tl-shell :global(.tl-prose-body) {
+    color: rgba(7, 9, 13, 0.76);
+    font-size: 17px;
+    line-height: 1.78;
+  }
+
+  .tl-shell :global(.tl-prose-body p + p) {
+    margin-top: 1.2rem;
+  }
+
+  .tl-shell :global(.tl-pred-foot),
+  .tl-shell :global(.tl-index-bottom) {
+    padding-bottom: 18vh;
+  }
+
+  @media (max-width: 767px) {
+    .tl-selected-hud {
+      top: 50%;
+      gap: 7px;
+    }
+
+    .tl-selected-value {
+      font-size: clamp(18px, 5vw, 24px);
+    }
+
+    .tl-shell :global(.tl-page-head),
+    .tl-shell :global(.tl-home-index),
+    .tl-shell :global(.tl-home-thesis-row),
+    .tl-shell :global(.tl-home-agents),
+    .tl-shell :global(.tl-index-list),
+    .tl-shell :global(.tl-filter-row),
+    .tl-shell :global(.tl-index-bottom) {
+      width: min(100% - 40px, 43.75rem);
+    }
+
+    .tl-shell :global(.tl-page-head-grid),
+    .tl-shell :global(.tl-kind-row),
+    .tl-shell :global(.tl-claims-row),
+    .tl-shell :global(.tl-thought-row),
+    .tl-shell :global(.tl-projects-row),
+    .tl-shell :global(.tl-post-row),
+    .tl-shell :global(.tl-pred-row),
+    .tl-shell :global(.tl-inputs-row),
+    .tl-shell :global(.tl-questions-row),
+    .tl-shell :global(.tl-decisions-row),
+    .tl-shell :global(.tl-flip-row),
+    .tl-shell :global(.tl-home-entity-link) {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tl-scroll {
+      scroll-behavior: auto;
+    }
+  }
+</style>

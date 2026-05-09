@@ -3,3 +3,109 @@
     <span class="tl-wordmark" data-wordmark="thinkinglabs" aria-hidden="true">thinkinglabs</span>
   </a>
 </header>
+
+<style>
+  .tl-header {
+    position: fixed;
+    z-index: 40;
+    top: var(--tl-ui-y);
+    right: var(--tl-ui-x);
+    left: var(--tl-ui-x);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    color: #fff;
+    mix-blend-mode: difference;
+    pointer-events: none;
+  }
+
+  .tl-brand-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+    pointer-events: auto;
+  }
+
+  .tl-wordmark {
+    position: relative;
+    top: -0.35rem;
+    display: inline-grid;
+    align-items: center;
+    justify-items: center;
+    width: min(20rem, 80vw);
+    min-height: 3.25rem;
+    color: transparent;
+    font-family: var(--tl-wordmark-font);
+    font-size: clamp(28px, 3vw, 44px);
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: 0;
+    text-transform: none;
+    -webkit-text-fill-color: transparent;
+    --tl-wordmark-paint: #fff;
+    --tl-wordmark-hover-paint: #000;
+    --tl-linefont-scale: 1;
+    --tl-linefont-size: 44px;
+    --tl-hover-font-size: 20px;
+  }
+
+  .tl-wordmark::before,
+  .tl-wordmark::after {
+    grid-area: 1 / 1;
+    color: var(--tl-wordmark-paint);
+    content: attr(data-wordmark);
+    -webkit-text-fill-color: var(--tl-wordmark-paint);
+    transition:
+      opacity 360ms ease,
+      transform 360ms ease;
+    transform-origin: center;
+  }
+
+  .tl-wordmark::before {
+    font-family: var(--tl-wordmark-font);
+    font-size: var(--tl-linefont-size);
+    font-style: normal;
+    font-weight: 300;
+    font-optical-sizing: auto;
+    font-variation-settings: "wdth" 112.5;
+    opacity: 1;
+    transform: translateY(-0.08em) scale(var(--tl-linefont-scale));
+  }
+
+  .tl-wordmark::after {
+    color: var(--tl-wordmark-hover-paint);
+    font-family: var(--tl-wordmark-hover-font);
+    font-size: var(--tl-hover-font-size);
+    font-style: normal;
+    font-weight: 300;
+    font-variation-settings: normal;
+    opacity: 0;
+    -webkit-text-fill-color: var(--tl-wordmark-hover-paint);
+    transform: translateY(0.18em);
+  }
+
+  .tl-brand-link:hover .tl-wordmark::before,
+  .tl-brand-link:focus-visible .tl-wordmark::before {
+    opacity: 0;
+    transform: translateY(-0.12em) scale(var(--tl-linefont-scale));
+  }
+
+  .tl-brand-link:hover .tl-wordmark::after,
+  .tl-brand-link:focus-visible .tl-wordmark::after {
+    opacity: 1;
+    transform: translateY(0.14em);
+  }
+
+  .tl-header:has(.tl-brand-link:hover),
+  .tl-header:has(.tl-brand-link:focus-visible) {
+    mix-blend-mode: normal;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tl-wordmark::before,
+    .tl-wordmark::after {
+      transition: none;
+    }
+  }
+</style>

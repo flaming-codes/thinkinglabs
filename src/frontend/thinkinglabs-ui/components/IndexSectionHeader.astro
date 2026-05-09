@@ -12,3 +12,35 @@ const cleanLabel = label.replace(/^§\s*/, "");
   <div class="tl-index-section-label">{cleanLabel}</div>
   <h2 class="tl-index-section-title"><Fragment set:html={title} /></h2>
 </header>
+
+<style>
+  .tl-index-section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 24px;
+    width: var(--tl-center);
+    margin-inline: auto;
+    padding: 0 0 18px;
+    border-bottom: 1px solid var(--tl-line);
+  }
+
+  .tl-index-section-label {
+    color: inherit;
+    font-size: 11px;
+    font-weight: 650;
+    line-height: 1;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+  }
+
+  .tl-index-section-title {
+    margin: 0;
+  }
+
+  @media (max-width: 767px) {
+    .tl-index-section-head {
+      width: min(100% - 40px, 43.75rem);
+    }
+  }
+</style>

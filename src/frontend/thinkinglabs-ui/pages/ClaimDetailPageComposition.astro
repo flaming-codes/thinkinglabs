@@ -82,3 +82,65 @@ const { claim } = Astro.props;
       </div>
     </section>
 </AppShell>
+
+<style>
+  .tl-claim-body-grid,
+  .tl-evidence-section {
+    width: var(--tl-center);
+    margin-inline: auto;
+  }
+
+  .tl-claim-detail-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(10rem, 16rem);
+    gap: 56px;
+    align-items: end;
+  }
+
+  .tl-evidence-grid {
+    display: grid;
+  }
+
+  .tl-evidence-row,
+  .tl-history-row {
+    position: relative;
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr) auto;
+    gap: 22px;
+    align-items: baseline;
+    padding: 30px 0;
+    border-bottom: 1px solid var(--tl-line);
+  }
+
+  .tl-evidence-row h3 {
+    font-size: clamp(25px, 3vw, 38px);
+    font-weight: 600;
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+  }
+
+  .tl-claim-conf-big {
+    font-size: clamp(32px, 5vw, 70px);
+    font-weight: 650;
+    line-height: 0.9;
+    letter-spacing: -0.05em;
+  }
+
+  .tl-evidence-section {
+    padding-bottom: 18vh;
+  }
+
+  @media (max-width: 767px) {
+    .tl-claim-body-grid,
+    .tl-evidence-section {
+      width: min(100% - 40px, 43.75rem);
+    }
+
+    .tl-claim-detail-head,
+    .tl-evidence-row,
+    .tl-history-row {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+  }
+</style>
