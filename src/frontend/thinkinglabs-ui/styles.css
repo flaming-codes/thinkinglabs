@@ -72,7 +72,16 @@
     #26164f 304deg,
     #fff4b8 360deg
   );
-  --tl-entity-gradient-posts: linear-gradient(
+  --tl-entity-gradient-posts: conic-gradient(
+    from 32deg at 44% 52%,
+    #fff7ed 0deg,
+    #f2b880 76deg,
+    #b96d42 152deg,
+    #4b2e2a 240deg,
+    #d8dfe6 314deg,
+    #fff7ed 360deg
+  );
+  --tl-post-detail-gradient: linear-gradient(
     132deg,
     #f7f1ea 0%,
     #ecdfd1 18%,

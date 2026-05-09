@@ -113,6 +113,7 @@ const fontCache = new Map<string, Promise<ArrayBuffer>>();
 /** Build one PNG route for every public HTML page and content detail page. */
 export const getStaticPaths: GetStaticPaths = async () => {
   const gradients = await loadSharedEntityGradients();
+  const postDetailGradient = await loadPostDetailGradient();
   const paths = STATIC_IMAGES.map(({ path, subtitle, gradientKey }) => ({
     params: { slug: pathToOgSlug(path) },
     props: { subtitle, gradient: gradients[gradientKey] },
@@ -130,6 +131,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
       },
     });
 
+    const entryGradient = kind === "posts" ? postDetailGradient : gradients[kind];
     const collection = await getKindCollection(kind);
     for (const entry of collection) {
       const data = entry.data as Record<string, unknown>;
@@ -137,7 +139,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
         params: { slug: pathToOgSlug(`${route}/${entry.id}`) },
         props: {
           subtitle: titleFor(kind, data, entry.id),
-          gradient: gradients[kind],
+          gradient: entryGradient,
         },
       });
     }
@@ -184,20 +186,27 @@ async function loadSharedEntityGradients(): Promise<Record<EntityGradientKey, En
   const css = await readFile("src/frontend/thinkinglabs-ui/styles.css", "utf8");
   return Object.fromEntries(
     SHARED_ENTITY_GRADIENT_KEYS.map((key) => {
-      const variableName = `--tl-entity-gradient-${key}`;
-      const match = css.match(
-        new RegExp(`${variableName}:\\s*((?:conic|linear)-gradient\\([\\s\\S]*?\\));`),
-      );
-      if (!match?.[1]) {
-        throw new Error(`Missing shared entity gradient ${variableName}`);
-      }
-      const value = match[1].trim();
-      const gradient: EntityGradient = value.startsWith("linear-gradient")
-        ? { kind: "linear", css: value.replace(/\s+/g, " ") }
-        : parseConicGradient(value);
-      return [key, gradient] as const;
+      return [key, readGradientVariable(css, `--tl-entity-gradient-${key}`)] as const;
     }),
   ) as Record<EntityGradientKey, EntityGradient>;
+}
+
+async function loadPostDetailGradient(): Promise<EntityGradient> {
+  const css = await readFile("src/frontend/thinkinglabs-ui/styles.css", "utf8");
+  return readGradientVariable(css, "--tl-post-detail-gradient");
+}
+
+function readGradientVariable(css: string, variableName: string): EntityGradient {
+  const match = css.match(
+    new RegExp(`${variableName}:\\s*((?:conic|linear)-gradient\\([\\s\\S]*?\\));`),
+  );
+  if (!match?.[1]) {
+    throw new Error(`Missing gradient ${variableName}`);
+  }
+  const value = match[1].trim();
+  return value.startsWith("linear-gradient")
+    ? { kind: "linear", css: value.replace(/\s+/g, " ") }
+    : parseConicGradient(value);
 }
 
 function isEntityGradientKey(kind: Kind): kind is EntityGradientKey {
