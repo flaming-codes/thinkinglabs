@@ -1,0 +1,191 @@
+---
+interface Props {
+  target: string;
+  items: string;
+  label: string;
+  variant?: "page" | "header";
+  rowOnly?: boolean;
+}
+
+const { target, items, label, variant = "page", rowOnly = false } = Astro.props;
+---
+
+<div
+  class:list={["tl-scroll-arrows", `is-${variant}`]}
+  data-tl-scroll-controls
+  data-tl-scroll-target={target}
+  data-tl-scroll-items={items}
+  data-row-only={rowOnly ? "true" : undefined}
+  role="group"
+  aria-label={`${label} pagination`}
+>
+  <button type="button" data-tl-scroll-dir="-1" aria-label={`${label}: previous item`}>
+    <svg viewBox="0 0 24 8" aria-hidden="true" focusable="false">
+      <path d="M24 4H0"></path>
+    </svg>
+  </button>
+  <button type="button" data-tl-scroll-dir="1" aria-label={`${label}: next item`}>
+    <svg viewBox="0 0 24 8" aria-hidden="true" focusable="false">
+      <path d="M0 4h24"></path>
+    </svg>
+  </button>
+</div>
+
+<script>
+  const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
+
+  const initScrollControls = (root: HTMLElement) => {
+    if (root.dataset.tlScrollReady === "true") return;
+    root.dataset.tlScrollReady = "true";
+
+    const targetSelector = root.dataset.tlScrollTarget;
+    const itemSelector = root.dataset.tlScrollItems;
+    if (!targetSelector || !itemSelector) return;
+
+    const scroller = document.querySelector<HTMLElement>(targetSelector);
+    const buttons = Array.from(root.querySelectorAll<HTMLButtonElement>("[data-tl-scroll-dir]"));
+    if (!scroller || buttons.length === 0) return;
+
+    const centers = () => {
+      const box = scroller.getBoundingClientRect();
+      return Array.from(document.querySelectorAll<HTMLElement>(itemSelector))
+        .filter((item) => scroller.contains(item))
+        .map((item) => {
+          const itemBox = item.getBoundingClientRect();
+          return itemBox.left - box.left + scroller.scrollLeft + itemBox.width / 2;
+        });
+    };
+
+    const update = () => {
+      const max = Math.max(0, scroller.scrollWidth - scroller.clientWidth);
+      root.toggleAttribute("data-has-overflow", max > 2);
+      buttons.forEach((button) => {
+        const dir = Number(button.dataset.tlScrollDir);
+        button.disabled = dir < 0 ? scroller.scrollLeft <= 2 : scroller.scrollLeft >= max - 2;
+      });
+    };
+
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const dir = Number(button.dataset.tlScrollDir);
+        const current = scroller.scrollLeft + scroller.clientWidth / 2;
+        const candidates = centers();
+        const destination =
+          dir > 0
+            ? candidates.find((center) => center > current + 4)
+            : [...candidates].reverse().find((center) => center < current - 4);
+        if (!destination) return;
+        scroller.scrollTo({
+          left: clamp(destination - scroller.clientWidth / 2, 0, scroller.scrollWidth),
+          behavior: "smooth",
+        });
+      });
+    });
+
+    scroller.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    update();
+  };
+
+  document.querySelectorAll<HTMLElement>("[data-tl-scroll-controls]").forEach(initScrollControls);
+</script>
+
+<style>
+  .tl-scroll-arrows {
+    --tl-arrow-color: rgba(7, 9, 13, 0.72);
+    --tl-arrow-disabled: rgba(7, 9, 13, 0.16);
+    display: inline-flex;
+    gap: 0;
+    align-items: center;
+    color: var(--tl-arrow-color);
+    pointer-events: auto;
+  }
+
+  .tl-scroll-arrows button {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 24px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: currentColor;
+    cursor: pointer;
+    opacity: 0.86;
+    transition:
+      color 180ms ease,
+      opacity 180ms ease;
+  }
+
+  .tl-scroll-arrows button:disabled {
+    color: var(--tl-arrow-disabled);
+    cursor: default;
+    opacity: 1;
+  }
+
+  .tl-scroll-arrows button:not(:disabled):hover,
+  .tl-scroll-arrows button:not(:disabled):focus-visible {
+    opacity: 1;
+  }
+
+  .tl-scroll-arrows svg {
+    width: 24px;
+    height: 8px;
+    overflow: visible;
+  }
+
+  .tl-scroll-arrows path {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: square;
+    stroke-linejoin: miter;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .tl-scroll-arrows button:focus-visible {
+    outline: 2px solid rgba(7, 9, 13, 0.82);
+    outline-offset: 3px;
+  }
+
+  .tl-scroll-arrows.is-page {
+    position: fixed;
+    z-index: 45;
+    bottom: var(--tl-ui-y);
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .tl-scroll-arrows.is-header {
+    justify-self: center;
+    --tl-arrow-color: rgba(7, 9, 13, 0.56);
+    --tl-arrow-disabled: rgba(7, 9, 13, 0.12);
+  }
+
+  .tl-scroll-arrows.is-header button {
+    width: 24px;
+    height: 24px;
+  }
+
+  .tl-scroll-arrows.is-header svg {
+    width: 20px;
+    height: 7px;
+  }
+
+  .tl-scroll-arrows.is-header path {
+    stroke-width: 1.55;
+  }
+
+  @media (max-width: 767px) {
+    .tl-scroll-arrows[data-row-only="true"] {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tl-scroll-arrows button {
+      transition: none;
+    }
+  }
+</style>

@@ -1,94 +1,12 @@
 ---
 import PathWordmarkVariant from "./PathWordmarkVariant.astro";
+import ScrollArrows from "./ScrollArrows.astro";
 
 interface Props {
   activeNav?: "Index" | "Now" | "Calibration" | "Brain-diff" | "Agents" | "About";
 }
 
 const { activeNav = "Index" } = Astro.props;
-
-const navCardAspects = ["3 / 4", "4 / 3", "3 / 4", "1 / 1", "4 / 3", "3 / 4", "1 / 1"];
-const navCardVisuals: Record<
-  string,
-  { gradient: string; duration: string; origin: string; aspect?: string }
-> = {
-  claims: {
-    gradient: "var(--tl-entity-gradient-claims)",
-    duration: "29s",
-    origin: "44% 48%",
-  },
-  thoughts: {
-    gradient: "var(--tl-entity-gradient-thoughts)",
-    duration: "34s",
-    origin: "42% 55%",
-  },
-  inputs: {
-    gradient: "var(--tl-entity-gradient-inputs)",
-    duration: "27s",
-    origin: "46% 50%",
-  },
-  projects: {
-    gradient: "var(--tl-entity-gradient-projects)",
-    duration: "24s",
-    origin: "48% 52%",
-  },
-  predictions: {
-    gradient: "var(--tl-entity-gradient-predictions)",
-    duration: "32s",
-    origin: "50% 50%",
-  },
-  "changed-my-mind": {
-    gradient: "var(--tl-entity-gradient-changed-my-mind)",
-    duration: "31s",
-    origin: "48% 50%",
-  },
-  decisions: {
-    gradient: "var(--tl-entity-gradient-decisions)",
-    duration: "36s",
-    origin: "44% 54%",
-  },
-  questions: {
-    gradient: "var(--tl-entity-gradient-questions)",
-    duration: "25s",
-    origin: "46% 50%",
-  },
-  posts: {
-    gradient: "var(--tl-entity-gradient-posts)",
-    duration: "30s",
-    origin: "44% 52%",
-  },
-  about: {
-    gradient:
-      "conic-gradient(from 212deg at 50% 50%, #f6f7f8 0deg, #bfc3c8 92deg, #373b42 202deg, #d9dce0 306deg, #f6f7f8 360deg)",
-    duration: "28s",
-    origin: "50% 50%",
-    aspect: "1 / 1",
-  },
-  privacy: {
-    gradient:
-      "conic-gradient(from 38deg at 50% 50%, #111317 0deg, #4d5158 86deg, #e4e5e7 184deg, #8c9198 282deg, #111317 360deg)",
-    duration: "30s",
-    origin: "50% 50%",
-    aspect: "1 / 1",
-  },
-};
-
-const navCardStyle = (slug: string, index: number): string => {
-  const visual = navCardVisuals[slug];
-  const declarations = [
-    `--tl-entity-card-aspect: ${visual?.aspect ?? navCardAspects[index % navCardAspects.length] ?? "1 / 1"}`,
-  ];
-
-  if (visual) {
-    declarations.push(
-      `--tl-entity-gradient: ${visual.gradient}`,
-      `--tl-gradient-duration: ${visual.duration}`,
-      `--tl-gradient-origin: ${visual.origin}`,
-    );
-  }
-
-  return declarations.join("; ");
-};
 
 const navItems: Array<{
   href: string;
@@ -151,18 +69,17 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
       <nav class="tl-nav-rail" aria-label="Primary" data-tl-nav-rail>
         <ul role="list">
           {
-            navItems.map((item, index) => {
+            navItems.map((item) => {
               const itemPath = item.href.replace(/\/+$/, "/");
               const isCurrent = currentPath === itemPath;
               return (
-                <li class:list={["tl-nav-card", `is-${item.group}`]} style={navCardStyle(item.slug, index)}>
+                <li class:list={["tl-nav-card", `is-${item.group}`]} data-entity={item.slug}>
                   <a
                     href={item.href}
                     aria-current={isCurrent ? "page" : undefined}
                   >
                     <span
                       class="tl-nav-card-visual"
-                      data-entity={item.slug}
                       aria-hidden="true"
                     />
                     <span class="tl-nav-card-label">
@@ -175,6 +92,12 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
           }
         </ul>
       </nav>
+      <ScrollArrows
+        target="[data-tl-nav-rail]"
+        items=".tl-nav-card"
+        label="Header navigation"
+        variant="header"
+      />
     </div>
   </div>
 </header>
@@ -454,7 +377,7 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
     top: var(--tl-header-inset);
     right: var(--tl-header-inset);
     left: var(--tl-header-inset);
-    height: 33vh;
+    height: 50svh;
     min-height: 15rem;
     overflow: hidden;
     border: 1px solid rgba(7, 9, 13, 0.06);
@@ -490,10 +413,10 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
   .tl-nav-panel-inner {
     position: relative;
     display: grid;
-    grid-template-rows: auto minmax(0, 1fr);
-    gap: clamp(0.7rem, 1.6vh, 1.2rem);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    gap: clamp(0.5rem, 1.3vh, 1rem);
     height: 100%;
-    padding: clamp(2rem, 4.5vh, 2.8rem) 0 clamp(1rem, 2.5vh, 1.6rem);
+    padding: clamp(1.35rem, 3svh, 2rem) 0 clamp(0.7rem, 1.8svh, 1.1rem);
   }
 
   .tl-nav-brand {
@@ -522,7 +445,7 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
   }
 
   .tl-nav-rail {
-    --card-width: clamp(4.4rem, 6vw, 5.4rem);
+    --card-width: clamp(4.8rem, 6.45vw, 5.85rem);
     --card-half: calc(var(--card-width) / 2);
     display: flex;
     align-items: center;
@@ -541,7 +464,7 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
 
   .tl-nav-rail ul {
     display: inline-flex;
-    gap: clamp(1.9rem, 3.2vw, 3rem);
+    gap: clamp(2.1rem, 3.5vw, 3.3rem);
     align-items: center;
     margin: 0;
     padding: 0 calc(50% - var(--card-half));
@@ -551,6 +474,97 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
     flex: 0 0 auto;
     width: var(--card-width);
     list-style: none;
+  }
+
+  .tl-nav-card[data-entity="thoughts"] {
+    --tl-entity-card-aspect: 3 / 4;
+    --tl-entity-gradient: var(--tl-entity-gradient-thoughts);
+    --tl-gradient-duration: 34s;
+    --tl-gradient-origin: 42% 55%;
+  }
+
+  .tl-nav-card[data-entity="claims"] {
+    --tl-entity-card-aspect: 4 / 3;
+    --tl-entity-gradient: var(--tl-entity-gradient-claims);
+    --tl-gradient-duration: 29s;
+    --tl-gradient-origin: 44% 48%;
+  }
+
+  .tl-nav-card[data-entity="projects"] {
+    --tl-entity-card-aspect: 3 / 4;
+    --tl-entity-gradient: var(--tl-entity-gradient-projects);
+    --tl-gradient-duration: 24s;
+    --tl-gradient-origin: 48% 52%;
+  }
+
+  .tl-nav-card[data-entity="predictions"] {
+    --tl-entity-card-aspect: 1 / 1;
+    --tl-entity-gradient: var(--tl-entity-gradient-predictions);
+    --tl-gradient-duration: 32s;
+    --tl-gradient-origin: 50% 50%;
+  }
+
+  .tl-nav-card[data-entity="changed-my-mind"] {
+    --tl-entity-card-aspect: 4 / 3;
+    --tl-entity-gradient: var(--tl-entity-gradient-changed-my-mind);
+    --tl-gradient-duration: 31s;
+    --tl-gradient-origin: 48% 50%;
+  }
+
+  .tl-nav-card[data-entity="decisions"] {
+    --tl-entity-card-aspect: 3 / 4;
+    --tl-entity-gradient: var(--tl-entity-gradient-decisions);
+    --tl-gradient-duration: 36s;
+    --tl-gradient-origin: 44% 54%;
+  }
+
+  .tl-nav-card[data-entity="questions"] {
+    --tl-entity-card-aspect: 1 / 1;
+    --tl-entity-gradient: var(--tl-entity-gradient-questions);
+    --tl-gradient-duration: 25s;
+    --tl-gradient-origin: 46% 50%;
+  }
+
+  .tl-nav-card[data-entity="posts"] {
+    --tl-entity-card-aspect: 3 / 4;
+    --tl-entity-gradient: var(--tl-entity-gradient-posts);
+    --tl-gradient-duration: 30s;
+    --tl-gradient-origin: 44% 52%;
+  }
+
+  .tl-nav-card[data-entity="inputs"] {
+    --tl-entity-card-aspect: 4 / 3;
+    --tl-entity-gradient: var(--tl-entity-gradient-inputs);
+    --tl-gradient-duration: 27s;
+    --tl-gradient-origin: 46% 50%;
+  }
+
+  .tl-nav-card[data-entity="about"] {
+    --tl-entity-card-aspect: 1 / 1;
+    --tl-entity-gradient: conic-gradient(
+      from 212deg at 50% 50%,
+      #f6f7f8 0deg,
+      #bfc3c8 92deg,
+      #373b42 202deg,
+      #d9dce0 306deg,
+      #f6f7f8 360deg
+    );
+    --tl-gradient-duration: 28s;
+    --tl-gradient-origin: 50% 50%;
+  }
+
+  .tl-nav-card[data-entity="privacy"] {
+    --tl-entity-card-aspect: 1 / 1;
+    --tl-entity-gradient: conic-gradient(
+      from 38deg at 50% 50%,
+      #111317 0deg,
+      #4d5158 86deg,
+      #e4e5e7 184deg,
+      #8c9198 282deg,
+      #111317 360deg
+    );
+    --tl-gradient-duration: 30s;
+    --tl-gradient-origin: 50% 50%;
   }
 
   .tl-nav-card a {
@@ -645,11 +659,11 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
     }
 
     .tl-nav-rail {
-      --card-width: 5.4rem;
+      --card-width: 5.8rem;
     }
 
     .tl-nav-rail ul {
-      gap: 2rem;
+      gap: 2.2rem;
     }
 
     .tl-nav-card-label {

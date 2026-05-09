@@ -1,5 +1,6 @@
 ---
 import AppShell from "../components/AppShell.astro";
+import ScrollArrows from "../components/ScrollArrows.astro";
 import type { KindSummary } from "../types";
 
 interface Props {
@@ -7,31 +8,14 @@ interface Props {
 }
 
 const { kinds } = Astro.props;
-const aspectByIndex = ["3 / 4", "4 / 3", "3 / 4", "1 / 1", "4 / 3", "3 / 4", "1 / 1"];
-const widthByIndex = ["16rem", "22rem", "16rem", "17.5rem", "22rem", "16rem", "17.5rem"];
-const firstCardWidth = widthByIndex[0] ?? "16rem";
-const lastCardWidth = widthByIndex[(Math.max(kinds.length, 1) - 1) % widthByIndex.length] ?? firstCardWidth;
-const halfWidthClamp = (width: string) => {
-  const rem = Number.parseFloat(width);
-  return `clamp(${rem / 2}rem, 9vw, ${rem / 2 + 4.5}rem)`;
-};
 ---
 
 <AppShell activeNav="Index" mode="gallery">
   <div class="tl-home-stage">
     <section class="tl-gallery-section" data-selected-label="Entities">
-      <div
-        class="tl-home-gallery"
-        style={`--first-card-half-width: ${halfWidthClamp(firstCardWidth)}; --last-card-half-width: ${halfWidthClamp(lastCardWidth)};`}
-      >
-        {kinds.map((kind, index) => {
-          const cardAspect = aspectByIndex[index % aspectByIndex.length] ?? "1 / 1";
-          return (
-          <article
-            class="tl-gallery-card"
-            data-selected-label={kind.title}
-            style={`--card-width: ${widthByIndex[index % widthByIndex.length]}; --card-width-mobile: ${index % 3 === 1 ? "18rem" : "13.5rem"}; --card-aspect: ${cardAspect}; --tl-entity-card-aspect: ${cardAspect};`}
-          >
+      <div class="tl-home-gallery">
+        {kinds.map((kind) => (
+          <article class="tl-gallery-card" data-selected-label={kind.title}>
             <a class="tl-gallery-link" href={kind.href} aria-label={`${kind.title}: ${kind.description}`}>
               <span class="tl-gallery-label" aria-hidden="true">
                 <span>{kind.title}</span>
@@ -43,9 +27,9 @@ const halfWidthClamp = (width: string) => {
               </span>
             </a>
           </article>
-          );
-        })}
+        ))}
       </div>
+      <ScrollArrows target="[data-tl-scroll]" items=".tl-gallery-card" label="Landing cards" rowOnly />
     </section>
   </div>
 </AppShell>
@@ -76,7 +60,18 @@ const halfWidthClamp = (width: string) => {
     position: relative;
     width: min(100%, clamp(var(--card-width, 16rem), 18vw, calc(var(--card-width, 16rem) + 9rem)));
     margin: 0 auto;
+    --card-aspect: 1 / 1;
   }
+
+  /* Per-card variants rotate by index modulo 7 (desktop width and aspect)
+     and modulo 3 (mobile width). Values mirror the original index arrays. */
+  .tl-gallery-card:nth-child(7n+1) { --card-width: 16rem; --card-half-width: clamp(8rem, 9vw, 12.5rem); --card-aspect: 3 / 4; }
+  .tl-gallery-card:nth-child(7n+2) { --card-width: 22rem; --card-half-width: clamp(11rem, 9vw, 15.5rem); --card-aspect: 4 / 3; }
+  .tl-gallery-card:nth-child(7n+3) { --card-width: 16rem; --card-half-width: clamp(8rem, 9vw, 12.5rem); --card-aspect: 3 / 4; }
+  .tl-gallery-card:nth-child(7n+4) { --card-width: 17.5rem; --card-half-width: clamp(8.75rem, 9vw, 13.25rem); --card-aspect: 1 / 1; }
+  .tl-gallery-card:nth-child(7n+5) { --card-width: 22rem; --card-half-width: clamp(11rem, 9vw, 15.5rem); --card-aspect: 4 / 3; }
+  .tl-gallery-card:nth-child(7n+6) { --card-width: 16rem; --card-half-width: clamp(8rem, 9vw, 12.5rem); --card-aspect: 3 / 4; }
+  .tl-gallery-card:nth-child(7n+7) { --card-width: 17.5rem; --card-half-width: clamp(8.75rem, 9vw, 13.25rem); --card-aspect: 1 / 1; }
 
   .tl-gallery-link {
     display: block;
@@ -250,13 +245,20 @@ const halfWidthClamp = (width: string) => {
       width: max-content;
       max-width: none;
       margin: 0;
-      padding: 0 calc(50vw - var(--last-card-half-width, var(--first-card-half-width))) 0
-        calc(50vw - var(--first-card-half-width));
+      padding: 0;
     }
 
     .tl-gallery-card {
       flex: 0 0 auto;
       width: clamp(var(--card-width, 16rem), 18vw, calc(var(--card-width, 16rem) + 9rem));
+    }
+
+    .tl-gallery-card:first-child {
+      margin-inline-start: calc(50vw - var(--card-half-width, clamp(8rem, 9vw, 12.5rem)));
+    }
+
+    .tl-gallery-card:last-child {
+      margin-inline-end: calc(50vw - var(--card-half-width, clamp(8rem, 9vw, 12.5rem)));
     }
   }
 
@@ -271,7 +273,12 @@ const halfWidthClamp = (width: string) => {
     }
 
     .tl-gallery-card {
-      width: min(100%, var(--card-width-mobile, 18rem));
+      width: min(100%, var(--card-width-mobile, 13.5rem));
+    }
+
+    /* Mobile width rotates by index modulo 3: idx 1, 4, 7, ... use 18rem; others 13.5rem. */
+    .tl-gallery-card:nth-child(3n+2) {
+      --card-width-mobile: 18rem;
     }
 
     .tl-gallery-label {
