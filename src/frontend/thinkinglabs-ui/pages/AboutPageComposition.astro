@@ -9,9 +9,8 @@ interface Props {
 const { kinds } = Astro.props;
 ---
 
-<AppShell activeNav="About">
+<AppShell activeNav="About" hideSelectedHud>
   <section class="tl-page-head is-spacious">
-    <div class="tl-eyebrow">/about</div>
     <h1>About.</h1>
   </section>
 
@@ -141,8 +140,6 @@ const { kinds } = Astro.props;
 
   .tl-about-inventory {
     padding: clamp(4rem, 12vh, 8rem) 0;
-    border-top: 1px solid var(--tl-line);
-    border-bottom: 1px solid var(--tl-line);
   }
 
   .tl-about-inventory header {
@@ -177,11 +174,6 @@ const { kinds } = Astro.props;
     gap: 22px;
     align-items: baseline;
     padding: 26px 0;
-    border-top: 1px solid var(--tl-line);
-  }
-
-  .tl-about-kind-row:last-child {
-    border-bottom: 1px solid var(--tl-line);
   }
 
   .tl-about-kind-row h3 {

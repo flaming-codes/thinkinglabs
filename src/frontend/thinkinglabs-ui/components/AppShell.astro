@@ -4,11 +4,12 @@ import SiteHeader from "./SiteHeader.astro";
 
 interface Props {
   activeNav?: "Index" | "Now" | "Calibration" | "Brain-diff" | "Agents" | "About";
+  hideSelectedHud?: boolean;
   mode?: "document" | "gallery";
 }
 
-const { activeNav = "Index", mode = "document" } = Astro.props;
-const showSelectedHud = activeNav !== "Index";
+const { activeNav = "Index", hideSelectedHud = false, mode = "document" } = Astro.props;
+const showSelectedHud = activeNav !== "Index" && !hideSelectedHud;
 ---
 
 <article class="tl-shell" id="top" data-active-nav={activeNav} data-layout={mode}>

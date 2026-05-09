@@ -45,6 +45,11 @@ type SatoriNode = SatoriElement | string;
 
 type EntityGradientKey = Exclude<Kind, "provenance">;
 
+const OG_IMAGE_WIDTH = 1200;
+const OG_IMAGE_HEIGHT = 628;
+const OG_BOTTOM_HEIGHT = 190;
+const OG_GRADIENT_HEIGHT = OG_IMAGE_HEIGHT - OG_BOTTOM_HEIGHT;
+
 const SHARED_ENTITY_GRADIENT_KEYS = [
   "thoughts",
   "claims",
@@ -138,8 +143,8 @@ export const GET: APIRoute = async ({ props }) => {
   const image = props as OgImageProps;
   const [regular, medium] = await Promise.all([loadFont("geist", 400), loadFont("geist", 500)]);
   const svg = await satori(renderImage(image) as Parameters<typeof satori>[0], {
-    width: 1200,
-    height: 630,
+    width: OG_IMAGE_WIDTH,
+    height: OG_IMAGE_HEIGHT,
     fonts: [
       { name: "Geist", data: regular, weight: 400, style: "normal" },
       { name: "Geist", data: medium, weight: 500, style: "normal" },
@@ -251,8 +256,8 @@ function renderImage(image: OgImageProps): SatoriElement {
     div(
       styles.gradientBlock,
       conicSvg({
-        canvasWidth: 1200,
-        canvasHeight: 440,
+        canvasWidth: OG_IMAGE_WIDTH,
+        canvasHeight: OG_GRADIENT_HEIGHT,
         gradient: image.gradient,
       }),
     ),
@@ -269,8 +274,8 @@ function conicSvg(options: {
   readonly gradient: ConicGradient;
   readonly opacity?: number;
 }): SatoriElement {
-  const width = options.canvasWidth ?? 1200;
-  const height = options.canvasHeight ?? 630;
+  const width = options.canvasWidth ?? OG_IMAGE_WIDTH;
+  const height = options.canvasHeight ?? OG_IMAGE_HEIGHT;
   const cx = (options.gradient.atX / 100) * width;
   const cy = (options.gradient.atY / 100) * height;
   const radius =
@@ -408,7 +413,7 @@ const styles = {
     position: "relative",
     display: "flex",
     width: "100%",
-    height: 440,
+    height: OG_GRADIENT_HEIGHT,
     overflow: "hidden",
   },
   svg: {
@@ -420,7 +425,7 @@ const styles = {
     display: "flex",
     alignItems: "center",
     width: "100%",
-    height: 190,
+    height: OG_BOTTOM_HEIGHT,
     background: "#ffffff",
     paddingLeft: 56,
     paddingRight: 56,
