@@ -1,7 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="thinkinglabs">
-  <rect width="512" height="512" rx="96" fill="#07090d"/>
-  <g fill="#ffffff">
-    <rect x="128" y="180" width="256" height="40" rx="20"/>
-    <rect x="236" y="148" width="40" height="244" rx="20"/>
-  </g>
+  <rect width="512" height="512" rx="96" fill="#ffffff"/>
+  <path
+    d="M 88 280 L 152 208 L 216 304 L 280 200 L 344 304 L 408 224 L 448 264"
+    fill="none"
+    stroke="#07090d"
+    stroke-width="34"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
 </svg>

@@ -92,7 +92,7 @@ const KIND_PALETTES: Record<Kind, readonly string[]> = {
   provenance: ["#20242b", "#d6dde8", "#f7fafc", "#8fa1b8", "#111827"],
 };
 
-let fontCache: Promise<ArrayBuffer> | null = null;
+const fontCache = new Map<number, Promise<ArrayBuffer>>();
 
 /** Build one PNG route for every public HTML page and content detail page. */
 export const getStaticPaths: GetStaticPaths = async () => {
@@ -135,16 +135,13 @@ export const getStaticPaths: GetStaticPaths = async () => {
 /** Render the Satori SVG and convert it to PNG with ReSVG for social crawlers. */
 export const GET: APIRoute = async ({ props }) => {
   const image = props as OgImageProps;
+  const [regular, medium] = await Promise.all([loadFont(400), loadFont(500)]);
   const svg = await satori(renderImage(image) as Parameters<typeof satori>[0], {
     width: 1200,
     height: 630,
     fonts: [
-      {
-        name: "Geist",
-        data: await loadFont(),
-        weight: 400,
-        style: "normal",
-      },
+      { name: "Geist", data: regular, weight: 400, style: "normal" },
+      { name: "Geist", data: medium, weight: 500, style: "normal" },
     ],
   });
   const png = new Resvg(svg).render().asPng();
@@ -156,11 +153,17 @@ export const GET: APIRoute = async ({ props }) => {
   });
 };
 
-async function loadFont(): Promise<ArrayBuffer> {
-  fontCache ??= readFile("node_modules/@fontsource/geist/files/geist-latin-400-normal.woff").then(
-    (buffer) => buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength),
-  );
-  return fontCache;
+async function loadFont(weight: 400 | 500): Promise<ArrayBuffer> {
+  let cached = fontCache.get(weight);
+  if (!cached) {
+    cached = readFile(
+      `node_modules/@fontsource/geist/files/geist-latin-${weight}-normal.woff`,
+    ).then((buffer) =>
+      buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength),
+    );
+    fontCache.set(weight, cached);
+  }
+  return cached;
 }
 
 async function getKindCollection(kind: Kind) {
@@ -189,32 +192,31 @@ async function getKindCollection(kind: Kind) {
 }
 
 function renderImage(image: OgImageProps): SatoriElement {
-  const titleLines = wrapText(image.title, 24, 3);
-  const descriptionLines = wrapText(image.description, 56, 2);
+  const titleLines = wrapText(image.title, 24, 2);
+  const descriptionLines = wrapText(image.description, 64, 2);
 
   return div(
     styles.root,
-    conicSvg({ cx: 190, cy: 140, radius: 520, palette: image.palette, turn: 0.45, opacity: 0.16 }),
     div(
-      styles.copy,
-      div(styles.kicker, image.kicker.toUpperCase()),
-      div(styles.title, ...titleLines.map((line) => div(styles.line, line))),
-      div(styles.description, ...descriptionLines.map((line) => div(styles.line, line))),
-      div(styles.rule),
-      div(styles.domain, "thinkinglabs.run"),
+      styles.gradientBlock,
+      conicSvg({
+        canvasWidth: 1200,
+        canvasHeight: 440,
+        cx: 600,
+        cy: 220,
+        radius: 900,
+        palette: image.palette,
+        turn: 0.45,
+      }),
     ),
     div(
-      styles.visualShell,
-      conicSvg({
-        canvasWidth: 370,
-        canvasHeight: 370,
-        cx: 185,
-        cy: 185,
-        radius: 300,
-        palette: image.palette,
-        turn: -0.35,
-      }),
-      div(styles.visualFrame),
+      styles.bottomBlock,
+      div(
+        styles.copy,
+        div(styles.title, ...titleLines.map((line) => div(styles.line, line))),
+        div(styles.description, ...descriptionLines.map((line) => div(styles.line, line))),
+      ),
+      div(styles.wordmarkSlot, wordmarkSvg(), div(styles.wordmarkLabel, "thinkinglabs")),
     ),
   );
 }
@@ -267,6 +269,34 @@ function conicWedges(
   });
 }
 
+/**
+ * Wordmark rendered as an inline SVG with a thin wavy stroke that approximates the
+ * Linefont silhouette. Linefont is a variable font, and Satori only supports static
+ * font axes, so we lean on a hand-traced path here instead of bundling a static cut.
+ */
+function wordmarkSvg(): SatoriElement {
+  // Wave that rises and falls across a baseline, two cycles, suggesting a flowing wordmark.
+  // viewBox kept at 240x40 so callers can size by the slot width.
+  const path =
+    "M2 28 C 14 8, 26 8, 38 28 S 62 48, 74 28 S 98 8, 110 28 S 134 48, 146 28 S 170 8, 182 28 S 206 48, 218 28 S 234 12, 238 18";
+  return node("svg", {
+    width: 200,
+    height: 28,
+    viewBox: "0 0 240 40",
+    style: { display: "flex" },
+    children: [
+      node("path", {
+        d: path,
+        fill: "none",
+        stroke: "#07090d",
+        "stroke-width": 2,
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round",
+      }),
+    ],
+  });
+}
+
 function div(style: Record<string, unknown>, ...children: SatoriNode[]): SatoriElement {
   return node("div", { style: { display: "flex", ...style }, children });
 }
@@ -308,38 +338,50 @@ const styles = {
   root: {
     position: "relative",
     display: "flex",
+    flexDirection: "column",
     width: "100%",
     height: "100%",
     overflow: "hidden",
-    background: "radial-gradient(circle at 50% 45%, #ffffff 0%, #fbfaf7 62%, #f4f1ea 100%)",
-    color: "#0c1424",
+    background: "#ffffff",
+    color: "#07090d",
     fontFamily: "Geist",
+  },
+  gradientBlock: {
+    position: "relative",
+    display: "flex",
+    width: "100%",
+    height: 440,
+    overflow: "hidden",
   },
   svg: {
     position: "absolute",
     inset: 0,
   },
+  bottomBlock: {
+    position: "relative",
+    display: "flex",
+    width: "100%",
+    height: 190,
+    background: "#ffffff",
+    paddingLeft: 72,
+    paddingRight: 72,
+    paddingTop: 28,
+    paddingBottom: 28,
+  },
   copy: {
-    position: "absolute",
-    left: 112,
-    top: 112,
     display: "flex",
     flexDirection: "column",
-    width: 610,
-  },
-  kicker: {
-    display: "flex",
-    fontSize: 28,
-    fontWeight: 400,
-    letterSpacing: 4,
-    marginBottom: 48,
+    flexGrow: 1,
+    paddingRight: 32,
   },
   title: {
     display: "flex",
     flexDirection: "column",
-    fontSize: 66,
-    fontWeight: 400,
-    lineHeight: 1.12,
+    color: "#07090d",
+    fontSize: 60,
+    fontWeight: 500,
+    lineHeight: 1.05,
+    letterSpacing: -1,
   },
   line: {
     display: "flex",
@@ -347,38 +389,26 @@ const styles = {
   description: {
     display: "flex",
     flexDirection: "column",
-    color: "#4b5563",
-    fontSize: 28,
-    fontWeight: 400,
-    lineHeight: 1.22,
-    marginTop: 160,
-  },
-  rule: {
-    display: "flex",
-    width: 318,
-    height: 2,
-    marginTop: 28,
-    background: "rgba(12, 20, 36, 0.22)",
-  },
-  domain: {
-    display: "flex",
-    color: "rgba(12, 20, 36, 0.72)",
+    color: "rgba(7, 9, 13, 0.55)",
     fontSize: 24,
     fontWeight: 400,
+    lineHeight: 1.25,
+    marginTop: 14,
   },
-  visualShell: {
-    position: "absolute",
+  wordmarkSlot: {
     display: "flex",
-    left: 662,
-    top: 122,
-    width: 370,
-    height: 370,
-    overflow: "visible",
-    boxShadow: "0 34px 64px rgba(7, 16, 33, 0.18)",
+    flexDirection: "column",
+    alignItems: "flex-end",
+    justifyContent: "flex-start",
+    width: 220,
+    paddingTop: 6,
   },
-  visualFrame: {
-    position: "absolute",
-    inset: 0,
-    border: "1px solid rgba(255, 255, 255, 0.28)",
+  wordmarkLabel: {
+    display: "flex",
+    marginTop: 6,
+    color: "rgba(7, 9, 13, 0.55)",
+    fontSize: 14,
+    fontWeight: 400,
+    letterSpacing: 2,
   },
 } satisfies Record<string, Record<string, unknown>>;
