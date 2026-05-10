@@ -1,13 +1,11 @@
 ---
 import { getCollection, render } from "astro:content";
 import type { GetStaticPaths, InferGetStaticPropsType } from "astro";
-import Base from "../../layouts/Base.astro";
-import MetaBlock from "../../components/MetaBlock.astro";
-import StatusPill from "../../components/StatusPill.astro";
-import Tags from "../../components/Tags.astro";
+import QuestionDetailPageComposition from "../../frontend/thinkinglabs-ui/pages/QuestionDetailPageComposition.astro";
+import ThinkinglabsUiPage from "../../layouts/ThinkinglabsUiPage.astro";
 import { loadContact } from "../../lib/contact.ts";
-import { stripKindPrefix } from "../../lib/refs.ts";
 import { questionStructuredData } from "../../lib/structured-data.ts";
+import { buildClaimLookup, buildTitleLookup, mapQuestionDetail } from "../../lib/thinkinglabs-ui.ts";
 
 export const getStaticPaths = (async () => {
   const items = await getCollection("questions");
@@ -18,55 +16,20 @@ const { entry } = Astro.props as InferGetStaticPropsType<typeof getStaticPaths>;
 const { Content } = await render(entry);
 const contact = loadContact();
 const email = contact.channels.find((channel) => channel.type === "email");
+const [claims, projects] = await Promise.all([getCollection("claims"), getCollection("projects")]);
+const lookups = buildTitleLookup({ claims, projects });
+const claimLookup = buildClaimLookup(claims);
+const responseAction = email?.type === "email" ? `mailto:${email.address}` : "/contact";
+const question = mapQuestionDetail({ entry, lookups, claimLookup, responseAction });
 const site = Astro.site ?? new URL(Astro.url.origin);
 ---
-<Base
+<ThinkinglabsUiPage
   title={`${entry.data.question.slice(0, 60)} — Questions`}
   description={entry.data.context ?? entry.data.question}
   structuredData={questionStructuredData(entry, Astro.url, site)}
   ogType="article"
 >
-  <h1>{entry.data.question} <StatusPill status={entry.data.status} /></h1>
-  <MetaBlock
-    data={entry.data}
-    fields={[
-      ["asked", "asked"],
-      ["ideal responder", "ideal_responder"],
-      ["context", "context"],
-      ["attempts", "attempts"],
-    ]}
-  />
-  <Tags tags={entry.data.tags} />
-  <article><Content /></article>
-  <section>
-    <h2>Submit an answer</h2>
-    <form method="post" action={email?.type === "email" ? `mailto:${email.address}` : "/contact"} enctype="text/plain">
-      <input type="hidden" name="questionSlug" value={entry.id} />
-      <label>
-        Name
-        <input name="responder.name" required />
-      </label>
-      <label>
-        Contact
-        <input name="responder.contact" />
-      </label>
-      <label>
-        Pointers
-        <input name="pointers" placeholder="URLs or references" />
-      </label>
-      <label>
-        Answer
-        <textarea name="body" required></textarea>
-      </label>
-      <button type="submit">Send for triage</button>
-    </form>
-  </section>
-  {entry.data.related_claims.length > 0 ? (
-    <>
-      <h2>Related claims</h2>
-      <ul class="list">
-        {entry.data.related_claims.map((c) => <li><a href={`/claims/${stripKindPrefix(c)}`}>{c}</a></li>)}
-      </ul>
-    </>
-  ) : null}
-</Base>
+  <QuestionDetailPageComposition question={question}>
+    <Content />
+  </QuestionDetailPageComposition>
+</ThinkinglabsUiPage>

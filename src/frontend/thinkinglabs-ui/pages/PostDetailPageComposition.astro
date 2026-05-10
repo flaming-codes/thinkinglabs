@@ -166,16 +166,7 @@ const hasRelated = post.related.length > 0;
     width: min(100%, 920px);
     min-height: clamp(19rem, 45vh, 34rem);
     margin: 0 auto clamp(3rem, 7vw, 5rem);
-    background: var(--tl-post-detail-gradient);
-    background-size: 220% 220%;
-    background-position: 0% 30%;
-    animation: tl-post-gradient-drift 42s ease-in-out infinite alternate;
-  }
-
-  @keyframes tl-post-gradient-drift {
-    0% { background-position: 0% 30%; }
-    50% { background-position: 65% 70%; }
-    100% { background-position: 100% 35%; }
+    background: var(--tl-entity-detail-gradient);
   }
 
   .tl-post-detail-grid {
@@ -434,9 +425,4 @@ const hasRelated = post.related.length > 0;
     }
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .tl-post-hero {
-      animation: none;
-    }
-  }
 </style>

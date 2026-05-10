@@ -21,79 +21,105 @@ const meta = [
 ---
 
 <AppShell activeNav="Index">
-  <div class="tl-index-eyebrow">/inputs/{input.slug}</div>
-  <div class="tl-index-crumb">Input · {input.kind} · {input.year}</div>
-
-  <header class="tl-input-detail-head">
-    <div class="tl-input-detail-kindline">
-      {input.kind} · {input.year} · {input.publisher}
-    </div>
-    <h1>{input.title}</h1>
-    <div class="tl-input-detail-byline">{input.by}</div>
-  </header>
-
-  <section class="tl-input-meta-band">
-    {meta.map((cell) => (
-      <div class="tl-input-meta-cell">
-        <div class="tl-input-meta-label">{cell.label}</div>
-        <div class="tl-input-meta-val">{cell.value}</div>
+  <article class="tl-input-detail-page" data-selected-label={input.title} data-entity="inputs">
+    <header class="tl-input-detail-head">
+      <div class="tl-input-visual" aria-hidden="true"></div>
+      <div class="tl-input-title">
+        <p class="tl-mono">Input detail</p>
+        <div class="tl-input-detail-kindline">
+          {input.kind} · {input.year} · {input.publisher}
+        </div>
+        <h1>{input.title}</h1>
+        <div class="tl-input-detail-byline">{input.by}</div>
       </div>
-    ))}
-  </section>
+    </header>
 
-  <IndexSectionHeader label="§ 01 / takeaway" title="What stuck." />
-  <section class="tl-input-takeaway">
-    <p>“{input.takeaway}”</p>
-  </section>
+    <section class="tl-input-meta-band">
+      {meta.map((cell) => (
+        <div class="tl-input-meta-cell">
+          <div class="tl-input-meta-label">{cell.label}</div>
+          <div class="tl-input-meta-val">{cell.value}</div>
+        </div>
+      ))}
+    </section>
 
-  {input.marginNotes.length > 0 && (
-    <>
-      <IndexSectionHeader label="§ 02 / margin notes" title="What I wrote in the margins." />
-      <section class="tl-input-notes">
-        {input.marginNotes.map((note) => (
-          <article class="tl-input-note">
-            <span class="tl-input-note-page">{note.page}</span>
-            <p class="tl-input-note-text">{note.text}</p>
-          </article>
-        ))}
-      </section>
-    </>
-  )}
+    <IndexSectionHeader label="Takeaway" title="What stuck." />
+    <section class="tl-input-takeaway">
+      <p>"{input.takeaway}"</p>
+    </section>
 
-  {input.citations.length > 0 && (
-    <>
-      <IndexSectionHeader
-        label="§ 03 / cited by"
-        title="Where it shows up<br/>in this system."
-      />
-      <section class="tl-input-citations">
-        {input.citations.map((c) => (
-          <article class="tl-input-citation">
-            <span class="tl-input-citation-kind">{c.kind}</span>
-            <span class="tl-input-citation-title">
-              {c.href ? <a href={c.href}>{c.title}</a> : c.title}
-            </span>
-            <span class="tl-input-citation-conf">
-              {c.conf !== undefined ? c.conf.toFixed(2) : (c.date ?? "")}
-            </span>
-          </article>
-        ))}
-      </section>
-    </>
-  )}
+    {input.marginNotes.length > 0 && (
+      <>
+        <IndexSectionHeader label="Margin notes" title="What I wrote in the margins." />
+        <section class="tl-input-notes">
+          {input.marginNotes.map((note) => (
+            <article class="tl-input-note">
+              <span class="tl-input-note-page">{note.page}</span>
+              <p class="tl-input-note-text">{note.text}</p>
+            </article>
+          ))}
+        </section>
+      </>
+    )}
+
+    {input.citations.length > 0 && (
+      <>
+        <IndexSectionHeader
+          label="Cited by"
+          title="Where it shows up<br/>in this system."
+        />
+        <section class="tl-input-citations">
+          {input.citations.map((c) => (
+            <article class="tl-input-citation">
+              <span class="tl-input-citation-kind">{c.kind}</span>
+              <span class="tl-input-citation-title">
+                {c.href ? <a href={c.href}>{c.title}</a> : c.title}
+              </span>
+              <span class="tl-input-citation-conf">
+                {c.conf !== undefined ? c.conf.toFixed(2) : (c.date ?? "")}
+              </span>
+            </article>
+          ))}
+        </section>
+      </>
+    )}
+  </article>
 </AppShell>
 
 <style>
+  .tl-input-detail-page {
+    padding: clamp(7rem, 13vh, 10rem) 20px clamp(7rem, 16vh, 12rem);
+  }
+
   .tl-input-detail-head,
   .tl-input-meta-band,
   .tl-input-notes,
   .tl-input-citations {
-    width: var(--tl-center);
+    width: min(100%, 980px);
     margin-inline: auto;
   }
 
+  .tl-input-detail-head {
+    display: grid;
+    grid-template-columns: minmax(12rem, 0.58fr) minmax(0, 1fr);
+    gap: clamp(2rem, 6vw, 5rem);
+    align-items: end;
+    min-height: clamp(23rem, 58vh, 38rem);
+  }
+
+  .tl-input-visual {
+    align-self: stretch;
+    min-height: 16rem;
+    background: var(--tl-entity-detail-gradient);
+  }
+
+  .tl-input-title {
+    display: grid;
+    gap: 14px;
+    padding-bottom: clamp(1rem, 4vh, 2rem);
+  }
+
   .tl-input-detail-head h1 {
-    margin-top: 14px;
     font-size: clamp(44px, 7vw, 92px);
     font-weight: 650;
     line-height: 0.9;
@@ -119,11 +145,24 @@ const meta = [
   }
 
   @media (max-width: 767px) {
+    .tl-input-detail-page {
+      padding: 5rem 16px 3rem;
+    }
+
+    .tl-input-detail-head {
+      grid-template-columns: 1fr;
+      min-height: 0;
+    }
+
+    .tl-input-visual {
+      min-height: 12rem;
+    }
+
     .tl-input-detail-head,
     .tl-input-meta-band,
     .tl-input-notes,
     .tl-input-citations {
-      width: min(100% - 40px, 43.75rem);
+      width: 100%;
     }
 
     .tl-input-citation {
@@ -131,4 +170,5 @@ const meta = [
       gap: 12px;
     }
   }
+
 </style>

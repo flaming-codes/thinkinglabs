@@ -2,12 +2,15 @@ import type { CollectionEntry } from "astro:content";
 import type {
   AboutKind,
   CalibrationData,
+  ChangedMyMindDetail,
   ChangedMyMindView,
   ClaimDetail,
   ClaimEvidence,
   ClaimSummary,
+  DecisionDetail,
   DecisionRow,
   DecisionsView,
+  DetailRelation,
   FlipSummary,
   IndexStat,
   InputDetail,
@@ -23,8 +26,10 @@ import type {
   PostSummary,
   PredictionRow,
   PredictionsView,
+  ProjectDetail,
   ProjectRow,
   ProjectsView,
+  QuestionDetail,
   QuestionRow,
   QuestionsView,
   ThoughtDetail,
@@ -158,6 +163,15 @@ function titleFromLookup(
   const parsed = parseRef(ref, fallbackKind);
   const title = lookups[parsed.kind]?.get(parsed.slug) ?? parsed.slug;
   return { kind: parsed.kind, title, href: parsed.href };
+}
+
+function detailRelation(ref: string, fallbackKind: Kind, lookups: TitleLookup): DetailRelation {
+  const resolved = titleFromLookup(ref, fallbackKind, lookups);
+  return {
+    kind: kindLabel(resolved.kind),
+    title: resolved.title,
+    href: resolved.href,
+  };
 }
 
 function firstParagraph(markdown: string, fallback: string): string {
@@ -760,6 +774,47 @@ export function mapProjectsView(args: {
   return { total, active, stats, rows };
 }
 
+/** Convert one project entry into the branded project detail view. */
+export function mapProjectDetail(args: {
+  entry: CollectionEntry<"projects">;
+  lastTouched: string;
+  lookups?: TitleLookup;
+  claimLookup?: ClaimLookup;
+}): ProjectDetail {
+  const { entry, lastTouched, lookups = {}, claimLookup = new Map() } = args;
+  const links: DetailRelation[] = [];
+  if (entry.data.links.repo) {
+    links.push({ kind: "repo", title: "Repository", href: entry.data.links.repo });
+  }
+  if (entry.data.links.productive_id) {
+    links.push({
+      kind: "productive",
+      title: entry.data.links.productive_id,
+      value: entry.data.links.productive_id,
+    });
+  }
+
+  return {
+    slug: entry.id,
+    title: entry.data.title,
+    status: entry.data.status,
+    started: formatDate(entry.data.started),
+    lastTouched,
+    currentQuestion: entry.data.current_question ?? "No current question logged.",
+    helpWelcome: entry.data.help_welcome ?? "No help request logged.",
+    tags: entry.data.tags,
+    links,
+    relatedThoughts: entry.data.related_thoughts.map((ref) =>
+      detailRelation(ref, "thoughts", lookups),
+    ),
+    relatedClaims: entry.data.related_claims.map((ref) => {
+      const relation = detailRelation(ref, "claims", lookups);
+      const conf = relatedClaimConfidence(claimLookup, ref);
+      return conf === undefined ? relation : { ...relation, value: conf.toFixed(2) };
+    }),
+  };
+}
+
 function daysBetween(fromIso: string, target: Date | string): number {
   const fromMs = safeDate(fromIso);
   const toMs = typeof target === "string" ? safeDate(target) : target.getTime();
@@ -965,6 +1020,29 @@ export function mapChangedMyMindView(args: {
   return { total: flips.length, stats, flips };
 }
 
+/** Convert one belief-revision entry into the branded changed-my-mind detail view. */
+export function mapChangedMyMindDetail(args: {
+  entry: CollectionEntry<"changed-my-mind">;
+  lookups?: TitleLookup;
+  claimLookup?: ClaimLookup;
+}): ChangedMyMindDetail {
+  const { entry, lookups = {}, claimLookup = new Map() } = args;
+  return {
+    slug: entry.id,
+    title: entry.data.title,
+    date: formatDate(entry.data.date),
+    usedToBelieve: entry.data.used_to_believe,
+    whatChanged: entry.data.what_changed,
+    nowBelieve: entry.data.now_believe,
+    supersededClaims: entry.data.superseded_claims.map((ref) => {
+      const relation = detailRelation(ref, "claims", lookups);
+      const conf = relatedClaimConfidence(claimLookup, ref);
+      return conf === undefined ? relation : { ...relation, value: conf.toFixed(2) };
+    }),
+    tags: entry.data.tags,
+  };
+}
+
 function decisionState(status: string): DecisionRow["state"] {
   if (status === "reversed") return "reversed";
   if (status === "superseded") return "archived";
@@ -1009,6 +1087,39 @@ export function mapDecisionsView(
   return { total, active, reversed, archived, stats };
 }
 
+/** Convert one decision entry into the branded decision detail view. */
+export function mapDecisionDetail(args: {
+  entry: CollectionEntry<"decisions">;
+  reversedBy?: ReadonlyArray<string>;
+  lookups?: TitleLookup;
+  claimLookup?: ClaimLookup;
+}): DecisionDetail {
+  const { entry, reversedBy = [], lookups = {}, claimLookup = new Map() } = args;
+  return {
+    slug: entry.id,
+    title: entry.data.decision,
+    status: entry.data.status,
+    date: formatDate(entry.data.date),
+    chosen: entry.data.chosen,
+    why: entry.data.why ?? "No explicit why logged.",
+    context: entry.data.context ?? "No context logged.",
+    options: entry.data.options_considered,
+    changeTrigger: entry.data.what_would_change_my_mind ?? "No reversal condition logged.",
+    followUp: entry.data.follow_up_on ? formatDate(entry.data.follow_up_on) : null,
+    reverses: entry.data.reverses.map((ref) => detailRelation(ref, "decisions", lookups)),
+    reversedBy: reversedBy.map((ref) => detailRelation(ref, "decisions", lookups)),
+    relatedClaims: entry.data.related_claims.map((ref) => {
+      const relation = detailRelation(ref, "claims", lookups);
+      const conf = relatedClaimConfidence(claimLookup, ref);
+      return conf === undefined ? relation : { ...relation, value: conf.toFixed(2) };
+    }),
+    relatedProjects: entry.data.related_projects.map((ref) =>
+      detailRelation(ref, "projects", lookups),
+    ),
+    tags: entry.data.tags,
+  };
+}
+
 function questionHeat(entry: CollectionEntry<"questions">, now: Date): number {
   const ageDays = (now.getTime() - safeDate(entry.data.asked)) / (1000 * 60 * 60 * 24);
   const recent = ageDays <= 60 ? 2 : ageDays <= 180 ? 1 : 0;
@@ -1046,6 +1157,35 @@ export function mapQuestionsView(args: {
   ];
 
   return { total: questions.length, stats, questions };
+}
+
+/** Convert one question entry into the branded question detail view. */
+export function mapQuestionDetail(args: {
+  entry: CollectionEntry<"questions">;
+  lookups?: TitleLookup;
+  claimLookup?: ClaimLookup;
+  responseAction: string;
+}): QuestionDetail {
+  const { entry, lookups = {}, claimLookup = new Map(), responseAction } = args;
+  return {
+    slug: entry.id,
+    question: entry.data.question,
+    status: entry.data.status,
+    asked: formatDate(entry.data.asked),
+    context: entry.data.context ?? "No context logged.",
+    idealResponder: entry.data.ideal_responder ?? "An informed responder with direct evidence.",
+    attempts: entry.data.attempts,
+    relatedClaims: entry.data.related_claims.map((ref) => {
+      const relation = detailRelation(ref, "claims", lookups);
+      const conf = relatedClaimConfidence(claimLookup, ref);
+      return conf === undefined ? relation : { ...relation, value: conf.toFixed(2) };
+    }),
+    relatedProjects: entry.data.related_projects.map((ref) =>
+      detailRelation(ref, "projects", lookups),
+    ),
+    tags: entry.data.tags,
+    responseAction,
+  };
 }
 
 function inputKind(input: CollectionEntry<"inputs">): string {

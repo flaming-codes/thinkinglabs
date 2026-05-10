@@ -244,6 +244,27 @@ interface ProjectsView {
   rows: ProjectRow[];
 }
 
+interface DetailRelation {
+  kind: string;
+  title: string;
+  href?: string;
+  value?: string;
+}
+
+interface ProjectDetail {
+  slug: string;
+  title: string;
+  status: string;
+  started: string;
+  lastTouched: string;
+  currentQuestion: string;
+  helpWelcome: string;
+  tags: string[];
+  links: DetailRelation[];
+  relatedThoughts: DetailRelation[];
+  relatedClaims: DetailRelation[];
+}
+
 interface PredictionRow {
   slug: string;
   title: string;
@@ -281,6 +302,17 @@ interface ChangedMyMindView {
   flips: FlipSummary[];
 }
 
+interface ChangedMyMindDetail {
+  slug: string;
+  title: string;
+  date: string;
+  usedToBelieve: string;
+  whatChanged: string;
+  nowBelieve: string;
+  supersededClaims: DetailRelation[];
+  tags: string[];
+}
+
 interface DecisionRow {
   slug: string;
   title: string;
@@ -300,6 +332,24 @@ interface DecisionsView {
   stats: IndexStat[];
 }
 
+interface DecisionDetail {
+  slug: string;
+  title: string;
+  status: "standing" | "reversed" | "superseded";
+  date: string;
+  chosen: string;
+  why: string;
+  context: string;
+  options: string[];
+  changeTrigger: string;
+  followUp: string | null;
+  reverses: DetailRelation[];
+  reversedBy: DetailRelation[];
+  relatedClaims: DetailRelation[];
+  relatedProjects: DetailRelation[];
+  tags: string[];
+}
+
 interface QuestionRow {
   slug: string;
   title: string;
@@ -316,6 +366,20 @@ interface QuestionsView {
   total: number;
   stats: IndexStat[];
   questions: QuestionRow[];
+}
+
+interface QuestionDetail {
+  slug: string;
+  question: string;
+  status: "open" | "partial" | "closed";
+  asked: string;
+  context: string;
+  idealResponder: string;
+  attempts: string[];
+  relatedClaims: DetailRelation[];
+  relatedProjects: DetailRelation[];
+  tags: string[];
+  responseAction: string;
 }
 
 interface InputRow {
@@ -386,13 +450,16 @@ export type {
   ActiveThread,
   CalibrationBin,
   CalibrationData,
+  ChangedMyMindDetail,
   ChangedMyMindView,
   ClaimDetail,
   ClaimEvidence,
   ClaimHistory,
   ClaimSummary,
+  DecisionDetail,
   DecisionRow,
   DecisionsView,
+  DetailRelation,
   DiffDay,
   DiffEntry,
   EntityIndexPage,
@@ -416,8 +483,10 @@ export type {
   PredictionRow,
   PredictionSnapshot,
   PredictionsView,
+  ProjectDetail,
   ProjectRow,
   ProjectsView,
+  QuestionDetail,
   QuestionRow,
   QuestionsView,
   ThoughtDetail,

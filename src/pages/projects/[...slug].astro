@@ -1,12 +1,10 @@
 ---
 import { getCollection, render } from "astro:content";
 import type { GetStaticPaths, InferGetStaticPropsType } from "astro";
-import Base from "../../layouts/Base.astro";
-import MetaBlock from "../../components/MetaBlock.astro";
-import RelatedRefs from "../../components/RelatedRefs.astro";
-import StatusPill from "../../components/StatusPill.astro";
-import Tags from "../../components/Tags.astro";
+import ProjectDetailPageComposition from "../../frontend/thinkinglabs-ui/pages/ProjectDetailPageComposition.astro";
+import ThinkinglabsUiPage from "../../layouts/ThinkinglabsUiPage.astro";
 import { projectLastTouched } from "../../lib/projects.ts";
+import { buildClaimLookup, buildTitleLookup, mapProjectDetail } from "../../lib/thinkinglabs-ui.ts";
 import { projectStructuredData } from "../../lib/structured-data.ts";
 
 export const getStaticPaths = (async () => {
@@ -17,26 +15,19 @@ export const getStaticPaths = (async () => {
 const { entry } = Astro.props as InferGetStaticPropsType<typeof getStaticPaths>;
 const { Content } = await render(entry);
 const lastTouched = await projectLastTouched(entry.id);
+const [thoughts, claims] = await Promise.all([getCollection("thoughts"), getCollection("claims")]);
+const lookups = buildTitleLookup({ thoughts, claims });
+const claimLookup = buildClaimLookup(claims);
+const project = mapProjectDetail({ entry, lastTouched, lookups, claimLookup });
 const site = Astro.site ?? new URL(Astro.url.origin);
 ---
-<Base
+<ThinkinglabsUiPage
   title={`${entry.data.title} — Projects`}
   description={entry.data.current_question ?? entry.data.help_welcome}
   structuredData={projectStructuredData(entry, Astro.url, site, lastTouched)}
   ogType="article"
 >
-  <h1>{entry.data.title} <StatusPill status={entry.data.status} /></h1>
-  <MetaBlock
-    data={{ ...entry.data, last_touched: lastTouched }}
-    fields={[
-      ["started", "started"],
-      ["last touched", "last_touched"],
-      ["current question", "current_question"],
-      ["help welcome", "help_welcome"],
-    ]}
-  />
-  <Tags tags={entry.data.tags} />
-  <article><Content /></article>
-  <RelatedRefs heading="Related thoughts" kind="thoughts" refs={entry.data.related_thoughts} />
-  <RelatedRefs heading="Related claims" kind="claims" refs={entry.data.related_claims} />
-</Base>
+  <ProjectDetailPageComposition project={project}>
+    <Content />
+  </ProjectDetailPageComposition>
+</ThinkinglabsUiPage>

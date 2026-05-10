@@ -21,6 +21,12 @@
     #cddce6 306deg,
     #f7fbff 360deg
   );
+  --tl-entity-detail-gradient-thoughts: linear-gradient(
+    135deg,
+    #f8fcff 0%,
+    #8dbbd0 48%,
+    #2b4558 100%
+  );
   --tl-entity-gradient-claims: conic-gradient(
     from 216deg at 45% 48%,
     #c9ddff 0deg,
@@ -28,6 +34,12 @@
     #ffd9ed 238deg,
     #a9c4ff 312deg,
     #c9ddff 360deg
+  );
+  --tl-entity-detail-gradient-claims: linear-gradient(
+    128deg,
+    #f7f9ff 0%,
+    #d9e4ff 42%,
+    #ffd9ed 100%
   );
   --tl-entity-gradient-projects: conic-gradient(
     from 204deg at 48% 52%,
@@ -38,12 +50,25 @@
     #f24f36 304deg,
     #042f3f 360deg
   );
+  --tl-entity-detail-gradient-projects: linear-gradient(
+    140deg,
+    #042f3f 0%,
+    #0d8ba0 34%,
+    #d8f95b 68%,
+    #f24f36 100%
+  );
   --tl-entity-gradient-predictions: conic-gradient(
     from 210deg at 50% 50%,
     #080d16,
     #fff,
     #b7cff7,
     #080d16
+  );
+  --tl-entity-detail-gradient-predictions: linear-gradient(
+    132deg,
+    #080d16 0%,
+    #b7cff7 58%,
+    #f7fbff 100%
   );
   --tl-entity-gradient-changed-my-mind: conic-gradient(
     from 228deg at 48% 50%,
@@ -54,6 +79,13 @@
     #d94a45 304deg,
     #151923 360deg
   );
+  --tl-entity-detail-gradient-changed-my-mind: linear-gradient(
+    135deg,
+    #151923 0%,
+    #59616f 34%,
+    #ffba3d 72%,
+    #d94a45 100%
+  );
   --tl-entity-gradient-decisions: conic-gradient(
     from 218deg at 44% 54%,
     #fbf7e9 0deg,
@@ -62,6 +94,13 @@
     #14281f 236deg,
     #e4d7b7 312deg,
     #fbf7e9 360deg
+  );
+  --tl-entity-detail-gradient-decisions: linear-gradient(
+    136deg,
+    #fbf7e9 0%,
+    #b8c8aa 40%,
+    #3e6b59 72%,
+    #14281f 100%
   );
   --tl-entity-gradient-questions: conic-gradient(
     from 214deg at 46% 50%,
@@ -72,6 +111,13 @@
     #26164f 304deg,
     #fff4b8 360deg
   );
+  --tl-entity-detail-gradient-questions: linear-gradient(
+    132deg,
+    #fff4b8 0%,
+    #ffcf4a 32%,
+    #7137a8 72%,
+    #26164f 100%
+  );
   --tl-entity-gradient-posts: conic-gradient(
     from 32deg at 44% 52%,
     #fff7ed 0deg,
@@ -81,14 +127,18 @@
     #d8dfe6 314deg,
     #fff7ed 360deg
   );
+  --tl-entity-detail-gradient-posts: linear-gradient(
+    132deg,
+    #f7f1ea 0%,
+    #d9c8c6 38%,
+    #a4b6c9 72%,
+    #5d6e83 100%
+  );
   --tl-post-detail-gradient: linear-gradient(
     132deg,
     #f7f1ea 0%,
-    #ecdfd1 18%,
-    #d9c8c6 36%,
-    #bfbcce 54%,
+    #d9c8c6 38%,
     #a4b6c9 72%,
-    #8597ac 88%,
     #5d6e83 100%
   );
   --tl-entity-gradient-inputs: conic-gradient(
@@ -99,6 +149,13 @@
     #f4fbff 224deg,
     #70dfb2 302deg,
     #0e1f4f 360deg
+  );
+  --tl-entity-detail-gradient-inputs: linear-gradient(
+    135deg,
+    #0e1f4f 0%,
+    #3157d5 34%,
+    #6dd8ff 68%,
+    #70dfb2 100%
   );
   --tl-ui-x: clamp(18px, 3vw, 44px);
   --tl-ui-y: clamp(14px, 2vw, 28px);
@@ -152,54 +209,63 @@ a {
 
 [data-entity="thoughts"] {
   --tl-entity-gradient: var(--tl-entity-gradient-thoughts);
+  --tl-entity-detail-gradient: var(--tl-entity-detail-gradient-thoughts);
   --tl-gradient-duration: 34s;
   --tl-gradient-origin: 42% 55%;
 }
 
 [data-entity="claims"] {
   --tl-entity-gradient: var(--tl-entity-gradient-claims);
+  --tl-entity-detail-gradient: var(--tl-entity-detail-gradient-claims);
   --tl-gradient-duration: 29s;
   --tl-gradient-origin: 44% 48%;
 }
 
 [data-entity="projects"] {
   --tl-entity-gradient: var(--tl-entity-gradient-projects);
+  --tl-entity-detail-gradient: var(--tl-entity-detail-gradient-projects);
   --tl-gradient-duration: 24s;
   --tl-gradient-origin: 48% 52%;
 }
 
 [data-entity="predictions"] {
   --tl-entity-gradient: var(--tl-entity-gradient-predictions);
+  --tl-entity-detail-gradient: var(--tl-entity-detail-gradient-predictions);
   --tl-gradient-duration: 32s;
   --tl-gradient-origin: 50% 50%;
 }
 
 [data-entity="changed-my-mind"] {
   --tl-entity-gradient: var(--tl-entity-gradient-changed-my-mind);
+  --tl-entity-detail-gradient: var(--tl-entity-detail-gradient-changed-my-mind);
   --tl-gradient-duration: 31s;
   --tl-gradient-origin: 48% 50%;
 }
 
 [data-entity="decisions"] {
   --tl-entity-gradient: var(--tl-entity-gradient-decisions);
+  --tl-entity-detail-gradient: var(--tl-entity-detail-gradient-decisions);
   --tl-gradient-duration: 36s;
   --tl-gradient-origin: 44% 54%;
 }
 
 [data-entity="questions"] {
   --tl-entity-gradient: var(--tl-entity-gradient-questions);
+  --tl-entity-detail-gradient: var(--tl-entity-detail-gradient-questions);
   --tl-gradient-duration: 25s;
   --tl-gradient-origin: 46% 50%;
 }
 
 [data-entity="posts"] {
   --tl-entity-gradient: var(--tl-entity-gradient-posts);
+  --tl-entity-detail-gradient: var(--tl-entity-detail-gradient-posts);
   --tl-gradient-duration: 30s;
   --tl-gradient-origin: 44% 52%;
 }
 
 [data-entity="inputs"] {
   --tl-entity-gradient: var(--tl-entity-gradient-inputs);
+  --tl-entity-detail-gradient: var(--tl-entity-detail-gradient-inputs);
   --tl-gradient-duration: 27s;
   --tl-gradient-origin: 46% 50%;
 }

@@ -51,7 +51,7 @@ const horizonLabel = (() => {
     <div class="tl-pred-grid">
       <div class="tl-pred-main">
         <header class="tl-pred-head">
-          <p class="tl-pred-eyebrow">/predictions/{prediction.slug}</p>
+          <p class="tl-pred-eyebrow">Prediction detail</p>
           <h1>{prediction.prediction}</h1>
           <p class="tl-pred-deck">
             <span class="tl-pred-conf-inline">{confPct}%</span> confidence held since {prediction.made}.
@@ -146,7 +146,7 @@ const horizonLabel = (() => {
     width: min(100%, 920px);
     min-height: clamp(19rem, 45vh, 34rem);
     margin: 0 auto clamp(3rem, 7vw, 5rem);
-    background: var(--tl-entity-gradient-predictions);
+    background: var(--tl-entity-detail-gradient);
   }
 
   .tl-pred-grid {

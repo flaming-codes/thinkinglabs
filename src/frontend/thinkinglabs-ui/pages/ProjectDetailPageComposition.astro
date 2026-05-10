@@ -1,0 +1,275 @@
+---
+import AppShell from "../components/AppShell.astro";
+import StatusTag from "../components/StatusTag.astro";
+import type { ProjectDetail } from "../types";
+
+interface Props {
+  project: ProjectDetail;
+}
+
+const { project } = Astro.props;
+const hasRelations = project.relatedThoughts.length > 0 || project.relatedClaims.length > 0;
+const relations = [...project.relatedThoughts, ...project.relatedClaims];
+---
+
+<AppShell activeNav="Index">
+  <article class="tl-project-detail" data-selected-label={project.title} data-entity="projects">
+    <section class="tl-project-hero">
+      <div class="tl-project-hero-art" aria-hidden="true">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      <div class="tl-project-hero-copy">
+        <p class="tl-mono">Project detail</p>
+        <h1>{project.title}</h1>
+        <div class="tl-project-meta">
+          <StatusTag label={project.status} tone={project.status === "alive" ? "active" : "default"} />
+          <span class="tl-mono">started {project.started}</span>
+          <span class="tl-mono">touched {project.lastTouched}</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="tl-project-board">
+      <article class="tl-project-question">
+        <span class="tl-eyebrow">Current question</span>
+        <p>{project.currentQuestion}</p>
+      </article>
+      <article class="tl-project-help">
+        <span class="tl-eyebrow">Help welcome</span>
+        <p>{project.helpWelcome}</p>
+      </article>
+      {project.links.length > 0 ? (
+        <aside class="tl-project-links">
+          {project.links.map((link) => (
+            link.href ? (
+              <a href={link.href} class="tl-project-link">
+                <span>{link.kind}</span>
+                <strong>{link.title}</strong>
+              </a>
+            ) : (
+              <span class="tl-project-link">
+                <span>{link.kind}</span>
+                <strong>{link.title}</strong>
+              </span>
+            )
+          ))}
+        </aside>
+      ) : null}
+    </section>
+
+    <section class="tl-project-body">
+      <slot />
+    </section>
+
+    {hasRelations ? (
+      <section class="tl-project-relations">
+        <header class="tl-split-header is-tight">
+          <div class="tl-eyebrow">Graph</div>
+          <div class="tl-mono">{project.relatedThoughts.length + project.relatedClaims.length} linked entries</div>
+        </header>
+        <div>
+          {relations.map((rel) => (
+            <article class="tl-project-link-row">
+              <span class="tl-mono">{rel.kind}</span>
+              <h3>{rel.href ? <a href={rel.href}>{rel.title}</a> : rel.title}</h3>
+              <span class="tl-mono is-right">{rel.value ?? ""}</span>
+            </article>
+          ))}
+        </div>
+      </section>
+    ) : null}
+
+    {project.tags.length > 0 ? (
+      <section class="tl-project-tags">
+        {project.tags.map((tag) => <span>#{tag}</span>)}
+      </section>
+    ) : null}
+  </article>
+</AppShell>
+
+<style>
+  .tl-project-detail {
+    padding: clamp(7rem, 13vh, 10rem) 20px clamp(6rem, 15vh, 12rem);
+    background: var(--tl-bg);
+    color: var(--tl-ink);
+  }
+
+  .tl-project-hero,
+  .tl-project-board,
+  .tl-project-body,
+  .tl-project-relations,
+  .tl-project-tags {
+    width: min(100%, 980px);
+    margin-inline: auto;
+  }
+
+  .tl-project-hero {
+    display: grid;
+    grid-template-columns: minmax(14rem, 0.78fr) minmax(0, 1fr);
+    gap: clamp(2rem, 6vw, 5rem);
+    align-items: end;
+    min-height: clamp(24rem, 60vh, 38rem);
+  }
+
+  .tl-project-hero-art {
+    display: grid;
+    grid-template-rows: 1fr 0.72fr 1.22fr;
+    gap: 8px;
+    min-height: clamp(18rem, 48vh, 31rem);
+    overflow: hidden;
+    background: var(--tl-entity-detail-gradient);
+  }
+
+  .tl-project-hero-art span {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.45);
+    background: rgba(255, 255, 255, 0.12);
+    mix-blend-mode: screen;
+  }
+
+  .tl-project-hero-art span:last-child {
+    border-bottom: 0;
+  }
+
+  .tl-project-hero-copy {
+    display: grid;
+    gap: 18px;
+    padding-bottom: clamp(1rem, 4vh, 2.5rem);
+  }
+
+  .tl-project-hero h1 {
+    max-width: 13ch;
+    font-size: clamp(44px, 7vw, 92px);
+    font-weight: 650;
+    line-height: 0.9;
+    letter-spacing: -0.05em;
+    text-transform: uppercase;
+  }
+
+  .tl-project-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    align-items: center;
+  }
+
+  .tl-project-board {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    gap: 1px;
+    margin-top: clamp(3rem, 8vh, 5rem);
+    background: var(--tl-line);
+  }
+
+  .tl-project-question,
+  .tl-project-help,
+  .tl-project-links {
+    display: grid;
+    gap: 16px;
+    min-height: 13rem;
+    padding: clamp(1.25rem, 3vw, 2rem);
+    background: var(--tl-bg);
+  }
+
+  .tl-project-question p,
+  .tl-project-help p {
+    font-size: clamp(24px, 3.2vw, 42px);
+    font-weight: 590;
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+  }
+
+  .tl-project-links {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    min-height: 0;
+  }
+
+  .tl-project-link {
+    display: grid;
+    gap: 5px;
+    padding: 18px 0;
+    border-top: 1px solid var(--tl-line);
+  }
+
+  .tl-project-link span {
+    color: var(--tl-muted);
+    font-size: 11px;
+    font-weight: 650;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .tl-project-link strong {
+    font-size: 17px;
+    font-weight: 580;
+    line-height: 1.2;
+  }
+
+  .tl-project-body {
+    padding: clamp(3rem, 9vh, 5.5rem) 0;
+    color: rgba(7, 9, 13, 0.78);
+    font-size: 17px;
+    line-height: 1.75;
+  }
+
+  .tl-project-body :global(p) {
+    max-width: 42rem;
+    margin: 0 0 1.1rem;
+  }
+
+  .tl-project-body :global(a) {
+    text-decoration: underline;
+    text-decoration-color: rgba(7, 9, 13, 0.32);
+    text-underline-offset: 3px;
+  }
+
+  .tl-project-link-row {
+    display: grid;
+    grid-template-columns: 66px minmax(0, 1fr) auto;
+    gap: 22px;
+    align-items: baseline;
+    padding: 26px 0;
+    border-bottom: 1px solid var(--tl-line);
+  }
+
+  .tl-project-link-row h3 {
+    font-size: clamp(22px, 2.8vw, 35px);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+  }
+
+  .tl-project-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px 18px;
+    padding-top: clamp(3rem, 8vh, 5rem);
+    color: var(--tl-muted);
+    font-size: 13px;
+  }
+
+  @media (max-width: 820px) {
+    .tl-project-hero,
+    .tl-project-board {
+      grid-template-columns: 1fr;
+    }
+
+    .tl-project-hero-art {
+      min-height: 15rem;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .tl-project-detail {
+      padding: 5rem 16px 3rem;
+    }
+
+    .tl-project-link-row {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+  }
+
+</style>

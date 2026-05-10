@@ -1,15 +1,12 @@
 ---
-import { render } from "astro:content";
+import { getCollection, render } from "astro:content";
 import type { GetStaticPaths, InferGetStaticPropsType } from "astro";
-import Base from "../../layouts/Base.astro";
-import MetaBlock from "../../components/MetaBlock.astro";
-import RelatedRefs from "../../components/RelatedRefs.astro";
-import StatusPill from "../../components/StatusPill.astro";
-import Tags from "../../components/Tags.astro";
+import DecisionDetailPageComposition from "../../frontend/thinkinglabs-ui/pages/DecisionDetailPageComposition.astro";
+import ThinkinglabsUiPage from "../../layouts/ThinkinglabsUiPage.astro";
 import { reversedByMap } from "../../lib/decisions.ts";
-import { stripKindPrefix } from "../../lib/refs.ts";
 import { getKindStaticPaths } from "../../lib/route-helpers.ts";
 import { decisionStructuredData } from "../../lib/structured-data.ts";
+import { buildClaimLookup, buildTitleLookup, mapDecisionDetail } from "../../lib/thinkinglabs-ui.ts";
 
 export const getStaticPaths = (async () => {
   return getKindStaticPaths("decisions");
@@ -18,41 +15,23 @@ export const getStaticPaths = (async () => {
 const { entry } = Astro.props as InferGetStaticPropsType<typeof getStaticPaths>;
 const { Content } = await render(entry);
 const reversedBy = (await reversedByMap()).get(entry.id) ?? [];
+const [decisions, claims, projects] = await Promise.all([
+  getCollection("decisions"),
+  getCollection("claims"),
+  getCollection("projects"),
+]);
+const lookups = buildTitleLookup({ decisions, claims, projects });
+const claimLookup = buildClaimLookup(claims);
+const decision = mapDecisionDetail({ entry, reversedBy, lookups, claimLookup });
 const site = Astro.site ?? new URL(Astro.url.origin);
 ---
-<Base
+<ThinkinglabsUiPage
   title={`${entry.data.decision.slice(0, 60)} — Decisions`}
   description={entry.data.why ?? entry.data.context ?? entry.data.decision}
   structuredData={decisionStructuredData(entry, Astro.url, site)}
   ogType="article"
 >
-  <h1>{entry.data.decision} <StatusPill status={entry.data.status} /></h1>
-
-  {entry.data.reverses.length > 0 ? (
-    <div class="banner">
-      Reverses: {entry.data.reverses.map((r) => <a href={`/decisions/${stripKindPrefix(r)}`}>{r}</a>)}
-    </div>
-  ) : null}
-  {reversedBy.length > 0 ? (
-    <div class="banner">
-      Reversed by: {reversedBy.map((r) => <a href={`/decisions/${r}`}>{r}</a>)}
-    </div>
-  ) : null}
-
-  <MetaBlock
-    data={entry.data}
-    fields={[
-      ["date", "date"],
-      ["chosen", "chosen"],
-      ["why", "why"],
-      ["context", "context"],
-      ["options considered", "options_considered"],
-      ["what would change my mind", "what_would_change_my_mind"],
-      ["follow up on", "follow_up_on"],
-    ]}
-  />
-  <Tags tags={entry.data.tags} />
-  <article><Content /></article>
-  <RelatedRefs heading="Related claims" kind="claims" refs={entry.data.related_claims} />
-  <RelatedRefs heading="Related projects" kind="projects" refs={entry.data.related_projects} />
-</Base>
+  <DecisionDetailPageComposition decision={decision}>
+    <Content />
+  </DecisionDetailPageComposition>
+</ThinkinglabsUiPage>
