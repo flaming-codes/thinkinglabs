@@ -1,171 +1,180 @@
-# me
+# thinkinglabs
 
-Personal agentic space — a public operating surface for my work. The git repo is canonical: every object (thought, claim, project, prediction, decision, question, post, input) lives as one markdown file with Zod-validated frontmatter under `content/`. The Astro site, the derived `dist/index.sqlite` query layer, and the personal MCP server are pure projections of that source tree.
+`thinkinglabs` is a personal thinking surface with an agent-readable operating layer. The source of truth is the git tree: every durable object lives as a Markdown file with Zod-validated frontmatter under `content/`. The website, JSON APIs, feeds, `llms.txt`, SQLite index, and MCP server are all projections of that source.
+
+The important rule is simple: edit source files, then rebuild derived artifacts. Do not treat `dist/index.sqlite`, public feeds, MCP responses, or the rendered Astro site as canonical state.
+
+## What lives here
+
+- `content/` - canonical public objects: thoughts, claims, projects, predictions, decisions, questions, posts, inputs, changed-my-mind entries, and AI provenance events.
+- `src/schemas/` - per-kind Zod schemas and `KIND_SCHEMAS`, the shared schema registry.
+- `src/lib/registry.ts` - public metadata for each kind: routes, title/date fields, API exposure, MCP views, and feed participation.
+- `src/pages/` - Astro pages and one JSON endpoint per public kind.
+- `src/frontend/thinkinglabs-ui/` - Astro UI compositions, components, styles, and Storybook mock data.
+- `scripts/` - artifact builders, curation CLIs, background-agent entrypoints, and review tools.
+- `servers/thinkinglabs-mcp/` - local stdio MCP server.
+- `servers/thinkinglabs-mcp-http/` - Streamable HTTP MCP transport over the same server factory.
+- `.harness/` - canonical agent-facing configuration for prompts, MCP settings, hooks, skills, and provider outputs. Edit `.harness/src/**`, then run `pnpm harness apply`.
 
 ## Quickstart
 
+Prerequisites:
+
+- Node `>=22.19.0`
+- pnpm `10.33.2` as declared in `package.json`
+- Vite+ `vp`, used for install, lint, formatting, checks, and tests
+
 ```sh
-pnpm install
-pnpm dev               # Astro dev server for the site
-pnpm build             # static build + dist/index.sqlite
-pnpm storybook         # Storybook v10 dev server for UI review with mocks
-pnpm storybook:build   # Storybook static build
-pnpm artifacts         # offline artifact build: brain-diff feeds, site, llms.txt, JSON feeds, dist/index.sqlite
-pnpm artifacts:scored  # same artifact build, but require LLM-scored brain-diff output
-pnpm verify            # local verification: typecheck, checks, build, metadata, index, tests
-pnpm setup:e2e         # install Chromium for local Playwright runs
-pnpm test:e2e          # build, then run Playwright against the preview
-pnpm verify:full       # verify + e2e in one shot
-pnpm build:index       # rebuild dist/index.sqlite (the agent-facing query layer)
-pnpm mcp:thinkinglabs       # run the personal MCP server over stdio
-pnpm mcp:thinkinglabs:http   # run the same server over Streamable HTTP (remote, default :8787)
+vp install
+pnpm dev
 ```
 
-`pnpm verify` runs the local validation path: typecheck, `vp check`, site build, structured-data check, index generation, and tests. Day-to-day, use `pnpm dev` while writing and `pnpm artifacts` after content edits to regenerate every local derived artifact. Use `pnpm artifacts:scored` when `OPENAI_API_KEY` (or `OLLAMA_API_KEY` with `LLM_PROVIDER=ollama`) is set and you want publish-quality brain-diff summaries.
+Useful commands:
 
-## Storybook UI review surfaces
+```sh
+pnpm dev                 # Astro dev server
+pnpm build               # astro check + astro build + dist/index.sqlite
+pnpm start               # astro preview on 0.0.0.0:${PORT:-4321}
+pnpm storybook           # Storybook v10 UI review
+pnpm storybook:build     # static Storybook build
 
-Storybook stories for UI-layer review live under `.storybook/stories/`. The UI they render lives under `src/frontend/thinkinglabs-ui/`.
+pnpm artifacts           # offline brain-diff + site + feeds + llms.txt + index
+pnpm artifacts:scored    # same, but requires the active LLM provider key
+pnpm build:index         # rebuild only dist/index.sqlite
 
-- `mocks/` keeps handoff-derived mock data separate from presentation.
-- `components/` holds reusable primitives (header, confidence meter, status tags, charts).
-- `pages/` holds full-page compositions used in `stories/`.
-- `storybook/` holds Storybook-only Astro fixtures that need scoped component CSS.
+pnpm check               # vp check
+pnpm lint                # vp lint
+pnpm format              # vp fmt
+pnpm test                # vp test run
+pnpm verify              # clean, typecheck, check, build, structured-data, tests
+pnpm verify:full         # verify + Playwright e2e
 
-Run `pnpm storybook` for interactive review and `pnpm storybook:build` to verify static composition output.
-See [`docs/agents/storybook.md`](./docs/agents/storybook.md) for setup details and Astro support caveats.
+pnpm mcp:thinkinglabs       # local stdio MCP server
+pnpm mcp:thinkinglabs:http  # Streamable HTTP MCP server, default 127.0.0.1:8787/mcp
+```
 
-## Architecture and workflow
+`pnpm verify` is the normal local gate before publishing code changes. For content-only edits, `pnpm artifacts` is usually the useful rebuild because it refreshes the derived public artifacts as well as the site.
+
+## Source model
+
+Each content kind has three contracts that should move together:
+
+1. A schema in `src/schemas/<kind>.ts`
+2. A `KIND_SCHEMAS` entry in `src/schemas/index.ts`
+3. A `KIND_REGISTRY` entry in `src/lib/registry.ts`
+
+Public collections also need an Astro collection in `src/content.config.ts`, listing/detail pages under `src/pages/`, and an `/api/<kind>.json.ts` endpoint. Tests assert that the major registries cover the supported kinds, so drift should fail loudly.
+
+The current public kinds are:
+
+- `thoughts` - rougher prose and working ideas
+- `claims` - atomic assertions with confidence, evidence, and review metadata
+- `projects` - active, dormant, and archived work
+- `predictions` - falsifiable forecasts with calibration views
+- `changed-my-mind` - belief revisions
+- `decisions` - ADR-style decisions and reversals
+- `questions` - open questions and later answer triage
+- `posts` - longer evergreen writing with per-section freshness
+- `inputs` - external material that shaped thinking
+
+`provenance` is source-backed and schema-validated, but it is not a normal public listing.
+
+## Architecture in one pass
 
 ```mermaid
-flowchart TB
-  Human["Human author / local agent"]
-
-  subgraph Authoring["Authoring and curation"]
-    Editor["Markdown editor"]
-    DeriveClaims["pnpm derive-claims<br/>thoughts to structured claims"]
-    AgentScans["Background agent CLIs<br/>dormant-flip, review-decisions,<br/>resolve-predictions, freshness-review,<br/>triage-questions"]
-    ReviewQueue["pnpm review-proposals<br/>human accepts, edits, rejects"]
-  end
-
-  subgraph Source["Canonical local state"]
-    Content["content/{kind}/*.md<br/>YAML frontmatter + Markdown body"]
-    Provenance["content/provenance/*.md<br/>accepted AI-assisted effects"]
-    ContactJson["public/contact.json"]
-    ProposalQueue[".proposal-queue.json<br/>gitignored proposal queue"]
-    RejectionMemory[".*-rejections.json<br/>gitignored rejection memory"]
-    Submissions["submissions/questions/*<br/>gitignored MCP intake inbox"]
-  end
-
-  subgraph Contracts["Shared contracts"]
-    Schemas["src/schemas/*<br/>KIND_SCHEMAS"]
-    Collections["src/content.config.ts<br/>Astro collections"]
-    Registry["src/lib/registry.ts<br/>kind metadata"]
-    Surfaces["src/lib/surfaces.ts<br/>public surface inventory"]
-    LlmChokePoint["src/lib/llm.ts<br/>provider, model tier, key guard"]
-  end
-
-  subgraph BuildArtifacts["Local artifact builders"]
-    LlmsTxt["scripts/build-llms-txt.ts<br/>public/llms.txt"]
-    JsonFeeds["scripts/build-feeds.ts<br/>JSON Feed 1.1 files"]
-    BrainDiff["scripts/brain-diff.ts<br/>git history + optional LLM scoring"]
-    IndexBuild["scripts/build-index.ts<br/>dist/index.sqlite"]
-    AstroBuild["astro build<br/>static site + API routes"]
-  end
-
-  subgraph Commands["Command workflows"]
-    Dev["pnpm dev<br/>interactive site work"]
-    Artifacts["pnpm artifacts<br/>offline local artifacts"]
-    ArtifactsScored["pnpm artifacts:scored<br/>publish-quality brain-diff"]
-    Verify["pnpm verify<br/>build + checks + tests"]
-    E2E["pnpm test:e2e<br/>build + Playwright"]
-    McpCommand["pnpm mcp:thinkinglabs<br/>stdio MCP server"]
-    McpHttpCommand["pnpm mcp:thinkinglabs:http<br/>remote Streamable HTTP MCP server"]
-  end
-
-  subgraph Outputs["Generated outputs"]
-    PublicSite["dist/<br/>static website"]
-    PublicFeeds["public/feed/*.json<br/>deterministic JSON feeds"]
-    BrainFeeds["public/feed/brain-diff*<br/>timestamped local artifacts, gitignored"]
-    LlmsOutput["public/llms.txt<br/>agent-readable surface map"]
-    Sqlite["dist/index.sqlite<br/>agent query layer, gitignored"]
-  end
-
-  subgraph RuntimeSurfaces["Read and interaction surfaces"]
-    WebPages["src/pages/*<br/>listings, details, JSON APIs, embeds"]
-    McpServer["servers/thinkinglabs-mcp<br/>stdio resources + tools"]
-    McpHttp["servers/thinkinglabs-mcp-http<br/>Streamable HTTP transport<br/>(stateless, rate-limited)"]
-    PublicUsers["Readers, crawlers, agents"]
-  end
-
-  Human --> Editor
-  Human --> DeriveClaims
-  Human --> ReviewQueue
-  Editor --> Content
-  DeriveClaims --> Content
-  DeriveClaims --> Provenance
-  AgentScans --> ProposalQueue
-  AgentScans --> RejectionMemory
-  ReviewQueue --> ProposalQueue
-  ReviewQueue --> Content
-  McpServer --> Submissions
-
-  Content --> Schemas
-  Schemas --> Collections
-  Registry --> Surfaces
-  Surfaces --> LlmsTxt
-  Collections --> AstroBuild
-  Content --> JsonFeeds
-  Content --> IndexBuild
-  Content --> BrainDiff
-  Content --> McpServer
-  ContactJson --> AstroBuild
-  LlmChokePoint -. scored mode .-> BrainDiff
-  LlmChokePoint -. AI curation .-> DeriveClaims
-  LlmChokePoint -. AI proposals .-> AgentScans
-
-  Dev --> WebPages
-  Artifacts --> BrainDiff
-  Artifacts --> AstroBuild
-  Artifacts --> IndexBuild
-  ArtifactsScored --> LlmChokePoint
-  ArtifactsScored --> BrainDiff
-  ArtifactsScored --> AstroBuild
-  ArtifactsScored --> IndexBuild
-  Verify --> AstroBuild
-  Verify --> JsonFeeds
-  Verify --> IndexBuild
-  E2E --> AstroBuild
-  McpCommand --> McpServer
-  McpHttpCommand --> McpHttp
-  Content --> McpHttp
-  Sqlite --> McpHttp
-  McpHttp --> PublicUsers
-
-  BrainDiff --> BrainFeeds
-  JsonFeeds --> PublicFeeds
-  LlmsTxt --> LlmsOutput
-  AstroBuild --> PublicSite
-  IndexBuild --> Sqlite
-
-  PublicFeeds --> AstroBuild
-  BrainFeeds --> AstroBuild
-  LlmsOutput --> AstroBuild
-  WebPages --> PublicSite
-  PublicSite --> PublicUsers
-  Sqlite --> McpServer
-  McpServer --> PublicUsers
+flowchart LR
+  Content["content/<kind>/*.md"] --> Schemas["Zod schemas"]
+  Schemas --> Astro["Astro collections and pages"]
+  Schemas --> Index["dist/index.sqlite"]
+  Schemas --> MCP["MCP resources and tools"]
+  Registry["KIND_REGISTRY and SURFACES"] --> Astro
+  Registry --> Llms["public/llms.txt"]
+  Registry --> MCP
+  Content --> Feeds["JSON feeds and brain-diff"]
+  Astro --> Site["dist/ static site"]
+  Index --> MCP
 ```
 
-The direction is intentional: source files under `content/` are the only durable knowledge state; builds, feeds, indexes, MCP responses, and the website are projections. Proposal agents can enqueue local suggestions, but accepted mutations still flow back through the human review step before touching content.
+The Astro site renders from content collections, not from SQLite. The SQLite index is for agents and query surfaces. The MCP store prefers `dist/index.sqlite` when it exists and falls back to validated Markdown when it does not.
 
-## What ships today
+Architectural rationale lives in `docs/architecture/`. Read the relevant ADR before changing a pipeline; the docs explain the shape of the system, not just the mechanics.
 
-- **The Astro site** under `src/pages/` (rendered from `getCollection(kind)` plus the surface inventory in `src/lib/surfaces.ts`).
-- **A personal MCP server** at `servers/thinkinglabs-mcp/` exposing fixed JSON resources and tools, with two transports against a shared factory:
-  - **Stdio** (`pnpm mcp:thinkinglabs`) for local clients pointed at this checkout — see [`docs/agents/mcp-server.md`](./docs/agents/mcp-server.md).
-  - **Streamable HTTP** (`pnpm mcp:thinkinglabs:http`, deployed at `https://mcp.thinkinglabs.run/mcp`) for remote agents that should not need to clone — stateless, raw `node:http`, with DNS-rebinding protection, CORS, a per-IP token-bucket rate limiter, and a `GET /healthz` probe. See [`docs/agents/mcp-http-server.md`](./docs/agents/mcp-http-server.md).
-    Resource taxonomy, tool list, and the `dist/index.sqlite` fallback path are shared between both.
-- **Five background agents** (`dormant-flip`, `review-decisions`, `resolve-predictions`, `freshness-review`, `triage-questions`) that scan content and enqueue typed proposals; the human drains the queue with `pnpm review-proposals`. Architecture in [`docs/agents/proposal-pipeline.md`](./docs/agents/proposal-pipeline.md); launchd installation in [`scripts/launchd/README.md`](./scripts/launchd/README.md).
+## Agent and curation workflows
 
-Architectural decisions are in [`docs/architecture/`](./docs/architecture/) (ADR-001 through ADR-013). Read the relevant ADR before changing a pipeline — they capture _why_, not just what.
+There are two human-in-the-loop curation paths:
+
+- `pnpm derive-claims` proposes structured claims from rough thoughts.
+- Background agents enqueue typed proposals into `.proposal-queue.json`; `pnpm review-proposals` is the interactive drain that accepts, edits, or rejects them.
+
+The registered background agents are:
+
+- `pnpm dormant-flip`
+- `pnpm review-decisions`
+- `pnpm resolve-predictions`
+- `pnpm freshness-review`
+- `pnpm triage-questions`
+
+These CLIs are safe to rerun. They emit deterministic proposal IDs, so unchanged scans dedupe naturally. They do not write directly to `content/`; accepted mutations go through `review-proposals` and the relevant handler.
+
+LLM-mediated code goes through `src/lib/llm.ts`. By default it expects `OPENAI_API_KEY`; set `LLM_PROVIDER=ollama` and `OLLAMA_API_KEY` to use Ollama instead. Offline paths, including `pnpm artifacts`, do not require a provider key. Scored paths, including `pnpm artifacts:scored`, fail fast if the active provider key is missing.
+
+## Public and machine surfaces
+
+The human site exposes listings, details, `/now`, `/about`, `/agents`, prediction calibration, contact, and health routes. Machine-readable surfaces are generated from the same registries:
+
+- `/llms.txt` - inventory of public pages, listings, detail patterns, APIs, data files, and feeds
+- `/api/<kind>.json` - flat JSON for each public kind
+- `/feed/*.json` - deterministic JSON Feed outputs for revisions and resolutions
+- `/feed/brain-diff.*` - local artifact feeds for substantive content changes
+- `thinkinglabs://...` - MCP resources for public views, detail objects, schema version, model refs, and prediction calibration
+
+The MCP server exposes the same resources through two transports:
+
+```sh
+pnpm mcp:thinkinglabs -- --repo-root /path/to/thinkinglabs
+pnpm mcp:thinkinglabs:http -- --repo-root /path/to/thinkinglabs
+```
+
+The HTTP transport is stateless, uses raw `node:http`, enforces a 1 MiB body cap, includes DNS-rebinding/CORS controls, and exposes `GET /healthz` for load balancer probes. See `docs/agents/mcp-server.md` and `docs/agents/mcp-http-server.md` for the full resource and tool tables.
+
+## Frontend and Storybook
+
+The production pages compose reusable Astro UI from `src/frontend/thinkinglabs-ui/`. Storybook stories live in `.storybook/stories/` and render the same UI-layer pieces used by the site.
+
+- `src/frontend/thinkinglabs-ui/mocks/` keeps handoff-derived mock data separate from presentation.
+- `src/frontend/thinkinglabs-ui/components/` holds reusable primitives, including headers, confidence meters, status tags, and charts.
+- `src/frontend/thinkinglabs-ui/pages/` holds full-page compositions used by stories and routes.
+- `src/frontend/thinkinglabs-ui/storybook/` holds Storybook-only Astro fixtures that need scoped component CSS.
+
+Use Storybook when working on page composition, responsive typography, data display components, or route-level UI states:
+
+```sh
+pnpm storybook
+pnpm storybook:build
+```
+
+See `docs/agents/storybook.md` for setup details and Astro support caveats.
+
+Playwright coverage lives in `tests/e2e/` and runs through `pnpm test:e2e` or `pnpm verify:full`.
+
+## Working conventions
+
+- Keep durable knowledge in `content/`; rebuild everything else.
+- Keep schemas, registry metadata, pages, APIs, and MCP exposure in sync when adding or changing a kind.
+- Use shared primitives for proposal review, editor handoff, frontmatter patching, content loading, LLM calls, and JSON state. Do not fork those patterns in new agents.
+- Use Vite+ commands through `vp` or package scripts that call `vp`.
+- For agent-facing configuration, edit `.harness/src/**` and run `pnpm harness apply`; generated provider outputs are not the source of truth.
+
+## Deeper docs
+
+- `docs/architecture/ADR-001-source-vs-index.md` - source tree vs derived index
+- `docs/architecture/ADR-002-markdown-frontmatter.md` - schema-driven content model
+- `docs/architecture/ADR-007-thoughts-claims-derivation.md` - thoughts to claims pipeline
+- `docs/architecture/ADR-009-proposal-confirmation-pattern.md` - unattended agents and human review
+- `docs/architecture/ADR-010-personal-mcp-server.md` - MCP server rationale
+- `docs/architecture/ADR-013-remote-mcp-http.md` - remote HTTP transport
+- `docs/agents/proposal-pipeline.md` - adding or changing proposal agents
+- `docs/agents/brain-diff-pipeline.md` - deterministic and scored feed generation
+- `docs/agents/mcp-server.md` - local MCP server
+- `docs/agents/mcp-http-server.md` - remote MCP server
+- `docs/conventions/components.md` - UI component conventions

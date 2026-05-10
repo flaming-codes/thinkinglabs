@@ -784,7 +784,11 @@ export function mapProjectDetail(args: {
   const { entry, lastTouched, lookups = {}, claimLookup = new Map() } = args;
   const links: DetailRelation[] = [];
   if (entry.data.links.repo) {
-    links.push({ kind: "repo", title: "Repository", href: entry.data.links.repo });
+    links.push({
+      kind: "repo",
+      title: repositoryNameFromUrl(entry.data.links.repo),
+      href: entry.data.links.repo,
+    });
   }
   if (entry.data.links.productive_id) {
     links.push({
@@ -813,6 +817,17 @@ export function mapProjectDetail(args: {
       return conf === undefined ? relation : { ...relation, value: conf.toFixed(2) };
     }),
   };
+}
+
+/** Derive a human-readable repository name from a repository URL when content only stores the URL. */
+function repositoryNameFromUrl(href: string): string {
+  try {
+    const url = new URL(href);
+    const parts = url.pathname.split("/").filter(Boolean);
+    return parts.at(-1) ?? "Repository";
+  } catch {
+    return "Repository";
+  }
 }
 
 function daysBetween(fromIso: string, target: Date | string): number {

@@ -1,5 +1,6 @@
 ---
 // PWA + favicon + theme metadata shared across site layouts.
+const enableServiceWorker = !import.meta.env.DEV;
 ---
 
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -14,10 +15,33 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 <meta name="format-detection" content="telephone=no" />
 <meta name="referrer" content="strict-origin-when-cross-origin" />
-<script>
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker.register("/sw.js").catch(() => {});
-    });
-  }
-</script>
+{
+  enableServiceWorker ? (
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("/sw.js").catch(() => {});
+        });
+      }
+    </script>
+  ) : (
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .getRegistrations()
+            .then((registrations) => Promise.all(registrations.map((r) => r.unregister())))
+            .then(() => ("caches" in window ? caches.keys() : []))
+            .then((keys) => Promise.all(keys.map((key) => caches.delete(key))))
+            .then(() => {
+              if (navigator.serviceWorker.controller && !sessionStorage.getItem("tl-sw-cleared")) {
+                sessionStorage.setItem("tl-sw-cleared", "true");
+                window.location.reload();
+              }
+            })
+            .catch(() => {});
+        });
+      }
+    </script>
+  )
+}
