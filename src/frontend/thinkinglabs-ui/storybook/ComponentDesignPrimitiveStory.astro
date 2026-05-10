@@ -1,0 +1,89 @@
+---
+import AppShell from "../components/AppShell.astro";
+import BrandLogo from "../components/BrandLogo.astro";
+import CalibrationChart from "../components/CalibrationChart.astro";
+import DotLabel from "../components/DotLabel.astro";
+import FigureChartPlate from "../components/FigureChartPlate.astro";
+import IndexHero from "../components/IndexHero.astro";
+import IndexSectionHeader from "../components/IndexSectionHeader.astro";
+import PathWordmarkVariant from "../components/PathWordmarkVariant.astro";
+import StatBand from "../components/StatBand.astro";
+import type { CalibrationBin, IndexStat } from "../types";
+import ScrollArrowsFixture from "./ScrollArrowsFixture.astro";
+
+interface Props {
+  activeNav?: "Index" | "Now" | "Calibration" | "Brain-diff" | "Agents" | "About";
+  ariaLabel?: string;
+  bins?: CalibrationBin[];
+  crumb?: string;
+  deck?: string;
+  eyebrow?: string;
+  filled?: boolean;
+  hideSelectedHud?: boolean;
+  label?: string;
+  layout?: "stacked" | "split";
+  mode?: "document" | "gallery";
+  rowOnly?: boolean;
+  stats?: IndexStat[];
+  story:
+    | "app-shell"
+    | "brand-logo"
+    | "calibration-chart"
+    | "dot-label"
+    | "figure-chart-plate"
+    | "index-hero"
+    | "index-section-header"
+    | "path-wordmark"
+    | "scroll-arrows"
+    | "stat-band";
+  title?: string;
+  variant?: "page" | "header";
+}
+
+const {
+  activeNav = "Index",
+  ariaLabel,
+  bins = [],
+  crumb = "",
+  deck = "",
+  eyebrow = "",
+  filled = false,
+  hideSelectedHud = false,
+  label = "",
+  layout = "stacked",
+  mode = "document",
+  rowOnly = false,
+  stats = [],
+  story,
+  title = "",
+  variant = "page",
+} = Astro.props;
+---
+
+{
+  story === "app-shell" ? (
+    <AppShell activeNav={activeNav} hideSelectedHud={hideSelectedHud} mode={mode}>
+      <slot />
+    </AppShell>
+  ) : story === "brand-logo" && ariaLabel ? (
+    <BrandLogo ariaLabel={ariaLabel} />
+  ) : story === "brand-logo" ? (
+    <BrandLogo />
+  ) : story === "calibration-chart" ? (
+    <CalibrationChart bins={bins} />
+  ) : story === "dot-label" ? (
+    <DotLabel label={label} filled={filled} />
+  ) : story === "figure-chart-plate" ? (
+    <FigureChartPlate />
+  ) : story === "index-hero" ? (
+    <IndexHero eyebrow={eyebrow} crumb={crumb} title={title} deck={deck} layout={layout} />
+  ) : story === "index-section-header" ? (
+    <IndexSectionHeader label={label} title={title} />
+  ) : story === "path-wordmark" ? (
+    <PathWordmarkVariant />
+  ) : story === "scroll-arrows" ? (
+    <ScrollArrowsFixture label={label} variant={variant} rowOnly={rowOnly} />
+  ) : story === "stat-band" ? (
+    <StatBand stats={stats} />
+  ) : null
+}

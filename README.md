@@ -25,13 +25,15 @@ pnpm mcp:thinkinglabs:http   # run the same server over Streamable HTTP (remote,
 
 ## Storybook UI review surfaces
 
-Storybook stories for UI-layer review live under `src/frontend/thinkinglabs-ui/`.
+Storybook stories for UI-layer review live under `.storybook/stories/`. The UI they render lives under `src/frontend/thinkinglabs-ui/`.
 
 - `mocks/` keeps handoff-derived mock data separate from presentation.
 - `components/` holds reusable primitives (header, confidence meter, status tags, charts).
 - `pages/` holds full-page compositions used in `stories/`.
+- `storybook/` holds Storybook-only Astro fixtures that need scoped component CSS.
 
 Run `pnpm storybook` for interactive review and `pnpm storybook:build` to verify static composition output.
+See [`docs/agents/storybook.md`](./docs/agents/storybook.md) for setup details and Astro support caveats.
 
 ## Architecture and workflow
 
