@@ -8,22 +8,24 @@ interface Props {
 }
 
 const { thought } = Astro.props;
+const hasQuestions = thought.questions.length > 0;
+const hasRelated = thought.related.length > 0;
+const hasHistory = thought.history.length > 1;
 ---
 
 <AppShell activeNav="Index">
   <article class="tl-thought-detail" data-selected-label={thought.title} data-entity="thoughts">
+    <div class="tl-thought-hero-art" aria-hidden="true"></div>
     <header class="tl-thought-hero">
-      <div class="tl-thought-field" aria-hidden="true"></div>
       <div class="tl-thought-title">
-        <p class="tl-mono">Thought detail</p>
         <h1>{thought.title}</h1>
-        <p class="tl-thought-deck">{thought.minutes} min read across {thought.words.toLocaleString()} words.</p>
         <div class="tl-thought-detail-meta">
           <StatusTag label={thought.state} tone={thought.state === "settled" ? "active" : "default"} />
           <span class="tl-mono">started {thought.started}</span>
           <span class="tl-mono">touched {thought.touched}</span>
-          <span class="tl-mono">{thought.history.length} revisions</span>
+          {hasHistory && <span class="tl-mono">{thought.history.length} revisions</span>}
         </div>
+        <p class="tl-thought-deck">{thought.minutes} min read across {thought.words.toLocaleString()} words.</p>
       </div>
     </header>
 
@@ -35,39 +37,45 @@ const { thought } = Astro.props;
       </div>
     </section>
 
-    <section class="tl-aside-block">
-      <div class="tl-eyebrow">Open questions</div>
-      <div>
-        {thought.questions.map((question) => (
-          <p class="tl-quote-line">"{question}"</p>
-        ))}
-      </div>
-    </section>
+    {hasQuestions && (
+      <section class="tl-aside-block">
+        <div class="tl-eyebrow">Open questions</div>
+        <div>
+          {thought.questions.map((question) => (
+            <p class="tl-quote-line">"{question}"</p>
+          ))}
+        </div>
+      </section>
+    )}
 
-    <section class="tl-aside-block">
-      <div class="tl-eyebrow">Connects to</div>
-      <div class="tl-rel-list">
-        {thought.related.map((rel) => (
-          <article class="tl-rel-row">
-            <span class="tl-mono">{rel.kind}</span>
-            <h3>{rel.href ? <a href={rel.href}>{rel.title}</a> : rel.title}</h3>
-            <span class="tl-mono is-right">{rel.conf !== undefined ? rel.conf.toFixed(2) : ""}</span>
-          </article>
-        ))}
-      </div>
-    </section>
+    {hasRelated && (
+      <section class="tl-aside-block">
+        <div class="tl-eyebrow">Connects to</div>
+        <div class="tl-rel-list">
+          {thought.related.map((rel) => (
+            <article class="tl-rel-row">
+              <span class="tl-mono">{rel.kind}</span>
+              <h3>{rel.href ? <a href={rel.href}>{rel.title}</a> : rel.title}</h3>
+              <span class="tl-mono is-right">{rel.conf !== undefined ? rel.conf.toFixed(2) : ""}</span>
+            </article>
+          ))}
+        </div>
+      </section>
+    )}
 
-    <section class="tl-aside-block">
-      <div class="tl-eyebrow">How it got here</div>
-      <div>
-        {thought.history.map((entry) => (
-          <article class="tl-history-row is-wide">
-            <span class="tl-mono">{entry.date}</span>
-            <span>{entry.note}</span>
-          </article>
-        ))}
-      </div>
-    </section>
+    {hasHistory && (
+      <section class="tl-aside-block">
+        <div class="tl-eyebrow">How it got here</div>
+        <div>
+          {thought.history.map((entry) => (
+            <article class="tl-history-row is-wide">
+              <span class="tl-mono">{entry.date}</span>
+              <span>{entry.note}</span>
+            </article>
+          ))}
+        </div>
+      </section>
+    )}
   </article>
 </AppShell>
 
@@ -78,32 +86,32 @@ const { thought } = Astro.props;
 
   .tl-thought-hero {
     display: grid;
-    grid-template-columns: minmax(9rem, 0.32fr) minmax(0, 1fr);
-    gap: clamp(1.5rem, 5vw, 4rem);
-    align-items: end;
     width: min(100%, 980px);
-    min-height: clamp(22rem, 58vh, 37rem);
     margin-inline: auto;
+    padding: 0 0 clamp(2.5rem, 8vh, 5rem);
   }
 
-  .tl-thought-field {
-    align-self: stretch;
-    min-height: 16rem;
-    background: var(--tl-entity-detail-gradient);
+  .tl-thought-hero-art {
+    width: 100%;
+    max-width: 980px;
+    min-height: clamp(16rem, 42vh, 28rem);
+    margin-inline: auto;
+    background: linear-gradient(135deg, #f8fcff 0%, #8dbbd0 48%, #2b4558 100%);
   }
 
   .tl-thought-title {
     display: grid;
-    gap: 18px;
-    padding-bottom: clamp(1rem, 4vh, 2rem);
+    gap: clamp(1.2rem, 2.8vh, 2rem);
+    margin-top: clamp(2rem, 6vw, 4.5rem);
   }
 
   .tl-thought-title h1 {
-    max-width: 18ch;
-    font-size: clamp(38px, 5.8vw, 76px);
-    font-weight: 640;
+    max-width: 50%;
+    color: #000;
+    font-size: clamp(30px, 4.2vw, 56px);
+    font-weight: 780;
     line-height: 0.94;
-    letter-spacing: -0.045em;
+    letter-spacing: 0;
     text-transform: uppercase;
   }
 
@@ -128,7 +136,12 @@ const { thought } = Astro.props;
   }
 
   .tl-prose-shell {
-    padding: clamp(3rem, 9vh, 5.5rem) 0;
+    padding: clamp(1.5rem, 4vh, 3rem) 0 clamp(4rem, 10vh, 7rem);
+  }
+
+  .tl-thought-detail .tl-prose-body {
+    color: #000;
+    font-weight: 430;
   }
 
   .tl-rel-list {
@@ -143,14 +156,13 @@ const { thought } = Astro.props;
     gap: 22px;
     align-items: baseline;
     padding: 30px 0;
-    border-bottom: 1px solid var(--tl-line);
   }
 
   .tl-rel-row h3 {
     font-size: clamp(25px, 3vw, 38px);
     font-weight: 600;
     line-height: 1.02;
-    letter-spacing: -0.03em;
+    letter-spacing: 0;
   }
 
   .tl-aside-block {
@@ -163,12 +175,11 @@ const { thought } = Astro.props;
     }
 
     .tl-thought-hero {
-      grid-template-columns: 1fr;
-      min-height: 0;
+      padding-top: 2rem;
     }
 
-    .tl-thought-field {
-      min-height: 12rem;
+    .tl-thought-hero-art {
+      min-height: 15rem;
     }
 
     .tl-prose-shell,
