@@ -1,0 +1,49 @@
+---
+import ChangedMyMindDetailPageComposition from "../pages/ChangedMyMindDetailPageComposition.astro";
+import DecisionDetailPageComposition from "../pages/DecisionDetailPageComposition.astro";
+import PredictionDetailPageComposition from "../pages/PredictionDetailPageComposition.astro";
+import ProjectDetailPageComposition from "../pages/ProjectDetailPageComposition.astro";
+import QuestionDetailPageComposition from "../pages/QuestionDetailPageComposition.astro";
+import type { PredictionDetailView } from "../pages/PredictionDetailPageComposition.astro";
+import type {
+  ChangedMyMindDetail,
+  DecisionDetail,
+  ProjectDetail,
+  QuestionDetail,
+} from "../types";
+
+interface Props {
+  decision?: DecisionDetail;
+  flip?: ChangedMyMindDetail;
+  prediction?: PredictionDetailView;
+  project?: ProjectDetail;
+  question?: QuestionDetail;
+  story: "project" | "prediction" | "changed-my-mind" | "decision" | "question";
+}
+
+const { decision, flip, prediction, project, question, story } = Astro.props;
+---
+
+{
+  story === "project" && project ? (
+    <ProjectDetailPageComposition project={project}>
+      <slot />
+    </ProjectDetailPageComposition>
+  ) : story === "prediction" && prediction ? (
+    <PredictionDetailPageComposition prediction={prediction}>
+      <slot />
+    </PredictionDetailPageComposition>
+  ) : story === "changed-my-mind" && flip ? (
+    <ChangedMyMindDetailPageComposition flip={flip}>
+      <slot />
+    </ChangedMyMindDetailPageComposition>
+  ) : story === "decision" && decision ? (
+    <DecisionDetailPageComposition decision={decision}>
+      <slot />
+    </DecisionDetailPageComposition>
+  ) : story === "question" && question ? (
+    <QuestionDetailPageComposition question={question}>
+      <slot />
+    </QuestionDetailPageComposition>
+  ) : null
+}

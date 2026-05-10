@@ -1,0 +1,71 @@
+---
+import ScrollArrows from "../components/ScrollArrows.astro";
+
+interface Props {
+  label?: string;
+  rowOnly?: boolean;
+  variant?: "page" | "header";
+}
+
+const { label = "Story row", rowOnly = false, variant = "page" } = Astro.props;
+const items = ["Claims", "Thoughts", "Projects", "Predictions", "Questions", "Inputs"];
+---
+
+<section class="sb-scroll-arrows-fixture">
+  <div class="sb-scroll-row" data-story-scroll-row>
+    {
+      items.map((item) => (
+        <article class="sb-scroll-item" data-story-scroll-item>
+          <span>{item}</span>
+        </article>
+      ))
+    }
+  </div>
+  <ScrollArrows
+    target="[data-story-scroll-row]"
+    items="[data-story-scroll-item]"
+    label={label}
+    variant={variant}
+    rowOnly={rowOnly}
+  />
+</section>
+
+<style>
+  .sb-scroll-arrows-fixture {
+    display: grid;
+    gap: 18px;
+    width: min(100% - 40px, 760px);
+    margin: 20vh auto;
+  }
+
+  .sb-scroll-row {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+
+  .sb-scroll-row::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+
+  .sb-scroll-item {
+    display: grid;
+    flex: 0 0 220px;
+    min-height: 130px;
+    place-items: center;
+    scroll-snap-align: center;
+    background: var(--tl-panel);
+    box-shadow: var(--tl-shadow);
+  }
+
+  .sb-scroll-item span {
+    color: var(--tl-muted);
+    font-size: var(--tl-type-mono-xs);
+    font-weight: 650;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+</style>

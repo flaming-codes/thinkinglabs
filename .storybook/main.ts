@@ -18,7 +18,7 @@ const astroVirtualStubs = () => ({
 });
 
 const config: StorybookConfig = {
-  stories: ["./stories/**/*.stories.@(astro|js|jsx|mjs|ts|tsx|mdx)"],
+  stories: ["./stories/**/*.stories.@(astro|js|jsx|mjs|ts|tsx)"],
   addons: [],
   framework: {
     name: "@storybook-astro/framework",
