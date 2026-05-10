@@ -30,41 +30,50 @@ const { page } = Astro.props;
       </header>
 
       <div class="tl-entity-body">
-        {page.sections.map((section) => (
-          <section class="tl-entity-section">
-            <header>
-              <span>{section.label}</span>
-              <h2>{section.title}</h2>
-            </header>
+        {page.sections.map((section) => {
+          const rows = section.rows ?? [];
+          const hasBody = Boolean(section.body?.length);
+          return (
+            <section class="tl-entity-section">
+              <header>
+                <span>{section.label}</span>
+                <h2>{section.title}</h2>
+              </header>
 
-            <div class="tl-entity-list">
-              {section.rows.length > 0 ? (
-                section.rows.map((row) => (
-                  <article class="tl-entity-row">
-                    <div class="tl-entity-row-kicker">{row.kicker}</div>
-                    <div class="tl-entity-row-main">
-                      <h3>{row.href ? <a href={row.href}>{row.title}</a> : row.title}</h3>
-                      {row.summary ? <p>{row.summary}</p> : null}
-                      {(row.meta && row.meta.length > 0) || row.value ? (
-                        <div class="tl-entity-row-meta">
-                          {row.value ? (
-                            <span class="tl-entity-row-status">
-                              <strong>{row.value}</strong>
-                              {row.valueLabel ? <em>{row.valueLabel}</em> : null}
-                            </span>
-                          ) : null}
-                          {row.meta?.map((item) => <span>{item}</span>)}
-                        </div>
-                      ) : null}
-                    </div>
-                  </article>
-                ))
-              ) : (
-                <p class="tl-entity-empty">Nothing filed here yet.</p>
-              )}
-            </div>
-          </section>
-        ))}
+              <div class="tl-entity-list">
+                {hasBody ? (
+                  <div class="tl-entity-section-body">
+                    {section.body?.map((paragraph) => <p>{paragraph}</p>)}
+                  </div>
+                ) : null}
+                {rows.length > 0 ? (
+                  rows.map((row) => (
+                    <article class="tl-entity-row">
+                      <div class="tl-entity-row-kicker">{row.kicker}</div>
+                      <div class="tl-entity-row-main">
+                        <h3>{row.href ? <a href={row.href}>{row.title}</a> : row.title}</h3>
+                        {row.summary ? <p>{row.summary}</p> : null}
+                        {(row.meta && row.meta.length > 0) || row.value ? (
+                          <div class="tl-entity-row-meta">
+                            {row.value ? (
+                              <span class="tl-entity-row-status">
+                                <strong>{row.value}</strong>
+                                {row.valueLabel ? <em>{row.valueLabel}</em> : null}
+                              </span>
+                            ) : null}
+                            {row.meta?.map((item) => <span>{item}</span>)}
+                          </div>
+                        ) : null}
+                      </div>
+                    </article>
+                  ))
+                ) : !hasBody ? (
+                  <p class="tl-entity-empty">Nothing filed here yet.</p>
+                ) : null}
+              </div>
+            </section>
+          );
+        })}
 
         {page.footer ? <footer class="tl-entity-footer">{page.footer}</footer> : null}
       </div>
@@ -252,6 +261,19 @@ const { page } = Astro.props;
   .tl-entity-row-main p {
     max-width: 54ch;
     margin-top: 6px;
+  }
+
+  .tl-entity-section-body {
+    display: grid;
+    gap: 0.85rem;
+    max-width: 58ch;
+    padding-bottom: 24px;
+  }
+
+  .tl-entity-section-body p {
+    color: rgba(7, 9, 13, 0.62);
+    font-size: 13px;
+    line-height: 1.65;
   }
 
   .tl-entity-row-meta {

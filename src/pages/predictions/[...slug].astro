@@ -1,9 +1,9 @@
 ---
-import { render } from "astro:content";
+import { getCollection, render } from "astro:content";
 import type { GetStaticPaths, InferGetStaticPropsType } from "astro";
-import Base from "../../layouts/Base.astro";
-import MetaBlock from "../../components/MetaBlock.astro";
-import Tags from "../../components/Tags.astro";
+import PredictionDetailPageComposition from "../../frontend/thinkinglabs-ui/pages/PredictionDetailPageComposition.astro";
+import ThinkinglabsUiPage from "../../layouts/ThinkinglabsUiPage.astro";
+import { buildTitleLookup, mapPredictionDetail } from "../../lib/thinkinglabs-ui.ts";
 import { getKindStaticPaths } from "../../lib/route-helpers.ts";
 import { predictionStructuredData } from "../../lib/structured-data.ts";
 
@@ -12,27 +12,20 @@ export const getStaticPaths = (async () => {
 }) satisfies GetStaticPaths;
 
 const { entry } = Astro.props as InferGetStaticPropsType<typeof getStaticPaths>;
+const [thoughts, claims] = await Promise.all([getCollection("thoughts"), getCollection("claims")]);
+const lookups = buildTitleLookup({ thoughts, claims });
+const prediction = mapPredictionDetail({ entry, lookups });
 const { Content } = await render(entry);
 const site = Astro.site ?? new URL(Astro.url.origin);
 ---
-<Base
+
+<ThinkinglabsUiPage
   title={`Prediction — ${entry.data.prediction.slice(0, 60)}`}
   description={entry.data.prediction}
   structuredData={predictionStructuredData(entry, Astro.url, site)}
   ogType="article"
 >
-  <h1>{entry.data.prediction}</h1>
-  <MetaBlock
-    data={entry.data}
-    fields={[
-      ["made", "made"],
-      ["resolves", "resolves"],
-      ["confidence", "confidence"],
-      ["resolution", "resolution"],
-      ["resolved on", "resolved_on"],
-      ["resolution note", "resolution_note"],
-    ]}
-  />
-  <Tags tags={entry.data.tags} />
-  <article><Content /></article>
-</Base>
+  <PredictionDetailPageComposition prediction={prediction}>
+    <Content />
+  </PredictionDetailPageComposition>
+</ThinkinglabsUiPage>

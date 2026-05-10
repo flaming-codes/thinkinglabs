@@ -42,6 +42,15 @@ const page: EntityIndexPage = {
         valueLabel: "outcome",
       })),
     },
+    {
+      label: "Embedded tool",
+      title: "Private calibration sandbox.",
+      body: [
+        "The calibration logger is a frontend-only widget. Its JSON payload is prerendered at build time; it is not a live API, not connected to Ollama or OpenAI, and it does not write to the repository or proposal queue.",
+        "A visitor can enter a confidence value and true/false outcome, click Record, and see their local entry count. Entries stay in that browser's localStorage under me.embed.prediction-calibration-logger.v1.",
+        "Those entries do not sync across devices, change public calibration metrics, submit data to the site, create predictions, or trigger an LLM.",
+      ],
+    },
   ],
   footer: "A prediction resolves only against the rule written before the outcome was known.",
 };

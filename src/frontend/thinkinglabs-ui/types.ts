@@ -208,7 +208,8 @@ interface EntityIndexRow {
 interface EntityIndexSection {
   label: string;
   title: string;
-  rows: EntityIndexRow[];
+  body?: string[] | undefined;
+  rows?: EntityIndexRow[] | undefined;
 }
 
 interface EntityIndexPage {

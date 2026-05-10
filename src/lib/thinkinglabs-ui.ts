@@ -771,6 +771,55 @@ function predictionTopic(tags: readonly string[]): string {
   return (tags[0] ?? "general").replace(/-/g, " ");
 }
 
+/** Map a single prediction entry into the shape the detail composition expects. */
+export function mapPredictionDetail(args: {
+  entry: CollectionEntry<"predictions">;
+  lookups?: TitleLookup;
+  now?: Date;
+}): {
+  slug: string;
+  prediction: string;
+  confidence: number;
+  made: string;
+  resolves: string;
+  resolvedOn: string | null;
+  resolution: "pending" | "true" | "false" | "ambiguous";
+  resolutionNote: string | null;
+  daysUntil: number | null;
+  daysSinceMade: number | null;
+  topic: string;
+  tags: readonly string[];
+  evidence: { label: string; href?: string }[];
+} {
+  const { entry, lookups = {}, now = new Date() } = args;
+  const data = entry.data;
+  const dayMs = 1000 * 60 * 60 * 24;
+  const nowMs = now.getTime();
+  const resolvesMs = safeDate(data.resolves);
+  const madeMs = safeDate(data.made);
+  const daysUntil = resolvesMs === 0 ? null : Math.round((resolvesMs - nowMs) / dayMs);
+  const daysSinceMade = madeMs === 0 ? null : Math.round((nowMs - madeMs) / dayMs);
+  const evidence = data.evidence_at_time.map((ref) => {
+    const resolved = titleFromLookup(ref, "thoughts", lookups);
+    return { label: resolved.title, href: resolved.href };
+  });
+  return {
+    slug: entry.id,
+    prediction: data.prediction,
+    confidence: data.confidence,
+    made: formatDate(data.made),
+    resolves: formatDate(data.resolves),
+    resolvedOn: data.resolved_on ? formatDate(data.resolved_on) : null,
+    resolution: data.resolution,
+    resolutionNote: data.resolution_note,
+    daysUntil,
+    daysSinceMade,
+    topic: predictionTopic(data.tags),
+    tags: data.tags,
+    evidence,
+  };
+}
+
 /** Build the predictions index view from real prediction entries; days-to-resolve is computed against `now`. */
 export function mapPredictionsView(args: {
   entries: ReadonlyArray<CollectionEntry<"predictions">>;
