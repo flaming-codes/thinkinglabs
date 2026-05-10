@@ -1,13 +1,20 @@
 ---
-title: "Agents enable radical simplicity"
-created: 2026-05-10
-updated: 2026-05-10
+title: Agents enable radical simplicity
+created: 2026-05-10T00:00:00.000Z
+updated: 2026-05-10T00:00:00.000Z
 tags:
   - agents
   - simplicity
   - prompts
   - skills
-claims: []
+claims:
+  - agent-harness-absorbs-complexity
+  - decision-logic-as-natural-language
+  - prompt-is-spec-is-implementation
+  - radical-simplicity-fewer-parts-per-capability
+  - agent-runtime-substitutes-for-platform
+  - cost-shift-from-infra-to-writing-favorable
+  - agent-systems-collapse-surface-area
 inputs: []
 ---
 
