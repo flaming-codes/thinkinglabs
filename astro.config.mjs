@@ -39,10 +39,8 @@ export default defineConfig({
     },
   },
   vite: {
-    // `pnpm start` (DO) runs `astro preview`, which only reads this `vite` field, not vite.config.js.
-    preview: {
-      allowedHosts: ["thinkinglabs.run"],
-    },
+    // Production is a DO Static Site (see `.do/app.yaml`); `astro preview` is dev/Playwright-only,
+    // so no `preview` block is needed here.
     ssr: {
       external: ["@resvg/resvg-js"],
     },

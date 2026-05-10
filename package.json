@@ -14,7 +14,6 @@
     "build:index": "tsx scripts/build-index.ts",
     "check:structured-data": "tsx scripts/check-structured-data.ts",
     "check:llm-key": "tsx scripts/check-llm-key.ts",
-    "start": "astro preview --host 0.0.0.0 --port ${PORT:-4321}",
     "preview": "astro preview",
     "setup:e2e": "playwright install chromium",
     "test:e2e": "pnpm build && playwright test",

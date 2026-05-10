@@ -17,6 +17,9 @@ export function collectionJson<K extends CollectionKey>(kind: K): APIRoute {
     const body = entries.map((e) => ({ id: e.id, data: e.data, body: e.body ?? "" }));
     return new Response(JSON.stringify(body, null, 2), {
       headers: {
+        // Design-intent only: routes are prerendered into static files and served by DO App Platform's
+        // Static Site CDN, which sets its own fixed cache headers (24h edge / 10s browser). This value
+        // would take effect again under an SSR adapter or if fronted by Cloudflare with origin pass-through.
         "cache-control": "public, max-age=300, stale-while-revalidate=86400",
         "content-type": "application/json; charset=utf-8",
       },
