@@ -266,9 +266,9 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
     display: flex;
     align-items: flex-start;
     justify-content: center;
-    padding-top: var(--tl-ui-y);
-    padding-right: var(--tl-ui-x);
-    padding-left: var(--tl-ui-x);
+    padding-top: var(--tl-ui-top);
+    padding-right: var(--tl-ui-right);
+    padding-left: var(--tl-ui-left);
     color: var(--tl-ink);
   }
 
@@ -303,8 +303,8 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
 
   .tl-nav-toggle {
     position: absolute;
-    top: var(--tl-ui-y);
-    right: var(--tl-ui-x);
+    top: var(--tl-ui-top);
+    right: var(--tl-ui-right);
     display: none;
     width: 2.5rem;
     height: 2.5rem;
@@ -400,9 +400,9 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
 
   .tl-nav-panel {
     position: absolute;
-    top: var(--tl-header-inset);
-    right: var(--tl-header-inset);
-    left: var(--tl-header-inset);
+    top: max(var(--tl-header-inset), var(--tl-safe-top));
+    right: max(var(--tl-header-inset), var(--tl-safe-right));
+    left: max(var(--tl-header-inset), var(--tl-safe-left));
     max-width: 40rem;
     margin-inline: auto;
     height: 50svh;
@@ -662,7 +662,7 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
 
   @media (max-width: 767px) {
     .tl-nav-panel {
-      height: 50vh;
+      height: 50svh;
       min-height: 22rem;
     }
 

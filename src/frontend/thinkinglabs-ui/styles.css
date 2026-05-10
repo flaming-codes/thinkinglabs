@@ -156,9 +156,26 @@
     #6dd8ff 68%,
     #70dfb2 100%
   );
-  --tl-ui-x: clamp(18px, 3vw, 44px);
-  --tl-ui-y: clamp(14px, 2vw, 28px);
-  --tl-center: min(43.75rem, 92vw);
+  --tl-safe-top: env(safe-area-inset-top, 0px);
+  --tl-safe-right: env(safe-area-inset-right, 0px);
+  --tl-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --tl-safe-left: env(safe-area-inset-left, 0px);
+  --tl-viewport-height: 100vh;
+  --tl-ui-x-base: clamp(18px, 3vw, 44px);
+  --tl-ui-y-base: clamp(14px, 2vw, 28px);
+  --tl-ui-x: var(--tl-ui-x-base);
+  --tl-ui-y: var(--tl-ui-y-base);
+  --tl-ui-left: max(var(--tl-ui-x), var(--tl-safe-left));
+  --tl-ui-right: max(var(--tl-ui-x), var(--tl-safe-right));
+  --tl-ui-top: max(var(--tl-ui-y), var(--tl-safe-top));
+  --tl-ui-bottom: max(var(--tl-ui-y), var(--tl-safe-bottom));
+  --tl-center: min(43.75rem, calc(100vw - var(--tl-ui-left) - var(--tl-ui-right)));
+}
+
+@supports (height: 100dvh) {
+  :root {
+    --tl-viewport-height: 100dvh;
+  }
 }
 
 * {
@@ -201,8 +218,8 @@ a {
 
 @media (max-width: 767px) {
   :root {
-    --tl-ui-x: clamp(18px, 5vw, 22px);
-    --tl-ui-y: clamp(14px, 4vw, 18px);
+    --tl-ui-x-base: clamp(18px, 5vw, 22px);
+    --tl-ui-y-base: clamp(14px, 4vw, 18px);
   }
 }
 
