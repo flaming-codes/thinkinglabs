@@ -44,16 +44,18 @@
   --tl-entity-gradient-projects: conic-gradient(
     from 204deg at 48% 52%,
     #042f3f 0deg,
-    #0d8ba0 76deg,
-    #d8f95b 152deg,
-    #ffefe3 226deg,
-    #f24f36 304deg,
+    #07566a 74deg,
+    #5ea6d9 142deg,
+    #0d8ba0 206deg,
+    #b9d7c2 268deg,
+    #4f8f82 304deg,
     #042f3f 360deg
   );
   --tl-entity-detail-gradient-projects: linear-gradient(
     140deg,
     #042f3f 0%,
-    #0d8ba0 55%,
+    #0d8ba0 48%,
+    #5ea6d9 72%,
     #b9d7c2 100%
   );
   --tl-entity-gradient-predictions: conic-gradient(
