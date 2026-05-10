@@ -23,7 +23,7 @@ Docs are local at `node_modules/vite-plus/docs` or online at https://viteplus.de
 Package manager is `pnpm` (v10, see `packageManager` in `package.json`). Node >= 22.19.0.
 
 - `pnpm dev` - Astro dev server for the site
-- `pnpm start` - `astro preview` on `0.0.0.0:${PORT:-4321}` (DigitalOcean entrypoint). Vite preview options live in `astro.config.mjs` under `vite.preview`, not `vite.config.js`.
+- `pnpm preview` - `astro preview` against the built `dist/` (dev/Playwright use only; not a production server)
 - `pnpm storybook` / `pnpm storybook:build` - Storybook v10 dev server and static build
 - `pnpm build` - `astro check && astro build`, then rebuild `dist/index.sqlite` (validates every frontmatter file against its Zod schema)
 - `pnpm build:index` - rebuild the derived `dist/index.sqlite` query layer
@@ -88,6 +88,16 @@ A single server factory - `createThinkinglabsMcpServer({ repoRoot })` in `server
 - Streamable HTTP (`servers/thinkinglabs-mcp-http/`, `pnpm mcp:thinkinglabs:http`) - remote, no clone required. Stateless mode (fresh `McpServer` + `StreamableHTTPServerTransport` per POST), `enableJsonResponse: true`, raw `node:http` (no Express dep). DNS-rebinding protection via `MCP_HTTP_ALLOWED_HOSTS`/`MCP_HTTP_ALLOWED_ORIGINS`; CORS exposes `Mcp-Session-Id` and `MCP-Protocol-Version`; in-memory token-bucket rate limiter (default 30 burst / 1 RPS per IP, key from `req.socket.remoteAddress` unless `MCP_HTTP_TRUST_PROXY=1`); 1 MiB body cap; `GET /healthz` for LB probes; `GET`/`DELETE /mcp` return 405. See `docs/agents/mcp-http-server.md`.
 
 Behaviour changes that affect both transports go in the factory at `servers/thinkinglabs-mcp/server.ts`. Transport-specific concerns (rate limiting, CORS, body parsing) live in `servers/thinkinglabs-mcp-http/server.ts` only.
+
+## Deployment
+
+The site is a 100% static Astro build (no SSR adapter, no `output: 'server'`). Every route - including `src/pages/api/*.json.ts` and `src/pages/og/[...slug].png.ts` - is prerendered into `dist/` at build time; `astro build` fails loudly if a route ever becomes non-prerenderable, which is the contract.
+
+Production is a DigitalOcean App Platform **Static Site** component (see `.do/app.yaml`). DO runs `pnpm build`, uploads `dist/`, and serves it from their global CDN with HTTPS. No Node runtime in production. `astro preview` (`pnpm preview`) is for local QA and Playwright only - it is not a production server.
+
+Cache control on DO Static Sites is platform-fixed: 24h on the CDN edge (purged on each deploy), 10s `max-age` in browsers. There is no `_headers` file, no per-path rule support, and no app-spec headers block - DO only exposes a global edge-cache on/off toggle. Per-handler `Cache-Control` headers in `src/lib/api.ts`, `src/pages/og/[...slug].png.ts`, etc. are therefore **design-intent documentation only** under the current host: they describe what we want, not what is delivered. If finer control is ever needed, front the origin with Cloudflare and configure Page/Transform Rules there - no code changes required.
+
+The MCP HTTP server (`pnpm mcp:thinkinglabs:http`) is a separate runtime concern and is not part of the static deployment. If/when it is hosted on DO, it goes in `app.yaml` as a `services:` entry alongside `static_sites:`.
 
 ## Path alias
 

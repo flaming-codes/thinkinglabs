@@ -93,6 +93,12 @@ const EXTRA_PAGES: ReadonlyArray<Surface> = [
     description: "Stated confidence vs realized accuracy.",
     section: "page",
   },
+  {
+    title: "Graph",
+    url: "/graph",
+    description: "Full-screen 3D rendering of the knowledge network.",
+    section: "page",
+  },
 ];
 
 /** Static data and feed surfaces appended after the per-kind sections. */

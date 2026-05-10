@@ -1,0 +1,228 @@
+---
+import type { PositionedGraph } from "../../../lib/network-graph-layout.ts";
+import type { GraphNode } from "../../../lib/network-graph.ts";
+import { KIND_REGISTRY } from "../../../lib/registry.ts";
+
+interface Props {
+  layout: PositionedGraph;
+  nodes: ReadonlyArray<GraphNode>;
+}
+
+const { layout, nodes } = Astro.props;
+
+const nodeMetaById = new Map(nodes.map((n) => [n.id, n]));
+const merged = layout.nodes
+  .map((p) => {
+    const meta = nodeMetaById.get(p.id);
+    if (!meta) return null;
+    return {
+      id: meta.id,
+      kind: meta.kind,
+      title: meta.title,
+      href: meta.href,
+      degree: meta.degree,
+      x: p.x,
+      y: p.y,
+      z: p.z,
+    };
+  })
+  .filter((n): n is NonNullable<typeof n> => n !== null);
+
+const payload = { nodes: merged, edges: layout.edges };
+const payloadJson = JSON.stringify(payload).replace(/</g, "\\u003c");
+
+const grouped: Record<string, Array<GraphNode>> = {};
+for (const n of nodes) {
+  (grouped[n.kind] ??= []).push(n);
+}
+const groupedKinds = Object.keys(grouped).sort();
+---
+
+<div class="tl-graph-wrap" data-network-graph-root>
+  <script id="network-graph-data" type="application/json" is:inline set:html={payloadJson} />
+  <div class="tl-graph-hover-label" data-graph-hover-label aria-hidden="true"></div>
+  <aside class="tl-graph-legend" aria-label="Node legend">
+    <ul>
+      {groupedKinds.map((k) => (
+        <li class={`tl-graph-legend-row tl-graph-legend-${k}`}>
+          <span class="tl-graph-legend-dot" aria-hidden="true"></span>
+          <span class="tl-graph-legend-label">{KIND_REGISTRY[k as keyof typeof KIND_REGISTRY]?.listingTitle ?? k}</span>
+          <span class="tl-graph-legend-count">{grouped[k]?.length ?? 0}</span>
+        </li>
+      ))}
+    </ul>
+  </aside>
+</div>
+
+<noscript>
+  <section class="tl-graph-fallback">
+    <h2>Knowledge graph index</h2>
+    <p>The interactive 3D graph requires JavaScript. Below is the same data as a plain list.</p>
+    {groupedKinds.map((k) => (
+      <section>
+        <h3>{KIND_REGISTRY[k as keyof typeof KIND_REGISTRY]?.listingTitle ?? k}</h3>
+        <ul>
+          {grouped[k]?.map((n) => (
+            <li>{n.href ? <a href={n.href}>{n.title}</a> : <span>{n.title}</span>}</li>
+          ))}
+        </ul>
+      </section>
+    ))}
+  </section>
+</noscript>
+
+<script>
+  import "./NetworkGraph3D.client.ts";
+</script>
+
+<style>
+  .tl-graph-wrap {
+    position: fixed;
+    inset: 0;
+    background: #fff;
+    overflow: hidden;
+  }
+
+  .tl-graph-wrap :global(canvas) {
+    display: block;
+  }
+
+  .tl-graph-hover-label {
+    position: absolute;
+    top: calc(var(--tl-ui-top) + clamp(3.25rem, 6vh, 4.5rem));
+    left: 50%;
+    z-index: 6;
+    max-width: min(36rem, calc(100vw - 4rem));
+    padding: 0 1rem;
+    color: var(--tl-ink);
+    font-size: 13px;
+    font-weight: 650;
+    line-height: 1.35;
+    text-align: center;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(-50%, -6px);
+    transition: opacity 220ms ease, transform 260ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .tl-graph-hover-label.is-visible {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+
+  .tl-graph-legend {
+    position: absolute;
+    bottom: max(var(--tl-ui-bottom), clamp(1rem, 3vh, 2rem));
+    left: 50%;
+    z-index: 5;
+    padding: 10px 18px;
+    background: rgba(255, 255, 255, 0.22);
+    border: 1px solid rgba(7, 9, 13, 0.06);
+    border-radius: 999px;
+    box-shadow: 0 22px 48px -36px rgba(7, 9, 13, 0.28);
+    backdrop-filter: saturate(180%) blur(28px);
+    -webkit-backdrop-filter: saturate(180%) blur(28px);
+    transform: translateX(-50%);
+    pointer-events: none;
+  }
+
+  .tl-graph-legend ul {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: max-content;
+    gap: 0 22px;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .tl-graph-legend-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--tl-ink);
+    font-size: 11px;
+    font-weight: 540;
+    line-height: 1;
+    letter-spacing: 0.04em;
+  }
+
+  .tl-graph-legend-dot {
+    display: block;
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--tl-soft);
+  }
+
+  .tl-graph-legend-count {
+    color: var(--tl-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  @media (max-width: 720px) {
+    .tl-graph-legend {
+      border-radius: 14px;
+      padding: 10px 14px;
+    }
+
+    .tl-graph-legend ul {
+      grid-auto-flow: row;
+      grid-template-columns: repeat(2, max-content);
+      gap: 6px 18px;
+    }
+  }
+
+  .tl-graph-legend-thoughts .tl-graph-legend-dot { background: #8dbbd0; }
+  .tl-graph-legend-claims .tl-graph-legend-dot { background: #c9ddff; }
+  .tl-graph-legend-projects .tl-graph-legend-dot { background: #0d8ba0; }
+  .tl-graph-legend-predictions .tl-graph-legend-dot { background: #b7cff7; }
+  .tl-graph-legend-changed-my-mind .tl-graph-legend-dot { background: #ffba3d; }
+  .tl-graph-legend-decisions .tl-graph-legend-dot { background: #b8c8aa; }
+  .tl-graph-legend-questions .tl-graph-legend-dot { background: #ffcf4a; }
+  .tl-graph-legend-posts .tl-graph-legend-dot { background: #d9c8c6; }
+  .tl-graph-legend-inputs .tl-graph-legend-dot { background: #6dd8ff; }
+  .tl-graph-legend-provenance .tl-graph-legend-dot { background: #c7c7c7; }
+
+  .tl-graph-fallback {
+    position: relative;
+    z-index: 10;
+    width: min(40rem, calc(100vw - 2 * var(--tl-ui-x)));
+    margin: 16vh auto;
+    color: var(--tl-ink);
+  }
+
+  .tl-graph-fallback h2 {
+    margin: 0 0 16px;
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 650;
+    letter-spacing: -0.04em;
+    text-transform: uppercase;
+  }
+
+  .tl-graph-fallback h3 {
+    margin: 28px 0 8px;
+    font-size: 11px;
+    font-weight: 650;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+  }
+
+  .tl-graph-fallback ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .tl-graph-fallback li + li {
+    margin-top: 6px;
+  }
+
+  .tl-graph-fallback a {
+    color: var(--tl-ink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+</style>
