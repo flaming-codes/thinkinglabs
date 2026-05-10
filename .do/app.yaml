@@ -1,0 +1,46 @@
+# DigitalOcean App Platform spec for thinkinglabs.run.
+#
+# Deployed as a Static Site component: `pnpm build` produces `dist/`, DO serves
+# the files from its global CDN with HTTPS. No Node.js runtime in production.
+#
+# Cache behavior is fixed by DO at the platform level (not customizable per
+# path): 24h on CDN edge, 10s in browsers. Edge cache is purged on each deploy.
+# If finer control is ever needed, front this with Cloudflare and set Page
+# Rules / Transform Rules there.
+#
+# The MCP HTTP server (`pnpm mcp:thinkinglabs:http`) is a separate runtime
+# concern and not deployed by this spec. If/when it is deployed, add a
+# `services:` entry alongside `static_sites:`.
+
+name: thinkinglabs
+region: ams
+
+static_sites:
+  - name: site
+    # GitHub source. Adjust `repo` if the canonical remote differs.
+    github:
+      repo: flaming-codes/thinkinglabs
+      branch: main
+      deploy_on_push: true
+
+    source_dir: /
+    build_command: pnpm build
+    output_dir: dist
+
+    # `astro build` emits `404.html` and `index.html` at the dist root.
+    index_document: index.html
+    error_document: 404.html
+    catchall_document: 404.html
+
+    # Build-time env. Runtime env doesn't apply: there's no runtime.
+    envs:
+      - key: SITE_URL
+        scope: BUILD_TIME
+        value: https://thinkinglabs.run
+      - key: NODE_VERSION
+        scope: BUILD_TIME
+        value: "22"
+
+domains:
+  - domain: thinkinglabs.run
+    type: PRIMARY
