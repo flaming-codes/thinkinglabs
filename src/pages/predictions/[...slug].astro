@@ -20,7 +20,7 @@ const site = Astro.site ?? new URL(Astro.url.origin);
 ---
 
 <ThinkinglabsUiPage
-  title={`Prediction — ${entry.data.prediction.slice(0, 60)}`}
+  title={entry.data.prediction.slice(0, 60)}
   description={entry.data.prediction}
   structuredData={predictionStructuredData(entry, Astro.url, site)}
   ogType="article"

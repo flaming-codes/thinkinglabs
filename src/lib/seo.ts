@@ -27,16 +27,17 @@ export const DEFAULT_FEED_LINKS: ReadonlyArray<FeedLink> = [
   },
 ];
 
-const TITLE_SEPARATOR = "  ";
+const TITLE_SEPARATOR = " | ";
 const LEGACY_TITLE_SUFFIX = /\s+(?:[-–—]\s*)?(?:Tom(?:\s+Wild)?|thinkinglabs)$/i;
 const LEGACY_TITLE_PREFIX = /^Tom(?:\s+Wild)?\s*[-–—]\s*/i;
 
-/** Format page metadata titles as "<page>  thinkinglabs" without legacy personal-name copy. */
+/** Format page metadata titles as "<page> | thinkinglabs" without legacy personal-name copy. */
 export function metadataTitle(pageTitle: string): string {
   const page = pageTitle
     .trim()
     .replace(LEGACY_TITLE_PREFIX, "")
     .replace(LEGACY_TITLE_SUFFIX, "")
+    .replace(/\s+[–—]\s+/g, " - ")
     .trim();
 
   return page.length > 0 && page.toLowerCase() !== SITE_NAME

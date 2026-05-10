@@ -24,7 +24,7 @@ const question = mapQuestionDetail({ entry, lookups, claimLookup, responseAction
 const site = Astro.site ?? new URL(Astro.url.origin);
 ---
 <ThinkinglabsUiPage
-  title={`${entry.data.question.slice(0, 60)} — Questions`}
+  title={entry.data.question.slice(0, 60)}
   description={entry.data.context ?? entry.data.question}
   structuredData={questionStructuredData(entry, Astro.url, site)}
   ogType="article"
