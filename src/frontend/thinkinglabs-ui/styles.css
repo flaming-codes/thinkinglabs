@@ -156,6 +156,26 @@
     #6dd8ff 68%,
     #70dfb2 100%
   );
+  --tl-entity-gradient-graph: conic-gradient(
+    from 90deg at 50% 50%,
+    #c9ddff 0deg,
+    #b7cff7 40deg,
+    #8dbbd0 80deg,
+    #6dd8ff 120deg,
+    #b8c8aa 160deg,
+    #ffcf4a 200deg,
+    #ffba3d 240deg,
+    #d9c8c6 280deg,
+    #0d8ba0 320deg,
+    #c9ddff 360deg
+  );
+  --tl-entity-detail-gradient-graph: linear-gradient(
+    135deg,
+    #c9ddff 0%,
+    #8dbbd0 40%,
+    #ffcf4a 75%,
+    #d9c8c6 100%
+  );
   --tl-safe-top: env(safe-area-inset-top, 0px);
   --tl-safe-right: env(safe-area-inset-right, 0px);
   --tl-safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -284,6 +304,13 @@ a {
   --tl-entity-detail-gradient: var(--tl-entity-detail-gradient-inputs);
   --tl-gradient-duration: 27s;
   --tl-gradient-origin: 46% 50%;
+}
+
+[data-entity="graph"] {
+  --tl-entity-gradient: var(--tl-entity-gradient-graph);
+  --tl-entity-detail-gradient: var(--tl-entity-detail-gradient-graph);
+  --tl-gradient-duration: 38s;
+  --tl-gradient-origin: 50% 50%;
 }
 
 @keyframes tl-entity-tile-drift {
