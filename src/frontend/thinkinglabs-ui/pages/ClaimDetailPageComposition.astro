@@ -1,6 +1,5 @@
 ---
 import AppShell from "../components/AppShell.astro";
-import ConfidenceMeter from "../components/ConfidenceMeter.astro";
 import StatusTag from "../components/StatusTag.astro";
 import type { ClaimDetail } from "../types";
 
@@ -9,153 +8,285 @@ interface Props {
 }
 
 const { claim } = Astro.props;
+const claimStatement = claim.title.trim();
+const proseParagraphs = claim.body.filter(
+  (paragraph) => paragraph.trim() !== claimStatement,
+);
 ---
 
 <AppShell activeNav="Index">
-  <article class="tl-claim-detail-page" data-selected-label={claim.title} data-entity="claims">
-  <section class="tl-page-head is-detail">
-    <div class="tl-claim-visual" aria-hidden="true"></div>
-    <div class="tl-mono">Claim detail</div>
-    <div class="tl-claim-detail-head">
-      <h1>{claim.title}</h1>
-      <aside>
-        <div class="tl-eyebrow">Confidence</div>
-        <div class="tl-claim-conf-big">{claim.conf.toFixed(2)}</div>
-        <ConfidenceMeter value={claim.conf} showDelta={false} />
-        <div class="tl-claim-fact-list">
-          <div>
-            <span>status</span>
-            <StatusTag label={claim.status} tone={claim.status} />
-          </div>
-          <div>
-            <span>reviewed</span>
-            <strong>{claim.reviewed}</strong>
-          </div>
-          <div>
-            <span>evidence</span>
-            <strong>{claim.evidence.length}</strong>
-          </div>
-          <div>
-            <span>opposing</span>
-            <strong>{claim.opposing.length}</strong>
-          </div>
-          <div>
-            <span>tags</span>
-            <strong>{claim.tags.join(", ")}</strong>
-          </div>
+  <article class="tl-claim-detail" data-selected-label={claim.title} data-entity="claims">
+    <header class="tl-claim-hero">
+      <div class="tl-claim-art" aria-hidden="true"></div>
+      <div class="tl-claim-title">
+        <p class="tl-mono">Claim detail</p>
+        <h1>{claimStatement}</h1>
+        <div class="tl-claim-detail-meta">
+          <StatusTag label={claim.status} tone={claim.status} />
+          <span class="tl-mono">reviewed {claim.reviewed}</span>
+          <span class="tl-mono">{claim.evidence.length} evidence</span>
+          <span class="tl-mono">{claim.opposing.length} opposing</span>
         </div>
-      </aside>
-    </div>
-  </section>
-
-  <section class="tl-claim-body-grid">
-    <article>
-      {claim.body.map((paragraph, index) => (
-        <p class="tl-claim-body-copy">
-          {index === 0 ? <span class="tl-dropcap">{paragraph.charAt(0)}</span> : null}
-          {index === 0 ? paragraph.slice(1) : paragraph}
-        </p>
-      ))}
-    </article>
-    <aside>
-      <div class="tl-eyebrow">Confidence over time</div>
-      {claim.history.map((item) => (
-        <div class="tl-history-row">
-          <span class="tl-mono">{item.date}</span>
-          <span>{item.note}</span>
-          <span class="tl-mono is-right">{item.conf.toFixed(2)}</span>
-        </div>
-      ))}
-    </aside>
-  </section>
-
-  <section class="tl-evidence-section">
-    <header class="tl-split-header is-tight">
-      <div class="tl-eyebrow">Evidence</div>
-      <div class="tl-mono">{claim.evidence.length} linked entries</div>
+      </div>
     </header>
-      <div class="tl-evidence-grid">
-        {claim.evidence.map((entry) => (
-          <article class="tl-evidence-row">
-            <span class="tl-mono">{entry.kind}</span>
-            <h3>{entry.href ? <a href={entry.href}>{entry.title}</a> : entry.title}</h3>
+
+    <section class="tl-claim-confidence">
+      <div class="tl-claim-confidence-figures">
+        <span class="tl-eyebrow">Confidence</span>
+        <span class="tl-claim-conf-big">{claim.conf.toFixed(2)}</span>
+        <span
+          class="tl-claim-conf-bar"
+          aria-hidden="true"
+          style={`--tl-claim-conf: ${Math.round(claim.conf * 100)}%`}
+        ></span>
+      </div>
+      {claim.tags.length > 0 ? (
+        <div class="tl-claim-tags" aria-label="Tags">
+          {claim.tags.map((tag) => <span>#{tag}</span>)}
+        </div>
+      ) : null}
+    </section>
+
+    {proseParagraphs.length > 0 ? (
+      <section class="tl-prose-shell">
+        <div class="tl-prose-body">
+          {proseParagraphs.map((paragraph) => <p>{paragraph}</p>)}
+        </div>
+      </section>
+    ) : null}
+
+    <section class="tl-aside-block">
+      <header class="tl-split-header is-tight">
+        <div class="tl-eyebrow">Confidence over time</div>
+        <div class="tl-mono">
+          {claim.history.length} {claim.history.length === 1 ? "update" : "updates"}
+        </div>
+      </header>
+      <div class="tl-history-list">
+        {claim.history.map((item) => (
+          <article class="tl-history-row is-wide">
+            <span class="tl-mono">{item.date}</span>
+            <span>{item.note}</span>
+            <span class="tl-mono is-right">{item.conf.toFixed(2)}</span>
           </article>
         ))}
       </div>
     </section>
+
+    {claim.evidence.length > 0 ? (
+      <section class="tl-aside-block">
+        <header class="tl-split-header is-tight">
+          <div class="tl-eyebrow">Evidence</div>
+          <div class="tl-mono">
+            {claim.evidence.length} linked {claim.evidence.length === 1 ? "entry" : "entries"}
+          </div>
+        </header>
+        <div>
+          {claim.evidence.map((entry) => (
+            <article class="tl-rel-row">
+              <span class="tl-mono">{entry.kind}</span>
+              <h3>{entry.href ? <a href={entry.href}>{entry.title}</a> : entry.title}</h3>
+              <span class="tl-mono is-right"></span>
+            </article>
+          ))}
+        </div>
+      </section>
+    ) : null}
+
+    {claim.opposing.length > 0 ? (
+      <section class="tl-aside-block">
+        <header class="tl-split-header is-tight">
+          <div class="tl-eyebrow">Opposing views</div>
+          <div class="tl-mono">{claim.opposing.length} on file</div>
+        </header>
+        <div>
+          {claim.opposing.map((entry) => (
+            <p class="tl-quote-line">"{entry.title}"</p>
+          ))}
+        </div>
+      </section>
+    ) : null}
   </article>
 </AppShell>
 
 <style>
-  .tl-claim-detail-page {
-    padding-bottom: clamp(6rem, 14vh, 11rem);
+  .tl-claim-detail {
+    padding: clamp(7rem, 13vh, 10rem) 20px clamp(7rem, 16vh, 12rem);
+    background: var(--tl-bg);
+    color: var(--tl-ink);
   }
 
-  .tl-claim-visual {
-    width: min(100%, 18rem);
-    height: clamp(3.5rem, 8vh, 5.5rem);
-    margin-bottom: clamp(1.5rem, 4vh, 2.5rem);
-    background: var(--tl-entity-detail-gradient);
-  }
-
-  .tl-claim-body-grid,
-  .tl-evidence-section {
-    width: var(--tl-center);
+  .tl-claim-hero,
+  .tl-claim-confidence,
+  .tl-prose-shell,
+  .tl-aside-block {
+    width: min(100%, 980px);
     margin-inline: auto;
   }
 
-  .tl-claim-detail-head {
+  .tl-claim-hero {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(10rem, 16rem);
-    gap: 56px;
+    grid-template-columns: minmax(8rem, 0.28fr) minmax(0, 1fr);
+    gap: clamp(1.5rem, 5vw, 4rem);
     align-items: end;
+    min-height: clamp(20rem, 52vh, 32rem);
   }
 
-  .tl-evidence-grid {
+  .tl-claim-art {
+    align-self: stretch;
+    min-height: 14rem;
+    background: var(--tl-entity-detail-gradient);
+  }
+
+  .tl-claim-title {
     display: grid;
+    gap: 20px;
+    padding-bottom: clamp(0.5rem, 3vh, 1.5rem);
   }
 
-  .tl-evidence-row,
-  .tl-history-row {
-    position: relative;
+  .tl-claim-title h1 {
+    max-width: 32ch;
+    font-size: clamp(26px, 3.1vw, 42px);
+    font-weight: 620;
+    line-height: 1.08;
+    letter-spacing: -0.025em;
+  }
+
+  .tl-claim-detail-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    align-items: center;
+  }
+
+  .tl-claim-confidence {
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(1.25rem, 4vw, 2.5rem) clamp(2rem, 6vw, 4rem);
+    align-items: end;
+    justify-content: space-between;
+    margin-top: clamp(1.5rem, 4vh, 2.5rem);
+    padding-bottom: clamp(1.25rem, 3vh, 2rem);
+  }
+
+  .tl-claim-confidence-figures {
     display: grid;
-    grid-template-columns: 56px minmax(0, 1fr) auto;
-    gap: 22px;
-    align-items: baseline;
-    padding: 30px 0;
-    border-bottom: 1px solid var(--tl-line);
+    grid-template-columns: auto minmax(8rem, 16rem);
+    align-items: end;
+    gap: 4px 22px;
   }
 
-  .tl-evidence-row h3 {
-    font-size: clamp(25px, 3vw, 38px);
-    font-weight: 600;
-    line-height: 1.02;
-    letter-spacing: -0.03em;
+  .tl-claim-confidence-figures .tl-eyebrow {
+    grid-column: 1 / -1;
   }
 
   .tl-claim-conf-big {
-    font-size: clamp(32px, 5vw, 70px);
+    font-size: clamp(40px, 6vw, 72px);
     font-weight: 650;
-    line-height: 0.9;
+    line-height: 0.88;
     letter-spacing: -0.05em;
   }
 
-  .tl-evidence-section {
-    padding-bottom: 0;
+  .tl-claim-conf-bar {
+    position: relative;
+    display: block;
+    height: 2px;
+    margin-bottom: 0.55em;
+    background: var(--tl-line);
+  }
+
+  .tl-claim-conf-bar::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: var(--tl-claim-conf, 0%);
+    background: var(--tl-ink);
+  }
+
+  .tl-claim-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    align-items: center;
+    align-self: end;
+    color: var(--tl-muted);
+    font-size: 13px;
+  }
+
+  .tl-prose-shell {
+    padding: clamp(2.5rem, 7vh, 4.5rem) 0 0;
+  }
+
+  .tl-aside-block {
+    padding-top: clamp(1.75rem, 5vh, 3rem);
+  }
+
+  .tl-history-list,
+  .tl-aside-block > div {
+    display: grid;
+  }
+
+  .tl-rel-row,
+  .tl-history-row {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(7rem, 9rem) minmax(0, 1fr) auto;
+    gap: 22px;
+    align-items: baseline;
+    padding: 24px 0;
+    border-bottom: 1px solid var(--tl-line);
+  }
+
+  .tl-rel-row h3 {
+    font-size: clamp(22px, 2.6vw, 32px);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+  }
+
+  .tl-rel-row a {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s ease;
+  }
+
+  .tl-rel-row a:hover,
+  .tl-rel-row a:focus-visible {
+    border-bottom-color: currentColor;
+  }
+
+  .tl-quote-line {
+    max-width: 56ch;
+    padding: 18px 0;
+    color: rgba(7, 9, 13, 0.78);
+    font-size: clamp(17px, 1.8vw, 21px);
+    font-style: italic;
+    line-height: 1.5;
+    border-bottom: 1px solid var(--tl-line);
+  }
+
+  @media (max-width: 860px) {
+    .tl-claim-hero {
+      grid-template-columns: 1fr;
+      min-height: 0;
+    }
+
+    .tl-claim-art {
+      min-height: 12rem;
+    }
   }
 
   @media (max-width: 767px) {
-    .tl-claim-body-grid,
-    .tl-evidence-section {
-      width: min(100% - 40px, 43.75rem);
+    .tl-claim-detail {
+      padding: 5rem 16px 3rem;
     }
 
-    .tl-claim-detail-head,
-    .tl-evidence-row,
+    .tl-rel-row,
     .tl-history-row {
       grid-template-columns: 1fr;
-      gap: 12px;
+      gap: 10px;
+      padding: 18px 0;
     }
   }
-
 </style>
