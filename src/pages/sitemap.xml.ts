@@ -19,6 +19,7 @@ const STATIC_HTML_PATHS = [
   "/agents",
   "/contact",
   "/brain-diff",
+  "/graph",
   "/predictions/calibration",
 ] as const;
 

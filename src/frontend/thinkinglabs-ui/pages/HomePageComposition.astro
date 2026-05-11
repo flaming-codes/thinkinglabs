@@ -50,8 +50,12 @@ const { kinds } = Astro.props;
     position: relative;
     display: grid;
     align-items: center;
-    min-height: 100vh;
-    padding: clamp(4.5rem, 8vw, 9rem) clamp(1.5rem, 4vw, 3.5rem);
+    min-height: var(--tl-viewport-height);
+    padding:
+      clamp(4.5rem, 8vw, 9rem)
+      max(clamp(1.5rem, 4vw, 3.5rem), var(--tl-safe-right))
+      clamp(4.5rem, 8vw, 9rem)
+      max(clamp(1.5rem, 4vw, 3.5rem), var(--tl-safe-left));
   }
 
   .tl-home-gallery {

@@ -34,7 +34,7 @@ Useful commands:
 ```sh
 pnpm dev                 # Astro dev server
 pnpm build               # astro check + astro build + dist/index.sqlite
-pnpm start               # astro preview on 0.0.0.0:${PORT:-4321}
+pnpm preview             # astro preview (local QA / Playwright only; not a prod server)
 pnpm storybook           # Storybook v10 UI review
 pnpm storybook:build     # static Storybook build
 
@@ -164,6 +164,12 @@ Playwright coverage lives in `tests/e2e/` and runs through `pnpm test:e2e` or `p
 - Use shared primitives for proposal review, editor handoff, frontmatter patching, content loading, LLM calls, and JSON state. Do not fork those patterns in new agents.
 - Use Vite+ commands through `vp` or package scripts that call `vp`.
 - For agent-facing configuration, edit `.harness/src/**` and run `pnpm harness apply`; generated provider outputs are not the source of truth.
+
+## Deployment
+
+The site is deployed as a DigitalOcean App Platform **Static Site** component. DO runs `pnpm build`, uploads `dist/`, and serves it from their global CDN with HTTPS - no Node runtime in production. The app spec lives in `.do/app.yaml`. `astro preview` is dev/Playwright-only, not a production server.
+
+Cache headers are fixed by DO (24h edge, 10s browser, purged on deploy) and cannot be customized per path. If finer cache control is ever needed, layer Cloudflare in front of the origin and use Page Rules there.
 
 ## Deeper docs
 

@@ -75,7 +75,7 @@ const showSelectedHud = activeNav !== "Index" && !hideSelectedHud;
   .tl-shell {
     isolation: isolate;
     width: 100%;
-    height: 100vh;
+    height: var(--tl-viewport-height);
     background: var(--tl-bg);
     color: var(--tl-ink);
     overflow: hidden;
@@ -102,7 +102,7 @@ const showSelectedHud = activeNav !== "Index" && !hideSelectedHud;
   }
 
   .tl-scroll {
-    height: 100vh;
+    height: var(--tl-viewport-height);
     overflow: hidden auto;
     overscroll-behavior: none;
     scrollbar-width: none;
@@ -115,17 +115,17 @@ const showSelectedHud = activeNav !== "Index" && !hideSelectedHud;
   }
 
   .tl-scroll-content {
-    min-height: 100vh;
+    min-height: var(--tl-viewport-height);
   }
 
   .tl-selected-hud {
     position: fixed;
     z-index: 40;
     top: 50%;
-    left: var(--tl-ui-x);
+    left: var(--tl-ui-left);
     display: grid;
     gap: 9px;
-    width: min(35rem, calc(100vw - var(--tl-ui-x) * 2));
+    width: min(35rem, calc(100vw - var(--tl-ui-left) - var(--tl-ui-right)));
     color: #fff;
     mix-blend-mode: difference;
     pointer-events: none;
@@ -377,7 +377,7 @@ const showSelectedHud = activeNav !== "Index" && !hideSelectedHud;
     .tl-shell :global(.tl-index-list),
     .tl-shell :global(.tl-filter-row),
     .tl-shell :global(.tl-index-bottom) {
-      width: min(100% - 40px, 43.75rem);
+      width: var(--tl-center);
     }
 
     .tl-shell :global(.tl-page-head-grid),

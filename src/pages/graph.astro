@@ -1,0 +1,46 @@
+---
+import { getCollection } from "astro:content";
+import AppShell from "../frontend/thinkinglabs-ui/components/AppShell.astro";
+import NetworkGraph3D from "../frontend/thinkinglabs-ui/components/NetworkGraph3D.astro";
+import ThinkinglabsUiPage from "../layouts/ThinkinglabsUiPage.astro";
+import { buildNetworkGraph } from "../lib/network-graph.ts";
+import { layoutNetworkGraph } from "../lib/network-graph-layout.ts";
+
+const [thoughts, claims, projects, predictions, changedMyMind, decisions, questions, posts, inputs, provenance] =
+  await Promise.all([
+    getCollection("thoughts"),
+    getCollection("claims"),
+    getCollection("projects"),
+    getCollection("predictions"),
+    getCollection("changed-my-mind"),
+    getCollection("decisions"),
+    getCollection("questions"),
+    getCollection("posts"),
+    getCollection("inputs"),
+    getCollection("provenance"),
+  ]);
+
+const graph = buildNetworkGraph({
+  thoughts,
+  claims,
+  projects,
+  predictions,
+  "changed-my-mind": changedMyMind,
+  decisions,
+  questions,
+  posts,
+  inputs,
+  provenance,
+});
+
+const layout = layoutNetworkGraph(graph, { ticks: 320 });
+---
+
+<ThinkinglabsUiPage
+  title="Graph — thinkinglabs"
+  description="A full-screen 3D rendering of the knowledge network: claims, thoughts, projects, predictions, decisions, questions, posts, inputs, and provenance."
+>
+  <AppShell activeNav="Index">
+    <NetworkGraph3D layout={layout} nodes={graph.nodes} />
+  </AppShell>
+</ThinkinglabsUiPage>

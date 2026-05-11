@@ -83,8 +83,12 @@ const { page } = Astro.props;
 
 <style>
   .tl-entity-page {
-    min-height: 100vh;
-    padding: clamp(5.75rem, 10vh, 8rem) 20px clamp(4rem, 9vh, 7rem);
+    min-height: var(--tl-viewport-height);
+    padding:
+      clamp(5.75rem, 10vh, 8rem)
+      var(--tl-ui-right)
+      max(clamp(4rem, 9vh, 7rem), var(--tl-safe-bottom))
+      var(--tl-ui-left);
     background: var(--tl-bg);
     color: var(--tl-ink);
   }

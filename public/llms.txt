@@ -10,6 +10,7 @@
 - [For agents](/agents): MCP server, llms.txt, JSON APIs, and feed surfaces.
 - [Contact](/contact): Human-readable contact surface.
 - [Calibration](/predictions/calibration): Stated confidence vs realized accuracy.
+- [Graph](/graph): Full-screen 3D rendering of the knowledge network.
 
 ## Listings
 
