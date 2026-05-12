@@ -43,9 +43,14 @@ const { kinds } = Astro.props;
 
     <p>
       The site is generated from a markdown repository. The repository is the durable object. The
-      web UI, JSON feeds, SQLite index, and MCP surfaces are derived views over the same source.
-      That constraint keeps the place quiet: edit the files, rebuild the surfaces, let the public
-      version stay close to the working version.
+      web UI, JSON feeds, SQLite index, MCP surfaces, and Markdown URL variants are derived views
+      over the same source. Canonical public content pages, listings, and selected static pages
+      have agent-readable Markdown siblings by appending <code>.md</code> to the slashless URL,
+      with <code>/index.md</code> standing in for the homepage. Detail variants preserve the
+      source markdown body; listing and static variants are compact summaries with
+      contract-validated envelopes. That keeps the machine surface rigid without making the
+      writing brittle: edit the files, rebuild the surfaces, let the public version stay close to
+      the working version.
     </p>
   </section>
 
