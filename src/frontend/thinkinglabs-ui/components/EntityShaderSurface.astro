@@ -8,7 +8,7 @@ interface Props {
 }
 
 const { entity, region = "landing", class: className } = Astro.props;
-const shaderEntity = hasEntityShaderGradient(entity) ? entity : undefined;
+const shaderEntity = region !== "detail" && hasEntityShaderGradient(entity) ? entity : undefined;
 ---
 
 <span

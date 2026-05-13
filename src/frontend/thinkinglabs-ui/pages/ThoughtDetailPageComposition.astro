@@ -107,12 +107,13 @@ const hasHistory = thought.history.length > 1;
   }
 
   .tl-thought-title h1 {
-    max-width: 50%;
+    max-width: min(100%, 24ch);
     color: #000;
-    font-size: clamp(30px, 4.2vw, 56px);
+    font-size: clamp(20px, 2.2vw, 30px);
     font-weight: 780;
-    line-height: 0.94;
+    line-height: 1;
     letter-spacing: 0;
+    overflow-wrap: anywhere;
     text-transform: uppercase;
   }
 
@@ -177,6 +178,11 @@ const hasHistory = thought.history.length > 1;
 
     .tl-thought-hero {
       padding-top: 2rem;
+    }
+
+    .tl-thought-title h1 {
+      font-size: clamp(20px, 6vw, 28px);
+      line-height: 1;
     }
 
     :global(.tl-thought-hero-art) {
