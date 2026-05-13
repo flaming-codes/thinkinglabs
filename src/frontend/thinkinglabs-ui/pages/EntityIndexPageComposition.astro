@@ -7,6 +7,31 @@ interface Props {
 }
 
 const { page } = Astro.props;
+
+function rowFact(item: string): { label: string; value: string } {
+  const labelled = item.match(/^(would resolve|status|reviewed|touched|read|held|resolves|resolved|started|last|was)\s*:?\s+(.+)$/i);
+  if (labelled?.[1] && labelled[2]) return { label: labelled[1], value: labelled[2] };
+
+  if (/^(active|deprecated|superseded|settled|drafting|still thinking|standing|reversed|archived|alive|dormant)$/i.test(item)) {
+    return { label: "state", value: item };
+  }
+
+  const counted = item.match(/^([\d,.]+(?:\/\d+)?)\s+(.+)$/);
+  if (counted?.[1] && counted[2]) {
+    const label =
+      {
+        d: "days",
+        ev: "evidence",
+        min: "read",
+        opp: "opposing",
+      }[counted[2]] ?? counted[2];
+    return { label, value: counted[1] };
+  }
+
+  if (item === "open") return { label: "status", value: item };
+
+  return { label: "detail", value: item };
+}
 ---
 
 <AppShell activeNav="Index">
@@ -47,26 +72,38 @@ const { page } = Astro.props;
                   </div>
                 ) : null}
                 {rows.length > 0 ? (
-                  rows.map((row) => (
-                    <article class="tl-entity-row">
-                      <div class="tl-entity-row-kicker">{row.kicker}</div>
-                      <div class="tl-entity-row-main">
-                        <h3>{row.href ? <a href={row.href}>{row.title}</a> : row.title}</h3>
-                        {row.summary ? <p>{row.summary}</p> : null}
-                        {(row.meta && row.meta.length > 0) || row.value ? (
-                          <div class="tl-entity-row-meta">
-                            {row.value ? (
-                              <span class="tl-entity-row-status">
-                                <strong>{row.value}</strong>
-                                {row.valueLabel ? <em>{row.valueLabel}</em> : null}
-                              </span>
-                            ) : null}
-                            {row.meta?.map((item) => <span>{item}</span>)}
+                  rows.map((row) => {
+                    const facts = row.meta?.map(rowFact) ?? [];
+                    return (
+                      <article class="tl-entity-row">
+                        <div class="tl-entity-row-shell">
+                          <div class="tl-entity-row-main">
+                            <div class="tl-entity-row-kicker">{row.kicker}</div>
+                            <h3>{row.href ? <a href={row.href}>{row.title}</a> : row.title}</h3>
+                            {row.summary ? <p>{row.summary}</p> : null}
                           </div>
+
+                          {row.value ? (
+                            <dl class="tl-entity-row-value">
+                              <dt>{row.valueLabel ?? "value"}</dt>
+                              <dd>{row.value}</dd>
+                            </dl>
+                          ) : null}
+                        </div>
+
+                        {facts.length > 0 ? (
+                          <dl class="tl-entity-row-facts">
+                            {facts.map((fact) => (
+                              <div>
+                                <dt>{fact.label}</dt>
+                                <dd>{fact.value}</dd>
+                              </div>
+                            ))}
+                          </dl>
                         ) : null}
-                      </div>
-                    </article>
-                  ))
+                      </article>
+                    );
+                  })
                 ) : !hasBody ? (
                   <p class="tl-entity-empty">Nothing filed here yet.</p>
                 ) : null}
@@ -95,7 +132,7 @@ const { page } = Astro.props;
 
   .tl-entity-document {
     display: grid;
-    gap: clamp(1rem, 3vw, 2rem);
+    gap: clamp(1.25rem, 3.2vw, 2.5rem);
     align-items: start;
     width: min(100%, 920px);
     margin: 0 auto;
@@ -139,9 +176,9 @@ const { page } = Astro.props;
 
   .tl-entity-head {
     display: grid;
-    gap: 10px;
-    max-width: 42rem;
-    padding-top: clamp(1.35rem, 3vw, 2.25rem);
+    gap: 12px;
+    max-width: 38rem;
+    padding-top: clamp(1.75rem, 4vw, 3rem);
   }
 
   .tl-entity-head h1 {
@@ -155,103 +192,106 @@ const { page } = Astro.props;
   .tl-entity-row-main p,
   .tl-entity-footer {
     color: rgba(7, 9, 13, 0.58);
-    font-size: 13px;
-    line-height: 1.62;
+    font-size: 12px;
+    line-height: 1.7;
   }
 
   .tl-entity-stats {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 0.85rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem 1.35rem;
     align-items: start;
-    width: max-content;
     margin: 0;
-    padding-top: 1.15rem;
+    padding-top: clamp(1.25rem, 4vh, 2.5rem);
   }
 
   .tl-entity-stats div {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.45rem;
-    align-items: baseline;
+    display: grid;
+    gap: 0.3rem;
+    min-width: min(100%, 7.5rem);
   }
 
   .tl-entity-stats dt,
   .tl-entity-section header span,
   .tl-entity-row-kicker,
-  .tl-entity-row-meta,
-  .tl-entity-row-status em {
+  .tl-entity-row-value dt,
+  .tl-entity-row-facts dt {
     color: var(--tl-muted);
-    font-size: 11px;
-    font-weight: 650;
+    font-size: 9px;
+    font-weight: 620;
     line-height: 1.1;
-    letter-spacing: 0.16em;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
   }
 
   .tl-entity-stats dd {
     margin: 0;
-    font-size: 18px;
+    font-size: 13px;
     font-weight: 560;
-    line-height: 1;
-    letter-spacing: -0.018em;
+    line-height: 1.1;
+    letter-spacing: 0;
   }
 
   .tl-entity-stats small {
     color: rgba(7, 9, 13, 0.5);
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 500;
-    line-height: 1.2;
+    line-height: 1.35;
     letter-spacing: 0;
     text-transform: none;
   }
 
   .tl-entity-body {
     display: grid;
-    gap: clamp(2rem, 6vh, 4rem);
-    width: 100%;
-    padding-top: clamp(3rem, 8vh, 5.5rem);
+    gap: clamp(4rem, 11vh, 7.5rem);
+    width: min(100%, 760px);
+    padding-top: clamp(4.5rem, 13vh, 8rem);
   }
 
   .tl-entity-section {
     display: grid;
-    grid-template-columns: minmax(7rem, 9rem) minmax(0, 1fr);
-    gap: clamp(1rem, 3vw, 2rem);
+    gap: clamp(1.6rem, 5vw, 3rem);
   }
 
   .tl-entity-section header {
-    display: block;
+    display: grid;
+    gap: 0.55rem;
+    max-width: 20rem;
     padding: 0;
   }
 
   .tl-entity-section h2 {
-    margin-top: 7px;
     color: rgba(7, 9, 13, 0.7);
-    font-size: 13px;
-    font-weight: 560;
-    line-height: 1.2;
+    font-size: 12px;
+    font-weight: 520;
+    line-height: 1.35;
+    letter-spacing: 0;
   }
 
   .tl-entity-list {
     display: grid;
+    gap: clamp(2.35rem, 6vh, 4.25rem);
+    max-width: 42rem;
   }
 
   .tl-entity-row {
     display: grid;
-    grid-template-columns: 4.5rem minmax(0, 1fr);
-    gap: clamp(1rem, 3vw, 1.7rem);
-    padding: 0 0 24px;
+    gap: clamp(0.65rem, 1.4vw, 0.95rem);
   }
 
-  .tl-entity-row + .tl-entity-row {
-    padding-top: 2px;
+  .tl-entity-row-shell {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) max-content;
+    gap: clamp(1rem, 4vw, 3rem);
+    align-items: start;
   }
 
   .tl-entity-row-main h3 {
-    font-size: clamp(15px, 1.4vw, 18px);
-    font-weight: 560;
-    line-height: 1.22;
-    letter-spacing: -0.012em;
+    max-width: 38rem;
+    font-size: clamp(13px, 1.25vw, 16px);
+    font-weight: 540;
+    line-height: 1.35;
+    letter-spacing: 0;
   }
 
   .tl-entity-row-main h3 a {
@@ -260,64 +300,79 @@ const { page } = Astro.props;
   }
 
   .tl-entity-row-main h3 a:hover {
-    text-decoration: underline;
-    text-underline-offset: 3px;
+    color: rgba(7, 9, 13, 0.62);
   }
 
   .tl-entity-row-main p {
-    max-width: 54ch;
-    margin-top: 6px;
+    max-width: 56ch;
+    margin-top: 7px;
   }
 
   .tl-entity-section-body {
     display: grid;
-    gap: 0.85rem;
-    max-width: 58ch;
-    padding-bottom: 24px;
+    gap: 0.75rem;
+    max-width: 56ch;
   }
 
   .tl-entity-section-body p {
     color: rgba(7, 9, 13, 0.62);
-    font-size: 13px;
-    line-height: 1.65;
+    font-size: 12px;
+    line-height: 1.7;
   }
 
-  .tl-entity-row-meta {
+  .tl-entity-row-value,
+  .tl-entity-row-facts {
+    margin: 0;
+  }
+
+  .tl-entity-row-value {
+    display: grid;
+    gap: 0.35rem;
+    min-width: 4.5rem;
+    text-align: right;
+  }
+
+  .tl-entity-row-value dd {
+    margin: 0;
+    color: var(--tl-ink);
+    font-size: clamp(13px, 1.2vw, 16px);
+    font-weight: 620;
+    line-height: 1;
+    letter-spacing: 0;
+  }
+
+  .tl-entity-row-facts {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px 10px;
-    align-items: baseline;
-    margin-top: 9px;
-    font-size: 10px;
-    letter-spacing: 0.12em;
+    gap: 0.7rem 1rem;
+    align-items: start;
+    max-width: 36rem;
   }
 
-  .tl-entity-row-status {
-    display: inline-flex;
-    gap: 6px;
-    align-items: baseline;
+  .tl-entity-row-facts div {
+    display: grid;
+    gap: 0.25rem;
+    min-width: 3.8rem;
   }
 
-  .tl-entity-row-status strong {
-    color: var(--tl-ink);
+  .tl-entity-row-facts dd {
+    margin: 0;
+    color: rgba(7, 9, 13, 0.64);
     font-size: 10px;
-    font-weight: 650;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+    font-weight: 520;
+    line-height: 1.25;
+    letter-spacing: 0;
   }
 
   .tl-entity-empty {
-    padding: 6px 0 24px;
     color: rgba(7, 9, 13, 0.5);
-    font-size: 13px;
-    line-height: 1.6;
+    font-size: 12px;
+    line-height: 1.7;
   }
 
   .tl-entity-footer {
-    grid-column: 1 / -1;
-    margin-top: clamp(1rem, 3vw, 2rem);
-    padding-top: 18px;
-    border-top: 1px solid var(--tl-line);
+    max-width: 42rem;
+    margin-top: clamp(0.5rem, 2vw, 1.5rem);
   }
 
   @media (max-width: 767px) {
@@ -330,19 +385,30 @@ const { page } = Astro.props;
     }
 
     .tl-entity-stats {
-      grid-template-columns: 1fr;
-      gap: 8px;
-      width: auto;
+      gap: 0.8rem 1.15rem;
     }
 
-    .tl-entity-section {
-      grid-template-columns: 1fr;
-      gap: 18px;
+    .tl-entity-body {
+      width: 100%;
+      gap: 3.5rem;
+      padding-top: 4rem;
     }
 
     .tl-entity-row {
+      gap: 0.65rem;
+    }
+
+    .tl-entity-row-shell {
       grid-template-columns: 1fr;
-      gap: 14px;
+      gap: 0.8rem;
+    }
+
+    .tl-entity-row-value {
+      display: flex;
+      gap: 0.55rem;
+      align-items: baseline;
+      min-width: 0;
+      text-align: left;
     }
   }
 
