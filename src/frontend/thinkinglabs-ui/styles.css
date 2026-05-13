@@ -12,6 +12,15 @@
   --tl-font: "Geist", system-ui, sans-serif;
   --tl-wordmark-font: "Linefont", system-ui, sans-serif;
   --tl-wordmark-hover-font: "Geist", system-ui, sans-serif;
+  --tl-entity-gradient-luster:
+    radial-gradient(circle at 30% 18%, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0) 36%),
+    radial-gradient(circle at 76% 78%, rgba(7, 9, 13, 0.12), rgba(7, 9, 13, 0) 44%),
+    repeating-conic-gradient(
+      from 18deg at 52% 48%,
+      rgba(255, 255, 255, 0.032) 0deg 0.5deg,
+      rgba(255, 255, 255, 0) 0.5deg 12deg
+    );
+  --tl-entity-gradient-blend: soft-light, multiply, overlay, normal;
   --tl-entity-gradient-thoughts: conic-gradient(
     from 34deg at 42% 55%,
     #f7fbff 0deg,
@@ -192,6 +201,107 @@
   --tl-ui-top: max(var(--tl-ui-y), var(--tl-safe-top));
   --tl-ui-bottom: max(var(--tl-ui-y), var(--tl-safe-bottom));
   --tl-center: min(43.75rem, calc(100vw - var(--tl-ui-left) - var(--tl-ui-right)));
+}
+
+@supports (background: conic-gradient(in oklab, red, blue)) {
+  :root {
+    --tl-entity-gradient-thoughts: conic-gradient(
+      in oklab from 34deg at 42% 55%,
+      #f7fbff 0deg,
+      #eaf5fb 34deg,
+      #dceef7 68deg,
+      #7fb1c8 148deg,
+      #21394b 236deg,
+      #8aa2b3 278deg,
+      #cddce6 306deg,
+      #f7fbff 360deg
+    );
+    --tl-entity-gradient-claims: conic-gradient(
+      in oklab from 216deg at 45% 48%,
+      #c9ddff 0deg,
+      #eef2ff 126deg,
+      #ffd9ed 238deg,
+      #d8e3ff 276deg,
+      #a9c4ff 312deg,
+      #c9ddff 360deg
+    );
+    --tl-entity-gradient-projects: conic-gradient(
+      in oklab from 204deg at 48% 52%,
+      #042f3f 0deg,
+      #07566a 74deg,
+      #5ea6d9 142deg,
+      #0d8ba0 206deg,
+      #b9d7c2 268deg,
+      #4f8f82 304deg,
+      #042f3f 360deg
+    );
+    --tl-entity-gradient-predictions: conic-gradient(
+      in oklab from 210deg at 50% 50%,
+      #080d16 0deg,
+      #fff 118deg,
+      #dce8fb 184deg,
+      #b7cff7 240deg,
+      #080d16 360deg
+    );
+    --tl-entity-gradient-changed-my-mind: conic-gradient(
+      in oklab from 228deg at 48% 50%,
+      #151923 0deg,
+      #59616f 74deg,
+      #f3efe3 154deg,
+      #ffba3d 232deg,
+      #d94a45 304deg,
+      #151923 360deg
+    );
+    --tl-entity-gradient-decisions: conic-gradient(
+      in oklab from 218deg at 44% 54%,
+      #fbf7e9 0deg,
+      #b8c8aa 72deg,
+      #3e6b59 156deg,
+      #14281f 236deg,
+      #e4d7b7 312deg,
+      #fbf7e9 360deg
+    );
+    --tl-entity-gradient-questions: conic-gradient(
+      in oklab from 214deg at 46% 50%,
+      #fff4b8 0deg,
+      #ffcf4a 62deg,
+      #ff6b50 140deg,
+      #7137a8 226deg,
+      #26164f 304deg,
+      #fff4b8 360deg
+    );
+    --tl-entity-gradient-posts: conic-gradient(
+      in oklab from 32deg at 44% 52%,
+      #fff7ed 0deg,
+      #f2b880 76deg,
+      #b96d42 152deg,
+      #4b2e2a 240deg,
+      #d8dfe6 314deg,
+      #fff7ed 360deg
+    );
+    --tl-entity-gradient-inputs: conic-gradient(
+      in oklab from 226deg at 46% 50%,
+      #0e1f4f 0deg,
+      #3157d5 70deg,
+      #6dd8ff 146deg,
+      #f4fbff 224deg,
+      #70dfb2 302deg,
+      #0e1f4f 360deg
+    );
+    --tl-entity-gradient-graph: conic-gradient(
+      in oklab from 90deg at 50% 50%,
+      #c9ddff 0deg,
+      #b7cff7 40deg,
+      #8dbbd0 80deg,
+      #6dd8ff 120deg,
+      #b8c8aa 160deg,
+      #ffcf4a 200deg,
+      #ffba3d 240deg,
+      #d9c8c6 280deg,
+      #0d8ba0 320deg,
+      #c9ddff 360deg
+    );
+  }
 }
 
 @supports (height: 100dvh) {

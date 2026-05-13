@@ -147,7 +147,8 @@ const { kinds } = Astro.props;
     inset: 0;
     --tl-gradient-base-rotate: 0deg;
     --tl-gradient-base-scale: 1.2;
-    background: var(--tl-entity-gradient);
+    background: var(--tl-entity-gradient-luster), var(--tl-entity-gradient);
+    background-blend-mode: var(--tl-entity-gradient-blend);
     transform: rotate(var(--tl-gradient-base-rotate)) scale(var(--tl-gradient-base-scale));
     transform-origin: var(--tl-gradient-origin, 50% 50%);
     animation: tl-entity-tile-drift var(--tl-gradient-duration, 26s) ease-in-out infinite
@@ -219,12 +220,33 @@ const { kinds } = Astro.props;
     }
 
     .tl-home-gallery {
-      gap: 3.6rem;
+      gap: 6.5rem;
       padding: 23vh 0;
     }
 
     .tl-gallery-card {
       width: min(100%, var(--card-width-mobile, 13.5rem));
+    }
+
+    .tl-gallery-link {
+      overflow: visible;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .tl-gallery-media {
+      box-shadow: var(--tl-card-shadow);
+      transition: box-shadow 0.55s ease;
+    }
+
+    .tl-gallery-link:hover,
+    .tl-gallery-link:focus-visible {
+      box-shadow: none;
+    }
+
+    .tl-gallery-link:hover .tl-gallery-media,
+    .tl-gallery-link:focus-visible .tl-gallery-media {
+      box-shadow: var(--tl-card-hover-shadow);
     }
 
     /* Mobile width rotates by index modulo 3: idx 1, 4, 7, ... use 18rem; others 13.5rem. */
@@ -239,7 +261,8 @@ const { kinds } = Astro.props;
     .tl-gallery-copy {
       display: grid;
       gap: 0.42rem;
-      padding: 1rem;
+      padding-block-start: 0.95rem;
+      text-align: left;
     }
 
     .tl-gallery-copy-kicker {

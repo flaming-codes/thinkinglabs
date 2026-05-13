@@ -617,7 +617,8 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
     width: 100%;
     aspect-ratio: var(--tl-entity-card-aspect, 1 / 1);
     overflow: hidden;
-    background: var(--tl-entity-gradient, var(--tl-soft));
+    background: var(--tl-entity-gradient-luster), var(--tl-entity-gradient, var(--tl-soft));
+    background-blend-mode: var(--tl-entity-gradient-blend);
     box-shadow: var(--tl-card-shadow);
     transition: box-shadow 0.34s ease;
   }
@@ -630,7 +631,8 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
   .tl-nav-card-visual::before {
     position: absolute;
     inset: -18%;
-    background: var(--tl-entity-gradient, var(--tl-soft));
+    background: var(--tl-entity-gradient-luster), var(--tl-entity-gradient, var(--tl-soft));
+    background-blend-mode: var(--tl-entity-gradient-blend);
     content: "";
     transform: rotate(0deg) scale(1.2);
     transform-origin: var(--tl-gradient-origin, 50% 50%);

@@ -33,7 +33,8 @@ const shaderEntity = hasEntityShaderGradient(entity) ? entity : undefined;
     position: relative;
     display: block;
     overflow: hidden;
-    background: var(--tl-entity-gradient, #000);
+    background: var(--tl-entity-gradient-luster), var(--tl-entity-gradient, #000);
+    background-blend-mode: var(--tl-entity-gradient-blend);
   }
 
   .tl-shader-surface[data-tl-shader-enabled="true"] {
@@ -51,7 +52,8 @@ const shaderEntity = hasEntityShaderGradient(entity) ? entity : undefined;
   }
 
   .tl-shader-fallback {
-    background: var(--tl-entity-gradient, #000);
+    background: var(--tl-entity-gradient-luster), var(--tl-entity-gradient, #000);
+    background-blend-mode: var(--tl-entity-gradient-blend);
   }
 
   .tl-shader-surface[data-tl-shader-enabled="true"] .tl-shader-fallback {
