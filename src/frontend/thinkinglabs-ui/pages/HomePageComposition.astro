@@ -1,6 +1,5 @@
 ---
 import AppShell from "../components/AppShell.astro";
-import EntityShaderSurface from "../components/EntityShaderSurface.astro";
 import ScrollArrows from "../components/ScrollArrows.astro";
 import type { KindSummary } from "../types";
 
@@ -23,7 +22,7 @@ const { kinds } = Astro.props;
                 <span>{kind.count} {kind.count === 1 ? "entry" : "entries"}</span>
               </span>
               <span class="tl-gallery-media">
-                <EntityShaderSurface class="tl-gallery-visual" entity={kind.slug} region="landing" />
+                <span class="tl-gallery-visual" data-entity={kind.slug}></span>
                 <span class="tl-gallery-title" aria-hidden="true">{kind.title}</span>
               </span>
               <span class="tl-gallery-copy" aria-hidden="true">
@@ -93,8 +92,12 @@ const { kinds } = Astro.props;
 
   .tl-gallery-link {
     display: block;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.96);
     color: inherit;
+    box-shadow: var(--tl-card-shadow);
     text-decoration: none;
+    transition: box-shadow 0.55s ease;
   }
 
   .tl-gallery-link:focus-visible {
@@ -136,26 +139,23 @@ const { kinds } = Astro.props;
     position: relative;
     display: block;
     aspect-ratio: var(--card-aspect, 1 / 1);
-    background: #000;
-    box-shadow: var(--tl-card-shadow);
     overflow: hidden;
-    transition: box-shadow 0.55s ease;
   }
 
-  :global(.tl-gallery-visual) {
+  .tl-gallery-visual {
     position: absolute;
     inset: 0;
     --tl-gradient-base-rotate: 0deg;
     --tl-gradient-base-scale: 1.2;
+    background: var(--tl-entity-gradient);
+    transform: rotate(var(--tl-gradient-base-rotate)) scale(var(--tl-gradient-base-scale));
+    transform-origin: var(--tl-gradient-origin, 50% 50%);
+    animation: tl-entity-tile-drift var(--tl-gradient-duration, 26s) ease-in-out infinite
+      alternate;
   }
 
   .tl-gallery-link:hover,
   .tl-gallery-link:focus-visible {
-    opacity: 1;
-  }
-
-  .tl-gallery-link:hover .tl-gallery-media,
-  .tl-gallery-link:focus-visible .tl-gallery-media {
     box-shadow: var(--tl-card-hover-shadow);
   }
 
@@ -267,7 +267,7 @@ const { kinds } = Astro.props;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    :global(.tl-gallery-visual .tl-shader-fallback) {
+    .tl-gallery-visual {
       animation: none;
     }
   }
