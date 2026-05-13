@@ -37,6 +37,13 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
 ---
 
 <header class="tl-header" data-tl-nav data-tl-nav-active={activeNav}>
+  <div class="tl-header-gradual-blur" aria-hidden="true">
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
   <div class="tl-header-bar">
     <a class="tl-brand-link" href="/" aria-label="thinkinglabs home">
       <span class="tl-wordmark">thinkinglabs</span>
@@ -253,12 +260,91 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
     --tl-pane-border-color: rgba(7, 9, 13, 0.06);
     --tl-pane-shadow: 0 22px 48px -36px rgba(7, 9, 13, 0.28);
     --tl-pane-blur: saturate(180%) blur(28px);
+    --tl-header-backdrop-height: clamp(6.5rem, 14vw, 9.5rem);
     position: fixed;
     z-index: 60;
     top: 0;
     right: 0;
     left: 0;
     pointer-events: none;
+  }
+
+  .tl-header-gradual-blur {
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: var(--tl-header-backdrop-height);
+    overflow: hidden;
+    pointer-events: none;
+    isolation: isolate;
+  }
+
+  .tl-header-gradual-blur::before {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.06) 58%, rgba(255, 255, 255, 0)),
+      radial-gradient(120% 105% at 50% -8%, rgba(247, 251, 255, 0.16), rgba(255, 255, 255, 0) 74%);
+    content: "";
+    mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, 0.82) 48%, rgba(0, 0, 0, 0.24) 82%, transparent 100%);
+    -webkit-mask-image: linear-gradient(
+      180deg,
+      #000 0%,
+      rgba(0, 0, 0, 0.82) 48%,
+      rgba(0, 0, 0, 0.24) 82%,
+      transparent 100%
+    );
+  }
+
+  .tl-header-gradual-blur span {
+    position: absolute;
+    inset: 0;
+    opacity: 1;
+    pointer-events: none;
+    transform: translateZ(0);
+  }
+
+  .tl-header-gradual-blur span:nth-child(1) {
+    backdrop-filter: blur(0.167rem);
+    -webkit-backdrop-filter: blur(0.167rem);
+    mask-image: linear-gradient(to top, transparent 0%, #000 20%, #000 40%, transparent 60%);
+    -webkit-mask-image: linear-gradient(to top, transparent 0%, #000 20%, #000 40%, transparent 60%);
+  }
+
+  .tl-header-gradual-blur span:nth-child(2) {
+    backdrop-filter: blur(0.332rem);
+    -webkit-backdrop-filter: blur(0.332rem);
+    mask-image: linear-gradient(to top, transparent 20%, #000 40%, #000 60%, transparent 80%);
+    -webkit-mask-image: linear-gradient(to top, transparent 20%, #000 40%, #000 60%, transparent 80%);
+  }
+
+  .tl-header-gradual-blur span:nth-child(3) {
+    backdrop-filter: blur(0.754rem);
+    -webkit-backdrop-filter: blur(0.754rem);
+    mask-image: linear-gradient(to top, transparent 40%, #000 60%, #000 80%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to top, transparent 40%, #000 60%, #000 80%, transparent 100%);
+  }
+
+  .tl-header-gradual-blur span:nth-child(4) {
+    backdrop-filter: blur(1.499rem);
+    -webkit-backdrop-filter: blur(1.499rem);
+    mask-image: linear-gradient(to top, transparent 60%, #000 80%, #000 100%);
+    -webkit-mask-image: linear-gradient(to top, transparent 60%, #000 80%, #000 100%);
+  }
+
+  .tl-header-gradual-blur span:nth-child(5) {
+    backdrop-filter: blur(2rem);
+    -webkit-backdrop-filter: blur(2rem);
+    mask-image: linear-gradient(to top, transparent 80%, #000 100%);
+    -webkit-mask-image: linear-gradient(to top, transparent 80%, #000 100%);
+  }
+
+  @supports not (backdrop-filter: blur(1px)) {
+    .tl-header-gradual-blur span {
+      background: rgba(255, 255, 255, 0.18);
+    }
   }
 
   .tl-header-bar {
@@ -401,6 +487,7 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
 
   .tl-nav-panel {
     position: absolute;
+    z-index: 3;
     top: max(var(--tl-header-inset), var(--tl-safe-top));
     right: max(var(--tl-header-inset), var(--tl-safe-right));
     left: max(var(--tl-header-inset), var(--tl-safe-left));
