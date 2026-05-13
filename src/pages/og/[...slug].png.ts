@@ -197,16 +197,21 @@ async function loadPostDetailGradient(): Promise<EntityGradient> {
 }
 
 function readGradientVariable(css: string, variableName: string): EntityGradient {
-  const match = css.match(
-    new RegExp(`${variableName}:\\s*((?:conic|linear)-gradient\\([\\s\\S]*?\\));`),
-  );
+  const match = css.match(new RegExp(`${variableName}:\\s*([^;]+);`));
   if (!match?.[1]) {
     throw new Error(`Missing gradient ${variableName}`);
   }
   const value = match[1].trim();
-  return value.startsWith("linear-gradient")
-    ? { kind: "linear", css: value.replace(/\s+/g, " ") }
-    : parseConicGradient(value);
+  if (value.startsWith("linear-gradient")) {
+    return { kind: "linear", css: value.replace(/\s+/g, " ") };
+  }
+  if (value.startsWith("conic-gradient")) {
+    return parseConicGradient(value);
+  }
+  if (/^#[0-9a-fA-F]{3,8}$/.test(value)) {
+    return { kind: "linear", css: `linear-gradient(180deg, ${value} 0%, ${value} 100%)` };
+  }
+  throw new Error(`Unsupported gradient ${variableName}: ${value}`);
 }
 
 function isEntityGradientKey(kind: Kind): kind is EntityGradientKey {

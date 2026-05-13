@@ -1,5 +1,6 @@
 ---
 import PathWordmarkVariant from "./PathWordmarkVariant.astro";
+import EntityShaderSurface from "./EntityShaderSurface.astro";
 import ScrollArrows from "./ScrollArrows.astro";
 
 interface Props {
@@ -79,10 +80,7 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
                     href={item.href}
                     aria-current={isCurrent ? "page" : undefined}
                   >
-                    <span
-                      class="tl-nav-card-visual"
-                      aria-hidden="true"
-                    />
+                    <EntityShaderSurface class="tl-nav-card-visual" entity={item.slug} region="header" />
                     <span class="tl-nav-card-label">
                       <span>{item.label}</span>
                     </span>
@@ -569,8 +567,6 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
       #d9dce0 306deg,
       #f6f7f8 360deg
     );
-    --tl-gradient-duration: 28s;
-    --tl-gradient-origin: 50% 50%;
   }
 
   .tl-nav-card[data-entity="privacy"] {
@@ -583,8 +579,6 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
       #8c9198 282deg,
       #111317 360deg
     );
-    --tl-gradient-duration: 30s;
-    --tl-gradient-origin: 50% 50%;
   }
 
   .tl-nav-card a {
@@ -606,38 +600,32 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
     outline: none;
   }
 
-  .tl-nav-card a:focus-visible .tl-nav-card-visual {
+  .tl-nav-card a:focus-visible :global(.tl-nav-card-visual) {
     outline: 2px solid #2f6bff;
     outline-offset: 3px;
   }
 
-  .tl-nav-card-visual {
+  :global(.tl-nav-card-visual) {
     position: relative;
     display: block;
     width: 100%;
     aspect-ratio: var(--tl-entity-card-aspect, 1 / 1);
     overflow: hidden;
-    background: var(--tl-entity-gradient, var(--tl-soft));
+    background: var(--tl-entity-gradient, #000);
     box-shadow: var(--tl-card-shadow);
     transition: box-shadow 0.34s ease;
   }
 
-  .tl-nav-card a:hover .tl-nav-card-visual,
-  .tl-nav-card a:focus-visible .tl-nav-card-visual {
+  :global(.tl-nav-card-visual[data-tl-shader-enabled="true"]) {
+    background: #000;
+  }
+
+  .tl-nav-card a:hover :global(.tl-nav-card-visual),
+  .tl-nav-card a:focus-visible :global(.tl-nav-card-visual) {
     box-shadow: var(--tl-card-hover-shadow);
   }
 
-  .tl-nav-card-visual::before {
-    position: absolute;
-    inset: -18%;
-    background: var(--tl-entity-gradient, var(--tl-soft));
-    content: "";
-    transform: rotate(0deg) scale(1.2);
-    transform-origin: var(--tl-gradient-origin, 50% 50%);
-    animation: tl-entity-tile-drift var(--tl-gradient-duration, 26s) ease-in-out infinite alternate;
-  }
-
-  .tl-nav-card.is-site .tl-nav-card-visual {
+  .tl-nav-card.is-site :global(.tl-nav-card-visual) {
     border-radius: 50%;
   }
 
@@ -651,7 +639,7 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
     text-align: center;
   }
 
-  .tl-nav-card a[aria-current="page"] .tl-nav-card-visual {
+  .tl-nav-card a[aria-current="page"] :global(.tl-nav-card-visual) {
     box-shadow:
       0 0 0 1.5px var(--tl-ink),
       var(--tl-gallery-shadow);
@@ -695,7 +683,7 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
     .tl-nav-toggle-icon::before,
     .tl-nav-toggle-icon::after,
     .tl-nav-card a,
-    .tl-nav-card-visual {
+    :global(.tl-nav-card-visual) {
       transition: none;
     }
 
@@ -706,7 +694,7 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
       animation: none;
     }
 
-    .tl-nav-card-visual::before {
+    :global(.tl-nav-card-visual .tl-shader-fallback) {
       animation: none;
     }
 

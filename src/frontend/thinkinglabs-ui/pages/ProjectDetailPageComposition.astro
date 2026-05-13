@@ -1,5 +1,6 @@
 ---
 import AppShell from "../components/AppShell.astro";
+import EntityShaderSurface from "../components/EntityShaderSurface.astro";
 import StatusTag from "../components/StatusTag.astro";
 import type { ProjectDetail } from "../types";
 
@@ -15,7 +16,7 @@ const relations = [...project.relatedThoughts, ...project.relatedClaims];
 <AppShell activeNav="Index">
   <article class="tl-project-detail" data-selected-label={project.title} data-entity="projects">
     <section class="tl-project-hero">
-      <div class="tl-project-hero-art" aria-hidden="true"></div>
+      <EntityShaderSurface class="tl-project-hero-art" entity="projects" region="detail" />
       <div class="tl-project-hero-copy">
         <h1>{project.title}</h1>
         <div class="tl-project-meta">
@@ -106,11 +107,11 @@ const relations = [...project.relatedThoughts, ...project.relatedClaims];
     min-height: 0;
   }
 
-  .tl-project-hero-art {
+  :global(.tl-project-hero-art) {
     width: 100%;
     min-height: clamp(16rem, 42vh, 28rem);
     overflow: hidden;
-    background: var(--tl-entity-detail-gradient);
+    background: #000;
   }
 
   .tl-project-hero-copy {
@@ -238,7 +239,7 @@ const relations = [...project.relatedThoughts, ...project.relatedClaims];
       grid-template-columns: 1fr;
     }
 
-    .tl-project-hero-art {
+    :global(.tl-project-hero-art) {
       min-height: 15rem;
     }
   }

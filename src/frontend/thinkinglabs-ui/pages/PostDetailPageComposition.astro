@@ -1,5 +1,6 @@
 ---
 import AppShell from "../components/AppShell.astro";
+import EntityShaderSurface from "../components/EntityShaderSurface.astro";
 import FigureChartPlate from "../components/FigureChartPlate.astro";
 import type { PostDetail } from "../types";
 
@@ -15,7 +16,7 @@ const hasRelated = post.related.length > 0;
 
 <AppShell activeNav="Index">
   <article class="tl-post-detail-page" data-selected-label={post.title}>
-    <div class="tl-post-hero" data-entity="posts" aria-hidden="true"></div>
+    <EntityShaderSurface class="tl-post-hero" entity="posts" region="detail" />
 
     <div class="tl-post-detail-grid">
       <div class="tl-post-detail-main">
@@ -160,13 +161,13 @@ const hasRelated = post.related.length > 0;
     color: var(--tl-ink);
   }
 
-  .tl-post-hero {
+  :global(.tl-post-hero) {
     position: relative;
     overflow: hidden;
     width: min(100%, 920px);
     min-height: clamp(19rem, 45vh, 34rem);
     margin: 0 auto clamp(3rem, 7vw, 5rem);
-    background: var(--tl-entity-detail-gradient);
+    background: #000;
   }
 
   .tl-post-detail-grid {
@@ -405,7 +406,7 @@ const hasRelated = post.related.length > 0;
       padding: 5rem 16px 3rem;
     }
 
-    .tl-post-hero {
+    :global(.tl-post-hero) {
       min-height: 13rem;
     }
 

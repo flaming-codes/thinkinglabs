@@ -1,5 +1,6 @@
 ---
 import AppShell from "../components/AppShell.astro";
+import EntityShaderSurface from "../components/EntityShaderSurface.astro";
 import IndexSectionHeader from "../components/IndexSectionHeader.astro";
 import type { InputDetail } from "../types";
 
@@ -23,7 +24,7 @@ const meta = [
 <AppShell activeNav="Index">
   <article class="tl-input-detail-page" data-selected-label={input.title} data-entity="inputs">
     <header class="tl-input-detail-head">
-      <div class="tl-input-visual" aria-hidden="true"></div>
+      <EntityShaderSurface class="tl-input-visual" entity="inputs" region="detail" />
       <div class="tl-input-title">
         <p class="tl-mono">Input detail</p>
         <div class="tl-input-detail-kindline">
@@ -107,10 +108,10 @@ const meta = [
     min-height: clamp(23rem, 58vh, 38rem);
   }
 
-  .tl-input-visual {
+  :global(.tl-input-visual) {
     align-self: stretch;
     min-height: 16rem;
-    background: var(--tl-entity-detail-gradient);
+    background: #000;
   }
 
   .tl-input-title {
@@ -154,7 +155,7 @@ const meta = [
       min-height: 0;
     }
 
-    .tl-input-visual {
+    :global(.tl-input-visual) {
       min-height: 12rem;
     }
 

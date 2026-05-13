@@ -1,5 +1,6 @@
 ---
 import AppShell from "../components/AppShell.astro";
+import EntityShaderSurface from "../components/EntityShaderSurface.astro";
 import StatusTag from "../components/StatusTag.astro";
 import type { DecisionDetail } from "../types";
 
@@ -15,7 +16,7 @@ const related = [...decision.relatedClaims, ...decision.relatedProjects];
 <AppShell activeNav="Index">
   <article class="tl-decision-detail" data-selected-label={decision.title} data-entity="decisions">
     <header class="tl-decision-head">
-      <div class="tl-decision-rule" aria-hidden="true"></div>
+      <EntityShaderSurface class="tl-decision-rule" entity="decisions" region="detail" />
       <div class="tl-decision-title">
         <p class="tl-mono">Decision detail</p>
         <h1>{decision.title}</h1>
@@ -145,9 +146,9 @@ const related = [...decision.relatedClaims, ...decision.relatedProjects];
     min-height: clamp(23rem, 58vh, 38rem);
   }
 
-  .tl-decision-rule {
+  :global(.tl-decision-rule) {
     align-self: stretch;
-    background: var(--tl-entity-detail-gradient);
+    background: #000;
   }
 
   .tl-decision-title {
@@ -300,7 +301,7 @@ const related = [...decision.relatedClaims, ...decision.relatedProjects];
       grid-template-columns: 1fr;
     }
 
-    .tl-decision-rule {
+    :global(.tl-decision-rule) {
       min-height: 11rem;
     }
   }

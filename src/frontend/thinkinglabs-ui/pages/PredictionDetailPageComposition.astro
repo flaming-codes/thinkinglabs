@@ -1,5 +1,6 @@
 ---
 import AppShell from "../components/AppShell.astro";
+import EntityShaderSurface from "../components/EntityShaderSurface.astro";
 
 export interface PredictionEvidence {
   label: string;
@@ -45,8 +46,8 @@ const horizonLabel = (() => {
 ---
 
 <AppShell activeNav="Index">
-  <article class="tl-pred-detail" data-selected-label={prediction.prediction}>
-    <div class="tl-pred-hero" data-entity="predictions" aria-hidden="true"></div>
+  <article class="tl-pred-detail" data-selected-label={prediction.prediction} data-entity="predictions">
+    <EntityShaderSurface class="tl-pred-hero" entity="predictions" region="detail" />
 
     <div class="tl-pred-grid">
       <div class="tl-pred-main">
@@ -140,13 +141,13 @@ const horizonLabel = (() => {
     color: var(--tl-ink);
   }
 
-  .tl-pred-hero {
+  :global(.tl-pred-hero) {
     position: relative;
     overflow: hidden;
     width: min(100%, 920px);
     min-height: clamp(19rem, 45vh, 34rem);
     margin: 0 auto clamp(3rem, 7vw, 5rem);
-    background: var(--tl-entity-detail-gradient);
+    background: #000;
   }
 
   .tl-pred-grid {
@@ -365,7 +366,7 @@ const horizonLabel = (() => {
       padding: 5rem 16px 3rem;
     }
 
-    .tl-pred-hero {
+    :global(.tl-pred-hero) {
       min-height: 13rem;
     }
 

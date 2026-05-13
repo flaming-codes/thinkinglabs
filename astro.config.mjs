@@ -1,4 +1,5 @@
 import { defineConfig } from "astro/config";
+import react from "@astrojs/react";
 import { env } from "./src/lib/env.ts";
 import remarkSectionFreshness from "./src/markdown/remark-section-freshness.ts";
 import rehypeSectionFreshness from "./src/markdown/rehype-section-freshness.ts";
@@ -7,6 +8,7 @@ import rehypeSectionFreshness from "./src/markdown/rehype-section-freshness.ts";
 export default defineConfig({
   site: env().SITE_URL,
   trailingSlash: "ignore",
+  integrations: [react()],
   devToolbar: {
     enabled: false,
   },

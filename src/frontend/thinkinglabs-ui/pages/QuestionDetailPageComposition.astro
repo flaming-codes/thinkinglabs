@@ -1,5 +1,6 @@
 ---
 import AppShell from "../components/AppShell.astro";
+import EntityShaderSurface from "../components/EntityShaderSurface.astro";
 import StatusTag from "../components/StatusTag.astro";
 import type { QuestionDetail } from "../types";
 
@@ -14,7 +15,7 @@ const related = [...question.relatedClaims, ...question.relatedProjects];
 <AppShell activeNav="Index">
   <article class="tl-question-detail" data-selected-label={question.question} data-entity="questions">
     <header class="tl-question-head">
-      <div class="tl-question-mark" aria-hidden="true">?</div>
+      <EntityShaderSurface class="tl-question-mark" entity="questions" region="detail">?</EntityShaderSurface>
       <div class="tl-question-title">
         <p class="tl-mono">Open question</p>
         <h1>{question.question}</h1>
@@ -136,12 +137,12 @@ const related = [...question.relatedClaims, ...question.relatedProjects];
     min-height: clamp(22rem, 58vh, 37rem);
   }
 
-  .tl-question-mark {
+  :global(.tl-question-mark) {
     display: grid;
     place-items: center;
     aspect-ratio: 1;
     overflow: hidden;
-    background: var(--tl-entity-detail-gradient);
+    background: #000;
     color: #fff;
     font-size: clamp(86px, 17vw, 210px);
     font-weight: 680;
@@ -332,7 +333,7 @@ const related = [...question.relatedClaims, ...question.relatedProjects];
       grid-template-columns: 1fr;
     }
 
-    .tl-question-mark {
+    :global(.tl-question-mark) {
       width: min(15rem, 70vw);
     }
   }

@@ -1,5 +1,6 @@
 ---
 import AppShell from "../components/AppShell.astro";
+import EntityShaderSurface from "../components/EntityShaderSurface.astro";
 import type { ChangedMyMindDetail } from "../types";
 
 interface Props {
@@ -12,10 +13,10 @@ const { flip } = Astro.props;
 <AppShell activeNav="Index">
   <article class="tl-flip-detail" data-selected-label={flip.title} data-entity="changed-my-mind">
     <header class="tl-flip-head">
-      <div class="tl-flip-art" aria-hidden="true">
+      <EntityShaderSurface class="tl-flip-art" entity="changed-my-mind" region="detail">
         <span>Before</span>
         <span>After</span>
-      </div>
+      </EntityShaderSurface>
       <div class="tl-flip-title">
         <p class="tl-mono">Belief revision</p>
         <h1>{flip.title}</h1>
@@ -92,15 +93,15 @@ const { flip } = Astro.props;
     min-height: clamp(23rem, 58vh, 38rem);
   }
 
-  .tl-flip-art {
+  :global(.tl-flip-art) {
     display: grid;
     grid-template-columns: 1fr 1fr;
     min-height: clamp(17rem, 46vh, 31rem);
     overflow: hidden;
-    background: var(--tl-entity-detail-gradient);
+    background: #000;
   }
 
-  .tl-flip-art span {
+  :global(.tl-flip-art .tl-shader-content > span) {
     display: grid;
     align-items: end;
     padding: 18px;
@@ -112,7 +113,7 @@ const { flip } = Astro.props;
     mix-blend-mode: difference;
   }
 
-  .tl-flip-art span:first-child {
+  :global(.tl-flip-art .tl-shader-content > span:first-child) {
     border-right: 1px solid rgba(255, 255, 255, 0.42);
   }
 
@@ -208,7 +209,7 @@ const { flip } = Astro.props;
       grid-template-columns: 1fr;
     }
 
-    .tl-flip-art,
+    :global(.tl-flip-art),
     .tl-flip-triptych article {
       min-height: 14rem;
     }

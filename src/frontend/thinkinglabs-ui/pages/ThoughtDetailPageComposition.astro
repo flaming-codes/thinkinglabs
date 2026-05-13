@@ -1,5 +1,6 @@
 ---
 import AppShell from "../components/AppShell.astro";
+import EntityShaderSurface from "../components/EntityShaderSurface.astro";
 import StatusTag from "../components/StatusTag.astro";
 import type { ThoughtDetail } from "../types";
 
@@ -15,7 +16,7 @@ const hasHistory = thought.history.length > 1;
 
 <AppShell activeNav="Index">
   <article class="tl-thought-detail" data-selected-label={thought.title} data-entity="thoughts">
-    <div class="tl-thought-hero-art" aria-hidden="true"></div>
+    <EntityShaderSurface class="tl-thought-hero-art" entity="thoughts" region="detail" />
     <header class="tl-thought-hero">
       <div class="tl-thought-title">
         <h1>{thought.title}</h1>
@@ -91,12 +92,12 @@ const hasHistory = thought.history.length > 1;
     padding: 0 0 clamp(2.5rem, 8vh, 5rem);
   }
 
-  .tl-thought-hero-art {
+  :global(.tl-thought-hero-art) {
     width: 100%;
     max-width: 980px;
     min-height: clamp(16rem, 42vh, 28rem);
     margin-inline: auto;
-    background: linear-gradient(135deg, #f8fcff 0%, #8dbbd0 48%, #2b4558 100%);
+    background: #000;
   }
 
   .tl-thought-title {
@@ -178,7 +179,7 @@ const hasHistory = thought.history.length > 1;
       padding-top: 2rem;
     }
 
-    .tl-thought-hero-art {
+    :global(.tl-thought-hero-art) {
       min-height: 15rem;
     }
 

@@ -1,5 +1,6 @@
 ---
 import AppShell from "../components/AppShell.astro";
+import EntityShaderSurface from "../components/EntityShaderSurface.astro";
 import StatusTag from "../components/StatusTag.astro";
 import type { ClaimDetail } from "../types";
 
@@ -17,7 +18,7 @@ const proseParagraphs = claim.body.filter(
 <AppShell activeNav="Index">
   <article class="tl-claim-detail" data-selected-label={claim.title} data-entity="claims">
     <header class="tl-claim-hero">
-      <div class="tl-claim-art" aria-hidden="true"></div>
+      <EntityShaderSurface class="tl-claim-art" entity="claims" region="detail" />
       <div class="tl-claim-title">
         <p class="tl-mono">Claim detail</p>
         <h1>{claimStatement}</h1>
@@ -132,10 +133,10 @@ const proseParagraphs = claim.body.filter(
     min-height: clamp(20rem, 52vh, 32rem);
   }
 
-  .tl-claim-art {
+  :global(.tl-claim-art) {
     align-self: stretch;
     min-height: 14rem;
-    background: var(--tl-entity-detail-gradient);
+    background: #000;
   }
 
   .tl-claim-title {
@@ -272,7 +273,7 @@ const proseParagraphs = claim.body.filter(
       min-height: 0;
     }
 
-    .tl-claim-art {
+    :global(.tl-claim-art) {
       min-height: 12rem;
     }
   }
