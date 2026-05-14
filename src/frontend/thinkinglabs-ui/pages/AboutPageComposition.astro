@@ -44,7 +44,6 @@ const { kinds } = Astro.props;
     </figure>
 
     <section class="tl-about-section tl-about-intro" aria-labelledby="about-what-title">
-      <p class="tl-about-kicker">What this is</p>
       <div class="tl-about-copy">
         <h2 id="about-what-title">A desk left in public.</h2>
         <p>
@@ -61,7 +60,6 @@ const { kinds } = Astro.props;
     </section>
 
     <section class="tl-about-section" aria-labelledby="about-system-title">
-      <p class="tl-about-kicker">The system</p>
       <div class="tl-about-copy">
         <h2 id="about-system-title">The repository is the durable object.</h2>
         <p>
@@ -82,7 +80,6 @@ const { kinds } = Astro.props;
 
     <section class="tl-about-inventory" aria-labelledby="about-inventory-title">
       <div class="tl-about-inventory-head">
-        <p class="tl-about-kicker">Structure</p>
         <h2 id="about-inventory-title">The public shape of the repository.</h2>
         <p>
           Each entry type has a job. Some are loose enough to catch a thought before it
@@ -117,11 +114,11 @@ const { kinds } = Astro.props;
         label="Repository structure"
         variant="header"
         rowOnly
+        wheel={false}
       />
     </section>
 
     <section class="tl-about-section" aria-labelledby="about-reading-title">
-      <p class="tl-about-kicker">How to read it</p>
       <div class="tl-about-copy">
         <h2 id="about-reading-title">Incomplete is part of the contract.</h2>
         <p>
@@ -138,7 +135,6 @@ const { kinds } = Astro.props;
     </section>
 
     <section class="tl-about-section" aria-labelledby="about-work-title">
-      <p class="tl-about-kicker">Work</p>
       <div class="tl-about-copy">
         <h2 id="about-work-title">AI systems, made legible.</h2>
         <p>
@@ -158,7 +154,6 @@ const { kinds } = Astro.props;
     </section>
 
     <section class="tl-about-colophon" aria-label="Colophon">
-      <p class="tl-about-kicker">Colophon</p>
       <p>
         Built with Astro, markdown content collections, deterministic feeds, a derived SQLite
         index, and a small MCP server for agent access. The typography and navigation are meant to
@@ -184,16 +179,6 @@ const { kinds } = Astro.props;
     max-width: 58rem;
   }
 
-  .tl-about-kicker {
-    margin: 0;
-    color: var(--tl-muted);
-    font-size: 12px;
-    font-weight: 650;
-    line-height: 1;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-  }
-
   .tl-about-hero h1,
   .tl-about-copy h2,
   .tl-about-inventory-head h2 {
@@ -204,17 +189,17 @@ const { kinds } = Astro.props;
   }
 
   .tl-about-hero h1 {
-    font-size: 84px;
-    line-height: 0.94;
+    font-size: 56px;
+    line-height: 1;
   }
 
   .tl-about-lede {
     max-width: 44rem;
     margin: 0;
     color: var(--tl-prose-ink);
-    font-size: 30px;
-    font-weight: 520;
-    line-height: 1.22;
+    font-size: 19px;
+    font-weight: 420;
+    line-height: 1.62;
     letter-spacing: 0;
   }
 
@@ -232,9 +217,9 @@ const { kinds } = Astro.props;
 
   .tl-about-section {
     display: grid;
-    grid-template-columns: minmax(9rem, 0.36fr) minmax(0, 1fr);
-    gap: 5rem;
+    gap: 1.75rem;
     align-items: start;
+    max-width: 48rem;
   }
 
   .tl-about-intro {
@@ -250,8 +235,8 @@ const { kinds } = Astro.props;
   .tl-about-copy h2,
   .tl-about-inventory-head h2 {
     max-width: 16ch;
-    font-size: 44px;
-    line-height: 1.02;
+    font-size: 30px;
+    line-height: 1.08;
   }
 
   .tl-about-copy p,
@@ -279,9 +264,12 @@ const { kinds } = Astro.props;
     text-decoration: none;
   }
 
-  .tl-about-copy a:hover,
-  .tl-about-kind:hover {
+  .tl-about-copy a:hover {
     color: var(--tl-muted);
+  }
+
+  .tl-about-page .tl-about-kind:hover {
+    opacity: 1;
   }
 
   .tl-about-inventory {
@@ -297,7 +285,7 @@ const { kinds } = Astro.props;
     gap: 1.75rem;
     width: min(74rem, calc(100vw - 48px));
     max-width: 48rem;
-    margin-inline: auto;
+    margin-inline: max(24px, calc((100vw - 74rem) / 2 + 24px)) auto;
   }
 
   .tl-about-kind-grid {
@@ -391,7 +379,6 @@ const { kinds } = Astro.props;
     background: var(--tl-entity-gradient-luster), var(--tl-entity-gradient, var(--tl-soft));
     background-blend-mode: var(--tl-entity-gradient-blend);
     box-shadow: var(--tl-card-shadow);
-    transition: box-shadow 0.55s ease;
   }
 
   .tl-about-kind-visual::before {
@@ -404,11 +391,6 @@ const { kinds } = Astro.props;
     transform-origin: var(--tl-gradient-origin, 50% 50%);
     animation: tl-entity-tile-drift var(--tl-gradient-duration, 28s) ease-in-out infinite
       alternate;
-  }
-
-  .tl-about-kind:hover .tl-about-kind-visual,
-  .tl-about-kind:focus-visible .tl-about-kind-visual {
-    box-shadow: var(--tl-card-hover-shadow);
   }
 
   .tl-about-kind:focus-visible {
@@ -436,7 +418,7 @@ const { kinds } = Astro.props;
 
   .tl-about-kind-title {
     color: var(--tl-ink);
-    font-size: 24px;
+    font-size: 20px;
     font-weight: 650;
     line-height: 1.05;
     letter-spacing: 0;
@@ -473,11 +455,11 @@ const { kinds } = Astro.props;
     }
 
     .tl-about-hero h1 {
-      font-size: 68px;
+      font-size: 48px;
     }
 
     .tl-about-lede {
-      font-size: 26px;
+      font-size: 18px;
     }
 
     .tl-about-section {
@@ -505,17 +487,17 @@ const { kinds } = Astro.props;
     }
 
     .tl-about-hero h1 {
-      font-size: 52px;
+      font-size: 40px;
     }
 
     .tl-about-lede {
-      font-size: 22px;
-      line-height: 1.3;
+      font-size: 17px;
+      line-height: 1.58;
     }
 
     .tl-about-copy h2,
     .tl-about-inventory-head h2 {
-      font-size: 34px;
+      font-size: 24px;
     }
 
     .tl-about-copy p,

@@ -7,95 +7,220 @@ import ThinkinglabsUiPage from "../layouts/ThinkinglabsUiPage.astro";
   title="Privacy — thinkinglabs"
   description="thinkinglabs does not track visitors. No analytics, no cookies, no fingerprinting."
 >
-  <AppShell activeNav="Index">
-    <section class="tl-page-head is-spacious">
-      <h1>Privacy.</h1>
-    </section>
+  <AppShell activeNav="Index" hideSelectedHud>
+    <article class="tl-privacy-page">
+      <header class="tl-privacy-hero">
+        <div class="tl-privacy-hero-copy">
+          <h1>Privacy.</h1>
+          <p class="tl-privacy-lede">
+            This site is static, quiet, and deliberately uninterested in tracking readers.
+          </p>
+        </div>
 
-    <article class="tl-privacy-prose tl-prose-body">
-      <p class="tl-privacy-lede">This site does not track you.</p>
+        <figure class="tl-privacy-mark" aria-label="Privacy promise">
+          <span class="tl-privacy-mark-visual" aria-hidden="true"></span>
+        </figure>
+      </header>
 
-      <p>
-        thinkinglabs is static HTML generated from a public markdown repository. There is no
-        analytics product sitting behind the pages, no cookie banner because there are no site
-        cookies to accept, and no client-side fingerprinting script trying to infer who you are.
-      </p>
+      <section class="tl-privacy-section" aria-labelledby="privacy-site-title">
+        <p class="tl-privacy-kicker">Site behavior</p>
+        <div class="tl-privacy-copy">
+          <h2 id="privacy-site-title">The page does not try to identify you.</h2>
+          <p>
+            thinkinglabs is static HTML generated from a public markdown repository. There is no
+            analytics product sitting behind the pages, no cookie banner because there are no site
+            cookies to accept, and no client-side fingerprinting script trying to infer who you
+            are.
+          </p>
+          <p>
+            The site does not write to localStorage, sessionStorage, IndexedDB, or any other
+            browser storage API. It does not include pixels, embedded trackers, or third-party SDKs
+            that quietly assemble a profile of your reading habits.
+          </p>
+        </div>
+      </section>
 
-      <p>
-        The site does not write to localStorage, sessionStorage, IndexedDB, or any other browser
-        storage API. It does not include pixels, embedded trackers, or third-party SDKs that quietly
-        assemble a profile of your reading habits.
-      </p>
+      <section class="tl-privacy-section" aria-labelledby="privacy-logs-title">
+        <p class="tl-privacy-kicker">Infrastructure</p>
+        <div class="tl-privacy-copy">
+          <h2 id="privacy-logs-title">Hosts may keep ordinary operational logs.</h2>
+          <p>
+            The hosting layer may keep ordinary operational request logs, such as an IP address,
+            path, timestamp, user agent, or status code. Those records are the kind of transient
+            plumbing hosts use for abuse mitigation and debugging. They are not read, joined, sold,
+            or used by this site to identify readers.
+          </p>
+        </div>
+      </section>
 
-      <h2>Infrastructure logs</h2>
-
-      <p>
-        The hosting layer may keep ordinary operational request logs, such as an IP address, path,
-        timestamp, user agent, or status code. Those records are the kind of transient plumbing
-        hosts use for abuse mitigation and debugging. They are not read, joined, sold, or used by
-        this site to identify readers.
-      </p>
-
-      <h2>External places</h2>
-
-      <p>
-        Links to other domains leave this site. Once you follow one, your browser is interacting
-        with that domain and its own policies apply. The privacy promise here is intentionally
-        narrow: while you are reading thinkinglabs pages, the site itself is not trying to observe
-        you.
-      </p>
-
+      <section class="tl-privacy-section" aria-labelledby="privacy-external-title">
+        <p class="tl-privacy-kicker">External places</p>
+        <div class="tl-privacy-copy">
+          <h2 id="privacy-external-title">Other domains have their own rules.</h2>
+          <p>
+            Links to other domains leave this site. Once you follow one, your browser is
+            interacting with that domain and its own policies apply. The privacy promise here is
+            intentionally narrow: while you are reading thinkinglabs pages, the site itself is not
+            trying to observe you.
+          </p>
+        </div>
+      </section>
     </article>
   </AppShell>
 </ThinkinglabsUiPage>
 
 <style>
-  .tl-privacy-prose {
-    width: var(--tl-center);
-    margin: -4vh auto 18vh;
+  .tl-privacy-page {
+    display: grid;
+    gap: 8rem;
+    width: min(100%, 74rem);
+    margin-inline: auto;
+    padding: 10rem 24px 12rem;
+    color: var(--tl-ink);
+  }
+
+  .tl-privacy-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(18rem, 26rem);
+    gap: clamp(3rem, 8vw, 8rem);
+    align-items: end;
+  }
+
+  .tl-privacy-hero-copy {
+    display: grid;
+    gap: 2rem;
+    max-width: 48rem;
+  }
+
+  .tl-privacy-hero h1,
+  .tl-privacy-copy h2 {
+    margin: 0;
+    color: var(--tl-ink);
+    font-weight: 650;
+    letter-spacing: 0;
+  }
+
+  .tl-privacy-hero h1 {
+    font-size: 56px;
+    line-height: 1;
   }
 
   .tl-privacy-lede {
-    max-width: 15ch;
-    color: var(--tl-ink);
-    font-size: clamp(34px, 5vw, 64px);
-    font-weight: 620;
-    line-height: 0.96;
-    letter-spacing: -0.05em;
+    max-width: 43rem;
+    margin: 0;
+    color: var(--tl-prose-ink);
+    font-size: 19px;
+    font-weight: 420;
+    line-height: 1.62;
+    letter-spacing: 0;
   }
 
-  .tl-privacy-prose p + p {
-    margin-top: clamp(1.6rem, 3vh, 2.25rem);
+  .tl-privacy-mark {
+    display: flex;
+    justify-content: center;
+    margin: 0;
   }
 
-  .tl-privacy-lede + p {
-    margin-top: clamp(2.6rem, 6vh, 4rem);
+  .tl-privacy-mark-visual {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    width: min(100%, 22rem);
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    background: var(--tl-entity-gradient-luster), var(--tl-site-gradient-privacy);
+    background-blend-mode: var(--tl-entity-gradient-blend);
+    box-shadow: var(--tl-gallery-shadow);
   }
 
-  .tl-privacy-prose h2 {
-    margin-top: clamp(5rem, 12vh, 8rem);
-    color: var(--tl-ink);
-    font-size: clamp(23px, 3vw, 36px);
-    font-weight: 600;
+  .tl-privacy-section {
+    display: grid;
+    gap: 1.75rem;
+    align-items: start;
+    max-width: 48rem;
+  }
+
+  .tl-privacy-kicker {
+    margin: 0;
+    color: var(--tl-muted);
+    font-size: 12px;
+    font-weight: 650;
     line-height: 1;
-    letter-spacing: -0.035em;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
   }
 
-  .tl-privacy-prose h2 + p {
-    margin-top: clamp(1.5rem, 3vh, 2.25rem);
+  .tl-privacy-copy {
+    display: grid;
+    gap: 2rem;
+    max-width: 48rem;
   }
 
-  .tl-privacy-prose a {
-    color: inherit;
-    text-decoration: underline;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 4px;
+  .tl-privacy-copy h2 {
+    max-width: 17ch;
+    font-size: 30px;
+    line-height: 1.08;
   }
 
-  @media (max-width: 767px) {
-    .tl-privacy-prose {
-      width: min(100% - 40px, 43.75rem);
-      margin-top: -2vh;
+  .tl-privacy-copy p {
+    margin: 0;
+    color: var(--tl-prose-ink);
+    font-size: 19px;
+    font-weight: 420;
+    line-height: 1.72;
+    letter-spacing: 0;
+  }
+
+  @media (max-width: 900px) {
+    .tl-privacy-page {
+      gap: 7rem;
+      padding-top: 8rem;
+    }
+
+    .tl-privacy-hero {
+      grid-template-columns: 1fr;
+      align-items: start;
+    }
+
+    .tl-privacy-mark {
+      width: min(100%, 34rem);
+      justify-self: center;
+    }
+
+    .tl-privacy-hero h1 {
+      font-size: 48px;
+    }
+
+    .tl-privacy-lede {
+      font-size: 18px;
+    }
+  }
+
+  @media (max-width: 620px) {
+    .tl-privacy-page {
+      gap: 5.5rem;
+      padding: 7rem 18px 8rem;
+    }
+
+    .tl-privacy-hero-copy {
+      gap: 1.6rem;
+    }
+
+    .tl-privacy-hero h1 {
+      font-size: 40px;
+    }
+
+    .tl-privacy-lede {
+      font-size: 17px;
+      line-height: 1.58;
+    }
+
+    .tl-privacy-copy h2 {
+      font-size: 24px;
+    }
+
+    .tl-privacy-copy p {
+      font-size: 17px;
     }
   }
 </style>

@@ -5,9 +5,10 @@ interface Props {
   label: string;
   variant?: "page" | "header";
   rowOnly?: boolean;
+  wheel?: boolean;
 }
 
-const { target, items, label, variant = "page", rowOnly = false } = Astro.props;
+const { target, items, label, variant = "page", rowOnly = false, wheel = true } = Astro.props;
 ---
 
 <div
@@ -15,6 +16,7 @@ const { target, items, label, variant = "page", rowOnly = false } = Astro.props;
   data-tl-scroll-controls
   data-tl-scroll-target={target}
   data-tl-scroll-items={items}
+  data-tl-scroll-wheel={wheel ? "true" : "false"}
   data-row-only={rowOnly ? "true" : undefined}
   role="group"
   aria-label={`${label} pagination`}
@@ -32,6 +34,8 @@ const { target, items, label, variant = "page", rowOnly = false } = Astro.props;
 </div>
 
 <script>
+  import { bindHorizontalWheelScroll } from "../lib/horizontal-wheel-scroll";
+
   let controller: AbortController | null = null;
 
   const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
@@ -85,6 +89,7 @@ const { target, items, label, variant = "page", rowOnly = false } = Astro.props;
       );
     });
 
+    if (root.dataset.tlScrollWheel !== "false") bindHorizontalWheelScroll(scroller, signal);
     scroller.addEventListener("scroll", update, { passive: true, signal });
     window.addEventListener("resize", update, { signal });
     update();
