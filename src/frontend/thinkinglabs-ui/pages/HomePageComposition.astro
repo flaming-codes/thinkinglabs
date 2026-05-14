@@ -73,27 +73,23 @@ const { kinds } = Astro.props;
     margin: 0 auto;
     --card-aspect: 1 / 1;
     --tl-card-shadow: var(--tl-gallery-shadow);
-    --tl-card-hover-shadow:
-      0 2px 3px rgba(7, 9, 13, 0.03),
-      0 16px 34px -18px rgba(7, 9, 13, 0.22),
-      0 40px 82px -42px rgba(7, 9, 13, 0.22),
-      0 96px 154px -82px rgba(7, 9, 13, 0.18);
+    --tl-card-hover-shadow: var(--tl-gallery-hover-shadow);
   }
 
   /* Per-card variants rotate by index modulo 7 (desktop width and aspect)
      and modulo 3 (mobile width). Values mirror the original index arrays. */
   .tl-gallery-card:nth-child(7n+1) { --card-width: 16rem; --card-half-width: clamp(8rem, 9vw, 12.5rem); --card-aspect: 3 / 4; }
-  .tl-gallery-card:nth-child(7n+2) { --card-width: 22rem; --card-half-width: clamp(11rem, 9vw, 15.5rem); --card-aspect: 4 / 3; --tl-card-hover-shadow: 0 2px 3px rgba(7, 9, 13, 0.03), 0 18px 38px -20px rgba(7, 9, 13, 0.2), 0 48px 88px -46px rgba(7, 9, 13, 0.18), 0 106px 168px -90px rgba(7, 9, 13, 0.16); }
-  .tl-gallery-card:nth-child(7n+3) { --card-width: 16rem; --card-half-width: clamp(8rem, 9vw, 12.5rem); --card-aspect: 3 / 4; --tl-card-hover-shadow: 0 2px 3px rgba(7, 9, 13, 0.035), 0 14px 32px -17px rgba(7, 9, 13, 0.24), 0 38px 78px -40px rgba(7, 9, 13, 0.2), 0 88px 148px -78px rgba(7, 9, 13, 0.18); }
-  .tl-gallery-card:nth-child(7n+4) { --card-width: 17.5rem; --card-half-width: clamp(8.75rem, 9vw, 13.25rem); --card-aspect: 1 / 1; --tl-card-hover-shadow: 0 2px 3px rgba(7, 9, 13, 0.03), 0 16px 36px -18px rgba(7, 9, 13, 0.18), 0 46px 92px -46px rgba(7, 9, 13, 0.2), 0 112px 172px -92px rgba(7, 9, 13, 0.17); }
-  .tl-gallery-card:nth-child(7n+5) { --card-width: 22rem; --card-half-width: clamp(11rem, 9vw, 15.5rem); --card-aspect: 4 / 3; --tl-card-hover-shadow: 0 2px 3px rgba(7, 9, 13, 0.035), 0 20px 42px -22px rgba(7, 9, 13, 0.22), 0 52px 96px -50px rgba(7, 9, 13, 0.18), 0 118px 176px -98px rgba(7, 9, 13, 0.16); }
-  .tl-gallery-card:nth-child(7n+6) { --card-width: 16rem; --card-half-width: clamp(8rem, 9vw, 12.5rem); --card-aspect: 3 / 4; --tl-card-hover-shadow: 0 2px 3px rgba(7, 9, 13, 0.03), 0 15px 32px -17px rgba(7, 9, 13, 0.2), 0 42px 84px -43px rgba(7, 9, 13, 0.22), 0 102px 158px -84px rgba(7, 9, 13, 0.16); }
-  .tl-gallery-card:nth-child(7n+7) { --card-width: 17.5rem; --card-half-width: clamp(8.75rem, 9vw, 13.25rem); --card-aspect: 1 / 1; --tl-card-hover-shadow: 0 2px 3px rgba(7, 9, 13, 0.03), 0 17px 36px -19px rgba(7, 9, 13, 0.2), 0 44px 86px -44px rgba(7, 9, 13, 0.2), 0 100px 160px -86px rgba(7, 9, 13, 0.18); }
+  .tl-gallery-card:nth-child(7n+2) { --card-width: 22rem; --card-half-width: clamp(11rem, 9vw, 15.5rem); --card-aspect: 4 / 3; }
+  .tl-gallery-card:nth-child(7n+3) { --card-width: 16rem; --card-half-width: clamp(8rem, 9vw, 12.5rem); --card-aspect: 3 / 4; }
+  .tl-gallery-card:nth-child(7n+4) { --card-width: 17.5rem; --card-half-width: clamp(8.75rem, 9vw, 13.25rem); --card-aspect: 1 / 1; }
+  .tl-gallery-card:nth-child(7n+5) { --card-width: 22rem; --card-half-width: clamp(11rem, 9vw, 15.5rem); --card-aspect: 4 / 3; }
+  .tl-gallery-card:nth-child(7n+6) { --card-width: 16rem; --card-half-width: clamp(8rem, 9vw, 12.5rem); --card-aspect: 3 / 4; }
+  .tl-gallery-card:nth-child(7n+7) { --card-width: 17.5rem; --card-half-width: clamp(8.75rem, 9vw, 13.25rem); --card-aspect: 1 / 1; }
 
   .tl-gallery-link {
     display: block;
     overflow: hidden;
-    background: rgba(255, 255, 255, 0.96);
+    background: var(--tl-panel);
     color: inherit;
     box-shadow: var(--tl-card-shadow);
     text-decoration: none;
@@ -101,7 +97,7 @@ const { kinds } = Astro.props;
   }
 
   .tl-gallery-link:focus-visible {
-    outline: 2px solid #2f6bff;
+    outline: 2px solid var(--tl-focus);
     outline-offset: 4px;
   }
 
@@ -118,7 +114,7 @@ const { kinds } = Astro.props;
   }
 
   .tl-gallery-label span {
-    color: #0c1424;
+    color: var(--tl-ink);
     font-size: 12px;
     font-weight: 550;
     line-height: 1;
@@ -131,7 +127,7 @@ const { kinds } = Astro.props;
   }
 
   .tl-gallery-label span:last-child {
-    color: rgba(12, 20, 36, 0.6);
+    color: var(--tl-muted);
     font-weight: 420;
   }
 
@@ -266,7 +262,7 @@ const { kinds } = Astro.props;
     }
 
     .tl-gallery-copy-kicker {
-      color: rgba(12, 20, 36, 0.56);
+      color: var(--tl-muted);
       font-size: 11px;
       font-weight: 540;
       line-height: 1;
@@ -275,14 +271,14 @@ const { kinds } = Astro.props;
     }
 
     .tl-gallery-copy-title {
-      color: #0c1424;
+      color: var(--tl-ink);
       font-size: 17px;
       font-weight: 650;
       line-height: 1.08;
     }
 
     .tl-gallery-copy-description {
-      color: rgba(12, 20, 36, 0.66);
+      color: var(--tl-prose-soft);
       font-size: 13px;
       font-weight: 420;
       line-height: 1.42;

@@ -167,7 +167,7 @@ const hasRelated = post.related.length > 0;
     width: min(100%, 920px);
     min-height: clamp(19rem, 45vh, 34rem);
     margin: 0 auto clamp(3rem, 7vw, 5rem);
-    background: #000;
+    background: var(--tl-media-bg);
   }
 
   .tl-post-detail-grid {
@@ -236,7 +236,7 @@ const hasRelated = post.related.length > 0;
 
   .tl-post-section-head h2 {
     margin: 0;
-    color: rgba(7, 9, 13, 0.38);
+    color: var(--tl-faint);
     font-size: clamp(15px, 1.6vw, 19px);
     font-weight: 500;
     line-height: 1.22;
@@ -246,7 +246,7 @@ const hasRelated = post.related.length > 0;
   .tl-post-prose {
     display: grid;
     gap: 1.1rem;
-    color: rgba(7, 9, 13, 0.78);
+    color: var(--tl-prose-ink);
     font-size: 16px;
     font-weight: 420;
     line-height: 1.72;
@@ -261,7 +261,7 @@ const hasRelated = post.related.length > 0;
     color: inherit;
     text-decoration: underline;
     text-decoration-thickness: 1px;
-    text-decoration-color: rgba(7, 9, 13, 0.32);
+    text-decoration-color: var(--tl-link-underline);
     text-underline-offset: 3px;
     transition: text-decoration-color 0.15s ease;
   }
@@ -274,7 +274,7 @@ const hasRelated = post.related.length > 0;
     padding: 0.08em 0.35em;
     border: 1px solid var(--tl-line);
     border-radius: 3px;
-    background: rgba(7, 9, 13, 0.035);
+    background: var(--tl-code-bg);
     font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
     font-size: 0.86em;
     white-space: nowrap;

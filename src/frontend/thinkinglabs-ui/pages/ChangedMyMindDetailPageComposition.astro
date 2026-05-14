@@ -98,14 +98,14 @@ const { flip } = Astro.props;
     grid-template-columns: 1fr 1fr;
     min-height: clamp(17rem, 46vh, 31rem);
     overflow: hidden;
-    background: #000;
+    background: var(--tl-media-bg);
   }
 
   :global(.tl-flip-art .tl-conic-content > span) {
     display: grid;
     align-items: end;
     padding: 18px;
-    color: #fff;
+    color: var(--tl-media-ink);
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.24em;
@@ -114,7 +114,7 @@ const { flip } = Astro.props;
   }
 
   :global(.tl-flip-art .tl-conic-content > span:first-child) {
-    border-right: 1px solid rgba(255, 255, 255, 0.42);
+    border-right: 1px solid var(--tl-media-line);
   }
 
   .tl-flip-title {
@@ -163,12 +163,12 @@ const { flip } = Astro.props;
   }
 
   .tl-flip-triptych article:nth-child(2) {
-    background: rgba(7, 9, 13, 0.035);
+    background: var(--tl-code-bg);
   }
 
   .tl-flip-body {
     padding: clamp(3rem, 9vh, 5.5rem) 0;
-    color: rgba(7, 9, 13, 0.78);
+    color: var(--tl-prose-ink);
     font-size: 17px;
     line-height: 1.75;
   }

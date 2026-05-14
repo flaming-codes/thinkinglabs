@@ -16,14 +16,14 @@ const { entity, class: className } = Astro.props;
     position: relative;
     display: block;
     overflow: hidden;
-    background: var(--tl-entity-gradient-luster), var(--tl-entity-gradient, #000);
+    background: var(--tl-entity-gradient-luster), var(--tl-entity-gradient, var(--tl-soft));
     background-blend-mode: var(--tl-entity-gradient-blend);
   }
 
   .tl-conic-gradient::before {
     position: absolute;
     inset: -18%;
-    background: var(--tl-entity-gradient-luster), var(--tl-entity-gradient, #000);
+    background: var(--tl-entity-gradient-luster), var(--tl-entity-gradient, var(--tl-soft));
     background-blend-mode: var(--tl-entity-gradient-blend);
     content: "";
     transform: rotate(-4deg) scale(1.08);

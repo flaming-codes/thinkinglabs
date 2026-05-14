@@ -142,8 +142,8 @@ const related = [...question.relatedClaims, ...question.relatedProjects];
     place-items: center;
     aspect-ratio: 1;
     overflow: hidden;
-    background: #000;
-    color: #fff;
+    background: var(--tl-media-bg);
+    color: var(--tl-media-ink);
     font-size: clamp(86px, 17vw, 210px);
     font-weight: 680;
     line-height: 1;
@@ -194,7 +194,7 @@ const related = [...question.relatedClaims, ...question.relatedProjects];
 
   .tl-question-body {
     padding: clamp(3rem, 9vh, 5.5rem) 0;
-    color: rgba(7, 9, 13, 0.78);
+    color: var(--tl-prose-ink);
     font-size: 17px;
     line-height: 1.75;
   }
@@ -221,7 +221,7 @@ const related = [...question.relatedClaims, ...question.relatedProjects];
   }
 
   .tl-question-attempts p {
-    color: rgba(7, 9, 13, 0.78);
+    color: var(--tl-prose-ink);
     font-size: 16px;
     line-height: 1.72;
   }
@@ -242,7 +242,7 @@ const related = [...question.relatedClaims, ...question.relatedProjects];
   }
 
   .tl-question-response p {
-    color: rgba(7, 9, 13, 0.72);
+    color: var(--tl-prose-soft);
     font-size: 15px;
     line-height: 1.55;
   }

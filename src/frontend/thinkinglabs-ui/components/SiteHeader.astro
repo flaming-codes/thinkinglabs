@@ -289,9 +289,6 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
   .tl-header {
     --tl-header-inset: clamp(10px, 1.4vw, 18px);
     --tl-header-radius: 10px;
-    --tl-pane-bg: rgba(255, 255, 255, 0.22);
-    --tl-pane-border-color: rgba(7, 9, 13, 0.06);
-    --tl-pane-shadow: 0 22px 48px -36px rgba(7, 9, 13, 0.28);
     --tl-pane-blur: saturate(180%) blur(28px);
     --tl-header-backdrop-height: clamp(4.5rem, 9vw, 6.5rem);
     position: fixed;
@@ -317,9 +314,7 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
   .tl-header-gradual-blur::before {
     position: absolute;
     inset: 0;
-    background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.06) 58%, rgba(255, 255, 255, 0)),
-      radial-gradient(120% 105% at 50% -8%, rgba(247, 251, 255, 0.16), rgba(255, 255, 255, 0) 74%);
+    background: var(--tl-header-wash);
     content: "";
     mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, 0.82) 48%, rgba(0, 0, 0, 0.24) 82%, transparent 100%);
     -webkit-mask-image: linear-gradient(
@@ -376,7 +371,7 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
 
   @supports not (backdrop-filter: blur(1px)) {
     .tl-header-gradual-blur span {
-      background: rgba(255, 255, 255, 0.18);
+      background: var(--tl-header-fallback);
     }
   }
 
@@ -438,7 +433,7 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
   }
 
   .tl-nav-toggle:focus-visible {
-    outline: 2px solid #2f6bff;
+    outline: 2px solid var(--tl-focus);
     outline-offset: 4px;
   }
 
@@ -529,7 +524,7 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
     height: 50svh;
     min-height: 15rem;
     overflow: hidden;
-    border: 1px solid var(--tl-pane-border-color);
+    border: 1px solid var(--tl-pane-border);
     border-radius: var(--tl-header-radius);
     background: var(--tl-pane-bg);
     backdrop-filter: var(--tl-pane-blur);
@@ -624,11 +619,7 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
     width: var(--card-width);
     list-style: none;
     --tl-card-shadow: var(--tl-gallery-shadow);
-    --tl-card-hover-shadow:
-      0 2px 3px rgba(7, 9, 13, 0.03),
-      0 14px 30px -18px rgba(7, 9, 13, 0.22),
-      0 36px 74px -40px rgba(7, 9, 13, 0.22),
-      0 84px 134px -76px rgba(7, 9, 13, 0.16);
+    --tl-card-hover-shadow: var(--tl-gallery-hover-shadow);
     opacity: 0;
     transform: translate3d(0, 8px, 0);
   }
@@ -671,38 +662,24 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
 
   .tl-nav-card[data-entity="claims"] {
     --tl-entity-card-aspect: 4 / 3;
-    --tl-card-hover-shadow: 0 2px 3px rgba(7, 9, 13, 0.03), 0 16px 34px -20px rgba(7, 9, 13, 0.2), 0 42px 78px -44px rgba(7, 9, 13, 0.18), 0 96px 148px -84px rgba(7, 9, 13, 0.16);
+    --tl-card-hover-shadow: var(--tl-gallery-hover-shadow);
   }
 
   .tl-nav-card[data-entity="projects"] {
     --tl-entity-card-aspect: 3 / 4;
-    --tl-card-hover-shadow: 0 2px 3px rgba(7, 9, 13, 0.035), 0 13px 28px -16px rgba(7, 9, 13, 0.24), 0 34px 70px -38px rgba(7, 9, 13, 0.2), 0 82px 128px -74px rgba(7, 9, 13, 0.18);
+    --tl-card-hover-shadow: var(--tl-gallery-hover-shadow);
   }
 
   .tl-nav-card[data-entity="about"] {
     --tl-entity-card-aspect: 1 / 1;
-    --tl-entity-gradient: conic-gradient(
-      from 212deg at 50% 50%,
-      #f6f7f8 0deg,
-      #bfc3c8 92deg,
-      #373b42 202deg,
-      #d9dce0 306deg,
-      #f6f7f8 360deg
-    );
+    --tl-entity-gradient: var(--tl-site-gradient-about);
     --tl-gradient-duration: 28s;
     --tl-gradient-origin: 50% 50%;
   }
 
   .tl-nav-card[data-entity="privacy"] {
     --tl-entity-card-aspect: 1 / 1;
-    --tl-entity-gradient: conic-gradient(
-      from 38deg at 50% 50%,
-      #111317 0deg,
-      #4d5158 86deg,
-      #e4e5e7 184deg,
-      #8c9198 282deg,
-      #111317 360deg
-    );
+    --tl-entity-gradient: var(--tl-site-gradient-privacy);
     --tl-gradient-duration: 30s;
     --tl-gradient-origin: 50% 50%;
   }
@@ -727,7 +704,7 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
   }
 
   .tl-nav-card a:focus-visible .tl-nav-card-visual {
-    outline: 2px solid #2f6bff;
+    outline: 2px solid var(--tl-focus);
     outline-offset: 3px;
   }
 

@@ -147,7 +147,7 @@ const horizonLabel = (() => {
     width: min(100%, 920px);
     min-height: clamp(19rem, 45vh, 34rem);
     margin: 0 auto clamp(3rem, 7vw, 5rem);
-    background: #000;
+    background: var(--tl-media-bg);
   }
 
   .tl-pred-grid {
@@ -201,7 +201,7 @@ const horizonLabel = (() => {
   }
 
   .tl-pred-prose {
-    color: rgba(7, 9, 13, 0.78);
+    color: var(--tl-prose-ink);
     font-size: 16px;
     font-weight: 420;
     line-height: 1.78;
@@ -220,7 +220,7 @@ const horizonLabel = (() => {
     color: inherit;
     text-decoration: underline;
     text-decoration-thickness: 1px;
-    text-decoration-color: rgba(7, 9, 13, 0.32);
+    text-decoration-color: var(--tl-link-underline);
     text-underline-offset: 3px;
     transition: text-decoration-color 0.15s ease;
   }
@@ -240,7 +240,7 @@ const horizonLabel = (() => {
 
   .tl-pred-prose :global(code) {
     padding: 0.08em 0.35em;
-    background: rgba(7, 9, 13, 0.045);
+    background: var(--tl-code-bg);
     border-radius: 3px;
     font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
     font-size: 0.86em;
@@ -269,7 +269,7 @@ const horizonLabel = (() => {
   }
 
   .tl-pred-aside p {
-    color: rgba(7, 9, 13, 0.78);
+    color: var(--tl-prose-ink);
     font-size: 16px;
     line-height: 1.7;
   }
@@ -283,7 +283,7 @@ const horizonLabel = (() => {
   }
 
   .tl-pred-aside li {
-    color: rgba(7, 9, 13, 0.78);
+    color: var(--tl-prose-ink);
     font-size: 15px;
     line-height: 1.6;
   }
@@ -292,7 +292,7 @@ const horizonLabel = (() => {
     color: inherit;
     text-decoration: underline;
     text-decoration-thickness: 1px;
-    text-decoration-color: rgba(7, 9, 13, 0.32);
+    text-decoration-color: var(--tl-link-underline);
     text-underline-offset: 3px;
   }
 

@@ -33,12 +33,12 @@ const shaderEntity = region !== "detail" && hasEntityShaderGradient(entity) ? en
     position: relative;
     display: block;
     overflow: hidden;
-    background: var(--tl-entity-gradient-luster), var(--tl-entity-gradient, #000);
+    background: var(--tl-entity-gradient-luster), var(--tl-entity-gradient, var(--tl-soft));
     background-blend-mode: var(--tl-entity-gradient-blend);
   }
 
   .tl-shader-surface[data-tl-shader-enabled="true"] {
-    background: #000;
+    background: var(--tl-media-bg);
   }
 
   .tl-shader-fallback,
@@ -52,12 +52,12 @@ const shaderEntity = region !== "detail" && hasEntityShaderGradient(entity) ? en
   }
 
   .tl-shader-fallback {
-    background: var(--tl-entity-gradient-luster), var(--tl-entity-gradient, #000);
+    background: var(--tl-entity-gradient-luster), var(--tl-entity-gradient, var(--tl-soft));
     background-blend-mode: var(--tl-entity-gradient-blend);
   }
 
   .tl-shader-surface[data-tl-shader-enabled="true"] .tl-shader-fallback {
-    background: #000;
+    background: var(--tl-media-bg);
   }
 
   .tl-shader-mount {

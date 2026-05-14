@@ -105,11 +105,12 @@ const { contract } = payload;
 
 <style>
   .embedded-tool {
-    border: 1px solid var(--line);
+    border: 1px solid var(--tl-line);
     border-radius: 6px;
     padding: 1rem;
     margin: 1.5rem 0;
-    background: #fff;
+    background: var(--tl-panel);
+    color: var(--tl-ink, inherit);
   }
 
   .embedded-tool__header h2 {
@@ -119,7 +120,7 @@ const { contract } = payload;
   .embedded-tool__header p,
   .embedded-tool__notice,
   .embedded-tool__local {
-    color: var(--muted);
+    color: var(--tl-muted);
     font-size: 0.88rem;
   }
 
@@ -133,14 +134,14 @@ const { contract } = payload;
   .embedded-tool__fallback caption {
     caption-side: bottom;
     padding-top: 0.5rem;
-    color: var(--muted);
+    color: var(--tl-muted);
     text-align: left;
     font-size: 0.82rem;
   }
 
   .embedded-tool__fallback th,
   .embedded-tool__fallback td {
-    border-bottom: 1px solid var(--line);
+    border-bottom: 1px solid var(--tl-line);
     padding: 0.35rem 0.5rem 0.35rem 0;
     text-align: left;
   }
@@ -160,7 +161,7 @@ const { contract } = payload;
   .embedded-tool__logger label {
     display: grid;
     gap: 0.25rem;
-    color: var(--muted);
+    color: var(--tl-muted);
     font-size: 0.82rem;
   }
 
@@ -172,17 +173,17 @@ const { contract } = payload;
   }
 
   .embedded-tool__logger button {
-    border: 1px solid var(--accent);
+    border: 1px solid var(--tl-accent);
     border-radius: 4px;
-    background: var(--accent);
-    color: white;
+    background: var(--tl-accent);
+    color: var(--tl-accent-ink);
     padding: 0 0.75rem;
   }
 
   .embedded-tool__logger button:disabled {
-    border-color: var(--line);
-    background: var(--line);
-    color: var(--muted);
+    border-color: var(--tl-line);
+    background: var(--tl-line);
+    color: var(--tl-muted);
   }
 
   .embedded-tool__local {

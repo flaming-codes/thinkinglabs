@@ -104,8 +104,8 @@ const { target, items, label, variant = "page", rowOnly = false } = Astro.props;
 
 <style>
   .tl-scroll-arrows {
-    --tl-arrow-color: rgba(7, 9, 13, 0.72);
-    --tl-arrow-disabled: rgba(7, 9, 13, 0.16);
+    --tl-arrow-color: var(--tl-prose-soft);
+    --tl-arrow-disabled: var(--tl-line);
     display: inline-flex;
     gap: 0;
     align-items: center;
@@ -157,7 +157,7 @@ const { target, items, label, variant = "page", rowOnly = false } = Astro.props;
   }
 
   .tl-scroll-arrows button:focus-visible {
-    outline: 2px solid rgba(7, 9, 13, 0.82);
+    outline: 2px solid var(--tl-focus);
     outline-offset: 3px;
   }
 
@@ -171,8 +171,8 @@ const { target, items, label, variant = "page", rowOnly = false } = Astro.props;
 
   .tl-scroll-arrows.is-header {
     justify-self: center;
-    --tl-arrow-color: rgba(7, 9, 13, 0.56);
-    --tl-arrow-disabled: rgba(7, 9, 13, 0.12);
+    --tl-arrow-color: var(--tl-muted);
+    --tl-arrow-disabled: var(--tl-line);
     gap: 1px;
   }
 

@@ -111,7 +111,7 @@ const relations = [...project.relatedThoughts, ...project.relatedClaims];
     width: 100%;
     min-height: clamp(16rem, 42vh, 28rem);
     overflow: hidden;
-    background: #000;
+    background: var(--tl-media-bg);
   }
 
   .tl-project-hero-copy {
@@ -188,7 +188,7 @@ const relations = [...project.relatedThoughts, ...project.relatedClaims];
 
   .tl-project-body {
     padding: clamp(3rem, 9vh, 5.5rem) 0;
-    color: rgba(7, 9, 13, 0.78);
+    color: var(--tl-prose-ink);
     font-size: 17px;
     font-weight: 420;
     line-height: 1.75;
@@ -202,7 +202,7 @@ const relations = [...project.relatedThoughts, ...project.relatedClaims];
 
   .tl-project-body :global(a) {
     text-decoration: underline;
-    text-decoration-color: rgba(7, 9, 13, 0.32);
+    text-decoration-color: var(--tl-link-underline);
     text-underline-offset: 3px;
   }
 

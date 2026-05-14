@@ -148,7 +148,7 @@ const related = [...decision.relatedClaims, ...decision.relatedProjects];
 
   :global(.tl-decision-rule) {
     align-self: stretch;
-    background: #000;
+    background: var(--tl-media-bg);
   }
 
   .tl-decision-title {
@@ -215,7 +215,7 @@ const related = [...decision.relatedClaims, ...decision.relatedProjects];
     display: grid;
     gap: 12px;
     padding: 22px;
-    background: rgba(7, 9, 13, 0.035);
+    background: var(--tl-code-bg);
   }
 
   .tl-decision-reversals p {
@@ -240,7 +240,7 @@ const related = [...decision.relatedClaims, ...decision.relatedProjects];
   }
 
   .tl-decision-brief p {
-    color: rgba(7, 9, 13, 0.78);
+    color: var(--tl-prose-ink);
     font-size: 17px;
     line-height: 1.7;
   }
@@ -263,7 +263,7 @@ const related = [...decision.relatedClaims, ...decision.relatedProjects];
 
   .tl-decision-options p,
   .tl-decision-body {
-    color: rgba(7, 9, 13, 0.78);
+    color: var(--tl-prose-ink);
     font-size: 16px;
     line-height: 1.75;
   }

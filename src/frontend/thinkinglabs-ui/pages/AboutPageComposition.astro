@@ -163,7 +163,7 @@ const { kinds } = Astro.props;
     width: min(100%, 74rem);
     margin-inline: auto;
     padding: 10rem 24px 12rem;
-    color: #050505;
+    color: var(--tl-ink);
   }
 
   .tl-about-hero {
@@ -174,7 +174,7 @@ const { kinds } = Astro.props;
 
   .tl-about-kicker {
     margin: 0;
-    color: #666;
+    color: var(--tl-muted);
     font-size: 12px;
     font-weight: 650;
     line-height: 1;
@@ -186,7 +186,7 @@ const { kinds } = Astro.props;
   .tl-about-copy h2,
   .tl-about-inventory-head h2 {
     margin: 0;
-    color: #050505;
+    color: var(--tl-ink);
     font-weight: 650;
     letter-spacing: 0;
   }
@@ -199,7 +199,7 @@ const { kinds } = Astro.props;
   .tl-about-lede {
     max-width: 44rem;
     margin: 0;
-    color: #303030;
+    color: var(--tl-prose-ink);
     font-size: 30px;
     font-weight: 520;
     line-height: 1.22;
@@ -246,7 +246,7 @@ const { kinds } = Astro.props;
   .tl-about-inventory-head p,
   .tl-about-colophon p {
     margin: 0;
-    color: #424242;
+    color: var(--tl-prose-ink);
     font-size: 19px;
     font-weight: 420;
     line-height: 1.72;
@@ -254,7 +254,7 @@ const { kinds } = Astro.props;
   }
 
   .tl-about-copy code {
-    color: #151515;
+    color: var(--tl-ink);
     font-family: var(--tl-font);
     font-size: 0.94em;
     font-weight: 560;
@@ -263,13 +263,13 @@ const { kinds } = Astro.props;
   .tl-about-copy a,
   .tl-about-kind,
   .tl-about-colophon a {
-    color: #050505;
+    color: var(--tl-ink);
     text-decoration: none;
   }
 
   .tl-about-copy a:hover,
   .tl-about-kind:hover {
-    color: #555;
+    color: var(--tl-muted);
   }
 
   .tl-about-inventory {
@@ -312,11 +312,7 @@ const { kinds } = Astro.props;
     --card-width: 16rem;
     --card-half-width: clamp(8rem, 9vw, 12.5rem);
     --tl-card-shadow: var(--tl-gallery-shadow);
-    --tl-card-hover-shadow:
-      0 2px 3px rgba(7, 9, 13, 0.03),
-      0 16px 34px -18px rgba(7, 9, 13, 0.22),
-      0 40px 82px -42px rgba(7, 9, 13, 0.22),
-      0 96px 154px -82px rgba(7, 9, 13, 0.18);
+    --tl-card-hover-shadow: var(--tl-gallery-hover-shadow);
     display: grid;
     flex: 0 0 auto;
     width: clamp(var(--card-width), 18vw, calc(var(--card-width) + 9rem));
@@ -380,7 +376,7 @@ const { kinds } = Astro.props;
     display: block;
     overflow: hidden;
     aspect-ratio: var(--card-aspect);
-    background: var(--tl-entity-gradient-luster), var(--tl-entity-gradient, #000);
+    background: var(--tl-entity-gradient-luster), var(--tl-entity-gradient, var(--tl-soft));
     background-blend-mode: var(--tl-entity-gradient-blend);
     box-shadow: var(--tl-card-shadow);
     transition: box-shadow 0.55s ease;
@@ -389,7 +385,7 @@ const { kinds } = Astro.props;
   .tl-about-kind-visual::before {
     position: absolute;
     inset: -18%;
-    background: var(--tl-entity-gradient-luster), var(--tl-entity-gradient, #000);
+    background: var(--tl-entity-gradient-luster), var(--tl-entity-gradient, var(--tl-soft));
     background-blend-mode: var(--tl-entity-gradient-blend);
     content: "";
     transform: rotate(-4deg) scale(1.08);
@@ -408,7 +404,7 @@ const { kinds } = Astro.props;
   }
 
   .tl-about-kind:focus-visible .tl-about-kind-visual {
-    outline: 2px solid #050505;
+    outline: 2px solid var(--tl-focus);
     outline-offset: 4px;
   }
 
@@ -418,7 +414,7 @@ const { kinds } = Astro.props;
   }
 
   .tl-about-kind-count {
-    color: #777;
+    color: var(--tl-subtle);
     font-size: 12px;
     font-weight: 620;
     line-height: 1;
@@ -427,7 +423,7 @@ const { kinds } = Astro.props;
   }
 
   .tl-about-kind-title {
-    color: #050505;
+    color: var(--tl-ink);
     font-size: 24px;
     font-weight: 650;
     line-height: 1.05;
@@ -435,7 +431,7 @@ const { kinds } = Astro.props;
   }
 
   .tl-about-kind-gloss {
-    color: #555;
+    color: var(--tl-muted);
     font-size: 16px;
     font-weight: 420;
     line-height: 1.55;
@@ -449,7 +445,7 @@ const { kinds } = Astro.props;
   }
 
   .tl-about-colophon p:last-child {
-    color: #555;
+    color: var(--tl-muted);
     font-size: 17px;
   }
 

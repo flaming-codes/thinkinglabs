@@ -42,18 +42,17 @@ interface Payload {
   edges: PayloadEdge[];
 }
 
-/** Desaturated hue per kind; pulled from the site's per-entity gradient anchors so the 3D scene speaks the same palette. */
-const KIND_COLORS: Record<string, number> = {
-  thoughts: 0x8dbbd0,
-  claims: 0xc9ddff,
-  projects: 0x0d8ba0,
-  predictions: 0xb7cff7,
-  "changed-my-mind": 0xffba3d,
-  decisions: 0xb8c8aa,
-  questions: 0xffcf4a,
-  posts: 0xd9c8c6,
-  inputs: 0x6dd8ff,
-  provenance: 0xc7c7c7,
+const KIND_COLOR_TOKENS: Record<string, string> = {
+  thoughts: "--tl-kind-color-thoughts",
+  claims: "--tl-kind-color-claims",
+  projects: "--tl-kind-color-projects",
+  predictions: "--tl-kind-color-predictions",
+  "changed-my-mind": "--tl-kind-color-changed-my-mind",
+  decisions: "--tl-kind-color-decisions",
+  questions: "--tl-kind-color-questions",
+  posts: "--tl-kind-color-posts",
+  inputs: "--tl-kind-color-inputs",
+  provenance: "--tl-kind-color-provenance",
 };
 
 /** Read the JSON payload emitted by the Astro page; throws loudly if the page is misconfigured. */
@@ -66,6 +65,22 @@ function readPayload(): Payload {
 /** Read root container; returns null when the page has rendered without the canvas (e.g. noscript fallback only). */
 function readRoot(): HTMLElement | null {
   return document.querySelector<HTMLElement>("[data-network-graph-root]");
+}
+
+function readThemeColor(name: string, fallback: string): Color {
+  const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  return new Color(value || fallback);
+}
+
+function readThemeNumber(name: string, fallback: number): number {
+  const raw = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  const value = Number(raw);
+  return raw && Number.isFinite(value) ? value : fallback;
+}
+
+function readKindColor(kind: string): Color {
+  const token = KIND_COLOR_TOKENS[kind];
+  return token ? readThemeColor(token, "#bbbbbb") : new Color("#bbbbbb");
 }
 
 let disposeCurrent: (() => void) | null = null;
@@ -87,7 +102,8 @@ function init(): void {
   const height = root.clientHeight;
 
   const scene = new Scene();
-  scene.background = new Color(0xffffff);
+  const graphBg = readThemeColor("--tl-graph-bg", "#ffffff");
+  scene.background = graphBg;
 
   const camera = new PerspectiveCamera(38, width / height, 0.1, 2000);
   const extents = computeExtents(payload.nodes);
@@ -98,7 +114,7 @@ function init(): void {
   const renderer = new WebGLRenderer({ antialias: true, alpha: false });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setSize(width, height);
-  renderer.setClearColor(0xffffff, 1);
+  renderer.setClearColor(graphBg, 1);
   root.appendChild(renderer.domElement);
 
   const hoverLabel = root.querySelector<HTMLElement>("[data-graph-hover-label]");
@@ -122,7 +138,7 @@ function init(): void {
     nodeMeta.set(n.id, n);
     const baseSize = 2.6 + Math.min(n.degree, 8) * 0.55;
     const geom = new SphereGeometry(baseSize, 24, 18);
-    const mat = new MeshBasicMaterial({ color: KIND_COLORS[n.kind] ?? 0xbbbbbb });
+    const mat = new MeshBasicMaterial({ color: readKindColor(n.kind) });
     const mesh = new Mesh(geom, mat);
     mesh.position.set(n.x, n.y, n.z);
     mesh.userData["id"] = n.id;
@@ -141,9 +157,28 @@ function init(): void {
   }
   const lineGeom = new BufferGeometry();
   lineGeom.setAttribute("position", new Float32BufferAttribute(positions, 3));
-  const lineMat = new LineBasicMaterial({ color: 0x07090d, transparent: true, opacity: 0.18 });
+  const lineMat = new LineBasicMaterial({
+    color: readThemeColor("--tl-graph-line", "#07090d"),
+    transparent: true,
+    opacity: readThemeNumber("--tl-graph-line-opacity", 0.18),
+  });
   const lines = new LineSegments(lineGeom, lineMat);
   scene.add(lines);
+
+  const colorSchemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
+  const syncTheme = (): void => {
+    const nextBg = readThemeColor("--tl-graph-bg", "#ffffff");
+    scene.background = nextBg;
+    renderer.setClearColor(nextBg, 1);
+    lineMat.color.copy(readThemeColor("--tl-graph-line", "#07090d"));
+    lineMat.opacity = readThemeNumber("--tl-graph-line-opacity", 0.18);
+    for (const mesh of nodeMeshes) {
+      const id = meshToId.get(mesh);
+      const meta = id ? nodeMeta.get(id) : undefined;
+      if (meta) (mesh.material as MeshBasicMaterial).color.copy(readKindColor(meta.kind));
+    }
+  };
+  colorSchemeQuery.addEventListener("change", syncTheme);
 
   const raycaster = new Raycaster();
   const pointer = new Vector2();
@@ -250,6 +285,7 @@ function init(): void {
     cancelled = true;
     cancelAnimationFrame(rafId);
     window.removeEventListener("resize", resize);
+    colorSchemeQuery.removeEventListener("change", syncTheme);
     controls.dispose();
     for (const mesh of nodeMeshes) {
       mesh.geometry.dispose();

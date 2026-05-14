@@ -1,13 +1,73 @@
 :root {
+  color-scheme: light;
   --tl-bg: #fff;
   --tl-ink: #07090d;
   --tl-muted: rgba(7, 9, 13, 0.58);
+  --tl-subtle: rgba(7, 9, 13, 0.5);
+  --tl-faint: rgba(7, 9, 13, 0.38);
+  --tl-prose-ink: rgba(7, 9, 13, 0.78);
+  --tl-prose-soft: rgba(7, 9, 13, 0.72);
+  --tl-link-underline: rgba(7, 9, 13, 0.32);
+  --tl-code-bg: rgba(7, 9, 13, 0.035);
   --tl-detail-body-ink: rgba(7, 9, 13, 0.78);
   --tl-detail-body-weight: 400;
   --tl-soft: rgba(7, 9, 13, 0.08);
   --tl-line: rgba(7, 9, 13, 0.14);
   --tl-panel: rgba(255, 255, 255, 0.96);
+  --tl-pane-bg: rgba(255, 255, 255, 0.22);
+  --tl-pane-border: rgba(7, 9, 13, 0.06);
+  --tl-pane-shadow: 0 22px 48px -36px rgba(7, 9, 13, 0.28);
+  --tl-header-wash:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.14),
+      rgba(255, 255, 255, 0.06) 58%,
+      rgba(255, 255, 255, 0)
+    ),
+    radial-gradient(120% 105% at 50% -8%, rgba(247, 251, 255, 0.16), rgba(255, 255, 255, 0) 74%);
+  --tl-header-fallback: rgba(255, 255, 255, 0.18);
+  --tl-graph-bg: #fff;
+  --tl-graph-line: #07090d;
+  --tl-graph-line-opacity: 0.18;
+  --tl-inverse-bg: #07090d;
+  --tl-inverse-ink: #fff;
+  --tl-media-bg: #000;
+  --tl-media-ink: #fff;
+  --tl-media-line: rgba(255, 255, 255, 0.42);
+  --tl-difference-ink: #fff;
+  --tl-focus: #2f6bff;
+  --tl-accent: #2f6bff;
+  --tl-accent-ink: #fff;
+  --tl-kind-color-thoughts: #8dbbd0;
+  --tl-kind-color-claims: #c9ddff;
+  --tl-kind-color-projects: #0d8ba0;
+  --tl-kind-color-predictions: #b7cff7;
+  --tl-kind-color-changed-my-mind: #ffba3d;
+  --tl-kind-color-decisions: #b8c8aa;
+  --tl-kind-color-questions: #ffcf4a;
+  --tl-kind-color-posts: #d9c8c6;
+  --tl-kind-color-inputs: #6dd8ff;
+  --tl-kind-color-provenance: #c7c7c7;
+  --tl-site-gradient-about: conic-gradient(
+    from 212deg at 50% 50%,
+    #f6f7f8 0deg,
+    #bfc3c8 92deg,
+    #373b42 202deg,
+    #d9dce0 306deg,
+    #f6f7f8 360deg
+  );
+  --tl-site-gradient-privacy: conic-gradient(
+    from 38deg at 50% 50%,
+    #111317 0deg,
+    #4d5158 86deg,
+    #e4e5e7 184deg,
+    #8c9198 282deg,
+    #111317 360deg
+  );
   --tl-shadow: 0 0 70px rgba(10, 18, 33, 0.1);
+  --tl-gallery-hover-shadow:
+    0 2px 3px rgba(7, 9, 13, 0.03), 0 16px 34px -18px rgba(7, 9, 13, 0.22),
+    0 40px 82px -42px rgba(7, 9, 13, 0.22), 0 96px 154px -82px rgba(7, 9, 13, 0.18);
   --tl-gallery-shadow:
     0 1px 1px rgba(7, 9, 13, 0.025), 0 10px 22px -16px rgba(7, 9, 13, 0.2),
     0 26px 54px -32px rgba(7, 9, 13, 0.18), 0 64px 112px -68px rgba(7, 9, 13, 0.16);
@@ -200,104 +260,332 @@
   --tl-center: min(43.75rem, calc(100vw - var(--tl-ui-left) - var(--tl-ui-right)));
 }
 
-@supports (background: conic-gradient(in oklab, red, blue)) {
+@media (prefers-color-scheme: dark) {
   :root {
+    color-scheme: dark;
+    --tl-bg: #07090d;
+    --tl-ink: #f3f5f7;
+    --tl-muted: rgba(243, 245, 247, 0.62);
+    --tl-subtle: rgba(243, 245, 247, 0.5);
+    --tl-faint: rgba(243, 245, 247, 0.38);
+    --tl-prose-ink: rgba(243, 245, 247, 0.78);
+    --tl-prose-soft: rgba(243, 245, 247, 0.7);
+    --tl-link-underline: rgba(243, 245, 247, 0.32);
+    --tl-code-bg: rgba(243, 245, 247, 0.075);
+    --tl-detail-body-ink: rgba(243, 245, 247, 0.78);
+    --tl-detail-body-weight: 390;
+    --tl-soft: rgba(243, 245, 247, 0.1);
+    --tl-line: rgba(243, 245, 247, 0.16);
+    --tl-panel: rgba(16, 20, 28, 0.9);
+    --tl-pane-bg: rgba(12, 16, 22, 0.54);
+    --tl-pane-border: rgba(243, 245, 247, 0.1);
+    --tl-pane-shadow: 0 24px 56px -32px rgba(0, 0, 0, 0.74);
+    --tl-header-wash:
+      linear-gradient(180deg, rgba(7, 9, 13, 0.62), rgba(7, 9, 13, 0.3) 58%, rgba(7, 9, 13, 0)),
+      radial-gradient(120% 105% at 50% -8%, rgba(80, 94, 118, 0.2), rgba(7, 9, 13, 0) 74%);
+    --tl-header-fallback: rgba(7, 9, 13, 0.5);
+    --tl-graph-bg: #07090d;
+    --tl-graph-line: #f3f5f7;
+    --tl-graph-line-opacity: 0.16;
+    --tl-inverse-bg: #f3f5f7;
+    --tl-inverse-ink: #07090d;
+    --tl-media-bg: #000;
+    --tl-media-ink: #fff;
+    --tl-media-line: rgba(255, 255, 255, 0.42);
+    --tl-difference-ink: #fff;
+    --tl-focus: #8db7ff;
+    --tl-accent: #8db7ff;
+    --tl-accent-ink: #07090d;
+    --tl-site-gradient-about: conic-gradient(
+      from 212deg at 50% 50%,
+      #111317 0deg,
+      #4d5158 92deg,
+      #e4e5e7 202deg,
+      #8c9198 306deg,
+      #111317 360deg
+    );
+    --tl-site-gradient-privacy: conic-gradient(
+      from 38deg at 50% 50%,
+      #05070c 0deg,
+      #5f6a7a 86deg,
+      #f0f2f5 184deg,
+      #77818e 282deg,
+      #05070c 360deg
+    );
+    --tl-shadow: 0 0 72px rgba(0, 0, 0, 0.38);
+    --tl-gallery-hover-shadow:
+      0 1px 1px rgba(0, 0, 0, 0.28), 0 18px 42px -22px rgba(0, 0, 0, 0.72),
+      0 48px 92px -46px rgba(0, 0, 0, 0.62), 0 116px 168px -92px rgba(0, 0, 0, 0.54);
+    --tl-gallery-shadow:
+      0 1px 1px rgba(0, 0, 0, 0.28), 0 12px 26px -18px rgba(0, 0, 0, 0.7),
+      0 30px 64px -36px rgba(0, 0, 0, 0.58), 0 74px 122px -70px rgba(0, 0, 0, 0.48);
+    --tl-entity-gradient-luster:
+      radial-gradient(circle at 30% 18%, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0) 36%),
+      radial-gradient(circle at 76% 78%, rgba(0, 0, 0, 0.36), rgba(0, 0, 0, 0) 44%);
+    --tl-entity-gradient-blend: screen, multiply, normal;
     --tl-entity-gradient-thoughts: conic-gradient(
-      in oklab from 34deg at 42% 55%,
-      #f7fbff 0deg,
-      #eaf5fb 34deg,
-      #dceef7 68deg,
-      #7fb1c8 148deg,
-      #21394b 236deg,
-      #8aa2b3 278deg,
-      #cddce6 306deg,
-      #f7fbff 360deg
+      from 34deg at 42% 55%,
+      #0b1723 0deg,
+      #143349 68deg,
+      #5f9cb8 148deg,
+      #d7eaf2 236deg,
+      #31546b 306deg,
+      #0b1723 360deg
+    );
+    --tl-entity-detail-gradient-thoughts: linear-gradient(
+      135deg,
+      #09131e 0%,
+      #31546b 48%,
+      #9dc5d6 100%
     );
     --tl-entity-gradient-claims: conic-gradient(
-      in oklab from 216deg at 45% 48%,
-      #c9ddff 0deg,
-      #eef2ff 126deg,
-      #ffd9ed 238deg,
-      #d8e3ff 276deg,
-      #a9c4ff 312deg,
-      #c9ddff 360deg
+      from 216deg at 45% 48%,
+      #1a2948 0deg,
+      #6e89c6 126deg,
+      #c984a8 238deg,
+      #31466f 312deg,
+      #1a2948 360deg
+    );
+    --tl-entity-detail-gradient-claims: linear-gradient(
+      128deg,
+      #111a2c 0%,
+      #526da7 42%,
+      #c984a8 100%
     );
     --tl-entity-gradient-projects: conic-gradient(
-      in oklab from 204deg at 48% 52%,
-      #042f3f 0deg,
-      #07566a 74deg,
-      #5ea6d9 142deg,
-      #0d8ba0 206deg,
-      #b9d7c2 268deg,
-      #4f8f82 304deg,
-      #042f3f 360deg
+      from 204deg at 48% 52%,
+      #021923 0deg,
+      #06495c 74deg,
+      #55a4d5 142deg,
+      #0a7888 206deg,
+      #81ad92 268deg,
+      #2f6c62 304deg,
+      #021923 360deg
+    );
+    --tl-entity-detail-gradient-projects: linear-gradient(
+      140deg,
+      #021923 0%,
+      #0a7888 48%,
+      #55a4d5 72%,
+      #81ad92 100%
     );
     --tl-entity-gradient-predictions: conic-gradient(
-      in oklab from 210deg at 50% 50%,
-      #080d16 0deg,
-      #fff 118deg,
-      #dce8fb 184deg,
-      #b7cff7 240deg,
-      #080d16 360deg
+      from 210deg at 50% 50%,
+      #05070c 0deg,
+      #dce8fb 118deg,
+      #6e91cf 240deg,
+      #05070c 360deg
+    );
+    --tl-entity-detail-gradient-predictions: linear-gradient(
+      132deg,
+      #05070c 0%,
+      #6e91cf 58%,
+      #dce8fb 100%
     );
     --tl-entity-gradient-changed-my-mind: conic-gradient(
-      in oklab from 228deg at 48% 50%,
-      #151923 0deg,
-      #59616f 74deg,
-      #f3efe3 154deg,
-      #ffba3d 232deg,
-      #d94a45 304deg,
-      #151923 360deg
+      from 228deg at 48% 50%,
+      #080a0f 0deg,
+      #444b58 74deg,
+      #d8c99b 154deg,
+      #ef9c24 232deg,
+      #b73738 304deg,
+      #080a0f 360deg
+    );
+    --tl-entity-detail-gradient-changed-my-mind: linear-gradient(
+      135deg,
+      #080a0f 0%,
+      #444b58 34%,
+      #ef9c24 72%,
+      #b73738 100%
     );
     --tl-entity-gradient-decisions: conic-gradient(
-      in oklab from 218deg at 44% 54%,
-      #fbf7e9 0deg,
-      #b8c8aa 72deg,
-      #3e6b59 156deg,
-      #14281f 236deg,
-      #e4d7b7 312deg,
-      #fbf7e9 360deg
+      from 218deg at 44% 54%,
+      #121a16 0deg,
+      #5d7550 72deg,
+      #8fac81 156deg,
+      #e0d2a8 236deg,
+      #384d3b 312deg,
+      #121a16 360deg
+    );
+    --tl-entity-detail-gradient-decisions: linear-gradient(
+      136deg,
+      #121a16 0%,
+      #5d7550 40%,
+      #8fac81 72%,
+      #e0d2a8 100%
     );
     --tl-entity-gradient-questions: conic-gradient(
-      in oklab from 214deg at 46% 50%,
-      #fff4b8 0deg,
-      #ffcf4a 62deg,
-      #ff6b50 140deg,
-      #7137a8 226deg,
-      #26164f 304deg,
-      #fff4b8 360deg
+      from 214deg at 46% 50%,
+      #2a1647 0deg,
+      #7040a9 62deg,
+      #e25749 140deg,
+      #f0bb37 226deg,
+      #fff0a3 304deg,
+      #2a1647 360deg
+    );
+    --tl-entity-detail-gradient-questions: linear-gradient(
+      132deg,
+      #2a1647 0%,
+      #7040a9 32%,
+      #e25749 72%,
+      #f0bb37 100%
     );
     --tl-entity-gradient-posts: conic-gradient(
-      in oklab from 32deg at 44% 52%,
-      #fff7ed 0deg,
-      #f2b880 76deg,
-      #b96d42 152deg,
-      #4b2e2a 240deg,
-      #d8dfe6 314deg,
-      #fff7ed 360deg
+      from 32deg at 44% 52%,
+      #1a1210 0deg,
+      #9b603f 76deg,
+      #d7b39a 152deg,
+      #65798f 240deg,
+      #2f3844 314deg,
+      #1a1210 360deg
     );
+    --tl-entity-detail-gradient-posts: linear-gradient(
+      132deg,
+      #1a1210 0%,
+      #7d5a52 38%,
+      #65798f 72%,
+      #b7c3cd 100%
+    );
+    --tl-post-detail-gradient: var(--tl-entity-detail-gradient-posts);
     --tl-entity-gradient-inputs: conic-gradient(
-      in oklab from 226deg at 46% 50%,
-      #0e1f4f 0deg,
-      #3157d5 70deg,
-      #6dd8ff 146deg,
-      #f4fbff 224deg,
-      #70dfb2 302deg,
-      #0e1f4f 360deg
+      from 226deg at 46% 50%,
+      #07112c 0deg,
+      #2648b0 70deg,
+      #57c9e8 146deg,
+      #dff7ff 224deg,
+      #4ecb9a 302deg,
+      #07112c 360deg
+    );
+    --tl-entity-detail-gradient-inputs: linear-gradient(
+      135deg,
+      #07112c 0%,
+      #2648b0 34%,
+      #57c9e8 68%,
+      #4ecb9a 100%
     );
     --tl-entity-gradient-graph: conic-gradient(
-      in oklab from 90deg at 50% 50%,
-      #c9ddff 0deg,
-      #b7cff7 40deg,
-      #8dbbd0 80deg,
-      #6dd8ff 120deg,
-      #b8c8aa 160deg,
-      #ffcf4a 200deg,
-      #ffba3d 240deg,
-      #d9c8c6 280deg,
-      #0d8ba0 320deg,
-      #c9ddff 360deg
+      from 90deg at 50% 50%,
+      #1a2948 0deg,
+      #6e91cf 40deg,
+      #5f9cb8 80deg,
+      #57c9e8 120deg,
+      #8fac81 160deg,
+      #f0bb37 200deg,
+      #ef9c24 240deg,
+      #7d5a52 280deg,
+      #0a7888 320deg,
+      #1a2948 360deg
     );
+    --tl-entity-detail-gradient-graph: linear-gradient(
+      135deg,
+      #1a2948 0%,
+      #5f9cb8 40%,
+      #f0bb37 75%,
+      #7d5a52 100%
+    );
+  }
+}
+
+@supports (background: conic-gradient(in oklab, red, blue)) {
+  @media (prefers-color-scheme: light) {
+    :root {
+      --tl-entity-gradient-thoughts: conic-gradient(
+        in oklab from 34deg at 42% 55%,
+        #f7fbff 0deg,
+        #eaf5fb 34deg,
+        #dceef7 68deg,
+        #7fb1c8 148deg,
+        #21394b 236deg,
+        #8aa2b3 278deg,
+        #cddce6 306deg,
+        #f7fbff 360deg
+      );
+      --tl-entity-gradient-claims: conic-gradient(
+        in oklab from 216deg at 45% 48%,
+        #c9ddff 0deg,
+        #eef2ff 126deg,
+        #ffd9ed 238deg,
+        #d8e3ff 276deg,
+        #a9c4ff 312deg,
+        #c9ddff 360deg
+      );
+      --tl-entity-gradient-projects: conic-gradient(
+        in oklab from 204deg at 48% 52%,
+        #042f3f 0deg,
+        #07566a 74deg,
+        #5ea6d9 142deg,
+        #0d8ba0 206deg,
+        #b9d7c2 268deg,
+        #4f8f82 304deg,
+        #042f3f 360deg
+      );
+      --tl-entity-gradient-predictions: conic-gradient(
+        in oklab from 210deg at 50% 50%,
+        #080d16 0deg,
+        #fff 118deg,
+        #dce8fb 184deg,
+        #b7cff7 240deg,
+        #080d16 360deg
+      );
+      --tl-entity-gradient-changed-my-mind: conic-gradient(
+        in oklab from 228deg at 48% 50%,
+        #151923 0deg,
+        #59616f 74deg,
+        #f3efe3 154deg,
+        #ffba3d 232deg,
+        #d94a45 304deg,
+        #151923 360deg
+      );
+      --tl-entity-gradient-decisions: conic-gradient(
+        in oklab from 218deg at 44% 54%,
+        #fbf7e9 0deg,
+        #b8c8aa 72deg,
+        #3e6b59 156deg,
+        #14281f 236deg,
+        #e4d7b7 312deg,
+        #fbf7e9 360deg
+      );
+      --tl-entity-gradient-questions: conic-gradient(
+        in oklab from 214deg at 46% 50%,
+        #fff4b8 0deg,
+        #ffcf4a 62deg,
+        #ff6b50 140deg,
+        #7137a8 226deg,
+        #26164f 304deg,
+        #fff4b8 360deg
+      );
+      --tl-entity-gradient-posts: conic-gradient(
+        in oklab from 32deg at 44% 52%,
+        #fff7ed 0deg,
+        #f2b880 76deg,
+        #b96d42 152deg,
+        #4b2e2a 240deg,
+        #d8dfe6 314deg,
+        #fff7ed 360deg
+      );
+      --tl-entity-gradient-inputs: conic-gradient(
+        in oklab from 226deg at 46% 50%,
+        #0e1f4f 0deg,
+        #3157d5 70deg,
+        #6dd8ff 146deg,
+        #f4fbff 224deg,
+        #70dfb2 302deg,
+        #0e1f4f 360deg
+      );
+      --tl-entity-gradient-graph: conic-gradient(
+        in oklab from 90deg at 50% 50%,
+        #c9ddff 0deg,
+        #b7cff7 40deg,
+        #8dbbd0 80deg,
+        #6dd8ff 120deg,
+        #b8c8aa 160deg,
+        #ffcf4a 200deg,
+        #ffba3d 240deg,
+        #d9c8c6 280deg,
+        #0d8ba0 320deg,
+        #c9ddff 360deg
+      );
+    }
   }
 }
 

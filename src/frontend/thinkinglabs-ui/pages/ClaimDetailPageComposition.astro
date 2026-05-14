@@ -138,7 +138,7 @@ const proseParagraphs = claim.body.filter(
   :global(.tl-claim-gradient) {
     width: 100%;
     min-height: clamp(11rem, 31vh, 18rem);
-    background: #000;
+    background: var(--tl-media-bg);
   }
 
   .tl-claim-copy {
@@ -217,7 +217,7 @@ const proseParagraphs = claim.body.filter(
 
   .tl-claim-prose-body {
     max-width: 38rem;
-    color: rgba(7, 9, 13, 0.74);
+    color: var(--tl-prose-ink);
     font-size: 14px;
     line-height: 1.6;
   }
@@ -249,7 +249,7 @@ const proseParagraphs = claim.body.filter(
     gap: 18px;
     align-items: start;
     max-width: 44rem;
-    color: rgba(7, 9, 13, 0.74);
+    color: var(--tl-prose-ink);
     font-size: 14px;
     line-height: 1.35;
   }
