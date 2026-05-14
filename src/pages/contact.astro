@@ -1,44 +1,212 @@
 ---
-import Base from "../layouts/Base.astro";
+import AppShell from "../frontend/thinkinglabs-ui/components/AppShell.astro";
+import ThinkinglabsUiPage from "../layouts/ThinkinglabsUiPage.astro";
 import { loadContact } from "../lib/contact.ts";
 
 const c = loadContact();
 ---
-<Base title="Contact — Tom" description="Human-readable contact surface.">
-  <h1>Contact</h1>
-  <p class="meta">
-    Structured contact surface; agents can read <a href="/contact.json">/contact.json</a> directly.
-  </p>
+<ThinkinglabsUiPage title="Contact — Tom" description="Human-readable contact surface.">
+  <AppShell activeNav="About" hideSelectedHud>
+    <section class="tl-page-head is-spacious">
+      <div class="tl-eyebrow">/contact</div>
+      <h1>Contact.</h1>
+      <p class="tl-page-sub">
+        Structured contact surface; agents can read <a href="/contact.json">/contact.json</a>
+        directly.
+      </p>
+    </section>
 
-  <h2>Same-day reply</h2>
-  {c.same_day_reply.length === 0 ? <p class="meta">(none)</p> : (
-    <ul class="list">{c.same_day_reply.map((s) => <li>{s}</li>)}</ul>
-  )}
+    <section class="tl-contact-policy" aria-labelledby="contact-policy-title">
+      <h2 id="contact-policy-title">Routing rules.</h2>
+      <div class="tl-contact-grid">
+        <article class="tl-contact-block">
+          <div class="tl-eyebrow">Same-day reply</div>
+          {
+            c.same_day_reply.length === 0 ? (
+              <p class="tl-contact-muted">(none)</p>
+            ) : (
+              <ul class="tl-contact-list">{c.same_day_reply.map((s) => <li>{s}</li>)}</ul>
+            )
+          }
+        </article>
 
-  <h2>Queued</h2>
-  {c.queued.length === 0 ? <p class="meta">(none)</p> : (
-    <ul class="list">{c.queued.map((s) => <li>{s}</li>)}</ul>
-  )}
+        <article class="tl-contact-block">
+          <div class="tl-eyebrow">Queued</div>
+          {
+            c.queued.length === 0 ? (
+              <p class="tl-contact-muted">(none)</p>
+            ) : (
+              <ul class="tl-contact-list">{c.queued.map((s) => <li>{s}</li>)}</ul>
+            )
+          }
+        </article>
 
-  <h2>Decline</h2>
-  {c.decline.length === 0 ? <p class="meta">(none)</p> : (
-    <ul class="list">{c.decline.map((s) => <li>{s}</li>)}</ul>
-  )}
+        <article class="tl-contact-block">
+          <div class="tl-eyebrow">Decline</div>
+          {
+            c.decline.length === 0 ? (
+              <p class="tl-contact-muted">(none)</p>
+            ) : (
+              <ul class="tl-contact-list">{c.decline.map((s) => <li>{s}</li>)}</ul>
+            )
+          }
+        </article>
+      </div>
+    </section>
 
-  <h2>Advisory rate</h2>
-  <p>{c.advisory_rate.hourly} {c.advisory_rate.currency} / hour, minimum {c.advisory_rate.min_engagement}.</p>
+    <section class="tl-contact-details" aria-label="Contact details">
+      <article class="tl-contact-row">
+        <span class="tl-mono">Advisory rate</span>
+        <p>
+          {c.advisory_rate.hourly} {c.advisory_rate.currency} / hour, minimum
+          {" "}{c.advisory_rate.min_engagement}.
+        </p>
+      </article>
 
-  <h2>Fastest no</h2>
-  <p>{c.fastest_no}</p>
+      <article class="tl-contact-row">
+        <span class="tl-mono">Fastest no</span>
+        <p>{c.fastest_no}</p>
+      </article>
 
-  <h2>Channels</h2>
-  <ul class="list">
-    {c.channels.map((ch) => (
-      <li>
-        {ch.type}: {ch.type === "email" ? <a href={`mailto:${ch.address}`}>{ch.address}</a> : <a href={ch.url}>{ch.url}</a>}
-      </li>
-    ))}
-  </ul>
+      <article class="tl-contact-row">
+        <span class="tl-mono">Channels</span>
+        <ul class="tl-contact-channels">
+          {
+            c.channels.map((ch) => (
+              <li>
+                <span>{ch.type}</span>
+                {ch.type === "email" ? (
+                  <a href={`mailto:${ch.address}`}>{ch.address}</a>
+                ) : (
+                  <a href={ch.url}>{ch.url}</a>
+                )}
+              </li>
+            ))
+          }
+        </ul>
+      </article>
 
-  <p class="meta">Languages: {c.languages.join(", ")}.</p>
-</Base>
+      <article class="tl-contact-row">
+        <span class="tl-mono">Languages</span>
+        <p>{c.languages.join(", ")}.</p>
+      </article>
+    </section>
+  </AppShell>
+</ThinkinglabsUiPage>
+
+<style>
+  .tl-contact-policy,
+  .tl-contact-details {
+    width: min(100%, 980px);
+    margin-inline: auto;
+    padding: 0 20px clamp(5rem, 10vh, 8rem);
+  }
+
+  .tl-contact-policy h2 {
+    margin: 0 0 clamp(2rem, 5vw, 4rem);
+    font-size: clamp(32px, 5vw, 70px);
+    font-weight: 650;
+    line-height: 0.95;
+  }
+
+  .tl-contact-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    border-top: 1px solid var(--tl-line);
+    border-bottom: 1px solid var(--tl-line);
+  }
+
+  .tl-contact-block {
+    display: grid;
+    align-content: start;
+    gap: 24px;
+    min-height: 18rem;
+    padding: 30px;
+    border-right: 1px solid var(--tl-line);
+  }
+
+  .tl-contact-block:last-child {
+    border-right: 0;
+  }
+
+  .tl-contact-list,
+  .tl-contact-channels {
+    display: grid;
+    gap: 18px;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  .tl-contact-list li,
+  .tl-contact-row p,
+  .tl-contact-channels a {
+    color: var(--tl-muted);
+    font-size: clamp(17px, 1.6vw, 22px);
+    line-height: 1.35;
+  }
+
+  .tl-contact-muted {
+    color: var(--tl-muted);
+  }
+
+  .tl-contact-details {
+    display: grid;
+  }
+
+  .tl-contact-row {
+    display: grid;
+    grid-template-columns: 160px minmax(0, 1fr);
+    gap: 32px;
+    align-items: baseline;
+    padding: 30px 0;
+    border-top: 1px solid var(--tl-line);
+  }
+
+  .tl-contact-row:last-child {
+    border-bottom: 1px solid var(--tl-line);
+  }
+
+  .tl-contact-channels li {
+    display: grid;
+    grid-template-columns: 90px minmax(0, 1fr);
+    gap: 16px;
+    align-items: baseline;
+  }
+
+  .tl-contact-channels span {
+    color: var(--tl-ink);
+    font-size: 12px;
+    font-weight: 650;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 767px) {
+    .tl-contact-policy,
+    .tl-contact-details {
+      padding-inline: 16px;
+    }
+
+    .tl-contact-grid,
+    .tl-contact-row,
+    .tl-contact-channels li {
+      grid-template-columns: 1fr;
+    }
+
+    .tl-contact-block {
+      min-height: 0;
+      padding: 28px 0;
+      border-right: 0;
+      border-bottom: 1px solid var(--tl-line);
+    }
+
+    .tl-contact-block:last-child {
+      border-bottom: 0;
+    }
+
+    .tl-contact-row {
+      gap: 14px;
+    }
+  }
+</style>

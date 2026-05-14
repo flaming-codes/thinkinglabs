@@ -8,6 +8,14 @@ import rehypeSectionFreshness from "./src/markdown/rehype-section-freshness.ts";
 export default defineConfig({
   site: env().SITE_URL,
   trailingSlash: "ignore",
+  build: {
+    // ClientRouter swaps destination <head> styles into the current document.
+    // With CSP hashes, inline component styles from the destination route are
+    // blocked because the initial document did not whitelist them. Keep route
+    // CSS in external files so same-origin stylesheet links survive client
+    // navigation under CSP.
+    inlineStylesheets: "never",
+  },
   integrations: [react()],
   prefetch: {
     defaultStrategy: "hover",
