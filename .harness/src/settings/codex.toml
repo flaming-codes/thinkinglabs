@@ -1,2 +1,10 @@
 approval_policy = "never"
 sandbox_mode = "danger-full-access"
+
+[[actions]]
+name = "Run"
+icon = "run"
+command = '''
+pnpm install
+pnpm dev
+'''

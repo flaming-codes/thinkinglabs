@@ -23,7 +23,7 @@
       "id": "codex",
       "overrideSha256ByProvider": {},
       "registry": "local",
-      "sourceSha256": "10789e70ce1d19ec38d93fbfd5d4a07715fdb952dea6e0f6400904a4b0a87d56",
+      "sourceSha256": "e591a730c6eccdaf9e415d1286f01cae9ccb8026385ea24c7fa14863394cf8a3",
       "type": "settings"
     },
     {
@@ -46,7 +46,7 @@
       "type": "skill"
     }
   ],
-  "generatedAt": "2026-05-14T07:08:30.534Z",
+  "generatedAt": "2026-05-14T18:08:32.760Z",
   "manifestFingerprint": "bf6ed80b42e7a4015125be8aa626f62407256aa538233cb6b84b952e2727465c",
   "outputs": [
     {
@@ -66,7 +66,7 @@
       "provider": "claude"
     },
     {
-      "contentSha256": "10789e70ce1d19ec38d93fbfd5d4a07715fdb952dea6e0f6400904a4b0a87d56",
+      "contentSha256": "92668a4b9131dc0d1b0e7b5f80651d7d27649fd5ccb959cbf5e1aede52eb90d4",
       "ownerEntityIds": [
         "codex"
       ],
