@@ -11,387 +11,525 @@ const { kinds } = Astro.props;
 ---
 
 <AppShell activeNav="About" hideSelectedHud>
-  <section class="tl-page-head is-spacious">
-    <h1>About.</h1>
-  </section>
-
-  <section class="tl-about-portrait" aria-label="Portrait">
-    <img
-      src="/images/about-portrait.jpg"
-      alt="Tom smiling in warm side light."
-      width="2048"
-      height="2048"
-      loading="eager"
-      decoding="async"
-    />
-  </section>
-
-  <section class="tl-about-prose tl-prose-body">
-    <p class="tl-about-lede">thinkinglabs is my public working surface.</p>
-
-    <p>
-      It is not a portfolio and not quite a blog. It is closer to a desk left in public: rough
-      thoughts, stricter claims, predictions, project notes, decisions, questions, and the outside
-      inputs that changed the shape of the work.
-    </p>
-
-    <p>
-      I work mostly on AI systems and the operational layer around them. The parts I care about
-      tend to be the parts that make systems legible: what changed, why a decision was made, what
-      evidence supports a claim, and what would make me change my mind.
-    </p>
-
-    <p>
-      The site is generated from a markdown repository. The repository is the durable object. The
-      web UI, JSON feeds, SQLite index, MCP surfaces, and Markdown URL variants are derived views
-      over the same source. Canonical public content pages, listings, and selected static pages
-      have agent-readable Markdown siblings by appending <code>.md</code> to the slashless URL,
-      with <code>/index.md</code> standing in for the homepage. Detail variants preserve the
-      source markdown body; listing and static variants are compact summaries with
-      contract-validated envelopes. That keeps the machine surface rigid without making the
-      writing brittle: edit the files, rebuild the surfaces, let the public version stay close to
-      the working version.
-    </p>
-  </section>
-
-  <section class="tl-about-structure" aria-labelledby="about-inventory-title">
-    <header class="tl-about-structure-head">
-      <div class="tl-eyebrow">structure</div>
-      <h2 id="about-inventory-title">The public shape of the repository.</h2>
-      <p>
-        Each entry type has a job. Some are loose enough to catch a thought before it disappears;
-        others are strict enough to make drift visible.
+  <article class="tl-about-page">
+    <header class="tl-about-hero">
+      <h1>About.</h1>
+      <p class="tl-about-lede">
+        thinkinglabs is my public working surface: a markdown repository turned into a website,
+        feed system, index, and agent-readable map of my work.
       </p>
     </header>
 
-    <div class="tl-about-structure-rail" data-tl-about-structure-rail>
-      {
-        kinds.map((kind) => (
-          <article class="tl-about-structure-card">
+    <figure class="tl-about-portrait" aria-label="Portrait">
+      <img
+        src="/images/about-portrait.jpg"
+        alt="Tom smiling in warm side light."
+        width="2048"
+        height="2048"
+        loading="eager"
+        decoding="async"
+      />
+    </figure>
+
+    <section class="tl-about-section tl-about-intro" aria-labelledby="about-what-title">
+      <p class="tl-about-kicker">What this is</p>
+      <div class="tl-about-copy">
+        <h2 id="about-what-title">A desk left in public.</h2>
+        <p>
+          It is not a portfolio and not quite a blog. It holds rough thoughts, stricter claims,
+          predictions, project notes, decisions, questions, and the outside inputs that changed
+          the shape of the work.
+        </p>
+        <p>
+          I work mostly on AI systems and the operational layer around them. The parts I care
+          about tend to be the parts that make systems legible: what changed, why a decision was
+          made, what evidence supports a claim, and what would make me change my mind.
+        </p>
+      </div>
+    </section>
+
+    <section class="tl-about-section" aria-labelledby="about-system-title">
+      <p class="tl-about-kicker">The system</p>
+      <div class="tl-about-copy">
+        <h2 id="about-system-title">The repository is the durable object.</h2>
+        <p>
+          The web UI, JSON feeds, SQLite index, MCP surfaces, and Markdown URL variants are
+          derived views over the same source. {
+            "Canonical public content pages, listings, and selected static pages"
+          } have agent-readable Markdown siblings by appending
+          <code>.md</code> to the slashless URL, with <code>/index.md</code> standing in for the
+          homepage.
+        </p>
+        <p>
+          That keeps the machine surface rigid without making the writing brittle: edit the
+          files, rebuild the surfaces, and let the public version stay close to the working
+          version.
+        </p>
+      </div>
+    </section>
+
+    <section class="tl-about-inventory" aria-labelledby="about-inventory-title">
+      <div class="tl-about-inventory-head">
+        <p class="tl-about-kicker">Structure</p>
+        <h2 id="about-inventory-title">The public shape of the repository.</h2>
+        <p>
+          Each entry type has a job. Some are loose enough to catch a thought before it
+          disappears; others are strict enough to make drift visible.
+        </p>
+      </div>
+
+      <div class="tl-about-kind-grid" data-tl-about-kind-rail>
+        {
+          kinds.map((kind) => (
             <a
-              class="tl-about-structure-link"
+              class="tl-about-kind"
               href={kind.href}
+              data-entity={kind.slug}
               aria-label={`${kind.name}: ${kind.gloss}`}
             >
-              <span
-                class="tl-about-structure-visual"
-                data-entity={kind.slug}
-                aria-hidden="true"
-              />
-              <span class="tl-about-structure-meta">
-                <span class="tl-about-structure-kicker">
+              <span class="tl-about-kind-visual" aria-hidden="true"></span>
+              <span class="tl-about-kind-meta">
+                <span class="tl-about-kind-count">
                   {kind.count} {kind.count === 1 ? "entry" : "entries"}
                 </span>
-                <span class="tl-about-structure-title">{kind.name}</span>
-                <span class="tl-about-structure-gloss">{kind.gloss}</span>
+                <span class="tl-about-kind-title">{kind.name}</span>
+                <span class="tl-about-kind-gloss">{kind.gloss}</span>
               </span>
             </a>
-          </article>
-        ))
-      }
-    </div>
-    <ScrollArrows
-      target="[data-tl-about-structure-rail]"
-      items=".tl-about-structure-card"
-      label="Structure cards"
-      rowOnly
-    />
-  </section>
+          ))
+        }
+      </div>
+      <ScrollArrows
+        target="[data-tl-about-kind-rail]"
+        items=".tl-about-kind"
+        label="Repository structure"
+        variant="header"
+        rowOnly
+      />
+    </section>
 
-  <section class="tl-about-prose tl-prose-body">
-    <div class="tl-eyebrow">how to read it</div>
-    <p>
-      The pages here are allowed to be incomplete. A claim can be revised. A prediction can resolve
-      badly. A project can go dormant. The useful thing is not that every object is polished, but
-      that the system leaves enough structure behind to return later and inspect what happened.
-    </p>
-    <p>
-      I want the tone of the site to stay calm because the work benefits from calm. There should be
-      enough empty space to read a sentence, enough metadata to audit it, and not much more than
-      that.
-    </p>
-  </section>
+    <section class="tl-about-section" aria-labelledby="about-reading-title">
+      <p class="tl-about-kicker">How to read it</p>
+      <div class="tl-about-copy">
+        <h2 id="about-reading-title">Incomplete is part of the contract.</h2>
+        <p>
+          A claim can be revised. A prediction can resolve badly. A project can go dormant. The
+          useful thing is not that every object is polished, but that the system leaves enough
+          structure behind to return later and inspect what happened.
+        </p>
+        <p>
+          I want the tone of the site to stay calm because the work benefits from calm. There
+          should be enough empty space to read a sentence, enough metadata to audit it, and not
+          much more than that.
+        </p>
+      </div>
+    </section>
 
-  <section class="tl-about-prose tl-prose-body">
-    <div class="tl-eyebrow">work</div>
-    <p>
-      I work for <a href="https://wild.as">https://wild.as</a>, by the way. Reach out to me there at
-      <a href="mailto:tom@wild.as">tom@wild.as</a> or
-      <a href="mailto:tom@flaming.codes">tom@flaming.codes</a> for personal messages.
-      I also own <a href="https://flaming.codes">https://flaming.codes</a>, my previous site, which
-      is still live and follows a more traditional blogging format.
-    </p>
-    <p>
-      Wild works with the latest technologies in the pragmatic sense: not chasing novelty for its
-      own sake, but putting new capabilities into production when they make software clearer,
-      faster, or more useful. A large part of that work right now is agentic software engineering:
-      using agents every day, building the harnesses around them, and learning where human judgment
-      still has to stay close to the loop.
-    </p>
-    <p>
-      That is also why this site looks the way it does. The repository, the metadata, the MCP
-      surfaces, and the review flows are not separate from the work. They are part of the same
-      attempt to make AI-assisted engineering inspectable, repeatable, and worth trusting.
-    </p>
-  </section>
+    <section class="tl-about-section" aria-labelledby="about-work-title">
+      <p class="tl-about-kicker">Work</p>
+      <div class="tl-about-copy">
+        <h2 id="about-work-title">AI systems, made legible.</h2>
+        <p>
+          I work for <a href="https://wild.as">wild.as</a>. Reach out at
+          <a href="mailto:tom@wild.as">tom@wild.as</a> or
+          <a href="mailto:tom@flaming.codes">tom@flaming.codes</a> for personal messages.
+          I also own <a href="https://flaming.codes">flaming.codes</a>, my previous site.
+        </p>
+        <p>
+          Wild works with new technologies in the pragmatic sense: putting new capabilities into
+          production when they make software clearer, faster, or more useful. A large part of that
+          work right now is agentic software engineering: using agents every day, building the
+          harnesses around them, and learning where human judgment still has to stay close to the
+          loop.
+        </p>
+      </div>
+    </section>
 
-  <section class="tl-about-colophon" aria-label="Colophon">
-    <div>
-      <div class="tl-eyebrow">colophon</div>
+    <section class="tl-about-colophon" aria-label="Colophon">
+      <p class="tl-about-kicker">Colophon</p>
       <p>
         Built with Astro, markdown content collections, deterministic feeds, a derived SQLite
         index, and a small MCP server for agent access. The typography and navigation are meant to
         make the repository feel like a working surface rather than a publication schedule.
       </p>
-    </div>
-  </section>
+    </section>
+  </article>
 </AppShell>
 
 <style>
-  .tl-about-portrait,
-  .tl-about-prose,
-  .tl-about-colophon {
-    width: var(--tl-center);
+  .tl-about-page {
+    display: grid;
+    gap: 9rem;
+    width: min(100%, 74rem);
     margin-inline: auto;
+    padding: 10rem 24px 12rem;
+    color: #050505;
   }
 
-  .tl-about-portrait {
-    margin-top: -8vh;
-    margin-bottom: clamp(4.5rem, 12vh, 8rem);
+  .tl-about-hero {
+    display: grid;
+    gap: 2rem;
+    max-width: 58rem;
   }
 
-  .tl-about-portrait img {
-    display: block;
-    width: 100%;
-    height: auto;
-    border-radius: 2px;
+  .tl-about-kicker {
+    margin: 0;
+    color: #666;
+    font-size: 12px;
+    font-weight: 650;
+    line-height: 1;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
   }
 
-  .tl-about-prose {
-    padding-bottom: clamp(4rem, 12vh, 8rem);
+  .tl-about-hero h1,
+  .tl-about-copy h2,
+  .tl-about-inventory-head h2 {
+    margin: 0;
+    color: #050505;
+    font-weight: 650;
+    letter-spacing: 0;
+  }
+
+  .tl-about-hero h1 {
+    font-size: 84px;
+    line-height: 0.94;
   }
 
   .tl-about-lede {
-    max-width: 16ch;
-    color: var(--tl-ink);
-    font-size: clamp(32px, 4.8vw, 58px);
-    font-weight: 620;
-    line-height: 0.98;
-    letter-spacing: -0.045em;
+    max-width: 44rem;
+    margin: 0;
+    color: #303030;
+    font-size: 30px;
+    font-weight: 520;
+    line-height: 1.22;
+    letter-spacing: 0;
   }
 
-  .tl-about-prose .tl-eyebrow {
-    margin-bottom: 1.35rem;
+  .tl-about-portrait {
+    width: min(100%, 64rem);
+    margin: 0;
   }
 
-  .tl-about-structure {
-    position: relative;
+  .tl-about-portrait img {
     width: 100%;
-    padding: clamp(4rem, 12vh, 8rem) 0;
+    aspect-ratio: 1 / 1;
+    height: auto;
+    object-fit: cover;
   }
 
-  .tl-about-structure-head {
-    width: var(--tl-center);
-    margin: 0 auto clamp(2.75rem, 7vh, 4.5rem);
+  .tl-about-section {
+    display: grid;
+    grid-template-columns: minmax(9rem, 0.36fr) minmax(0, 1fr);
+    gap: 5rem;
+    align-items: start;
   }
 
-  .tl-about-structure-head h2 {
+  .tl-about-intro {
     margin-top: 1rem;
-    max-width: 12ch;
-    font-size: clamp(30px, 4vw, 50px);
-    font-weight: 620;
-    line-height: 0.98;
-    letter-spacing: -0.045em;
   }
 
-  .tl-about-structure-head p {
-    max-width: 36rem;
-    margin-top: 1.2rem;
-    color: var(--tl-muted);
-    font-size: 16px;
-    line-height: 1.75;
+  .tl-about-copy {
+    display: grid;
+    gap: 2rem;
+    max-width: 48rem;
   }
 
-  .tl-about-structure-rail {
+  .tl-about-copy h2,
+  .tl-about-inventory-head h2 {
+    max-width: 16ch;
+    font-size: 44px;
+    line-height: 1.02;
+  }
+
+  .tl-about-copy p,
+  .tl-about-inventory-head p,
+  .tl-about-colophon p {
+    margin: 0;
+    color: #424242;
+    font-size: 19px;
+    font-weight: 420;
+    line-height: 1.72;
+    letter-spacing: 0;
+  }
+
+  .tl-about-copy code {
+    color: #151515;
+    font-family: var(--tl-font);
+    font-size: 0.94em;
+    font-weight: 560;
+  }
+
+  .tl-about-copy a,
+  .tl-about-kind,
+  .tl-about-colophon a {
+    color: #050505;
+    text-decoration: none;
+  }
+
+  .tl-about-copy a:hover,
+  .tl-about-kind:hover {
+    color: #555;
+  }
+
+  .tl-about-inventory {
+    display: grid;
+    gap: 4.5rem;
+    width: 100vw;
+    min-width: 0;
+    margin-inline: calc((100% - 100vw) / 2);
+  }
+
+  .tl-about-inventory-head {
+    display: grid;
+    gap: 1.75rem;
+    width: min(74rem, calc(100vw - 48px));
+    max-width: 48rem;
+    margin-inline: auto;
+  }
+
+  .tl-about-kind-grid {
     display: flex;
-    align-items: center;
-    gap: clamp(3rem, 6vw, 6rem);
+    align-items: start;
+    gap: clamp(9rem, 13vw, 15rem);
     width: 100%;
-    padding-block: clamp(2rem, 5vh, 4rem);
     overflow-x: auto;
-    overflow-y: visible;
+    overflow-y: hidden;
     overscroll-behavior-x: contain;
-    scrollbar-width: none;
+    scroll-padding-inline: 0;
     scroll-snap-type: x mandatory;
+    scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
   }
 
-  .tl-about-structure-rail::-webkit-scrollbar {
+  .tl-about-kind-grid::-webkit-scrollbar {
     width: 0;
     height: 0;
   }
 
-  .tl-about-structure-card {
-    position: relative;
-    flex: 0 0 auto;
-    width: clamp(var(--card-width, 16rem), 18vw, calc(var(--card-width, 16rem) + 6rem));
-    --card-width: 16rem;
-    --card-half: clamp(8rem, 9vw, 12.5rem);
+  .tl-about-kind {
     --card-aspect: 1 / 1;
+    --card-width: 16rem;
+    --card-half-width: clamp(8rem, 9vw, 12.5rem);
     --tl-card-shadow: var(--tl-gallery-shadow);
     --tl-card-hover-shadow:
       0 2px 3px rgba(7, 9, 13, 0.03),
       0 16px 34px -18px rgba(7, 9, 13, 0.22),
       0 40px 82px -42px rgba(7, 9, 13, 0.22),
       0 96px 154px -82px rgba(7, 9, 13, 0.18);
+    display: grid;
+    flex: 0 0 auto;
+    width: clamp(var(--card-width), 18vw, calc(var(--card-width) + 9rem));
+    gap: 1.15rem;
+    align-content: start;
     scroll-snap-align: center;
   }
 
-  .tl-about-structure-card:nth-child(7n+1) { --card-width: 16rem;   --card-half: clamp(8rem, 9vw, 12.5rem);    --card-aspect: 3 / 4; }
-  .tl-about-structure-card:nth-child(7n+2) { --card-width: 22rem;   --card-half: clamp(11rem, 9vw, 15.5rem);   --card-aspect: 4 / 3; }
-  .tl-about-structure-card:nth-child(7n+3) { --card-width: 16rem;   --card-half: clamp(8rem, 9vw, 12.5rem);    --card-aspect: 3 / 4; }
-  .tl-about-structure-card:nth-child(7n+4) { --card-width: 17.5rem; --card-half: clamp(8.75rem, 9vw, 13.25rem); --card-aspect: 1 / 1; }
-  .tl-about-structure-card:nth-child(7n+5) { --card-width: 22rem;   --card-half: clamp(11rem, 9vw, 15.5rem);   --card-aspect: 4 / 3; }
-  .tl-about-structure-card:nth-child(7n+6) { --card-width: 16rem;   --card-half: clamp(8rem, 9vw, 12.5rem);    --card-aspect: 3 / 4; }
-  .tl-about-structure-card:nth-child(7n+7) { --card-width: 17.5rem; --card-half: clamp(8.75rem, 9vw, 13.25rem); --card-aspect: 1 / 1; }
-
-  .tl-about-structure-card:first-child {
-    margin-inline-start: calc(50vw - var(--card-half, 8rem));
+  .tl-about-kind:nth-child(7n+1) {
+    --card-width: 16rem;
+    --card-half-width: clamp(8rem, 9vw, 12.5rem);
+    --card-aspect: 3 / 4;
   }
 
-  .tl-about-structure-card:last-child {
-    margin-inline-end: calc(50vw - var(--card-half, 8rem));
+  .tl-about-kind:nth-child(7n+2) {
+    --card-width: 22rem;
+    --card-half-width: clamp(11rem, 9vw, 15.5rem);
+    --card-aspect: 4 / 3;
   }
 
-  .tl-about-structure-link {
-    display: grid;
-    gap: 1.1rem;
-    color: inherit;
-    text-decoration: none;
+  .tl-about-kind:nth-child(7n+3) {
+    --card-width: 16rem;
+    --card-half-width: clamp(8rem, 9vw, 12.5rem);
+    --card-aspect: 3 / 4;
   }
 
-  .tl-about-structure-link:focus-visible {
-    outline: none;
+  .tl-about-kind:nth-child(7n+4) {
+    --card-width: 17.5rem;
+    --card-half-width: clamp(8.75rem, 9vw, 13.25rem);
+    --card-aspect: 1 / 1;
   }
 
-  .tl-about-structure-link:focus-visible .tl-about-structure-visual {
-    outline: 2px solid #2f6bff;
-    outline-offset: 4px;
+  .tl-about-kind:nth-child(7n+5) {
+    --card-width: 22rem;
+    --card-half-width: clamp(11rem, 9vw, 15.5rem);
+    --card-aspect: 4 / 3;
   }
 
-  .tl-about-structure-visual {
+  .tl-about-kind:nth-child(7n+6) {
+    --card-width: 16rem;
+    --card-half-width: clamp(8rem, 9vw, 12.5rem);
+    --card-aspect: 3 / 4;
+  }
+
+  .tl-about-kind:nth-child(7n+7) {
+    --card-width: 17.5rem;
+    --card-half-width: clamp(8.75rem, 9vw, 13.25rem);
+    --card-aspect: 1 / 1;
+  }
+
+  .tl-about-kind:first-child {
+    margin-inline-start: calc(50vw - var(--card-half-width));
+  }
+
+  .tl-about-kind:last-child {
+    margin-inline-end: calc(50vw - var(--card-half-width));
+  }
+
+  .tl-about-kind-visual {
     position: relative;
     display: block;
     overflow: hidden;
-    aspect-ratio: var(--card-aspect, 1 / 1);
-    background: #000;
+    aspect-ratio: var(--card-aspect);
+    background: var(--tl-entity-gradient-luster), var(--tl-entity-gradient, #000);
+    background-blend-mode: var(--tl-entity-gradient-blend);
     box-shadow: var(--tl-card-shadow);
     transition: box-shadow 0.55s ease;
   }
 
-  .tl-about-structure-visual::before {
+  .tl-about-kind-visual::before {
     position: absolute;
-    inset: 0;
-    background: #000;
+    inset: -18%;
+    background: var(--tl-entity-gradient-luster), var(--tl-entity-gradient, #000);
+    background-blend-mode: var(--tl-entity-gradient-blend);
     content: "";
+    transform: rotate(-4deg) scale(1.08);
+    transform-origin: var(--tl-gradient-origin, 50% 50%);
+    animation: tl-entity-tile-drift var(--tl-gradient-duration, 28s) ease-in-out infinite
+      alternate;
   }
 
-  .tl-about-structure-link:hover .tl-about-structure-visual,
-  .tl-about-structure-link:focus-visible .tl-about-structure-visual {
+  .tl-about-kind:hover .tl-about-kind-visual,
+  .tl-about-kind:focus-visible .tl-about-kind-visual {
     box-shadow: var(--tl-card-hover-shadow);
   }
 
-  .tl-about-structure-meta {
-    display: grid;
-    gap: 0.42rem;
-    padding: 0 0.1rem;
+  .tl-about-kind:focus-visible {
+    outline: none;
   }
 
-  .tl-about-structure-kicker {
-    color: rgba(12, 20, 36, 0.56);
-    font-size: 11px;
-    font-weight: 540;
+  .tl-about-kind:focus-visible .tl-about-kind-visual {
+    outline: 2px solid #050505;
+    outline-offset: 4px;
+  }
+
+  .tl-about-kind-meta {
+    display: grid;
+    gap: 0.8rem;
+  }
+
+  .tl-about-kind-count {
+    color: #777;
+    font-size: 12px;
+    font-weight: 620;
     line-height: 1;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
   }
 
-  .tl-about-structure-title {
-    color: var(--tl-ink);
-    font-size: clamp(18px, 1.8vw, 22px);
+  .tl-about-kind-title {
+    color: #050505;
+    font-size: 24px;
     font-weight: 650;
-    line-height: 1.08;
-    letter-spacing: -0.01em;
+    line-height: 1.05;
+    letter-spacing: 0;
   }
 
-  .tl-about-structure-gloss {
-    color: rgba(12, 20, 36, 0.66);
-    font-size: 14px;
+  .tl-about-kind-gloss {
+    color: #555;
+    font-size: 16px;
     font-weight: 420;
-    line-height: 1.5;
-  }
-
-  .tl-about-structure :global(.tl-scroll-arrows) {
-    position: static;
-    display: flex;
-    justify-content: center;
-    margin: 1.75rem auto 0;
-    transform: none;
+    line-height: 1.55;
   }
 
   .tl-about-colophon {
-    padding: clamp(4rem, 12vh, 8rem) 0 18vh;
+    display: grid;
+    gap: 1.5rem;
+    max-width: 42rem;
+    margin-top: 2rem;
   }
 
-  .tl-about-colophon p {
-    margin-top: 1.35rem;
-    max-width: 38rem;
-    color: rgba(7, 9, 13, 0.68);
-    font-size: 16px;
-    line-height: 1.75;
+  .tl-about-colophon p:last-child {
+    color: #555;
+    font-size: 17px;
   }
 
-  @media (max-width: 767px) {
-    .tl-about-portrait,
-    .tl-about-prose,
-    .tl-about-colophon {
-      width: min(100% - 40px, 43.75rem);
+  .tl-about-inventory :global(.tl-scroll-arrows) {
+    justify-self: center;
+    margin-top: -2rem;
+  }
+
+  @media (max-width: 900px) {
+    .tl-about-page {
+      gap: 7rem;
+      padding-top: 8rem;
     }
 
-    .tl-about-structure-head {
-      width: min(100% - 40px, 43.75rem);
+    .tl-about-hero h1 {
+      font-size: 68px;
     }
 
-    .tl-about-portrait {
-      margin-top: -4vh;
+    .tl-about-lede {
+      font-size: 26px;
     }
 
-    .tl-about-structure-rail {
-      flex-direction: column;
-      align-items: center;
-      gap: 3rem;
-      padding-block: 1.5rem;
-      padding-inline: 20px;
-      overflow: visible;
-      scroll-snap-type: none;
+    .tl-about-section {
+      grid-template-columns: 1fr;
+      gap: 2rem;
     }
 
-    .tl-about-structure-card {
-      width: min(100%, var(--card-width-mobile, 13.5rem));
+    .tl-about-kind-grid {
+      gap: 6rem;
     }
 
-    .tl-about-structure-card:nth-child(3n+2) {
-      --card-width-mobile: 18rem;
+    .tl-about-kind {
+      width: min(72vw, var(--card-width-mobile, 18rem));
+    }
+  }
+
+  @media (max-width: 620px) {
+    .tl-about-page {
+      gap: 5.5rem;
+      padding: 7rem 18px 8rem;
     }
 
-    .tl-about-structure-card:first-child,
-    .tl-about-structure-card:last-child {
-      margin-inline: 0;
+    .tl-about-hero {
+      gap: 1.6rem;
+    }
+
+    .tl-about-hero h1 {
+      font-size: 52px;
+    }
+
+    .tl-about-lede {
+      font-size: 22px;
+      line-height: 1.3;
+    }
+
+    .tl-about-copy h2,
+    .tl-about-inventory-head h2 {
+      font-size: 34px;
+    }
+
+    .tl-about-copy p,
+    .tl-about-inventory-head p {
+      font-size: 17px;
+    }
+
+    .tl-about-kind-grid {
+      gap: 5rem;
+    }
+
+    .tl-about-kind {
+      width: min(78vw, var(--card-width-mobile, 15rem));
+    }
+
+    .tl-about-kind:nth-child(3n+2) {
+      --card-width-mobile: 20rem;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .tl-about-structure-visual::before {
+    .tl-about-kind-visual::before {
       animation: none;
     }
   }
