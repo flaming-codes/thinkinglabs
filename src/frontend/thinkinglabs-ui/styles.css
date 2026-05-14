@@ -90,14 +90,7 @@
   --tl-kind-color-inputs: #6dd8ff;
   --tl-kind-color-provenance: #c7c7c7;
   --tl-site-gradient-about: #f3f5f7;
-  --tl-site-gradient-privacy: conic-gradient(
-    from 38deg at 50% 50%,
-    #111317 0deg,
-    #4d5158 86deg,
-    #e4e5e7 184deg,
-    #8c9198 282deg,
-    #111317 360deg
-  );
+  --tl-site-gradient-privacy: #d8dce1;
   --tl-shadow: var(--tl-shadow-soft);
   --tl-gallery-hover-shadow: var(--tl-shadow-gallery-hover);
   --tl-gallery-shadow: var(--tl-shadow-gallery);
@@ -402,14 +395,7 @@
     --tl-color-accent: #8db7ff;
     --tl-color-accent-ink: #07090d;
     --tl-site-gradient-about: #111317;
-    --tl-site-gradient-privacy: conic-gradient(
-      from 38deg at 50% 50%,
-      #05070c 0deg,
-      #5f6a7a 86deg,
-      #f0f2f5 184deg,
-      #77818e 282deg,
-      #05070c 360deg
-    );
+    --tl-site-gradient-privacy: #111317;
     --tl-shadow-soft: 0 0 72px rgba(0, 0, 0, 0.38);
     --tl-shadow-gallery-hover:
       0 1px 1px rgba(0, 0, 0, 0.28), 0 18px 42px -22px rgba(0, 0, 0, 0.72),
