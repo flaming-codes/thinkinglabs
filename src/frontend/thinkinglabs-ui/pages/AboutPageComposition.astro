@@ -21,14 +21,26 @@ const { kinds } = Astro.props;
     </header>
 
     <figure class="tl-about-portrait" aria-label="Portrait">
-      <img
-        src="/images/about-portrait.jpg"
-        alt="Tom smiling in warm side light."
-        width="2048"
-        height="2048"
-        loading="eager"
-        decoding="async"
-      />
+      <picture>
+        <source
+          srcset="/images/about-portrait-dark.jpg"
+          media="(prefers-color-scheme: dark)"
+          type="image/jpeg"
+        />
+        <source
+          srcset="/images/about-portrait-light.webp"
+          media="(prefers-color-scheme: light)"
+          type="image/webp"
+        />
+        <img
+          src="/images/about-portrait-light.webp"
+          alt="Tom smiling in warm side light."
+          width="2048"
+          height="2048"
+          loading="eager"
+          decoding="async"
+        />
+      </picture>
     </figure>
 
     <section class="tl-about-section tl-about-intro" aria-labelledby="about-what-title">

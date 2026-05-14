@@ -64,13 +64,25 @@ import ThinkinglabsUiPage from "../layouts/ThinkinglabsUiPage.astro";
     letter-spacing: -0.05em;
   }
 
+  .tl-privacy-prose p + p {
+    margin-top: clamp(1.6rem, 3vh, 2.25rem);
+  }
+
+  .tl-privacy-lede + p {
+    margin-top: clamp(2.6rem, 6vh, 4rem);
+  }
+
   .tl-privacy-prose h2 {
-    margin-top: clamp(3.5rem, 9vh, 5.5rem);
+    margin-top: clamp(5rem, 12vh, 8rem);
     color: var(--tl-ink);
     font-size: clamp(23px, 3vw, 36px);
     font-weight: 600;
     line-height: 1;
     letter-spacing: -0.035em;
+  }
+
+  .tl-privacy-prose h2 + p {
+    margin-top: clamp(1.5rem, 3vh, 2.25rem);
   }
 
   .tl-privacy-prose a {
