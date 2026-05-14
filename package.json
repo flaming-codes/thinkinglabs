@@ -30,6 +30,7 @@
     "review-decisions": "tsx scripts/review-decisions.ts",
     "review-proposals": "tsx scripts/review-proposals.ts",
     "triage-questions": "tsx scripts/triage-questions.ts",
+    "linkedin:post": "tsx scripts/linkedin-post.ts",
     "typecheck": "astro check",
     "lint": "vp lint",
     "format": "vp fmt",

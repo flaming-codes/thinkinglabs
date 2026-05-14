@@ -34,6 +34,18 @@
       "type": "settings"
     },
     {
+      "id": "linkedin-post",
+      "overrideSha256ByProvider": {
+        "claude": "09bfcc6a14b83e2192b8673677725c84883ee9cd0c70e45c9ec09daa8f2b2847",
+        "codex": "09bfcc6a14b83e2192b8673677725c84883ee9cd0c70e45c9ec09daa8f2b2847",
+        "copilot": "09bfcc6a14b83e2192b8673677725c84883ee9cd0c70e45c9ec09daa8f2b2847",
+        "cursor": "09bfcc6a14b83e2192b8673677725c84883ee9cd0c70e45c9ec09daa8f2b2847"
+      },
+      "registry": "local",
+      "sourceSha256": "baa79043cfd02b651b24c7466e8e8184cd27211f978fc176585d093d19372b89",
+      "type": "skill"
+    },
+    {
       "id": "writing-content",
       "overrideSha256ByProvider": {
         "claude": "09bfcc6a14b83e2192b8673677725c84883ee9cd0c70e45c9ec09daa8f2b2847",
@@ -46,8 +58,8 @@
       "type": "skill"
     }
   ],
-  "generatedAt": "2026-05-14T18:08:32.760Z",
-  "manifestFingerprint": "bf6ed80b42e7a4015125be8aa626f62407256aa538233cb6b84b952e2727465c",
+  "generatedAt": "2026-05-14T18:30:55.172Z",
+  "manifestFingerprint": "08271ae81ad8da9b86a8f55bcf22ad29632c0b1c070647db7ab79dbd79bce709",
   "outputs": [
     {
       "contentSha256": "8681d43c99ae7c2ca0604d6ef3acf1051a579816a9fd55999505d05a575030ab",
@@ -55,6 +67,14 @@
         "claude"
       ],
       "path": ".claude/settings.json",
+      "provider": "claude"
+    },
+    {
+      "contentSha256": "6950a4460a5f58be279aed495c6e8cdf26843f2d60a593babb27fe7177721e42",
+      "ownerEntityIds": [
+        "linkedin-post"
+      ],
+      "path": ".claude/skills/linkedin-post/SKILL.md",
       "provider": "claude"
     },
     {
@@ -74,6 +94,14 @@
       "provider": "codex"
     },
     {
+      "contentSha256": "6950a4460a5f58be279aed495c6e8cdf26843f2d60a593babb27fe7177721e42",
+      "ownerEntityIds": [
+        "linkedin-post"
+      ],
+      "path": ".codex/skills/linkedin-post/SKILL.md",
+      "provider": "codex"
+    },
+    {
       "contentSha256": "ae6b0b32f755b5e0b298e95fe9a45df8f07a4fd09a981af81ab8ae0693e0b572",
       "ownerEntityIds": [
         "writing-content"
@@ -87,6 +115,14 @@
         "system"
       ],
       "path": ".github/copilot-instructions.md",
+      "provider": "copilot"
+    },
+    {
+      "contentSha256": "6950a4460a5f58be279aed495c6e8cdf26843f2d60a593babb27fe7177721e42",
+      "ownerEntityIds": [
+        "linkedin-post"
+      ],
+      "path": ".github/skills/linkedin-post/SKILL.md",
       "provider": "copilot"
     },
     {

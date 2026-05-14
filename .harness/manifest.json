@@ -15,6 +15,19 @@
     },
     {
       "enabled": true,
+      "id": "linkedin-post",
+      "overrides": {
+        "claude": ".harness/src/skills/linkedin-post/OVERRIDES.claude.yaml",
+        "codex": ".harness/src/skills/linkedin-post/OVERRIDES.codex.yaml",
+        "copilot": ".harness/src/skills/linkedin-post/OVERRIDES.copilot.yaml",
+        "cursor": ".harness/src/skills/linkedin-post/OVERRIDES.cursor.yaml"
+      },
+      "registry": "local",
+      "sourcePath": ".harness/src/skills/linkedin-post/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "enabled": true,
       "id": "writing-content",
       "overrides": {
         "claude": ".harness/src/skills/writing-content/OVERRIDES.claude.yaml",
