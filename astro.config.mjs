@@ -9,6 +9,10 @@ export default defineConfig({
   site: env().SITE_URL,
   trailingSlash: "ignore",
   integrations: [react()],
+  prefetch: {
+    defaultStrategy: "hover",
+    prefetchAll: true,
+  },
   devToolbar: {
     enabled: false,
   },
