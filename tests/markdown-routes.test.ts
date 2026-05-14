@@ -47,12 +47,46 @@ const thoughtEntry = {
   body: "Agents enable radical simplicity.",
 };
 
+const inputEntry = {
+  id: "openai-workspace-agents-chatgpt",
+  data: {
+    title: "Introducing workspace agents in ChatGPT",
+    url: "https://openai.com/index/introducing-workspace-agents-in-chatgpt/",
+    source: "OpenAI",
+    consumed: "2026-05-14",
+    note: "Workspace agents signal agent directories.",
+    tags: ["agents"],
+  },
+  body: "OpenAI introduces shared workspace agents.",
+};
+
+const predictionEntry = {
+  id: "agent-marketplaces-succeed-app-stores",
+  data: {
+    prediction: "Agent marketplaces will succeed app stores.",
+    made: "2026-05-14",
+    resolves: "2027-05-14",
+    confidence: 0.57,
+    resolution: "pending",
+    resolved_on: null,
+    resolution_note: null,
+    evidence_at_time: [
+      "thoughts/agents-enable-radical-simplicity",
+      "inputs/openai-workspace-agents-chatgpt",
+    ],
+    tags: ["agents"],
+  },
+  body: "Prediction body.",
+};
+
 function installContentMock(): void {
   vi.doMock("astro:content", () => ({
     getCollection: vi.fn(async (kind: string) => {
       if (kind === "posts") return [postEntry];
       if (kind === "claims") return [claimEntry];
       if (kind === "thoughts") return [thoughtEntry];
+      if (kind === "inputs") return [inputEntry];
+      if (kind === "predictions") return [predictionEntry];
       return [];
     }),
   }));
@@ -175,6 +209,37 @@ describe("Markdown route contracts and serializers", () => {
     expect(parsed.data["history"]).toBeUndefined();
   });
 
+  it("emits prediction evidence links to thoughts and inputs", async () => {
+    const { buildMarkdownRouteRecords } = await import("../src/lib/markdown-routes.ts");
+    const records = await buildMarkdownRouteRecords();
+    const predictionRecord = records.find(
+      (record) => record.route === "/predictions/agent-marketplaces-succeed-app-stores",
+    );
+    expect(predictionRecord).toBeDefined();
+
+    const parsed = matter(predictionRecord?.markdown ?? "");
+    expect(parsed.data["links"]).toMatchObject({
+      evidence_at_time: [
+        {
+          status: "resolved",
+          ref: "thoughts/agents-enable-radical-simplicity",
+          kind: "thoughts",
+          slug: "agents-enable-radical-simplicity",
+          title: "Agents enable radical simplicity",
+          url: "/thoughts/agents-enable-radical-simplicity",
+        },
+        {
+          status: "resolved",
+          ref: "inputs/openai-workspace-agents-chatgpt",
+          kind: "inputs",
+          slug: "openai-workspace-agents-chatgpt",
+          title: "Introducing workspace agents in ChatGPT",
+          url: "/inputs/openai-workspace-agents-chatgpt",
+        },
+      ],
+    });
+  });
+
   it("does not generate provenance or other non-public Markdown records", async () => {
     const { buildMarkdownRouteRecords } = await import("../src/lib/markdown-routes.ts");
     const routes = (await buildMarkdownRouteRecords()).map((record) => record.route);
@@ -197,6 +262,7 @@ describe("Markdown route contracts and serializers", () => {
 
   it("rejects duplicate Markdown route slugs", async () => {
     vi.resetModules();
+    vi.doUnmock("astro:content");
     vi.doMock("astro:content", () => ({
       getCollection: vi.fn(async (kind: string) => {
         if (kind === "predictions") {

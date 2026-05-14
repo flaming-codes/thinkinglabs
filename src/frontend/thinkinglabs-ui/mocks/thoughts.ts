@@ -107,6 +107,7 @@ const THOUGHT_DETAIL: ThoughtDetail = {
     { kind: "thought", title: "Cheap to verify, expensive to corrupt" },
     { kind: "input", title: "Engelbart, Augmenting Human Intellect (1962, re-read)" },
   ],
+  predictionEvidence: [],
   history: [
     { date: "2026-05-02", note: "tightened opening, cut tooling specifics" },
     { date: "2026-04-30", note: "added verifier asymmetry framing" },

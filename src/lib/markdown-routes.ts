@@ -43,6 +43,7 @@ const MARKDOWN_LINK_FIELDS = [
   "superseded_by",
   "reverses",
   "derived_from",
+  "evidence_at_time",
 ] as const;
 
 const markdownLinkFieldSchema = z.enum(MARKDOWN_LINK_FIELDS);
@@ -307,6 +308,7 @@ const LINK_FIELD_TARGETS: Readonly<
   superseded_by: ["claims"],
   reverses: ["decisions"],
   derived_from: ["thoughts", "claims", "posts", "decisions", "projects", "inputs", "questions"],
+  evidence_at_time: ["thoughts", "inputs"],
 };
 
 let markdownRouteRecordsPromise: Promise<MarkdownRouteRecord[]> | null = null;

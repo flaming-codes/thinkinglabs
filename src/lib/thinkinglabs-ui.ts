@@ -53,6 +53,7 @@ const KIND_SET = new Set<Kind>(KINDS);
 type CountByKind = Partial<Record<Kind, number>>;
 type TitleLookup = Partial<Record<Kind, ReadonlyMap<string, string>>>;
 type ClaimLookup = ReadonlyMap<string, CollectionEntry<"claims">>;
+type PredictionEvidenceTargetKind = "thoughts" | "inputs";
 
 function safeDate(value: Date | string | null | undefined): number {
   if (value === null || value === undefined) return 0;
@@ -172,6 +173,37 @@ function detailRelation(ref: string, fallbackKind: Kind, lookups: TitleLookup): 
     title: resolved.title,
     href: resolved.href,
   };
+}
+
+function evidenceRefTargets(
+  ref: string,
+  targetKind: PredictionEvidenceTargetKind,
+  slug: string,
+): boolean {
+  const parsed = parseRef(ref, "thoughts");
+  return parsed.kind === targetKind && parsed.slug === slug;
+}
+
+/** Find predictions that cite a thought or input in `evidence_at_time`; reverse links stay derived. */
+export function predictionEvidenceBacklinks(args: {
+  predictions: ReadonlyArray<CollectionEntry<"predictions">>;
+  targetKind: PredictionEvidenceTargetKind;
+  targetSlug: string;
+}): ReadonlyArray<{ kind: string; title: string; href: string; conf: number; date: string }> {
+  return [...args.predictions]
+    .filter((prediction) =>
+      prediction.data.evidence_at_time.some((ref) =>
+        evidenceRefTargets(ref, args.targetKind, args.targetSlug),
+      ),
+    )
+    .sort((a, b) => safeDate(b.data.made) - safeDate(a.data.made))
+    .map((prediction) => ({
+      kind: kindLabel("predictions"),
+      title: prediction.data.prediction,
+      href: detailHref("predictions", prediction.id),
+      conf: prediction.data.confidence,
+      date: formatDate(prediction.data.made),
+    }));
 }
 
 function firstParagraph(markdown: string, fallback: string): string {
@@ -550,8 +582,15 @@ export function mapThoughtDetail(args: {
   lookups?: TitleLookup;
   claimLookup?: ClaimLookup;
   history?: ReadonlyArray<ThoughtHistory>;
+  predictionEvidence?: ReadonlyArray<ThoughtRelated>;
 }): ThoughtDetail {
-  const { entry, lookups = {}, claimLookup = new Map(), history = [] } = args;
+  const {
+    entry,
+    lookups = {},
+    claimLookup = new Map(),
+    history = [],
+    predictionEvidence = [],
+  } = args;
   const words = wordCount(entry.body ?? "");
   const related: ThoughtRelated[] = [
     ...entry.data.claims.map((ref) => {
@@ -585,6 +624,7 @@ export function mapThoughtDetail(args: {
     paragraphs: markdownParagraphs(entry.body ?? ""),
     questions: extractQuestions(entry.body ?? ""),
     related,
+    predictionEvidence: [...predictionEvidence],
     history:
       history.length > 0
         ? [...history]

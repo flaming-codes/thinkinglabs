@@ -11,6 +11,7 @@ import {
   buildTitleLookup,
   mapThoughtDetail,
   mapThoughtHistory,
+  predictionEvidenceBacklinks,
 } from "../../lib/thinkinglabs-ui.ts";
 import { thoughtStructuredData } from "../../lib/structured-data.ts";
 
@@ -19,12 +20,21 @@ export const getStaticPaths = (async () => {
 }) satisfies GetStaticPaths;
 
 const { entry } = Astro.props as InferGetStaticPropsType<typeof getStaticPaths>;
-const [claims, inputs] = await Promise.all([getCollection("claims"), getCollection("inputs")]);
+const [claims, inputs, predictions] = await Promise.all([
+  getCollection("claims"),
+  getCollection("inputs"),
+  getCollection("predictions"),
+]);
 const cwd = resolve(".");
 const history = mapThoughtHistory(walkFileHistory(cwd, `content/thoughts/${entry.id}.md`));
 const lookups = buildTitleLookup({ claims, inputs });
 const claimLookup = buildClaimLookup(claims);
-const thought = mapThoughtDetail({ entry, lookups, claimLookup, history });
+const predictionEvidence = predictionEvidenceBacklinks({
+  predictions,
+  targetKind: "thoughts",
+  targetSlug: entry.id,
+});
+const thought = mapThoughtDetail({ entry, lookups, claimLookup, history, predictionEvidence });
 const site = Astro.site ?? new URL(Astro.url.origin);
 ---
 

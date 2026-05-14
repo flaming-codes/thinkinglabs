@@ -11,6 +11,7 @@ interface Props {
 const { thought } = Astro.props;
 const hasQuestions = thought.questions.length > 0;
 const hasRelated = thought.related.length > 0;
+const hasPredictionEvidence = thought.predictionEvidence.length > 0;
 const hasHistory = thought.history.length > 1;
 ---
 
@@ -54,6 +55,21 @@ const hasHistory = thought.history.length > 1;
         <div class="tl-eyebrow">Connects to</div>
         <div class="tl-rel-list">
           {thought.related.map((rel) => (
+            <article class="tl-rel-row">
+              <span class="tl-mono">{rel.kind}</span>
+              <h3>{rel.href ? <a href={rel.href}>{rel.title}</a> : rel.title}</h3>
+              <span class="tl-mono is-right">{rel.conf !== undefined ? rel.conf.toFixed(2) : ""}</span>
+            </article>
+          ))}
+        </div>
+      </section>
+    )}
+
+    {hasPredictionEvidence && (
+      <section class="tl-aside-block">
+        <div class="tl-eyebrow">Prediction evidence</div>
+        <div class="tl-rel-list">
+          {thought.predictionEvidence.map((rel) => (
             <article class="tl-rel-row">
               <span class="tl-mono">{rel.kind}</span>
               <h3>{rel.href ? <a href={rel.href}>{rel.title}</a> : rel.title}</h3>

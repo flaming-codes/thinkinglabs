@@ -53,6 +53,7 @@ function refToId(ref: string, fallbackKind: Kind): string {
 function fallbackKindFor(sourceKind: Kind, fieldName: string): Kind {
   if (sourceKind === "claims" && fieldName === "derived_from") return "thoughts";
   if (sourceKind === "thoughts" && fieldName === "inputs") return "inputs";
+  if (sourceKind === "predictions" && fieldName === "evidence_at_time") return "thoughts";
   if (fieldName === "related_claims" || fieldName === "supersedes" || fieldName === "superseded_by")
     return "claims";
   if (fieldName === "related_thoughts") return "thoughts";

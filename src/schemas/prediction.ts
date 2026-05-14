@@ -18,4 +18,6 @@ export const predictionSchema = z.object({
 export type Prediction = z.infer<typeof predictionSchema>;
 
 /** Frontmatter array fields that map to typed edges in the index. */
-export const predictionLinkFields = {} as const;
+export const predictionLinkFields = {
+  evidence_at_time: "evidence_at_time",
+} as const;

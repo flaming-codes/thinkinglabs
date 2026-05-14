@@ -81,6 +81,7 @@ interface ThoughtDetail {
   paragraphs: string[];
   questions: string[];
   related: ThoughtRelated[];
+  predictionEvidence: ThoughtRelated[];
   history: ThoughtHistory[];
 }
 

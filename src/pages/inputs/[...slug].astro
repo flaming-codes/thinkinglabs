@@ -1,9 +1,9 @@
 ---
 import { getCollection } from "astro:content";
 import type { GetStaticPaths, InferGetStaticPropsType } from "astro";
-import InputDetailPageComposition from "../../frontend/thinkinglabs-ui/pages/InputDetailPageComposition.astro";
+import InputDetailMinimalPageComposition from "../../frontend/thinkinglabs-ui/pages/InputDetailMinimalPageComposition.astro";
 import ThinkinglabsUiPage from "../../layouts/ThinkinglabsUiPage.astro";
-import { mapInputDetail } from "../../lib/thinkinglabs-ui.ts";
+import { mapInputDetail, predictionEvidenceBacklinks } from "../../lib/thinkinglabs-ui.ts";
 import { inputStructuredData } from "../../lib/structured-data.ts";
 
 export const getStaticPaths = (async () => {
@@ -12,7 +12,13 @@ export const getStaticPaths = (async () => {
 }) satisfies GetStaticPaths;
 
 const { entry } = Astro.props as InferGetStaticPropsType<typeof getStaticPaths>;
-const input = mapInputDetail({ entry });
+const predictions = await getCollection("predictions");
+const citations = predictionEvidenceBacklinks({
+  predictions,
+  targetKind: "inputs",
+  targetSlug: entry.id,
+});
+const input = mapInputDetail({ entry, citations });
 const site = Astro.site ?? new URL(Astro.url.origin);
 ---
 
@@ -22,5 +28,5 @@ const site = Astro.site ?? new URL(Astro.url.origin);
   structuredData={inputStructuredData(entry, Astro.url, site)}
   ogType="article"
 >
-  <InputDetailPageComposition input={input} />
+  <InputDetailMinimalPageComposition input={input} />
 </ThinkinglabsUiPage>
