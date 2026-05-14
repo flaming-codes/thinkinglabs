@@ -12,7 +12,11 @@ const LAZY_LOAD_ROOT_MARGIN = "420px 0px";
 const LAZY_LOAD_THRESHOLD = 0.01;
 const MOUNTED = "true";
 
-let booted = false;
+type ReactRoot = ReturnType<typeof import("react-dom/client").createRoot>;
+
+let activeObserver: IntersectionObserver | null = null;
+let activeTimer: number | null = null;
+const activeRoots = new Set<ReactRoot>();
 let rendererPromise:
   | Promise<{
       createElement: typeof import("react").createElement;
@@ -71,7 +75,10 @@ async function mountSurface(surface: SurfaceElement): Promise<void> {
   surface.append(mount);
 
   const { createElement, createRoot, EntityShaderGradient } = await loadRenderer();
-  createRoot(mount).render(createElement(EntityShaderGradient, { entity }));
+  if (!surface.isConnected) return;
+  const reactRoot = createRoot(mount);
+  activeRoots.add(reactRoot);
+  reactRoot.render(createElement(EntityShaderGradient, { entity }));
   window.requestAnimationFrame(() => {
     markReadyWhenCanvasAppears(surface, mount);
   });
@@ -92,27 +99,36 @@ function watchLazySurfaces(surfaces: SurfaceElement[]): void {
     { rootMargin: LAZY_LOAD_ROOT_MARGIN, threshold: LAZY_LOAD_THRESHOLD },
   );
 
+  activeObserver = observer;
   for (const surface of surfaces) observer.observe(surface);
 }
 
+function tearDownShaderSurfaces(): void {
+  if (activeObserver) {
+    activeObserver.disconnect();
+    activeObserver = null;
+  }
+  if (activeTimer !== null) {
+    window.clearTimeout(activeTimer);
+    activeTimer = null;
+  }
+  for (const root of activeRoots) {
+    root.unmount();
+  }
+  activeRoots.clear();
+}
+
 function bootShaderSurfaces(): void {
-  if (booted || shouldSkipShaders()) return;
-  booted = true;
+  if (shouldSkipShaders()) return;
 
   const surfaces = Array.from(document.querySelectorAll<SurfaceElement>("[data-tl-shader-entity]"));
   if (surfaces.length === 0) return;
 
-  window.setTimeout(() => {
+  activeTimer = window.setTimeout(() => {
+    activeTimer = null;
     watchLazySurfaces(surfaces);
   }, AUTO_LOAD_DELAY_MS);
 }
 
-function scheduleBoot(): void {
-  if (document.readyState === "complete") {
-    bootShaderSurfaces();
-    return;
-  }
-  window.addEventListener("load", bootShaderSurfaces, { once: true });
-}
-
-scheduleBoot();
+document.addEventListener("astro:before-swap", tearDownShaderSurfaces);
+document.addEventListener("astro:page-load", bootShaderSurfaces);

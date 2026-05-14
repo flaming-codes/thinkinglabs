@@ -1,4 +1,5 @@
 ---
+import { ClientRouter } from "astro:transitions";
 import "../frontend/thinkinglabs-ui/styles.css";
 import "../styles/view-transitions.css";
 import JsonLd from "../components/JsonLd.astro";
@@ -63,6 +64,7 @@ const jsonLd = buildPageGraph({ site, url: canonical, title: titleMeta, descript
       href="https://fonts.googleapis.com/css2?family=Linefont:wght@4..1000&display=block"
     />
     <JsonLd data={jsonLd} />
+    <ClientRouter />
   </head>
   <body>
     <slot />

@@ -107,12 +107,7 @@ const { calibration } = Astro.props;
 
 <script>
   const storageKey = "me.embed.prediction-calibration-logger.v1";
-  const root = document.querySelector(
-    "[data-embedded-tool='local-prediction-calibration-logger']",
-  );
-  const form = root?.querySelector("[data-local-calibration-form]") as HTMLFormElement | null;
-  const summary = root?.querySelector("[data-local-summary]");
-  const button = root?.querySelector("button[data-record]") as HTMLButtonElement | null;
+  let controller: AbortController | null = null;
 
   function readEntries(): Array<{ confidence: number; resolved: boolean }> {
     try {
@@ -123,29 +118,46 @@ const { calibration } = Astro.props;
     }
   }
 
-  function writeSummary(): void {
-    if (!summary) return;
-    const entries = readEntries();
-    summary.textContent =
-      entries.length === 1
-        ? "1 local entry stored"
-        : `${entries.length} local entries stored`;
-  }
+  const init = () => {
+    controller?.abort();
+    controller = new AbortController();
+    const { signal } = controller;
 
-  if (form && button) {
-    button.disabled = false;
-    writeSummary();
-    form.addEventListener("submit", (event) => {
-      event.preventDefault();
-      const data = new FormData(form);
-      const confidence = Number(data.get("confidence")) / 100;
-      const resolved = data.get("resolved") === "true";
+    const root = document.querySelector(
+      "[data-embedded-tool='local-prediction-calibration-logger']",
+    );
+    const form = root?.querySelector("[data-local-calibration-form]") as HTMLFormElement | null;
+    const summary = root?.querySelector("[data-local-summary]");
+    const button = root?.querySelector("button[data-record]") as HTMLButtonElement | null;
+
+    const writeSummary = () => {
+      if (!summary) return;
       const entries = readEntries();
-      entries.push({ confidence, resolved });
-      window.localStorage.setItem(storageKey, JSON.stringify(entries));
+      summary.textContent =
+        entries.length === 1 ? "1 local entry stored" : `${entries.length} local entries stored`;
+    };
+
+    if (form && button) {
+      button.disabled = false;
       writeSummary();
-    });
-  }
+      form.addEventListener(
+        "submit",
+        (event) => {
+          event.preventDefault();
+          const data = new FormData(form);
+          const confidence = Number(data.get("confidence")) / 100;
+          const resolved = data.get("resolved") === "true";
+          const entries = readEntries();
+          entries.push({ confidence, resolved });
+          window.localStorage.setItem(storageKey, JSON.stringify(entries));
+          writeSummary();
+        },
+        { signal },
+      );
+    }
+  };
+
+  document.addEventListener("astro:page-load", init);
 </script>
 
 <style>

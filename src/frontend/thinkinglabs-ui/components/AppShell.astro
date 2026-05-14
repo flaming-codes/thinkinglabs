@@ -31,44 +31,54 @@ const showSelectedHud = activeNav !== "Index" && !hideSelectedHud;
 <SiteFooter />
 
 <script>
-  const shell = document.querySelector<HTMLElement>(".tl-shell");
-  const scroller = document.querySelector<HTMLElement>("[data-tl-scroll]");
-  const selectedText = document.querySelector<HTMLElement>("[data-selected-text]");
-  const brandContext = document.querySelector<HTMLElement>("[data-brand-context]");
-  const candidates = Array.from(document.querySelectorAll<HTMLElement>("[data-selected-label]"));
-  const fallback = shell?.dataset.activeNav ?? "Index";
+  let controller: AbortController | null = null;
 
-  const setSelected = (label: string, meta?: string) => {
-    if (selectedText) selectedText.textContent = label;
-    if (brandContext) brandContext.textContent = meta ?? label;
-  };
+  const init = () => {
+    controller?.abort();
+    controller = new AbortController();
+    const { signal } = controller;
 
-  const updateSelected = () => {
-    if (!scroller || candidates.length === 0) {
-      setSelected(fallback);
-      return;
-    }
+    const shell = document.querySelector<HTMLElement>(".tl-shell");
+    const scroller = document.querySelector<HTMLElement>("[data-tl-scroll]");
+    const selectedText = document.querySelector<HTMLElement>("[data-selected-text]");
+    const brandContext = document.querySelector<HTMLElement>("[data-brand-context]");
+    const candidates = Array.from(document.querySelectorAll<HTMLElement>("[data-selected-label]"));
+    const fallback = shell?.dataset.activeNav ?? "Index";
 
-    const viewportMiddle = scroller.getBoundingClientRect().top + scroller.clientHeight * 0.52;
-    let active = candidates[0];
-    let activeDistance = Number.POSITIVE_INFINITY;
+    const setSelected = (label: string, meta?: string) => {
+      if (selectedText) selectedText.textContent = label;
+      if (brandContext) brandContext.textContent = meta ?? label;
+    };
 
-    candidates.forEach((candidate) => {
-      const rect = candidate.getBoundingClientRect();
-      const middle = rect.top + rect.height * 0.5;
-      const distance = Math.abs(middle - viewportMiddle);
-      if (distance < activeDistance) {
-        active = candidate;
-        activeDistance = distance;
+    const updateSelected = () => {
+      if (!scroller || candidates.length === 0) {
+        setSelected(fallback);
+        return;
       }
-    });
 
-    setSelected(active?.dataset.selectedLabel ?? fallback, active?.dataset.brandContext);
+      const viewportMiddle = scroller.getBoundingClientRect().top + scroller.clientHeight * 0.52;
+      let active = candidates[0];
+      let activeDistance = Number.POSITIVE_INFINITY;
+
+      candidates.forEach((candidate) => {
+        const rect = candidate.getBoundingClientRect();
+        const middle = rect.top + rect.height * 0.5;
+        const distance = Math.abs(middle - viewportMiddle);
+        if (distance < activeDistance) {
+          active = candidate;
+          activeDistance = distance;
+        }
+      });
+
+      setSelected(active?.dataset.selectedLabel ?? fallback, active?.dataset.brandContext);
+    };
+
+    scroller?.addEventListener("scroll", updateSelected, { passive: true, signal });
+    window.addEventListener("resize", updateSelected, { signal });
+    updateSelected();
   };
 
-  scroller?.addEventListener("scroll", updateSelected, { passive: true });
-  window.addEventListener("resize", updateSelected);
-  updateSelected();
+  document.addEventListener("astro:page-load", init);
 </script>
 
 <style>

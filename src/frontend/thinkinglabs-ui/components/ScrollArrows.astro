@@ -32,12 +32,11 @@ const { target, items, label, variant = "page", rowOnly = false } = Astro.props;
 </div>
 
 <script>
+  let controller: AbortController | null = null;
+
   const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
 
-  const initScrollControls = (root: HTMLElement) => {
-    if (root.dataset.tlScrollReady === "true") return;
-    root.dataset.tlScrollReady = "true";
-
+  const initScrollControls = (root: HTMLElement, signal: AbortSignal) => {
     const targetSelector = root.dataset.tlScrollTarget;
     const itemSelector = root.dataset.tlScrollItems;
     if (!targetSelector || !itemSelector) return;
@@ -66,28 +65,41 @@ const { target, items, label, variant = "page", rowOnly = false } = Astro.props;
     };
 
     buttons.forEach((button) => {
-      button.addEventListener("click", () => {
-        const dir = Number(button.dataset.tlScrollDir);
-        const current = scroller.scrollLeft + scroller.clientWidth / 2;
-        const candidates = centers();
-        const destination =
-          dir > 0
-            ? candidates.find((center) => center > current + 4)
-            : [...candidates].reverse().find((center) => center < current - 4);
-        if (!destination) return;
-        scroller.scrollTo({
-          left: clamp(destination - scroller.clientWidth / 2, 0, scroller.scrollWidth),
-          behavior: "smooth",
-        });
-      });
+      button.addEventListener(
+        "click",
+        () => {
+          const dir = Number(button.dataset.tlScrollDir);
+          const current = scroller.scrollLeft + scroller.clientWidth / 2;
+          const candidates = centers();
+          const destination =
+            dir > 0
+              ? candidates.find((center) => center > current + 4)
+              : [...candidates].reverse().find((center) => center < current - 4);
+          if (!destination) return;
+          scroller.scrollTo({
+            left: clamp(destination - scroller.clientWidth / 2, 0, scroller.scrollWidth),
+            behavior: "smooth",
+          });
+        },
+        { signal },
+      );
     });
 
-    scroller.addEventListener("scroll", update, { passive: true });
-    window.addEventListener("resize", update);
+    scroller.addEventListener("scroll", update, { passive: true, signal });
+    window.addEventListener("resize", update, { signal });
     update();
   };
 
-  document.querySelectorAll<HTMLElement>("[data-tl-scroll-controls]").forEach(initScrollControls);
+  const init = () => {
+    controller?.abort();
+    controller = new AbortController();
+    const { signal } = controller;
+    document
+      .querySelectorAll<HTMLElement>("[data-tl-scroll-controls]")
+      .forEach((root) => initScrollControls(root, signal));
+  };
+
+  document.addEventListener("astro:page-load", init);
 </script>
 
 <style>

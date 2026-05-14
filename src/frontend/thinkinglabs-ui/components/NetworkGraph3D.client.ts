@@ -68,10 +68,16 @@ function readRoot(): HTMLElement | null {
   return document.querySelector<HTMLElement>("[data-network-graph-root]");
 }
 
+let disposeCurrent: (() => void) | null = null;
+
 /** Bootstrap the Three.js scene; idempotent guard prevents double-init under HMR. */
 function init(): void {
+  disposeCurrent?.();
+  disposeCurrent = null;
+
   const root = readRoot();
-  if (!root || root.dataset["networkGraphMounted"] === "true") return;
+  if (!root) return;
+  if (root.dataset["networkGraphMounted"] === "true") return;
   root.dataset["networkGraphMounted"] = "true";
 
   const payload = readPayload();
@@ -223,7 +229,10 @@ function init(): void {
   }
   window.addEventListener("resize", resize);
 
+  let rafId = 0;
+  let cancelled = false;
   function frame(now: number): void {
+    if (cancelled) return;
     const dt = (now - lastTime) / 1000;
     lastTime = now;
     if (driftEnabled) {
@@ -233,9 +242,25 @@ function init(): void {
     }
     controls.update();
     renderer.render(scene, camera);
-    requestAnimationFrame(frame);
+    rafId = requestAnimationFrame(frame);
   }
-  requestAnimationFrame(frame);
+  rafId = requestAnimationFrame(frame);
+
+  disposeCurrent = () => {
+    cancelled = true;
+    cancelAnimationFrame(rafId);
+    window.removeEventListener("resize", resize);
+    controls.dispose();
+    for (const mesh of nodeMeshes) {
+      mesh.geometry.dispose();
+      (mesh.material as MeshBasicMaterial).dispose();
+    }
+    lineGeom.dispose();
+    lineMat.dispose();
+    renderer.dispose();
+    renderer.domElement.remove();
+    delete rootEl.dataset["networkGraphMounted"];
+  };
 }
 
 /** Compute a coarse bounding-sphere radius so the camera fits the scene regardless of pre-baked extents. */
@@ -248,8 +273,8 @@ function computeExtents(nodes: ReadonlyArray<PayloadNode>): { radius: number } {
   return { radius: Math.sqrt(maxSq) };
 }
 
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", init);
-} else {
-  init();
-}
+document.addEventListener("astro:page-load", init);
+document.addEventListener("astro:before-swap", () => {
+  disposeCurrent?.();
+  disposeCurrent = null;
+});

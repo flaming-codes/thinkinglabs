@@ -111,11 +111,18 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
 </header>
 
 <script>
-  const root = document.querySelector<HTMLElement>("[data-tl-nav]");
-  const toggle = document.querySelector<HTMLButtonElement>("[data-tl-nav-toggle]");
-  const panel = document.querySelector<HTMLElement>("[data-tl-nav-panel]");
+  let controller: AbortController | null = null;
 
-  if (root && toggle && panel) {
+  const init = () => {
+    controller?.abort();
+    controller = new AbortController();
+    const { signal } = controller;
+
+    const root = document.querySelector<HTMLElement>("[data-tl-nav]");
+    const toggle = document.querySelector<HTMLButtonElement>("[data-tl-nav-toggle]");
+    const panel = document.querySelector<HTMLElement>("[data-tl-nav-panel]");
+    if (!root || !toggle || !panel) return;
+
     const HOVER_OPEN_DELAY = 90;
     const HOVER_CLOSE_DELAY = 240;
     const HOVER_PROBE_HEIGHT = 96;
@@ -195,61 +202,87 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
           if (inRegion) scheduleOpen();
           else scheduleClose();
         },
-        { passive: true }
+        { passive: true, signal }
       );
 
-      window.addEventListener("blur", () => {
-        if (!isOpen() || lockedOpen) return;
-        clearTimers();
-        setOpen(false);
-        withinRegion = false;
-      });
+      window.addEventListener(
+        "blur",
+        () => {
+          if (!isOpen() || lockedOpen) return;
+          clearTimers();
+          setOpen(false);
+          withinRegion = false;
+        },
+        { signal }
+      );
     }
 
-    toggle.addEventListener("click", () => {
-      const open = isOpen();
-      lockedOpen = !open;
-      clearTimers();
-      setOpen(!open);
-      if (!open) {
-        lastFocus = document.activeElement as HTMLElement | null;
-        const firstLink = panel.querySelector<HTMLAnchorElement>(".tl-nav-rail a");
-        firstLink?.focus({ preventScroll: true });
-      } else {
-        lastFocus?.focus({ preventScroll: true });
-        lastFocus = null;
-      }
-    });
+    toggle.addEventListener(
+      "click",
+      () => {
+        const open = isOpen();
+        lockedOpen = !open;
+        clearTimers();
+        setOpen(!open);
+        if (!open) {
+          lastFocus = document.activeElement as HTMLElement | null;
+          const firstLink = panel.querySelector<HTMLAnchorElement>(".tl-nav-rail a");
+          firstLink?.focus({ preventScroll: true });
+        } else {
+          lastFocus?.focus({ preventScroll: true });
+          lastFocus = null;
+        }
+      },
+      { signal }
+    );
 
-    root.addEventListener("focusin", () => {
-      clearTimers();
-      if (!isOpen()) setOpen(true);
-    });
+    root.addEventListener(
+      "focusin",
+      () => {
+        clearTimers();
+        if (!isOpen()) setOpen(true);
+      },
+      { signal }
+    );
 
-    root.addEventListener("focusout", (event) => {
-      const next = event.relatedTarget as Node | null;
-      if (next && root.contains(next)) return;
-      lockedOpen = false;
-      if (!withinRegion) scheduleClose();
-    });
+    root.addEventListener(
+      "focusout",
+      (event) => {
+        const next = event.relatedTarget as Node | null;
+        if (next && root.contains(next)) return;
+        lockedOpen = false;
+        if (!withinRegion) scheduleClose();
+      },
+      { signal }
+    );
 
-    document.addEventListener("keydown", (event) => {
-      if (event.key !== "Escape" || !isOpen()) return;
-      lockedOpen = false;
-      clearTimers();
-      setOpen(false);
-      toggle.focus({ preventScroll: true });
-    });
+    document.addEventListener(
+      "keydown",
+      (event) => {
+        if (event.key !== "Escape" || !isOpen()) return;
+        lockedOpen = false;
+        clearTimers();
+        setOpen(false);
+        toggle.focus({ preventScroll: true });
+      },
+      { signal }
+    );
 
-    document.addEventListener("pointerdown", (event) => {
-      if (!isOpen()) return;
-      const target = event.target as Node;
-      if (root.contains(target)) return;
-      lockedOpen = false;
-      clearTimers();
-      setOpen(false);
-    });
-  }
+    document.addEventListener(
+      "pointerdown",
+      (event) => {
+        if (!isOpen()) return;
+        const target = event.target as Node;
+        if (root.contains(target)) return;
+        lockedOpen = false;
+        clearTimers();
+        setOpen(false);
+      },
+      { signal }
+    );
+  };
+
+  document.addEventListener("astro:page-load", init);
 </script>
 
 <style>

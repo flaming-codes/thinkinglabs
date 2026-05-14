@@ -16,13 +16,8 @@
   --tl-wordmark-hover-font: "Geist", system-ui, sans-serif;
   --tl-entity-gradient-luster:
     radial-gradient(circle at 30% 18%, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0) 36%),
-    radial-gradient(circle at 76% 78%, rgba(7, 9, 13, 0.12), rgba(7, 9, 13, 0) 44%),
-    repeating-conic-gradient(
-      from 18deg at 52% 48%,
-      rgba(255, 255, 255, 0.032) 0deg 0.5deg,
-      rgba(255, 255, 255, 0) 0.5deg 12deg
-    );
-  --tl-entity-gradient-blend: soft-light, multiply, overlay, normal;
+    radial-gradient(circle at 76% 78%, rgba(7, 9, 13, 0.12), rgba(7, 9, 13, 0) 44%);
+  --tl-entity-gradient-blend: soft-light, multiply, normal;
   --tl-entity-gradient-thoughts: conic-gradient(
     from 34deg at 42% 55%,
     #f7fbff 0deg,
