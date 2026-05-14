@@ -2,6 +2,8 @@
   --tl-bg: #fff;
   --tl-ink: #07090d;
   --tl-muted: rgba(7, 9, 13, 0.58);
+  --tl-detail-body-ink: rgba(7, 9, 13, 0.78);
+  --tl-detail-body-weight: 400;
   --tl-soft: rgba(7, 9, 13, 0.08);
   --tl-line: rgba(7, 9, 13, 0.14);
   --tl-panel: rgba(255, 255, 255, 0.96);

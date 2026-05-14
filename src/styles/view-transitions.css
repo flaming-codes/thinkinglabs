@@ -1,0 +1,43 @@
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition {
+  background: #fff;
+}
+
+::view-transition-group(root) {
+  animation-duration: 360ms;
+  animation-timing-function: cubic-bezier(0.2, 0, 0.2, 1);
+}
+
+::view-transition-old(root) {
+  animation: tl-fade-to-white 180ms cubic-bezier(0.4, 0, 1, 1) both;
+  mix-blend-mode: normal;
+}
+
+::view-transition-new(root) {
+  animation: tl-fade-from-white 180ms 180ms cubic-bezier(0, 0, 0.2, 1) both;
+  mix-blend-mode: normal;
+}
+
+@keyframes tl-fade-to-white {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes tl-fade-from-white {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(root),
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 1ms;
+    animation-delay: 0ms;
+  }
+}
