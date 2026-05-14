@@ -40,6 +40,7 @@ const groupedKinds = Object.keys(grouped).sort();
 
 <div class="tl-graph-wrap" data-network-graph-root>
   <script id="network-graph-data" type="application/json" is:inline set:html={payloadJson} />
+  <h1 class="tl-graph-title">Knowledge graph.</h1>
   <div class="tl-graph-hover-label" data-graph-hover-label aria-hidden="true"></div>
   <aside class="tl-graph-legend" aria-label="Node legend">
     <ul>
@@ -95,14 +96,30 @@ const groupedKinds = Object.keys(grouped).sort();
     max-width: min(36rem, calc(100vw - 4rem));
     padding: 0 1rem;
     color: var(--tl-ink);
-    font-size: 13px;
-    font-weight: 650;
+    font-size: var(--tl-type-caption);
+    font-weight: var(--tl-type-heading-weight-strong);
     line-height: 1.35;
     text-align: center;
     pointer-events: none;
     opacity: 0;
     transform: translate(-50%, -6px);
-    transition: opacity 220ms ease, transform 260ms cubic-bezier(0.2, 0.7, 0.2, 1);
+    transition:
+      opacity var(--tl-motion-base) var(--tl-ease-standard),
+      transform var(--tl-motion-base) var(--tl-ease-emphasized);
+  }
+
+  .tl-graph-title {
+    position: absolute;
+    top: calc(var(--tl-ui-top) + clamp(4rem, 8vh, 5.5rem));
+    left: var(--tl-ui-left);
+    z-index: 5;
+    max-width: min(18rem, calc(100vw - var(--tl-ui-left) - var(--tl-ui-right)));
+    color: var(--tl-ink);
+    font-size: var(--tl-type-title-lg);
+    font-weight: var(--tl-type-heading-weight);
+    line-height: var(--tl-type-line-heading);
+    letter-spacing: var(--tl-type-track-heading);
+    pointer-events: none;
   }
 
   .tl-graph-hover-label.is-visible {
@@ -115,10 +132,10 @@ const groupedKinds = Object.keys(grouped).sort();
     bottom: max(var(--tl-ui-bottom), clamp(1rem, 3vh, 2rem));
     left: 50%;
     z-index: 5;
-    padding: 10px 18px;
+    padding: var(--tl-space-4) var(--tl-space-8);
     background: var(--tl-pane-bg);
     border: 1px solid var(--tl-pane-border);
-    border-radius: 999px;
+    border-radius: var(--tl-radius-pill);
     box-shadow: var(--tl-pane-shadow);
     backdrop-filter: saturate(180%) blur(28px);
     -webkit-backdrop-filter: saturate(180%) blur(28px);
@@ -130,7 +147,7 @@ const groupedKinds = Object.keys(grouped).sort();
     display: grid;
     grid-auto-flow: column;
     grid-auto-columns: max-content;
-    gap: 0 22px;
+    gap: 0 var(--tl-space-10);
     align-items: center;
     margin: 0;
     padding: 0;
@@ -140,11 +157,11 @@ const groupedKinds = Object.keys(grouped).sort();
   .tl-graph-legend-row {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: var(--tl-space-3);
     color: var(--tl-ink);
-    font-size: 11px;
+    font-size: var(--tl-type-metadata-size);
     font-weight: 540;
-    line-height: 1;
+    line-height: var(--tl-type-metadata-line);
     letter-spacing: 0.04em;
   }
 
@@ -152,7 +169,7 @@ const groupedKinds = Object.keys(grouped).sort();
     display: block;
     width: 8px;
     height: 8px;
-    border-radius: 999px;
+    border-radius: var(--tl-radius-pill);
     background: var(--tl-soft);
   }
 
@@ -163,14 +180,14 @@ const groupedKinds = Object.keys(grouped).sort();
 
   @media (max-width: 720px) {
     .tl-graph-legend {
-      border-radius: 14px;
-      padding: 10px 14px;
+      padding: var(--tl-space-4) var(--tl-space-6);
+      border-radius: var(--tl-radius-lg);
     }
 
     .tl-graph-legend ul {
       grid-auto-flow: row;
       grid-template-columns: repeat(2, max-content);
-      gap: 6px 18px;
+      gap: var(--tl-space-2) var(--tl-space-8);
     }
   }
 
@@ -194,18 +211,18 @@ const groupedKinds = Object.keys(grouped).sort();
   }
 
   .tl-graph-fallback h2 {
-    margin: 0 0 16px;
-    font-size: clamp(28px, 4vw, 44px);
-    font-weight: 650;
-    letter-spacing: -0.04em;
+    margin: 0 0 var(--tl-space-7);
+    font-size: var(--tl-type-display-md);
+    font-weight: var(--tl-type-heading-weight-strong);
+    letter-spacing: var(--tl-type-track-heading);
     text-transform: uppercase;
   }
 
   .tl-graph-fallback h3 {
-    margin: 28px 0 8px;
-    font-size: 11px;
-    font-weight: 650;
-    letter-spacing: 0.24em;
+    margin: var(--tl-space-12) 0 var(--tl-space-3);
+    font-size: var(--tl-type-metadata-size);
+    font-weight: var(--tl-type-metadata-weight);
+    letter-spacing: var(--tl-type-metadata-track);
     text-transform: uppercase;
   }
 
@@ -216,7 +233,7 @@ const groupedKinds = Object.keys(grouped).sort();
   }
 
   .tl-graph-fallback li + li {
-    margin-top: 6px;
+    margin-top: var(--tl-space-2);
   }
 
   .tl-graph-fallback a {

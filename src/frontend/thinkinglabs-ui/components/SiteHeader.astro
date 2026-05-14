@@ -288,11 +288,11 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
 <style>
   .tl-header {
     --tl-header-inset: clamp(10px, 1.4vw, 18px);
-    --tl-header-radius: 10px;
+    --tl-header-radius: var(--tl-radius-lg);
     --tl-pane-blur: saturate(180%) blur(28px);
     --tl-header-backdrop-height: clamp(4.5rem, 9vw, 6.5rem);
     position: fixed;
-    z-index: 60;
+    z-index: var(--tl-layer-header);
     top: 0;
     right: 0;
     left: 0;
@@ -316,13 +316,19 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
     inset: 0;
     background: var(--tl-header-wash);
     content: "";
-    mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, 0.82) 48%, rgba(0, 0, 0, 0.24) 82%, transparent 100%);
+    mask-image: linear-gradient(
+      180deg,
+      var(--tl-color-mask-solid) 0%,
+      var(--tl-color-mask-strong) 48%,
+      var(--tl-color-mask-soft) 82%,
+      var(--tl-color-mask-clear) 100%
+    );
     -webkit-mask-image: linear-gradient(
       180deg,
-      #000 0%,
-      rgba(0, 0, 0, 0.82) 48%,
-      rgba(0, 0, 0, 0.24) 82%,
-      transparent 100%
+      var(--tl-color-mask-solid) 0%,
+      var(--tl-color-mask-strong) 48%,
+      var(--tl-color-mask-soft) 82%,
+      var(--tl-color-mask-clear) 100%
     );
   }
 
@@ -337,36 +343,90 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
   .tl-header-gradual-blur span:nth-child(1) {
     backdrop-filter: blur(0.167rem);
     -webkit-backdrop-filter: blur(0.167rem);
-    mask-image: linear-gradient(to top, transparent 0%, #000 20%, #000 40%, transparent 60%);
-    -webkit-mask-image: linear-gradient(to top, transparent 0%, #000 20%, #000 40%, transparent 60%);
+    mask-image: linear-gradient(
+      to top,
+      var(--tl-color-mask-clear) 0%,
+      var(--tl-color-mask-solid) 20%,
+      var(--tl-color-mask-solid) 40%,
+      var(--tl-color-mask-clear) 60%
+    );
+    -webkit-mask-image: linear-gradient(
+      to top,
+      var(--tl-color-mask-clear) 0%,
+      var(--tl-color-mask-solid) 20%,
+      var(--tl-color-mask-solid) 40%,
+      var(--tl-color-mask-clear) 60%
+    );
   }
 
   .tl-header-gradual-blur span:nth-child(2) {
     backdrop-filter: blur(0.332rem);
     -webkit-backdrop-filter: blur(0.332rem);
-    mask-image: linear-gradient(to top, transparent 20%, #000 40%, #000 60%, transparent 80%);
-    -webkit-mask-image: linear-gradient(to top, transparent 20%, #000 40%, #000 60%, transparent 80%);
+    mask-image: linear-gradient(
+      to top,
+      var(--tl-color-mask-clear) 20%,
+      var(--tl-color-mask-solid) 40%,
+      var(--tl-color-mask-solid) 60%,
+      var(--tl-color-mask-clear) 80%
+    );
+    -webkit-mask-image: linear-gradient(
+      to top,
+      var(--tl-color-mask-clear) 20%,
+      var(--tl-color-mask-solid) 40%,
+      var(--tl-color-mask-solid) 60%,
+      var(--tl-color-mask-clear) 80%
+    );
   }
 
   .tl-header-gradual-blur span:nth-child(3) {
     backdrop-filter: blur(0.754rem);
     -webkit-backdrop-filter: blur(0.754rem);
-    mask-image: linear-gradient(to top, transparent 40%, #000 60%, #000 80%, transparent 100%);
-    -webkit-mask-image: linear-gradient(to top, transparent 40%, #000 60%, #000 80%, transparent 100%);
+    mask-image: linear-gradient(
+      to top,
+      var(--tl-color-mask-clear) 40%,
+      var(--tl-color-mask-solid) 60%,
+      var(--tl-color-mask-solid) 80%,
+      var(--tl-color-mask-clear) 100%
+    );
+    -webkit-mask-image: linear-gradient(
+      to top,
+      var(--tl-color-mask-clear) 40%,
+      var(--tl-color-mask-solid) 60%,
+      var(--tl-color-mask-solid) 80%,
+      var(--tl-color-mask-clear) 100%
+    );
   }
 
   .tl-header-gradual-blur span:nth-child(4) {
     backdrop-filter: blur(1.499rem);
     -webkit-backdrop-filter: blur(1.499rem);
-    mask-image: linear-gradient(to top, transparent 60%, #000 80%, #000 100%);
-    -webkit-mask-image: linear-gradient(to top, transparent 60%, #000 80%, #000 100%);
+    mask-image: linear-gradient(
+      to top,
+      var(--tl-color-mask-clear) 60%,
+      var(--tl-color-mask-solid) 80%,
+      var(--tl-color-mask-solid) 100%
+    );
+    -webkit-mask-image: linear-gradient(
+      to top,
+      var(--tl-color-mask-clear) 60%,
+      var(--tl-color-mask-solid) 80%,
+      var(--tl-color-mask-solid) 100%
+    );
   }
 
   .tl-header-gradual-blur span:nth-child(5) {
     backdrop-filter: blur(2rem);
     -webkit-backdrop-filter: blur(2rem);
-    mask-image: linear-gradient(to top, transparent 80%, #000 100%);
-    -webkit-mask-image: linear-gradient(to top, transparent 80%, #000 100%);
+    mask-image: linear-gradient(
+      to top,
+      var(--tl-color-mask-clear) 80%,
+      var(--tl-color-mask-solid) 100%
+    );
+    -webkit-mask-image: linear-gradient(
+      to top,
+      var(--tl-color-mask-clear) 80%,
+      var(--tl-color-mask-solid) 100%
+    );
   }
 
   @supports not (backdrop-filter: blur(1px)) {
@@ -446,7 +506,7 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
     height: 1.5px;
     background: currentColor;
     transition:
-      transform 280ms cubic-bezier(0.32, 0.72, 0, 1),
+      transform var(--tl-motion-base) var(--tl-ease-emphasized),
       opacity 200ms ease;
     transform: translateX(-50%);
   }
@@ -495,7 +555,7 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
     .tl-nav-toggle-icon::after {
       width: 7px;
       height: 7px;
-      border-radius: 999px;
+    border-radius: var(--tl-radius-pill);
     }
 
     .tl-nav-toggle-icon {
@@ -537,9 +597,9 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
     visibility: hidden;
     isolation: isolate;
     transition:
-      transform 460ms cubic-bezier(0.32, 0.72, 0, 1),
-      opacity 280ms ease,
-      visibility 0s linear 460ms;
+      transform var(--tl-motion-panel) var(--tl-ease-emphasized),
+      opacity var(--tl-motion-base) var(--tl-ease-standard),
+      visibility 0s linear var(--tl-motion-panel);
     will-change: transform, opacity;
   }
 
@@ -549,7 +609,7 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
     transform: translateY(0);
     visibility: visible;
     transition:
-      transform 460ms cubic-bezier(0.32, 0.72, 0, 1),
+      transform var(--tl-motion-panel) var(--tl-ease-emphasized),
       opacity 220ms ease,
       visibility 0s linear 0s;
   }

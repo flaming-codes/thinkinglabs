@@ -46,11 +46,15 @@ const horizonLabel = (() => {
 ---
 
 <AppShell activeNav="Index">
-  <article class="tl-pred-detail" data-selected-label={prediction.prediction} data-entity="predictions">
-    <EntityConicGradient class="tl-pred-hero" entity="predictions" />
+  <article
+    class="tl-pred-detail tl-token-detail-page"
+    data-selected-label={prediction.prediction}
+    data-entity="predictions"
+  >
+    <EntityConicGradient class="tl-pred-hero tl-token-detail-hero" entity="predictions" />
 
-    <div class="tl-pred-grid">
-      <div class="tl-pred-main">
+    <div class="tl-pred-grid tl-token-detail-grid">
+      <div class="tl-pred-main tl-token-detail-main">
         <header class="tl-pred-head">
           <p class="tl-pred-eyebrow">Prediction detail</p>
           <h1>{prediction.prediction}</h1>
@@ -60,7 +64,7 @@ const horizonLabel = (() => {
           </p>
         </header>
 
-        <section class="tl-pred-prose">
+        <section class="tl-pred-prose tl-token-prose">
           <slot />
         </section>
 
@@ -93,7 +97,7 @@ const horizonLabel = (() => {
         ) : null}
       </div>
 
-      <aside class="tl-pred-rail">
+      <aside class="tl-pred-rail tl-token-detail-rail">
         <div>
           <span class="tl-eyebrow">Confidence</span>
           <p class="tl-pred-rail-figure">{confPct}<span>%</span></p>
@@ -136,7 +140,7 @@ const horizonLabel = (() => {
 
 <style>
   .tl-pred-detail {
-    padding: clamp(7rem, 14vh, 10.5rem) 20px clamp(8rem, 18vh, 14rem);
+    padding: var(--tl-space-page-top) var(--tl-space-9) var(--tl-space-page-bottom);
     background: var(--tl-bg);
     color: var(--tl-ink);
   }
@@ -144,8 +148,8 @@ const horizonLabel = (() => {
   :global(.tl-pred-hero) {
     position: relative;
     overflow: hidden;
-    width: min(100%, 920px);
-    min-height: clamp(19rem, 45vh, 34rem);
+    width: min(100%, var(--tl-layout-detail));
+    min-height: var(--tl-artifact-min-height);
     margin: 0 auto clamp(3rem, 7vw, 5rem);
     background: var(--tl-media-bg);
   }
@@ -155,7 +159,7 @@ const horizonLabel = (() => {
     grid-template-columns: minmax(0, 1fr) minmax(11rem, 14rem);
     gap: clamp(2rem, 5vw, 4.5rem);
     align-items: start;
-    width: min(100%, 920px);
+    width: min(100%, var(--tl-layout-detail));
     margin: 0 auto;
   }
 
@@ -188,7 +192,7 @@ const horizonLabel = (() => {
     max-width: 56ch;
     color: var(--tl-muted);
     font-size: 16px;
-    line-height: 1.65;
+    line-height: var(--tl-type-line-body);
   }
 
   .tl-pred-conf-inline {
@@ -202,7 +206,7 @@ const horizonLabel = (() => {
 
   .tl-pred-prose {
     color: var(--tl-prose-ink);
-    font-size: 16px;
+    font-size: var(--tl-type-body-md);
     font-weight: 420;
     line-height: 1.78;
   }
@@ -241,7 +245,7 @@ const horizonLabel = (() => {
   .tl-pred-prose :global(code) {
     padding: 0.08em 0.35em;
     background: var(--tl-code-bg);
-    border-radius: 3px;
+    border-radius: var(--tl-radius-xs);
     font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
     font-size: 0.86em;
   }
@@ -363,7 +367,7 @@ const horizonLabel = (() => {
 
   @media (max-width: 767px) {
     .tl-pred-detail {
-      padding: 5rem 16px 3rem;
+      padding: 5rem var(--tl-space-7) 3rem;
     }
 
     :global(.tl-pred-hero) {

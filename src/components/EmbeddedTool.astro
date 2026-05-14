@@ -106,9 +106,9 @@ const { contract } = payload;
 <style>
   .embedded-tool {
     border: 1px solid var(--tl-line);
-    border-radius: 6px;
-    padding: 1rem;
-    margin: 1.5rem 0;
+    border-radius: var(--tl-radius-md);
+    padding: var(--tl-space-7);
+    margin: var(--tl-space-11) 0;
     background: var(--tl-panel);
     color: var(--tl-ink, inherit);
   }
@@ -121,28 +121,28 @@ const { contract } = payload;
   .embedded-tool__notice,
   .embedded-tool__local {
     color: var(--tl-muted);
-    font-size: 0.88rem;
+    font-size: var(--tl-type-body-sm);
   }
 
   .embedded-tool__fallback {
     width: 100%;
     border-collapse: collapse;
-    margin: 0.75rem 0 1rem;
-    font-size: 0.92rem;
+    margin: var(--tl-space-5) 0 var(--tl-space-7);
+    font-size: var(--tl-type-body-sm);
   }
 
   .embedded-tool__fallback caption {
     caption-side: bottom;
-    padding-top: 0.5rem;
+    padding-top: var(--tl-space-3);
     color: var(--tl-muted);
     text-align: left;
-    font-size: 0.82rem;
+    font-size: var(--tl-type-caption);
   }
 
   .embedded-tool__fallback th,
   .embedded-tool__fallback td {
     border-bottom: 1px solid var(--tl-line);
-    padding: 0.35rem 0.5rem 0.35rem 0;
+    padding: 0.35rem var(--tl-space-3) 0.35rem 0;
     text-align: left;
   }
 
@@ -154,15 +154,15 @@ const { contract } = payload;
   .embedded-tool__logger {
     display: grid;
     grid-template-columns: minmax(10rem, 1fr) minmax(8rem, 0.6fr) max-content;
-    gap: 0.75rem;
+    gap: var(--tl-space-5);
     align-items: end;
   }
 
   .embedded-tool__logger label {
     display: grid;
-    gap: 0.25rem;
+    gap: var(--tl-space-1);
     color: var(--tl-muted);
-    font-size: 0.82rem;
+    font-size: var(--tl-type-caption);
   }
 
   .embedded-tool__logger input,
@@ -174,10 +174,10 @@ const { contract } = payload;
 
   .embedded-tool__logger button {
     border: 1px solid var(--tl-accent);
-    border-radius: 4px;
+    border-radius: var(--tl-radius-sm);
     background: var(--tl-accent);
     color: var(--tl-accent-ink);
-    padding: 0 0.75rem;
+    padding: 0 var(--tl-space-5);
   }
 
   .embedded-tool__logger button:disabled {

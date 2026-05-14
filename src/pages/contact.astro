@@ -97,15 +97,15 @@ const c = loadContact();
 <style>
   .tl-contact-policy,
   .tl-contact-details {
-    width: min(100%, 980px);
+    width: min(100%, var(--tl-layout-wide));
     margin-inline: auto;
-    padding: 0 20px clamp(5rem, 10vh, 8rem);
+    padding: 0 var(--tl-space-9) clamp(5rem, 10vh, 8rem);
   }
 
   .tl-contact-policy h2 {
     margin: 0 0 clamp(2rem, 5vw, 4rem);
     font-size: clamp(32px, 5vw, 70px);
-    font-weight: 650;
+    font-weight: var(--tl-type-heading-weight-strong);
     line-height: 0.95;
   }
 
@@ -119,9 +119,9 @@ const c = loadContact();
   .tl-contact-block {
     display: grid;
     align-content: start;
-    gap: 24px;
+    gap: var(--tl-space-11);
     min-height: 18rem;
-    padding: 30px;
+    padding: var(--tl-space-13);
     border-right: 1px solid var(--tl-line);
   }
 
@@ -132,7 +132,7 @@ const c = loadContact();
   .tl-contact-list,
   .tl-contact-channels {
     display: grid;
-    gap: 18px;
+    gap: var(--tl-space-8);
     padding: 0;
     margin: 0;
     list-style: none;
@@ -157,9 +157,9 @@ const c = loadContact();
   .tl-contact-row {
     display: grid;
     grid-template-columns: 160px minmax(0, 1fr);
-    gap: 32px;
+    gap: var(--tl-space-14);
     align-items: baseline;
-    padding: 30px 0;
+    padding: var(--tl-space-13) 0;
     border-top: 1px solid var(--tl-line);
   }
 
@@ -170,14 +170,14 @@ const c = loadContact();
   .tl-contact-channels li {
     display: grid;
     grid-template-columns: 90px minmax(0, 1fr);
-    gap: 16px;
+    gap: var(--tl-space-7);
     align-items: baseline;
   }
 
   .tl-contact-channels span {
     color: var(--tl-ink);
-    font-size: 12px;
-    font-weight: 650;
+    font-size: var(--tl-type-mono-xs);
+    font-weight: var(--tl-type-metadata-weight);
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
@@ -185,7 +185,7 @@ const c = loadContact();
   @media (max-width: 767px) {
     .tl-contact-policy,
     .tl-contact-details {
-      padding-inline: 16px;
+      padding-inline: var(--tl-space-7);
     }
 
     .tl-contact-grid,
@@ -196,7 +196,7 @@ const c = loadContact();
 
     .tl-contact-block {
       min-height: 0;
-      padding: 28px 0;
+      padding: var(--tl-space-12) 0;
       border-right: 0;
       border-bottom: 1px solid var(--tl-line);
     }
@@ -206,7 +206,7 @@ const c = loadContact();
     }
 
     .tl-contact-row {
-      gap: 14px;
+      gap: var(--tl-space-6);
     }
   }
 </style>

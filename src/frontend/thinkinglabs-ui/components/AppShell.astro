@@ -130,11 +130,11 @@ const showSelectedHud = activeNav !== "Index" && !hideSelectedHud;
 
   .tl-selected-hud {
     position: fixed;
-    z-index: 40;
+    z-index: var(--tl-layer-hud);
     top: 50%;
     left: var(--tl-ui-left);
     display: grid;
-    gap: 9px;
+    gap: var(--tl-space-3);
     width: min(35rem, calc(100vw - var(--tl-ui-left) - var(--tl-ui-right)));
     color: var(--tl-difference-ink);
     mix-blend-mode: difference;
@@ -143,10 +143,10 @@ const showSelectedHud = activeNav !== "Index" && !hideSelectedHud;
 
   .tl-selected-kicker {
     color: inherit;
-    font-size: 11px;
-    font-weight: 650;
-    line-height: 1;
-    letter-spacing: 0.24em;
+    font-size: var(--tl-type-metadata-size);
+    font-weight: var(--tl-type-metadata-weight);
+    line-height: var(--tl-type-metadata-line);
+    letter-spacing: var(--tl-type-metadata-track);
     text-transform: uppercase;
   }
 
@@ -154,7 +154,7 @@ const showSelectedHud = activeNav !== "Index" && !hideSelectedHud;
     max-width: 30ch;
     font-size: clamp(22px, 2vw, 34px);
     font-weight: 550;
-    line-height: 1;
+    line-height: var(--tl-type-line-tight);
     letter-spacing: -0.02em;
     text-transform: uppercase;
   }
@@ -169,10 +169,10 @@ const showSelectedHud = activeNav !== "Index" && !hideSelectedHud;
   .tl-shell :global(.tl-metric-label),
   .tl-shell :global(.tl-metric-hint) {
     color: inherit;
-    font-size: 11px;
-    font-weight: 650;
-    line-height: 1;
-    letter-spacing: 0.24em;
+    font-size: var(--tl-type-metadata-size);
+    font-weight: var(--tl-type-metadata-weight);
+    line-height: var(--tl-type-metadata-line);
+    letter-spacing: var(--tl-type-metadata-track);
     text-transform: uppercase;
   }
 
@@ -181,7 +181,7 @@ const showSelectedHud = activeNav !== "Index" && !hideSelectedHud;
   .tl-shell :global(.tl-stat-sub),
   .tl-shell :global(.tl-metric-hint) {
     color: var(--tl-muted);
-    font-size: 12px;
+    font-size: var(--tl-type-mono-xs);
     letter-spacing: 0.08em;
   }
 
@@ -242,16 +242,16 @@ const showSelectedHud = activeNav !== "Index" && !hideSelectedHud;
   .tl-shell :global(.tl-page-head-grid) {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(10rem, 16rem);
-    gap: 56px;
+    gap: var(--tl-space-16);
     align-items: end;
   }
 
   .tl-shell :global(.tl-page-head h1) {
     margin-top: 14px;
-    font-size: clamp(44px, 7vw, 92px);
-    font-weight: 650;
-    line-height: 0.9;
-    letter-spacing: -0.05em;
+    font-size: var(--tl-type-display-xl);
+    font-weight: var(--tl-type-heading-weight-strong);
+    line-height: var(--tl-type-line-display);
+    letter-spacing: var(--tl-type-track-tight);
     text-transform: uppercase;
   }
 
@@ -267,7 +267,7 @@ const showSelectedHud = activeNav !== "Index" && !hideSelectedHud;
   .tl-shell :global(.tl-home-thesis-row p) {
     color: var(--tl-muted);
     font-size: 15px;
-    line-height: 1.65;
+    line-height: var(--tl-type-line-body);
   }
 
   .tl-shell :global(.tl-split-header),
@@ -275,8 +275,8 @@ const showSelectedHud = activeNav !== "Index" && !hideSelectedHud;
     display: flex;
     align-items: baseline;
     justify-content: space-between;
-    gap: 24px;
-    padding: 0 0 18px;
+    gap: var(--tl-space-11);
+    padding: 0 0 var(--tl-space-8);
     border-bottom: 1px solid var(--tl-line);
   }
 
@@ -303,9 +303,9 @@ const showSelectedHud = activeNav !== "Index" && !hideSelectedHud;
     position: relative;
     display: grid;
     grid-template-columns: 56px minmax(0, 1fr) auto;
-    gap: 22px;
+    gap: var(--tl-space-10);
     align-items: baseline;
-    padding: 30px 0;
+    padding: var(--tl-space-13) 0;
     border-bottom: 1px solid var(--tl-line);
   }
 
@@ -320,10 +320,10 @@ const showSelectedHud = activeNav !== "Index" && !hideSelectedHud;
   .tl-shell :global(.tl-flip-title),
   .tl-shell :global(.tl-home-entity-link h3),
   .tl-shell :global(.tl-home-agents-body h2) {
-    font-size: clamp(25px, 3vw, 38px);
+    font-size: var(--tl-type-display-sm);
     font-weight: 600;
     line-height: 1.02;
-    letter-spacing: -0.03em;
+    letter-spacing: var(--tl-type-track-heading);
   }
 
   .tl-shell :global(.tl-home-hero),
@@ -341,9 +341,9 @@ const showSelectedHud = activeNav !== "Index" && !hideSelectedHud;
   .tl-shell :global(.tl-kind-count),
   .tl-shell :global(.tl-thought-words) {
     font-size: clamp(32px, 5vw, 70px);
-    font-weight: 650;
-    line-height: 0.9;
-    letter-spacing: -0.05em;
+    font-weight: var(--tl-type-heading-weight-strong);
+    line-height: var(--tl-type-line-display);
+    letter-spacing: var(--tl-type-track-tight);
   }
 
   .tl-shell :global(.tl-heat-label) {
@@ -374,7 +374,7 @@ const showSelectedHud = activeNav !== "Index" && !hideSelectedHud;
   @media (max-width: 767px) {
     .tl-selected-hud {
       top: 50%;
-      gap: 7px;
+      gap: var(--tl-space-2);
     }
 
     .tl-selected-value {
@@ -404,7 +404,7 @@ const showSelectedHud = activeNav !== "Index" && !hideSelectedHud;
     .tl-shell :global(.tl-flip-row),
     .tl-shell :global(.tl-home-entity-link) {
       grid-template-columns: 1fr;
-      gap: 12px;
+      gap: var(--tl-space-5);
     }
   }
 

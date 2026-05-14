@@ -3,6 +3,7 @@ import { Resvg } from "@resvg/resvg-js";
 import { getCollection } from "astro:content";
 import type { APIRoute, GetStaticPaths } from "astro";
 import satori from "satori";
+import { readThinkinglabsCssToken } from "../../lib/css-tokens.ts";
 import { KIND_REGISTRY, LISTING_KINDS, titleFor } from "../../lib/registry.ts";
 import type { Kind } from "../../schemas/index.ts";
 
@@ -57,6 +58,11 @@ const OG_IMAGE_WIDTH = 1200;
 const OG_IMAGE_HEIGHT = 628;
 const OG_BOTTOM_HEIGHT = 190;
 const OG_GRADIENT_HEIGHT = OG_IMAGE_HEIGHT - OG_BOTTOM_HEIGHT;
+const OG_THEME = {
+  bg: readThinkinglabsCssToken("--tl-og-bg"),
+  ink: readThinkinglabsCssToken("--tl-og-ink"),
+  muted: readThinkinglabsCssToken("--tl-og-muted"),
+};
 
 const SHARED_ENTITY_GRADIENT_KEYS = [
   "thoughts",
@@ -183,25 +189,19 @@ async function loadFont(family: "geist", weight: 400 | 500): Promise<ArrayBuffer
 }
 
 async function loadSharedEntityGradients(): Promise<Record<EntityGradientKey, EntityGradient>> {
-  const css = await readFile("src/frontend/thinkinglabs-ui/styles.css", "utf8");
   return Object.fromEntries(
     SHARED_ENTITY_GRADIENT_KEYS.map((key) => {
-      return [key, readGradientVariable(css, `--tl-entity-gradient-${key}`)] as const;
+      return [key, readGradientToken(`--tl-entity-gradient-${key}`)] as const;
     }),
   ) as Record<EntityGradientKey, EntityGradient>;
 }
 
 async function loadPostDetailGradient(): Promise<EntityGradient> {
-  const css = await readFile("src/frontend/thinkinglabs-ui/styles.css", "utf8");
-  return readGradientVariable(css, "--tl-post-detail-gradient");
+  return readGradientToken("--tl-post-detail-gradient");
 }
 
-function readGradientVariable(css: string, variableName: string): EntityGradient {
-  const match = css.match(new RegExp(`${variableName}:\\s*([^;]+);`));
-  if (!match?.[1]) {
-    throw new Error(`Missing gradient ${variableName}`);
-  }
-  const value = match[1].trim();
+function readGradientToken(variableName: string): EntityGradient {
+  const value = readThinkinglabsCssToken(variableName);
   if (value.startsWith("linear-gradient")) {
     return { kind: "linear", css: value.replace(/\s+/g, " ") };
   }
@@ -375,11 +375,11 @@ function normalizeHex(value: string): string {
 }
 
 function colorAtAngle(angleDeg: number, stops: readonly ConicStop[]): string {
-  if (stops.length === 0) return "#0c1424";
+  if (stops.length === 0) return OG_THEME.ink;
   const sorted = [...stops].sort((a, b) => a.angleDeg - b.angleDeg);
   const first = sorted[0];
   const last = sorted[sorted.length - 1];
-  if (!first || !last) return "#0c1424";
+  if (!first || !last) return OG_THEME.ink;
   if (angleDeg <= first.angleDeg) return first.color;
   if (angleDeg >= last.angleDeg) return last.color;
 
@@ -436,8 +436,8 @@ const styles = {
     width: "100%",
     height: "100%",
     overflow: "hidden",
-    background: "#ffffff",
-    color: "#07090d",
+    background: OG_THEME.bg,
+    color: OG_THEME.ink,
     fontFamily: "Geist",
   },
   gradientBlock: {
@@ -463,7 +463,7 @@ const styles = {
     alignItems: "center",
     width: "100%",
     height: OG_BOTTOM_HEIGHT,
-    background: "#ffffff",
+    background: OG_THEME.bg,
     paddingLeft: 56,
     paddingRight: 56,
   },
@@ -477,7 +477,7 @@ const styles = {
   title: {
     display: "flex",
     alignItems: "center",
-    color: "#07090d",
+    color: OG_THEME.ink,
     fontFamily: "Geist",
     fontSize: 42,
     fontWeight: 500,
@@ -487,7 +487,7 @@ const styles = {
   subtitle: {
     display: "flex",
     alignItems: "center",
-    color: "rgba(7, 9, 13, 0.42)",
+    color: OG_THEME.muted,
     fontFamily: "Geist",
     fontSize: 31,
     fontWeight: 400,

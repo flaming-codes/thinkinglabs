@@ -167,9 +167,9 @@ const { kinds } = Astro.props;
   .tl-about-page {
     display: grid;
     gap: 9rem;
-    width: min(100%, 74rem);
+    width: min(100%, var(--tl-layout-page));
     margin-inline: auto;
-    padding: 10rem 24px 12rem;
+    padding: 10rem var(--tl-space-11) 12rem;
     color: var(--tl-ink);
   }
 
@@ -184,20 +184,20 @@ const { kinds } = Astro.props;
   .tl-about-inventory-head h2 {
     margin: 0;
     color: var(--tl-ink);
-    font-weight: 650;
+    font-weight: var(--tl-type-heading-weight-strong);
     letter-spacing: 0;
   }
 
   .tl-about-hero h1 {
     font-size: 56px;
-    line-height: 1;
+    line-height: var(--tl-type-line-tight);
   }
 
   .tl-about-lede {
     max-width: 44rem;
     margin: 0;
     color: var(--tl-prose-ink);
-    font-size: 19px;
+    font-size: var(--tl-type-body-lg);
     font-weight: 420;
     line-height: 1.62;
     letter-spacing: 0;
@@ -244,7 +244,7 @@ const { kinds } = Astro.props;
   .tl-about-colophon p {
     margin: 0;
     color: var(--tl-prose-ink);
-    font-size: 19px;
+    font-size: var(--tl-type-body-lg);
     font-weight: 420;
     line-height: 1.72;
     letter-spacing: 0;
@@ -283,7 +283,7 @@ const { kinds } = Astro.props;
   .tl-about-inventory-head {
     display: grid;
     gap: 1.75rem;
-    width: min(74rem, calc(100vw - 48px));
+    width: min(var(--tl-layout-page), calc(100vw - 48px));
     max-width: 48rem;
     margin-inline: max(24px, calc((100vw - 74rem) / 2 + 24px)) auto;
   }
@@ -291,7 +291,7 @@ const { kinds } = Astro.props;
   .tl-about-kind-grid {
     display: flex;
     align-items: start;
-    gap: clamp(9rem, 13vw, 15rem);
+    gap: var(--tl-space-gallery-gap);
     width: 100%;
     overflow-x: auto;
     overflow-y: hidden;
@@ -409,7 +409,7 @@ const { kinds } = Astro.props;
 
   .tl-about-kind-count {
     color: var(--tl-subtle);
-    font-size: 12px;
+    font-size: var(--tl-type-mono-xs);
     font-weight: 620;
     line-height: 1;
     letter-spacing: 0.1em;
@@ -419,14 +419,14 @@ const { kinds } = Astro.props;
   .tl-about-kind-title {
     color: var(--tl-ink);
     font-size: 20px;
-    font-weight: 650;
+    font-weight: var(--tl-type-heading-weight-strong);
     line-height: 1.05;
     letter-spacing: 0;
   }
 
   .tl-about-kind-gloss {
     color: var(--tl-muted);
-    font-size: 16px;
+    font-size: var(--tl-type-body-md);
     font-weight: 420;
     line-height: 1.55;
   }
@@ -479,7 +479,7 @@ const { kinds } = Astro.props;
   @media (max-width: 620px) {
     .tl-about-page {
       gap: 5.5rem;
-      padding: 7rem 18px 8rem;
+      padding: 7rem var(--tl-space-8) 8rem;
     }
 
     .tl-about-hero {

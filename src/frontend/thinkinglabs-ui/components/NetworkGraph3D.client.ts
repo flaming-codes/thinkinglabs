@@ -67,9 +67,11 @@ function readRoot(): HTMLElement | null {
   return document.querySelector<HTMLElement>("[data-network-graph-root]");
 }
 
-function readThemeColor(name: string, fallback: string): Color {
-  const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-  return new Color(value || fallback);
+function readThemeColor(name: string, fallbackToken?: string): Color {
+  const styles = getComputedStyle(document.documentElement);
+  const value = styles.getPropertyValue(name).trim();
+  const fallback = fallbackToken ? styles.getPropertyValue(fallbackToken).trim() : "";
+  return value || fallback ? new Color(value || fallback) : new Color();
 }
 
 function readThemeNumber(name: string, fallback: number): number {
@@ -80,7 +82,9 @@ function readThemeNumber(name: string, fallback: number): number {
 
 function readKindColor(kind: string): Color {
   const token = KIND_COLOR_TOKENS[kind];
-  return token ? readThemeColor(token, "#bbbbbb") : new Color("#bbbbbb");
+  return token
+    ? readThemeColor(token, "--tl-graph-node-fallback")
+    : readThemeColor("--tl-graph-node-fallback");
 }
 
 let disposeCurrent: (() => void) | null = null;
@@ -102,7 +106,7 @@ function init(): void {
   const height = root.clientHeight;
 
   const scene = new Scene();
-  const graphBg = readThemeColor("--tl-graph-bg", "#ffffff");
+  const graphBg = readThemeColor("--tl-graph-bg", "--tl-color-bg");
   scene.background = graphBg;
 
   const camera = new PerspectiveCamera(38, width / height, 0.1, 2000);
@@ -119,7 +123,7 @@ function init(): void {
 
   const hoverLabel = root.querySelector<HTMLElement>("[data-graph-hover-label]");
 
-  scene.add(new AmbientLight(0xffffff, 1));
+  scene.add(new AmbientLight(readThemeColor("--tl-graph-ambient", "--tl-color-inverse-ink"), 1));
 
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
@@ -158,7 +162,7 @@ function init(): void {
   const lineGeom = new BufferGeometry();
   lineGeom.setAttribute("position", new Float32BufferAttribute(positions, 3));
   const lineMat = new LineBasicMaterial({
-    color: readThemeColor("--tl-graph-line", "#07090d"),
+    color: readThemeColor("--tl-graph-line", "--tl-color-ink"),
     transparent: true,
     opacity: readThemeNumber("--tl-graph-line-opacity", 0.18),
   });
@@ -167,10 +171,10 @@ function init(): void {
 
   const colorSchemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
   const syncTheme = (): void => {
-    const nextBg = readThemeColor("--tl-graph-bg", "#ffffff");
+    const nextBg = readThemeColor("--tl-graph-bg", "--tl-color-bg");
     scene.background = nextBg;
     renderer.setClearColor(nextBg, 1);
-    lineMat.color.copy(readThemeColor("--tl-graph-line", "#07090d"));
+    lineMat.color.copy(readThemeColor("--tl-graph-line", "--tl-color-ink"));
     lineMat.opacity = readThemeNumber("--tl-graph-line-opacity", 0.18);
     for (const mesh of nodeMeshes) {
       const id = meshToId.get(mesh);

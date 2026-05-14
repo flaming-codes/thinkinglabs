@@ -1,6 +1,6 @@
 ::view-transition-group(root) {
-  animation-duration: 500ms;
-  animation-timing-function: cubic-bezier(0.2, 0, 0.2, 1);
+  animation-duration: calc(var(--tl-motion-panel, 460ms) + 40ms);
+  animation-timing-function: var(--tl-ease-view, cubic-bezier(0.2, 0, 0.2, 1));
 }
 
 @media (prefers-reduced-motion: reduce) {

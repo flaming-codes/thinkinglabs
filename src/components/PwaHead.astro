@@ -1,6 +1,9 @@
 ---
+import { readThinkinglabsThemeColors } from "../lib/css-tokens.ts";
+
 // PWA + favicon + theme metadata shared across site layouts.
 const enablePwa = import.meta.env.PROD;
+const themeColors = readThinkinglabsThemeColors();
 ---
 
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -8,8 +11,8 @@ const enablePwa = import.meta.env.PROD;
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
 <link rel="icon" type="image/x-icon" sizes="16x16 32x32 48x48" href="/favicon.ico" />
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png" />
-<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
-<meta name="theme-color" content="#07090d" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content={themeColors.light} media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content={themeColors.dark} media="(prefers-color-scheme: dark)" />
 <meta name="color-scheme" content="light dark" />
 <meta name="format-detection" content="telephone=no" />
 <meta name="referrer" content="strict-origin-when-cross-origin" />

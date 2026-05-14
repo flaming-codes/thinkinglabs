@@ -15,11 +15,11 @@ const hasRelated = post.related.length > 0;
 ---
 
 <AppShell activeNav="Index">
-  <article class="tl-post-detail-page" data-selected-label={post.title}>
-    <EntityConicGradient class="tl-post-hero" entity="posts" />
+  <article class="tl-post-detail-page tl-token-detail-page" data-selected-label={post.title}>
+    <EntityConicGradient class="tl-post-hero tl-token-detail-hero" entity="posts" />
 
-    <div class="tl-post-detail-grid">
-      <div class="tl-post-detail-main">
+    <div class="tl-post-detail-grid tl-token-detail-grid">
+      <div class="tl-post-detail-main tl-token-detail-main">
         <header class="tl-post-detail-head">
           {hasEpigraph ? (
             <p class="tl-post-epigraph">
@@ -36,7 +36,7 @@ const hasRelated = post.related.length > 0;
             <header class="tl-post-section-head">
               <h2>{section.title}</h2>
             </header>
-            <div class="tl-post-prose">
+            <div class="tl-post-prose tl-token-prose">
               {section.blocks.map((block) => {
                 if (block.type === "p") {
                   return <p class="tl-post-paragraph" set:html={block.html} />;
@@ -85,7 +85,7 @@ const hasRelated = post.related.length > 0;
             <header class="tl-post-section-head">
               <h2>Sources and asides.</h2>
             </header>
-            <div class="tl-post-prose">
+            <div class="tl-post-prose tl-token-prose">
               {post.footnotes.map((note, index) => (
                 <article class="tl-post-footnote-row">
                   <span class="tl-mono">{String(index + 1).padStart(2, "0")}</span>
@@ -101,7 +101,7 @@ const hasRelated = post.related.length > 0;
             <header class="tl-post-section-head">
               <h2>Where this sits in the graph.</h2>
             </header>
-            <div class="tl-post-prose">
+            <div class="tl-post-prose tl-token-prose">
               {post.related.map((rel) => (
                 <article class="tl-rel-row">
                   <span class="tl-mono">{rel.kind}</span>
@@ -116,7 +116,7 @@ const hasRelated = post.related.length > 0;
         ) : null}
       </div>
 
-      <aside class="tl-post-rail">
+      <aside class="tl-post-rail tl-token-detail-rail">
         <div>
           <span class="tl-eyebrow">Essay</span>
           <p>{post.title}</p>
@@ -156,7 +156,7 @@ const hasRelated = post.related.length > 0;
 
 <style>
   .tl-post-detail-page {
-    padding: clamp(7rem, 14vh, 10.5rem) 20px clamp(8rem, 18vh, 14rem);
+    padding: var(--tl-space-page-top) var(--tl-space-9) var(--tl-space-page-bottom);
     background: var(--tl-bg);
     color: var(--tl-ink);
   }
@@ -164,8 +164,8 @@ const hasRelated = post.related.length > 0;
   :global(.tl-post-hero) {
     position: relative;
     overflow: hidden;
-    width: min(100%, 920px);
-    min-height: clamp(19rem, 45vh, 34rem);
+    width: min(100%, var(--tl-layout-detail));
+    min-height: var(--tl-artifact-min-height);
     margin: 0 auto clamp(3rem, 7vw, 5rem);
     background: var(--tl-media-bg);
   }
@@ -175,7 +175,7 @@ const hasRelated = post.related.length > 0;
     grid-template-columns: minmax(0, 1fr) minmax(11rem, 14rem);
     gap: clamp(2rem, 5vw, 4.5rem);
     align-items: start;
-    width: min(100%, 920px);
+    width: min(100%, var(--tl-layout-detail));
     margin: 0 auto;
   }
 
@@ -214,8 +214,8 @@ const hasRelated = post.related.length > 0;
   .tl-post-detail-deck {
     max-width: 56ch;
     color: var(--tl-muted);
-    font-size: 16px;
-    line-height: 1.65;
+    font-size: var(--tl-type-body-md);
+    line-height: var(--tl-type-line-body);
   }
 
   .tl-post-section,
@@ -247,9 +247,9 @@ const hasRelated = post.related.length > 0;
     display: grid;
     gap: 1.1rem;
     color: var(--tl-prose-ink);
-    font-size: 16px;
+    font-size: var(--tl-type-body-md);
     font-weight: 420;
-    line-height: 1.72;
+    line-height: var(--tl-type-line-prose);
   }
 
   .tl-post-paragraph {
@@ -273,7 +273,7 @@ const hasRelated = post.related.length > 0;
   .tl-post-prose :global(code) {
     padding: 0.08em 0.35em;
     border: 1px solid var(--tl-line);
-    border-radius: 3px;
+    border-radius: var(--tl-radius-xs);
     background: var(--tl-code-bg);
     font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
     font-size: 0.86em;
@@ -403,7 +403,7 @@ const hasRelated = post.related.length > 0;
 
   @media (max-width: 767px) {
     .tl-post-detail-page {
-      padding: 5rem 16px 3rem;
+      padding: 5rem var(--tl-space-7) 3rem;
     }
 
     :global(.tl-post-hero) {
