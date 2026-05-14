@@ -1,6 +1,6 @@
 ---
 import AppShell from "../components/AppShell.astro";
-import EntityShaderSurface from "../components/EntityShaderSurface.astro";
+import EntityConicGradient from "../components/EntityConicGradient.astro";
 import StatusTag from "../components/StatusTag.astro";
 import type { ProjectDetail } from "../types";
 
@@ -16,7 +16,7 @@ const relations = [...project.relatedThoughts, ...project.relatedClaims];
 <AppShell activeNav="Index">
   <article class="tl-project-detail" data-selected-label={project.title} data-entity="projects">
     <section class="tl-project-hero">
-      <EntityShaderSurface class="tl-project-hero-art" entity="projects" region="detail" />
+      <EntityConicGradient class="tl-project-hero-art" entity="projects" />
       <div class="tl-project-hero-copy">
         <h1>{project.title}</h1>
         <div class="tl-project-meta">

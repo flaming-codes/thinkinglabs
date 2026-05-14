@@ -1,6 +1,6 @@
 ---
 import AppShell from "../components/AppShell.astro";
-import EntityShaderSurface from "../components/EntityShaderSurface.astro";
+import EntityConicGradient from "../components/EntityConicGradient.astro";
 
 export interface PredictionEvidence {
   label: string;
@@ -47,7 +47,7 @@ const horizonLabel = (() => {
 
 <AppShell activeNav="Index">
   <article class="tl-pred-detail" data-selected-label={prediction.prediction} data-entity="predictions">
-    <EntityShaderSurface class="tl-pred-hero" entity="predictions" region="detail" />
+    <EntityConicGradient class="tl-pred-hero" entity="predictions" />
 
     <div class="tl-pred-grid">
       <div class="tl-pred-main">

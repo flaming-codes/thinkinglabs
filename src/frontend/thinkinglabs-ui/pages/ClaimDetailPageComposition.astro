@@ -1,6 +1,6 @@
 ---
 import AppShell from "../components/AppShell.astro";
-import EntityShaderSurface from "../components/EntityShaderSurface.astro";
+import EntityConicGradient from "../components/EntityConicGradient.astro";
 import StatusTag from "../components/StatusTag.astro";
 import type { ClaimDetail } from "../types";
 
@@ -18,7 +18,7 @@ const proseParagraphs = claim.body.filter(
 <AppShell activeNav="Index">
   <article class="tl-claim-detail-simple" data-selected-label={claim.title} data-entity="claims">
     <header class="tl-claim-simple-hero">
-      <EntityShaderSurface class="tl-claim-gradient" entity="claims" region="detail" />
+      <EntityConicGradient class="tl-claim-gradient" entity="claims" />
       <div class="tl-claim-copy">
         <p class="tl-mono">Claim detail</p>
         <h1>{claimStatement}</h1>

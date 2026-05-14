@@ -1,6 +1,6 @@
 ---
 import AppShell from "../components/AppShell.astro";
-import EntityShaderSurface from "../components/EntityShaderSurface.astro";
+import EntityConicGradient from "../components/EntityConicGradient.astro";
 import type { ChangedMyMindDetail } from "../types";
 
 interface Props {
@@ -13,10 +13,10 @@ const { flip } = Astro.props;
 <AppShell activeNav="Index">
   <article class="tl-flip-detail" data-selected-label={flip.title} data-entity="changed-my-mind">
     <header class="tl-flip-head">
-      <EntityShaderSurface class="tl-flip-art" entity="changed-my-mind" region="detail">
+      <EntityConicGradient class="tl-flip-art" entity="changed-my-mind">
         <span>Before</span>
         <span>After</span>
-      </EntityShaderSurface>
+      </EntityConicGradient>
       <div class="tl-flip-title">
         <p class="tl-mono">Belief revision</p>
         <h1>{flip.title}</h1>
@@ -101,7 +101,7 @@ const { flip } = Astro.props;
     background: #000;
   }
 
-  :global(.tl-flip-art .tl-shader-content > span) {
+  :global(.tl-flip-art .tl-conic-content > span) {
     display: grid;
     align-items: end;
     padding: 18px;
@@ -113,7 +113,7 @@ const { flip } = Astro.props;
     mix-blend-mode: difference;
   }
 
-  :global(.tl-flip-art .tl-shader-content > span:first-child) {
+  :global(.tl-flip-art .tl-conic-content > span:first-child) {
     border-right: 1px solid rgba(255, 255, 255, 0.42);
   }
 

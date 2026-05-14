@@ -1,6 +1,6 @@
 ---
 import AppShell from "../components/AppShell.astro";
-import EntityShaderSurface from "../components/EntityShaderSurface.astro";
+import EntityConicGradient from "../components/EntityConicGradient.astro";
 import IndexSectionHeader from "../components/IndexSectionHeader.astro";
 import type { InputDetail } from "../types";
 
@@ -24,7 +24,7 @@ const meta = [
 <AppShell activeNav="Index">
   <article class="tl-input-detail-page" data-selected-label={input.title} data-entity="inputs">
     <header class="tl-input-detail-head">
-      <EntityShaderSurface class="tl-input-visual" entity="inputs" region="detail" />
+      <EntityConicGradient class="tl-input-visual" entity="inputs" />
       <div class="tl-input-title">
         <p class="tl-mono">Input detail</p>
         <div class="tl-input-detail-kindline">

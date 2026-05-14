@@ -1,6 +1,6 @@
 ---
 import AppShell from "../components/AppShell.astro";
-import EntityShaderSurface from "../components/EntityShaderSurface.astro";
+import EntityConicGradient from "../components/EntityConicGradient.astro";
 import StatusTag from "../components/StatusTag.astro";
 import type { ThoughtDetail } from "../types";
 
@@ -16,7 +16,7 @@ const hasHistory = thought.history.length > 1;
 
 <AppShell activeNav="Index">
   <article class="tl-thought-detail" data-selected-label={thought.title} data-entity="thoughts">
-    <EntityShaderSurface class="tl-thought-hero-art" entity="thoughts" region="detail" />
+    <EntityConicGradient class="tl-thought-hero-art" entity="thoughts" />
     <header class="tl-thought-hero">
       <div class="tl-thought-title">
         <h1>{thought.title}</h1>

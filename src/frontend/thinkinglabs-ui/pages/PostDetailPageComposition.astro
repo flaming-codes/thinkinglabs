@@ -1,6 +1,6 @@
 ---
 import AppShell from "../components/AppShell.astro";
-import EntityShaderSurface from "../components/EntityShaderSurface.astro";
+import EntityConicGradient from "../components/EntityConicGradient.astro";
 import FigureChartPlate from "../components/FigureChartPlate.astro";
 import type { PostDetail } from "../types";
 
@@ -16,7 +16,7 @@ const hasRelated = post.related.length > 0;
 
 <AppShell activeNav="Index">
   <article class="tl-post-detail-page" data-selected-label={post.title}>
-    <EntityShaderSurface class="tl-post-hero" entity="posts" region="detail" />
+    <EntityConicGradient class="tl-post-hero" entity="posts" />
 
     <div class="tl-post-detail-grid">
       <div class="tl-post-detail-main">

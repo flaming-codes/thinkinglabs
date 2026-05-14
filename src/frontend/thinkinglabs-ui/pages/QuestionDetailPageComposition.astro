@@ -1,6 +1,6 @@
 ---
 import AppShell from "../components/AppShell.astro";
-import EntityShaderSurface from "../components/EntityShaderSurface.astro";
+import EntityConicGradient from "../components/EntityConicGradient.astro";
 import StatusTag from "../components/StatusTag.astro";
 import type { QuestionDetail } from "../types";
 
@@ -15,7 +15,7 @@ const related = [...question.relatedClaims, ...question.relatedProjects];
 <AppShell activeNav="Index">
   <article class="tl-question-detail" data-selected-label={question.question} data-entity="questions">
     <header class="tl-question-head">
-      <EntityShaderSurface class="tl-question-mark" entity="questions" region="detail">?</EntityShaderSurface>
+      <EntityConicGradient class="tl-question-mark" entity="questions">?</EntityConicGradient>
       <div class="tl-question-title">
         <p class="tl-mono">Open question</p>
         <h1>{question.question}</h1>
