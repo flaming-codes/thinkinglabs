@@ -28,6 +28,7 @@ const PUBLIC_MARKDOWN_KINDS = [
   "questions",
   "posts",
   "inputs",
+  "observations",
 ] as const satisfies ReadonlyArray<Kind>;
 
 const publicMarkdownKindSchema = z.enum(PUBLIC_MARKDOWN_KINDS);
@@ -35,8 +36,10 @@ const publicMarkdownKindSchema = z.enum(PUBLIC_MARKDOWN_KINDS);
 const MARKDOWN_LINK_FIELDS = [
   "claims",
   "inputs",
+  "observations",
   "related_claims",
   "related_thoughts",
+  "related_observations",
   "related_projects",
   "superseded_claims",
   "supersedes",
@@ -300,15 +303,26 @@ const LINK_FIELD_TARGETS: Readonly<
 > = {
   claims: ["claims"],
   inputs: ["inputs"],
+  observations: ["observations"],
   related_claims: ["claims"],
   related_thoughts: ["thoughts"],
+  related_observations: ["observations"],
   related_projects: ["projects"],
   superseded_claims: ["claims"],
   supersedes: ["claims"],
   superseded_by: ["claims"],
   reverses: ["decisions"],
-  derived_from: ["thoughts", "claims", "posts", "decisions", "projects", "inputs", "questions"],
-  evidence_at_time: ["thoughts", "inputs"],
+  derived_from: [
+    "thoughts",
+    "claims",
+    "posts",
+    "decisions",
+    "projects",
+    "inputs",
+    "observations",
+    "questions",
+  ],
+  evidence_at_time: ["thoughts", "inputs", "observations"],
 };
 
 let markdownRouteRecordsPromise: Promise<MarkdownRouteRecord[]> | null = null;
@@ -516,6 +530,8 @@ async function getPublicKindCollection(
       return getCollection("posts") as Promise<ReadonlyArray<MarkdownEntry>>;
     case "inputs":
       return getCollection("inputs") as Promise<ReadonlyArray<MarkdownEntry>>;
+    case "observations":
+      return getCollection("observations") as Promise<ReadonlyArray<MarkdownEntry>>;
   }
 }
 

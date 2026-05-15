@@ -32,11 +32,12 @@ Fixed JSON views at:
 - `thinkinglabs://predictions/calibration`
 - `thinkinglabs://inputs`
 - `thinkinglabs://inputs/recent`
+- `thinkinglabs://observations`
 - `thinkinglabs://questions`
 - `thinkinglabs://current_focus`
 - `thinkinglabs://schema/version`
 
-Per-object detail templates use `thinkinglabs://<kind>/{slug}` for `thoughts`, `claims`, `projects`, `decisions`, `predictions`, `inputs`, `questions`, `posts`, and `changed-my-mind`.
+Per-object detail templates use `thinkinglabs://<kind>/{slug}` for `thoughts`, `claims`, `projects`, `decisions`, `predictions`, `inputs`, `observations`, `questions`, `posts`, and `changed-my-mind`.
 
 ## Tools
 

@@ -20,6 +20,7 @@ import type { ChangedMyMind } from "../schemas/changed-my-mind.ts";
 import type { Claim } from "../schemas/claim.ts";
 import type { Decision } from "../schemas/decision.ts";
 import type { Input } from "../schemas/input.ts";
+import type { Observation } from "../schemas/observation.ts";
 import type { Post } from "../schemas/post.ts";
 import type { Prediction } from "../schemas/prediction.ts";
 import type { Project } from "../schemas/project.ts";
@@ -414,6 +415,35 @@ export function inputStructuredData(
     "Inputs",
     "/inputs",
     entry.data.title,
+  );
+}
+
+/** Builds CreativeWork metadata for an observation detail page. */
+export function observationStructuredData(
+  entry: DetailEntry<Observation>,
+  currentUrl: string | URL,
+  site: string | URL,
+): StructuredData {
+  const url = canonicalUrl(currentUrl, site);
+  const id = `${url}#observation`;
+  const node = creativeWorkNode({
+    id,
+    url,
+    type: "CreativeWork",
+    name: entry.data.observation,
+    dateCreated: entry.data.observed,
+    text: entry.data.context ?? entry.data.observation,
+    keywords: entry.data.tags,
+  });
+  addDefined(node, "sameAs", entry.data.url);
+  return detailStructuredData(
+    id,
+    prune(node),
+    currentUrl,
+    site,
+    "Observations",
+    "/observations",
+    entry.data.observation,
   );
 }
 

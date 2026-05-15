@@ -74,6 +74,7 @@ const SHARED_ENTITY_GRADIENT_KEYS = [
   "questions",
   "posts",
   "inputs",
+  "observations",
 ] as const satisfies ReadonlyArray<EntityGradientKey>;
 
 const STATIC_IMAGES: ReadonlyArray<StaticImage> = [
@@ -272,6 +273,8 @@ async function getKindCollection(kind: Kind) {
       return getCollection("posts");
     case "inputs":
       return getCollection("inputs");
+    case "observations":
+      return getCollection("observations");
     case "provenance":
       return getCollection("provenance");
   }

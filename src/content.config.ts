@@ -41,6 +41,10 @@ export const collections = {
     loader: glob({ pattern: "**/*.md", base: "./content/inputs" }),
     schema: KIND_SCHEMAS.inputs.schema,
   }),
+  observations: defineCollection({
+    loader: glob({ pattern: "**/*.md", base: "./content/observations" }),
+    schema: KIND_SCHEMAS.observations.schema,
+  }),
   provenance: defineCollection({
     loader: glob({ pattern: "**/*.md", base: "./content/provenance" }),
     schema: KIND_SCHEMAS.provenance.schema,

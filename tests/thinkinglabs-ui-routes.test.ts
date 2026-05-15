@@ -12,6 +12,8 @@ import {
   mapHomeKinds,
   mapInputsView,
   mapNowData,
+  mapObservationDetail,
+  mapObservationsView,
   mapPostSummaries,
   mapPredictionsView,
   mapProjectsView,
@@ -121,6 +123,16 @@ describe("thinkinglabs entity routes", () => {
       note: "Note",
       tags: [],
     });
+    const observation = mockEntry<"observations">("observation-one", {
+      observation: "Observation one.",
+      observed: "2026-01-01",
+      source: "Tom",
+      context: "Context",
+      related_claims: [],
+      related_thoughts: [],
+      related_projects: [],
+      tags: [],
+    });
 
     expect(mapHomeKinds({ posts: 1 }).find((kind) => kind.slug === "posts")?.href).toBe(
       listingHref("posts"),
@@ -153,5 +165,9 @@ describe("thinkinglabs entity routes", () => {
     expect(mapInputsView({ entries: [input] }).inputs[0]?.href).toBe(
       detailHref("inputs", input.id),
     );
+    expect(mapObservationsView({ entries: [observation] }).observations[0]?.href).toBe(
+      detailHref("observations", observation.id),
+    );
+    expect(mapObservationDetail({ entry: observation }).slug).toBe(observation.id);
   });
 });

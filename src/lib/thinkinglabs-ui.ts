@@ -18,6 +18,9 @@ import type {
   InputsView,
   KindSummary,
   NowData,
+  ObservationDetail,
+  ObservationRow,
+  ObservationsView,
   PostBlock,
   PostDetail,
   PostFootnote,
@@ -53,7 +56,7 @@ const KIND_SET = new Set<Kind>(KINDS);
 type CountByKind = Partial<Record<Kind, number>>;
 type TitleLookup = Partial<Record<Kind, ReadonlyMap<string, string>>>;
 type ClaimLookup = ReadonlyMap<string, CollectionEntry<"claims">>;
-type PredictionEvidenceTargetKind = "thoughts" | "inputs";
+type PredictionEvidenceTargetKind = "thoughts" | "inputs" | "observations";
 
 function safeDate(value: Date | string | null | undefined): number {
   if (value === null || value === undefined) return 0;
@@ -166,6 +169,29 @@ function titleFromLookup(
   return { kind: parsed.kind, title, href: parsed.href };
 }
 
+function titleFromLookupCandidates(
+  ref: string,
+  fallbackKinds: readonly Kind[],
+  lookups: TitleLookup,
+): { kind: Kind; title: string; href: string } {
+  const withoutAnchor = ref.split("#")[0] ?? ref;
+  const normalized = stripMdExt(withoutAnchor);
+  const [maybeKind, ...rest] = normalized.split("/");
+
+  if (maybeKind !== undefined && KIND_SET.has(maybeKind as Kind) && rest.length > 0) {
+    return titleFromLookup(ref, maybeKind as Kind, lookups);
+  }
+
+  const slug = stripKindPrefix(normalized);
+  for (const kind of fallbackKinds) {
+    const title = lookups[kind]?.get(slug);
+    if (title !== undefined) return { kind, title, href: detailHref(kind, slug) };
+  }
+
+  const fallbackKind = fallbackKinds[0] ?? "thoughts";
+  return { kind: fallbackKind, title: slug, href: detailHref(fallbackKind, slug) };
+}
+
 function detailRelation(ref: string, fallbackKind: Kind, lookups: TitleLookup): DetailRelation {
   const resolved = titleFromLookup(ref, fallbackKind, lookups);
   return {
@@ -181,6 +207,9 @@ function evidenceRefTargets(
   slug: string,
 ): boolean {
   const parsed = parseRef(ref, "thoughts");
+  if (targetKind === "observations" && parsed.kind === "thoughts" && parsed.slug === slug) {
+    return !ref.includes("/");
+  }
   return parsed.kind === targetKind && parsed.slug === slug;
 }
 
@@ -535,7 +564,10 @@ export function mapThoughtSummaries(
         minutes: minutesForWords(words),
         state: thoughtState(thought.data.tags),
         touched: formatDate(thought.data.updated),
-        backlinks: thought.data.claims.length + thought.data.inputs.length,
+        backlinks:
+          thought.data.claims.length +
+          thought.data.inputs.length +
+          (thought.data.observations ?? []).length,
         href: detailHref("thoughts", thought.id),
       };
     });
@@ -605,6 +637,14 @@ export function mapThoughtDetail(args: {
     }),
     ...entry.data.inputs.map((ref) => {
       const resolved = titleFromLookup(ref, "inputs", lookups);
+      return {
+        kind: kindLabel(resolved.kind),
+        title: resolved.title,
+        href: resolved.href,
+      };
+    }),
+    ...(entry.data.observations ?? []).map((ref) => {
+      const resolved = titleFromLookup(ref, "observations", lookups);
       return {
         kind: kindLabel(resolved.kind),
         title: resolved.title,
@@ -910,7 +950,11 @@ export function mapPredictionDetail(args: {
   const daysUntil = resolvesMs === 0 ? null : Math.round((resolvesMs - nowMs) / dayMs);
   const daysSinceMade = madeMs === 0 ? null : Math.round((nowMs - madeMs) / dayMs);
   const evidence = data.evidence_at_time.map((ref) => {
-    const resolved = titleFromLookup(ref, "thoughts", lookups);
+    const resolved = titleFromLookupCandidates(
+      ref,
+      ["thoughts", "inputs", "observations"],
+      lookups,
+    );
     return { label: resolved.title, href: resolved.href };
   });
   return {
@@ -1330,5 +1374,70 @@ export function mapInputDetail(args: {
       ...(c.date !== undefined ? { date: c.date } : {}),
     })),
     marginNotes: [],
+  };
+}
+
+/** Build the observations index view from short first-party world notes. */
+export function mapObservationsView(args: {
+  entries: ReadonlyArray<CollectionEntry<"observations">>;
+}): ObservationsView {
+  const sorted = [...args.entries].sort(
+    (a, b) => safeDate(b.data.observed) - safeDate(a.data.observed),
+  );
+
+  const observations: ObservationRow[] = sorted.map((entry) => {
+    const links =
+      entry.data.related_claims.length +
+      entry.data.related_thoughts.length +
+      entry.data.related_projects.length;
+    return {
+      slug: entry.id,
+      observation: entry.data.observation,
+      observed: formatDate(entry.data.observed),
+      source: entry.data.source ?? "Tom",
+      context: entry.data.context ?? firstParagraph(entry.body ?? "", entry.data.observation),
+      tags: entry.data.tags,
+      links,
+      href: detailHref("observations", entry.id),
+    };
+  });
+
+  const linked = observations.filter((observation) => observation.links > 0).length;
+  const latest = observations[0]?.observed ?? "-";
+  const stats: IndexStat[] = [
+    { label: "On file", value: String(observations.length), sub: "short world notes" },
+    { label: "Linked", value: String(linked), sub: "connected downstream" },
+    { label: "Latest", value: latest, sub: "most recent observation" },
+  ];
+
+  return { total: observations.length, stats, observations };
+}
+
+/** Convert one observation entry into the observation detail view. */
+export function mapObservationDetail(args: {
+  entry: CollectionEntry<"observations">;
+  lookups?: TitleLookup;
+  claimLookup?: ClaimLookup;
+}): ObservationDetail {
+  const { entry, lookups = {}, claimLookup = new Map() } = args;
+  const related: DetailRelation[] = [
+    ...entry.data.related_claims.map((ref) => {
+      const relation = detailRelation(ref, "claims", lookups);
+      const conf = relatedClaimConfidence(claimLookup, ref);
+      return conf === undefined ? relation : { ...relation, value: conf.toFixed(2) };
+    }),
+    ...entry.data.related_thoughts.map((ref) => detailRelation(ref, "thoughts", lookups)),
+    ...entry.data.related_projects.map((ref) => detailRelation(ref, "projects", lookups)),
+  ];
+
+  return {
+    slug: entry.id,
+    observation: entry.data.observation,
+    observed: formatDate(entry.data.observed),
+    source: entry.data.source ?? "Tom",
+    context: entry.data.context ?? "No context logged.",
+    paragraphs: markdownParagraphs(entry.body ?? ""),
+    related,
+    tags: entry.data.tags,
   };
 }

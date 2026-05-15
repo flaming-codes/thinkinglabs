@@ -1,0 +1,28 @@
+---
+import { getCollection } from "astro:content";
+import ObservationsListingPageComposition from "../../frontend/thinkinglabs-ui/pages/ObservationsListingPageComposition.astro";
+import ThinkinglabsUiPage from "../../layouts/ThinkinglabsUiPage.astro";
+import { mapObservationsView } from "../../lib/thinkinglabs-ui.ts";
+import { listStructuredData } from "../../lib/structured-data.ts";
+
+const entries = await getCollection("observations");
+const view = mapObservationsView({ entries });
+const site = Astro.site ?? new URL(Astro.url.origin);
+---
+
+<ThinkinglabsUiPage
+  title="Observations — Tom"
+  description="Short first-party notes about what seems to be happening."
+  structuredData={listStructuredData(
+    Astro.url,
+    site,
+    "Observations",
+    entries.map((observation) => ({
+      id: observation.id,
+      name: observation.data.observation,
+      url: `/observations/${observation.id}`,
+    })),
+  )}
+>
+  <ObservationsListingPageComposition view={view} />
+</ThinkinglabsUiPage>

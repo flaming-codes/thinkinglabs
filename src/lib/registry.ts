@@ -10,6 +10,7 @@ export type PublicViewName =
   | "predictions"
   | "inputs"
   | "inputs_recent"
+  | "observations"
   | "questions"
   | "current_focus"
   | "claims_recent"
@@ -199,6 +200,22 @@ export const KIND_REGISTRY = {
     apiTitle: "Inputs JSON",
     apiDescription: "All inputs as JSON.",
   },
+  observations: {
+    schema: KIND_SCHEMAS.observations.schema,
+    linkFields: KIND_SCHEMAS.observations.linkFields,
+    route: "/observations",
+    titleField: "observation",
+    dateField: "observed",
+    nav: true,
+    api: true,
+    mcp: { detail: true, listView: "observations" },
+    description: "Short first-party notes about what seems to be happening.",
+    listingTitle: "Observations",
+    detailTitle: "Observation detail",
+    detailDescription: "Single observation page.",
+    apiTitle: "Observations JSON",
+    apiDescription: "All observations as JSON.",
+  },
   provenance: {
     schema: KIND_SCHEMAS.provenance.schema,
     linkFields: KIND_SCHEMAS.provenance.linkFields,
@@ -326,6 +343,14 @@ export const PUBLIC_VIEWS = [
     uri: "thinkinglabs://inputs/recent",
     title: "thinkinglabs:inputs/recent",
     description: "Most-recent inputs.",
+    resource: "static",
+  },
+  {
+    view: "observations",
+    kind: "observations",
+    uri: "thinkinglabs://observations",
+    title: "thinkinglabs:observations",
+    description: "Public observations view from the personal repo.",
     resource: "static",
   },
   {

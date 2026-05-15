@@ -72,6 +72,12 @@ beforeEach(() => {
     "Question body.",
   );
   writeMd(
+    "observations",
+    "mcp-observation",
+    'observation: "MCP turns local notes into queryable context."\nobserved: "2026-04-02"\nsource: "Tom"\ntags: ["mcp"]\nrelated_claims: ["claims/mcp-claim"]\nrelated_thoughts: ["thoughts/mcp-notes"]\nrelated_projects: []\n',
+    "Observation body.",
+  );
+  writeMd(
     "projects",
     "agent-workbench",
     'title: "Agent Workbench"\nstatus: "alive"\nstarted: "2026-04-01"\ncurrent_question: "How should agents query memory?"\nlinks: {}\nrelated_thoughts: []\nrelated_claims: []\ntags: ["agents"]\n',
@@ -289,6 +295,7 @@ describe("thinkinglabs-mcp handlers", () => {
           "thinkinglabs://predictions",
           "thinkinglabs://inputs",
           "thinkinglabs://inputs/recent",
+          "thinkinglabs://observations",
           "thinkinglabs://questions",
           "thinkinglabs://current_focus",
           "thinkinglabs://claims/recent",
@@ -303,6 +310,7 @@ describe("thinkinglabs-mcp handlers", () => {
           "thinkinglabs://projects/agent-workbench",
           "thinkinglabs://projects/old-tool",
           "thinkinglabs://predictions/mcp-prediction",
+          "thinkinglabs://observations/mcp-observation",
           "thinkinglabs://questions/mcp-question",
         ].sort(),
       );
@@ -313,6 +321,7 @@ describe("thinkinglabs-mcp handlers", () => {
           "thinkinglabs://claims/{slug}",
           "thinkinglabs://decisions/{slug}",
           "thinkinglabs://inputs/{slug}",
+          "thinkinglabs://observations/{slug}",
           "thinkinglabs://posts/{slug}",
           "thinkinglabs://predictions/{slug}",
           "thinkinglabs://projects/{slug}",

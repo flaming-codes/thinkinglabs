@@ -88,6 +88,7 @@
   --tl-kind-color-questions: #ffcf4a;
   --tl-kind-color-posts: #d9c8c6;
   --tl-kind-color-inputs: #6dd8ff;
+  --tl-kind-color-observations: #9fe6b8;
   --tl-kind-color-provenance: #c7c7c7;
   --tl-site-gradient-about: #f3f5f7;
   --tl-site-gradient-privacy: #d8dce1;
@@ -322,6 +323,25 @@
     #3157d5 34%,
     #6dd8ff 68%,
     #70dfb2 100%
+  );
+  --tl-entity-gradient-observations: conic-gradient(
+    from 32deg at 40% 56%,
+    #160c1f 0deg,
+    #b92f6e 52deg,
+    #f26d5b 108deg,
+    #f4c95d 166deg,
+    #2bb4a7 232deg,
+    #4f5ec4 306deg,
+    #160c1f 360deg
+  );
+  --tl-entity-detail-gradient-observations: linear-gradient(
+    135deg,
+    #160c1f 0%,
+    #b92f6e 27%,
+    #f26d5b 48%,
+    #f4c95d 66%,
+    #2bb4a7 84%,
+    #4f5ec4 100%
   );
   --tl-entity-gradient-graph: conic-gradient(
     from 90deg at 50% 50%,
@@ -938,6 +958,13 @@ a {
   --tl-entity-detail-gradient: var(--tl-entity-detail-gradient-inputs);
   --tl-gradient-duration: 27s;
   --tl-gradient-origin: 46% 50%;
+}
+
+[data-entity="observations"] {
+  --tl-entity-gradient: var(--tl-entity-gradient-observations);
+  --tl-entity-detail-gradient: var(--tl-entity-detail-gradient-observations);
+  --tl-gradient-duration: 29s;
+  --tl-gradient-origin: 49% 52%;
 }
 
 [data-entity="graph"] {

@@ -401,6 +401,34 @@ interface InputsView {
   inputs: InputRow[];
 }
 
+interface ObservationRow {
+  slug: string;
+  observation: string;
+  observed: string;
+  source: string;
+  context: string;
+  tags: string[];
+  links: number;
+  href?: string;
+}
+
+interface ObservationsView {
+  total: number;
+  stats: IndexStat[];
+  observations: ObservationRow[];
+}
+
+interface ObservationDetail {
+  slug: string;
+  observation: string;
+  observed: string;
+  source: string;
+  context: string;
+  paragraphs: string[];
+  related: DetailRelation[];
+  tags: string[];
+}
+
 interface InputCitation {
   kind: string;
   title: string;
@@ -475,6 +503,9 @@ export type {
   InputsView,
   KindSummary,
   NowData,
+  ObservationDetail,
+  ObservationRow,
+  ObservationsView,
   PostBlock,
   PostDetail,
   PostFootnote,

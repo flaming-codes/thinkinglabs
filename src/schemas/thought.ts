@@ -9,6 +9,7 @@ export const thoughtSchema = z.object({
   tags: tagsField,
   claims: linkArray.default([]),
   inputs: linkArray.default([]),
+  observations: linkArray.default([]),
 });
 
 /** Inferred frontmatter type for thought entries. */
@@ -18,4 +19,5 @@ export type Thought = z.infer<typeof thoughtSchema>;
 export const thoughtLinkFields = {
   claims: "claims",
   inputs: "derived_from",
+  observations: "derived_from",
 } as const;

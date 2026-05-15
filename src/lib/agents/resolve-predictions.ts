@@ -49,7 +49,7 @@ interface RejectionEntry {
 /** System prompt for the resolution-drafting role; prompt-cached so repeated calls are cheap. */
 const SYSTEM_PROMPT = `You are a prediction-resolution assistant for a personal calibration ledger.
 
-Given a prediction (text, made-date, resolves-date, confidence, evidence-at-time) and a set of recent inputs from around the resolution window, draft a resolution judgment.
+Given a prediction (text, made-date, resolves-date, confidence, evidence-at-time) and a set of recent inputs and observations from around the resolution window, draft a resolution judgment.
 
 Your judgment must be:
 - resolution: "true" if the prediction came true, "false" if it did not, "ambiguous" if the evidence is genuinely unclear.
@@ -74,10 +74,15 @@ function rawToISO(raw: unknown): string {
   return "";
 }
 
-/** Build the user-turn prompt with prediction context and recent inputs. */
+/** Build the user-turn prompt with prediction context and recent evidence. */
 function buildUserPrompt(
   predData: Record<string, unknown>,
-  recentInputs: Array<{ slug: string; body: string }>,
+  recentEvidence: Array<{
+    kind: "input" | "observation";
+    slug: string;
+    body: string;
+    iso: string;
+  }>,
 ): string {
   const ctx = [
     `prediction: ${String(predData["prediction"] ?? "")}`,
@@ -87,12 +92,12 @@ function buildUserPrompt(
     `evidence_at_time: ${JSON.stringify(predData["evidence_at_time"] ?? [])}`,
   ].join("\n");
 
-  const inputsText =
-    recentInputs.length > 0
-      ? `\n\nRecent inputs from the prediction window:\n${recentInputs.map((i) => `[input/${i.slug}]\n${i.body.slice(0, 600)}`).join("\n\n---\n\n")}`
+  const evidenceText =
+    recentEvidence.length > 0
+      ? `\n\nRecent evidence from the prediction window:\n${recentEvidence.map((i) => `[${i.kind}/${i.slug} — ${i.iso}]\n${i.body.slice(0, 600)}`).join("\n\n---\n\n")}`
       : "";
 
-  return `Prediction:\n${ctx}${inputsText}`;
+  return `Prediction:\n${ctx}${evidenceText}`;
 }
 
 /** Walk predictions dir, call LLM for each pending+overdue prediction, enqueue proposals. */
@@ -104,6 +109,7 @@ export async function runResolvePredictions(args: {
   const { cwd, nowISO, skipLLM } = args;
   const predictions = loadContent("predictions", { cwd });
   const inputs = loadContent("inputs", { cwd });
+  const observations = loadContent("observations", { cwd });
 
   const rejections = readProposalRejections<RejectionEntry>(cwd, "resolve-predictions");
   const rejectionMap = new Map(rejections.map((r) => [r.slug, r.predictionLastModified]));
@@ -149,6 +155,38 @@ export async function runResolvePredictions(args: {
       })
       .slice(0, 10);
 
+    const windowObservations = observations
+      .filter((observation) => {
+        const observationData = observation.data as Record<string, unknown>;
+        const observedISO = rawToISO(observationData["observed"]);
+        if (!observedISO) return false;
+        const t = new Date(observedISO).getTime();
+        return t >= new Date(madeISO).getTime() && t <= new Date(resolvesISO).getTime();
+      })
+      .sort((a, b) => {
+        const aISO = rawToISO((a.data as Record<string, unknown>)["observed"]);
+        const bISO = rawToISO((b.data as Record<string, unknown>)["observed"]);
+        return new Date(bISO).getTime() - new Date(aISO).getTime();
+      })
+      .slice(0, 10);
+
+    const windowEvidence = [
+      ...windowInputs.map((input) => ({
+        kind: "input" as const,
+        slug: input.slug,
+        body: input.body,
+        iso: rawToISO((input.data as Record<string, unknown>)["consumed"]),
+      })),
+      ...windowObservations.map((observation) => ({
+        kind: "observation" as const,
+        slug: observation.slug,
+        body: observation.body,
+        iso: rawToISO((observation.data as Record<string, unknown>)["observed"]),
+      })),
+    ]
+      .sort((a, b) => new Date(b.iso).getTime() - new Date(a.iso).getTime())
+      .slice(0, 10);
+
     if (skipLLM) {
       skippedDueToLLM++;
       continue;
@@ -158,10 +196,7 @@ export async function runResolvePredictions(args: {
       tier: "balanced",
       maxTokens: 1024,
       systemPrompt: SYSTEM_PROMPT,
-      userPrompt: buildUserPrompt(
-        predData,
-        windowInputs.map((i) => ({ slug: i.slug, body: i.body })),
-      ),
+      userPrompt: buildUserPrompt(predData, windowEvidence),
       tool: DRAFT_TOOL,
     });
 
@@ -209,7 +244,9 @@ export async function runResolvePredictions(args: {
           started_at: nowISO,
           source_objects: [
             objectRef("predictions", pred.slug),
-            ...windowInputs.map((input) => objectRef("inputs", input.slug)),
+            ...windowEvidence.map((evidence) =>
+              objectRef(evidence.kind === "input" ? "inputs" : "observations", evidence.slug),
+            ),
           ],
           target_objects: [objectRef("predictions", pred.slug)],
           tags: ["ai", "provenance", "predictions"],

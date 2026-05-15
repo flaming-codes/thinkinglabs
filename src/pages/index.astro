@@ -4,11 +4,23 @@ import HomePageComposition from "../frontend/thinkinglabs-ui/pages/HomePageCompo
 import ThinkinglabsUiPage from "../layouts/ThinkinglabsUiPage.astro";
 import { mapHomeKinds } from "../lib/thinkinglabs-ui.ts";
 
-const [claims, thoughts, inputs, projects, predictions, changedMyMind, decisions, questions, posts] =
+const [
+  claims,
+  thoughts,
+  inputs,
+  observations,
+  projects,
+  predictions,
+  changedMyMind,
+  decisions,
+  questions,
+  posts,
+] =
   await Promise.all([
     getCollection("claims"),
     getCollection("thoughts"),
     getCollection("inputs"),
+    getCollection("observations"),
     getCollection("projects"),
     getCollection("predictions"),
     getCollection("changed-my-mind"),
@@ -21,6 +33,7 @@ const counts = {
   claims: claims.length,
   thoughts: thoughts.length,
   inputs: inputs.length,
+  observations: observations.length,
   projects: projects.length,
   predictions: predictions.length,
   "changed-my-mind": changedMyMind.length,

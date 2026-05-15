@@ -44,7 +44,7 @@ export function createThinkinglabsMcpServer(options: ThinkinglabsMcpServerOption
     {
       title: "Query public view",
       description:
-        "Query public thoughts, claims, projects, decisions, predictions, inputs, or current focus.",
+        "Query public thoughts, claims, projects, decisions, predictions, inputs, observations, or current focus.",
       inputSchema: queryViewInputSchema,
     },
     (args) => handleQueryView({ repoRoot }, args),

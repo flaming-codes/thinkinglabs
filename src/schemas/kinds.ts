@@ -9,6 +9,7 @@ export const KINDS = [
   "questions",
   "posts",
   "inputs",
+  "observations",
   "provenance",
 ] as const;
 

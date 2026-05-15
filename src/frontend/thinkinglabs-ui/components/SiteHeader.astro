@@ -28,6 +28,7 @@ const navItems: Array<{
   { href: "/questions/", label: "Questions", slug: "questions", group: "entity" },
   { href: "/posts/", label: "Posts", slug: "posts", group: "entity" },
   { href: "/inputs/", label: "Inputs", slug: "inputs", group: "entity" },
+  { href: "/observations/", label: "Observations", slug: "observations", group: "entity" },
   { href: "/about/", label: "About", slug: "about", group: "site" },
   { href: "/privacy/", label: "Privacy", slug: "privacy", group: "site" },
   { href: "/graph/", label: "Graph", slug: "graph", group: "site" },
@@ -719,6 +720,7 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
   .tl-nav-card[data-entity="questions"] { --tl-entity-card-aspect: 1 / 1; }
   .tl-nav-card[data-entity="posts"] { --tl-entity-card-aspect: 3 / 4; }
   .tl-nav-card[data-entity="inputs"] { --tl-entity-card-aspect: 4 / 3; }
+  .tl-nav-card[data-entity="observations"] { --tl-entity-card-aspect: 3 / 4; }
 
   .tl-nav-card[data-entity="claims"] {
     --tl-entity-card-aspect: 4 / 3;

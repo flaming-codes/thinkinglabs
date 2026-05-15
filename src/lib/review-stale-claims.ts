@@ -41,7 +41,7 @@ export interface StaleFlag {
   readonly reasons: ReadonlyArray<StaleReason>;
   readonly notes: ReadonlyArray<string>;
   readonly relatedNewerObjects: ReadonlyArray<{
-    kind: "thought" | "post" | "input";
+    kind: "thought" | "post" | "input" | "observation";
     slug: string;
     touchedISO: string;
   }>;
@@ -67,7 +67,7 @@ const shiftSchema = z.object({
 const SHIFT_SYSTEM_PROMPT = `You are a claim-staleness evaluator for a personal knowledge system.
 
 Given an existing claim (with its confidence, evidence, and opposing views) and a list of newer related objects
-(thoughts, posts, or inputs written after the claim was last reviewed), decide whether the evidence for the
+(thoughts, posts, inputs, or observations written after the claim was last reviewed), decide whether the evidence for the
 claim has likely shifted.
 
 Return your answer via the detect_claim_shift tool exactly once:
@@ -102,7 +102,7 @@ function sharesTag(a: ReadonlyArray<string>, b: ReadonlyArray<string>): boolean 
 async function callShiftDetection(
   claimData: Record<string, unknown>,
   newerObjects: ReadonlyArray<{
-    kind: "thought" | "post" | "input";
+    kind: "thought" | "post" | "input" | "observation";
     slug: string;
     touchedISO: string;
     content: string;
@@ -140,13 +140,18 @@ export async function detectStaleClaims(
   const thoughts = loadAsRaw("thoughts", cwd);
   const posts = loadAsRaw("posts", cwd);
   const inputs = loadAsRaw("inputs", cwd);
+  const observations = loadAsRaw("observations", cwd);
 
   /** Resolve last-touched ISO for a content object, falling back to git. */
   async function touchedISO(obj: {
     path: string;
     data: Record<string, unknown>;
   }): Promise<string | null> {
-    const fm = obj.data["last_touched"] ?? obj.data["updated"] ?? obj.data["consumed"];
+    const fm =
+      obj.data["last_touched"] ??
+      obj.data["updated"] ??
+      obj.data["consumed"] ??
+      obj.data["observed"];
     if (typeof fm === "string") return fm;
     if (fm instanceof Date) return fm.toISOString();
     return lastTouched(obj.path);
@@ -167,16 +172,20 @@ export async function detectStaleClaims(
 
     /** Collect related newer objects: share a tag OR appear in derived_from. */
     const candidates: Array<{
-      kind: "thought" | "post" | "input";
+      kind: "thought" | "post" | "input" | "observation";
       slug: string;
       touchedISO: string;
       content: string;
     }> = [];
 
-    const kindDirs: Array<{ kind: "thought" | "post" | "input"; entries: typeof thoughts }> = [
+    const kindDirs: Array<{
+      kind: "thought" | "post" | "input" | "observation";
+      entries: typeof thoughts;
+    }> = [
       { kind: "thought", entries: thoughts },
       { kind: "post", entries: posts },
       { kind: "input", entries: inputs },
+      { kind: "observation", entries: observations },
     ];
 
     for (const { kind, entries } of kindDirs) {

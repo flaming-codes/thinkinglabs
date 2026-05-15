@@ -6,7 +6,7 @@ import {
   predictionEvidenceBacklinks,
 } from "../src/lib/thinkinglabs-ui.ts";
 
-type RelationshipCollection = "thoughts" | "inputs" | "predictions";
+type RelationshipCollection = "thoughts" | "inputs" | "observations" | "predictions";
 
 function entry<K extends RelationshipCollection>(
   collection: K,
@@ -25,6 +25,7 @@ describe("thinkinglabs UI relationship mappers", () => {
     tags: ["agents"],
     claims: [],
     inputs: [],
+    observations: [],
   });
 
   const input = entry("inputs", "openai-workspace-agents-chatgpt", {
@@ -33,6 +34,17 @@ describe("thinkinglabs UI relationship mappers", () => {
     source: "OpenAI",
     consumed: "2026-05-14",
     note: "Workspace agents signal agent directories.",
+    tags: ["agents"],
+  });
+
+  const observation = entry("observations", "agent-work-is-supervisory", {
+    observation: "Agent work is becoming supervisory.",
+    observed: "2026-05-14",
+    source: "Tom",
+    context: "Observed while working with agent apps.",
+    related_claims: [],
+    related_thoughts: [],
+    related_projects: [],
     tags: ["agents"],
   });
 
@@ -47,12 +59,17 @@ describe("thinkinglabs UI relationship mappers", () => {
     evidence_at_time: [
       "agent-harnesses-will-move-onto-the-shelf",
       "inputs/openai-workspace-agents-chatgpt",
+      "agent-work-is-supervisory",
     ],
     tags: ["agents"],
   });
 
-  it("resolves prediction evidence labels for thoughts and prefixed inputs", () => {
-    const lookups = buildTitleLookup({ thoughts: [thought], inputs: [input] });
+  it("resolves prediction evidence labels for thoughts, inputs, and observations", () => {
+    const lookups = buildTitleLookup({
+      thoughts: [thought],
+      inputs: [input],
+      observations: [observation],
+    });
 
     const detail = mapPredictionDetail({ entry: prediction, lookups, now: new Date("2026-05-15") });
 
@@ -64,6 +81,10 @@ describe("thinkinglabs UI relationship mappers", () => {
       {
         label: "Introducing workspace agents in ChatGPT",
         href: "/inputs/openai-workspace-agents-chatgpt",
+      },
+      {
+        label: "Agent work is becoming supervisory.",
+        href: "/observations/agent-work-is-supervisory",
       },
     ]);
   });
@@ -92,6 +113,14 @@ describe("thinkinglabs UI relationship mappers", () => {
         predictions: [prediction],
         targetKind: "inputs",
         targetSlug: "openai-workspace-agents-chatgpt",
+      }),
+    ).toHaveLength(1);
+
+    expect(
+      predictionEvidenceBacklinks({
+        predictions: [prediction],
+        targetKind: "observations",
+        targetSlug: "agent-work-is-supervisory",
       }),
     ).toHaveLength(1);
   });

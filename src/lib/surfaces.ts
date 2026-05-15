@@ -26,6 +26,7 @@ const LISTING_DISPLAY_ORDER = [
   "claims",
   "thoughts",
   "inputs",
+  "observations",
   "projects",
   "predictions",
   "changed-my-mind",
@@ -42,6 +43,7 @@ const LISTING_ORDERED: ReadonlyArray<Kind> = LISTING_DISPLAY_ORDER.filter((k) =>
 const DETAIL_DISPLAY_ORDER = [
   "claims",
   "inputs",
+  "observations",
   "thoughts",
   "projects",
   "predictions",

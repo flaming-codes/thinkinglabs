@@ -1,0 +1,37 @@
+---
+import EntityIndexPageComposition from "./EntityIndexPageComposition.astro";
+import type { EntityIndexPage, ObservationsView } from "../types";
+
+interface Props {
+  view: ObservationsView;
+}
+
+const { view } = Astro.props;
+
+const page: EntityIndexPage = {
+  slug: "observations",
+  eyebrow: "/observations",
+  title: "Observations.",
+  deck: "Short read-mode notes about what seems to be happening in the world, before they harden into claims, questions, or longer thoughts.",
+  count: `${view.total} observations`,
+  stats: view.stats,
+  sections: [
+    {
+      label: "Latest first",
+      title: "What has been noticed.",
+      rows: view.observations.map((observation) => ({
+        kicker: observation.observed,
+        title: observation.observation,
+        href: observation.href,
+        summary: observation.context,
+        meta: [observation.source, ...observation.tags.map((tag) => `#${tag}`)],
+        value: String(observation.links),
+        valueLabel: "links",
+      })),
+    },
+  ],
+  footer: "An observation is allowed to be small. It becomes something heavier only when the rest of the system needs it to.",
+};
+---
+
+<EntityIndexPageComposition page={page} />

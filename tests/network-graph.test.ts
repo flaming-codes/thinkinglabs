@@ -113,13 +113,23 @@ describe("buildNetworkGraph", () => {
     expect(edges).toEqual([{ from: "projects/p1", to: "claims/c1", label: "related_claims" }]);
   });
 
-  it("emits prediction evidence edges to thoughts and prefixed inputs", () => {
+  it("emits prediction evidence edges to thoughts, inputs, and observations", () => {
     const entries = {
       thoughts: [entry("t1", { title: "t1", claims: [], inputs: [] })],
       inputs: [
         entry("i1", {
           title: "i1",
           consumed: "2026-01-01",
+          tags: [],
+        }),
+      ],
+      observations: [
+        entry("o1", {
+          observation: "o1",
+          observed: "2026-01-02",
+          related_claims: [],
+          related_thoughts: [],
+          related_projects: [],
           tags: [],
         }),
       ],
@@ -132,7 +142,7 @@ describe("buildNetworkGraph", () => {
           resolution: "pending",
           resolved_on: null,
           resolution_note: null,
-          evidence_at_time: ["t1", "inputs/i1"],
+          evidence_at_time: ["t1", "inputs/i1", "o1"],
           tags: [],
         }),
       ],
@@ -150,7 +160,12 @@ describe("buildNetworkGraph", () => {
       to: "inputs/i1",
       label: "evidence_at_time",
     });
-    expect(edges).toHaveLength(2);
+    expect(edges).toContainEqual({
+      from: "predictions/p1",
+      to: "observations/o1",
+      label: "evidence_at_time",
+    });
+    expect(edges).toHaveLength(3);
   });
 
   it("computes degree as the sum of incoming + outgoing edges", () => {

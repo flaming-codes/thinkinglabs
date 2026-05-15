@@ -121,6 +121,7 @@ describe("classify", () => {
 
   it("untracked falls through to other", () => {
     expect(classify(fd({ path: "content/inputs/x.md", status: "M" }))).toBe("other");
+    expect(classify(fd({ path: "content/observations/x.md", status: "M" }))).toBe("other");
   });
 
   it("project edits without status change are 'other'", () => {
@@ -143,6 +144,7 @@ describe("isTrackedPath", () => {
     expect(isTrackedPath("claims/foo.md")).toBe(true);
     expect(isTrackedPath("content/claims/.gitkeep")).toBe(false);
     expect(isTrackedPath("content/inputs/x.md")).toBe(false);
+    expect(isTrackedPath("content/observations/x.md")).toBe(true);
     expect(isTrackedPath("README.md")).toBe(false);
   });
 });

@@ -5,6 +5,7 @@ import { changedMyMindLinkFields, changedMyMindSchema } from "./changed-my-mind.
 import { claimLinkFields, claimSchema } from "./claim.ts";
 import { decisionLinkFields, decisionSchema } from "./decision.ts";
 import { inputLinkFields, inputSchema } from "./input.ts";
+import { observationLinkFields, observationSchema } from "./observation.ts";
 import { postLinkFields, postSchema } from "./post.ts";
 import { predictionLinkFields, predictionSchema } from "./prediction.ts";
 import { projectLinkFields, projectSchema } from "./project.ts";
@@ -35,6 +36,7 @@ export const KIND_SCHEMAS = {
   questions: { schema: questionSchema, linkFields: questionLinkFields },
   posts: { schema: postSchema, linkFields: postLinkFields },
   inputs: { schema: inputSchema, linkFields: inputLinkFields },
+  observations: { schema: observationSchema, linkFields: observationLinkFields },
   provenance: { schema: provenanceEventSchema, linkFields: provenanceLinkFields },
 } as const satisfies Record<Kind, KindSpec>;
 

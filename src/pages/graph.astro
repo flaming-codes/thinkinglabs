@@ -6,7 +6,19 @@ import ThinkinglabsUiPage from "../layouts/ThinkinglabsUiPage.astro";
 import { buildNetworkGraph } from "../lib/network-graph.ts";
 import { layoutNetworkGraph } from "../lib/network-graph-layout.ts";
 
-const [thoughts, claims, projects, predictions, changedMyMind, decisions, questions, posts, inputs, provenance] =
+const [
+  thoughts,
+  claims,
+  projects,
+  predictions,
+  changedMyMind,
+  decisions,
+  questions,
+  posts,
+  inputs,
+  observations,
+  provenance,
+] =
   await Promise.all([
     getCollection("thoughts"),
     getCollection("claims"),
@@ -17,6 +29,7 @@ const [thoughts, claims, projects, predictions, changedMyMind, decisions, questi
     getCollection("questions"),
     getCollection("posts"),
     getCollection("inputs"),
+    getCollection("observations"),
     getCollection("provenance"),
   ]);
 
@@ -30,6 +43,7 @@ const graph = buildNetworkGraph({
   questions,
   posts,
   inputs,
+  observations,
   provenance,
 });
 
@@ -38,7 +52,7 @@ const layout = layoutNetworkGraph(graph, { ticks: 320 });
 
 <ThinkinglabsUiPage
   title="Graph — thinkinglabs"
-  description="A full-screen 3D rendering of the knowledge network: claims, thoughts, projects, predictions, decisions, questions, posts, inputs, and provenance."
+  description="A full-screen 3D rendering of the knowledge network: claims, thoughts, projects, predictions, decisions, questions, posts, inputs, observations, and provenance."
 >
   <AppShell activeNav="Index">
     <NetworkGraph3D layout={layout} nodes={graph.nodes} />

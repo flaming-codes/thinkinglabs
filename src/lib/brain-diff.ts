@@ -51,6 +51,7 @@ const TRACKED_PREFIXES = [
   "decisions/",
   "predictions/",
   "thoughts/",
+  "observations/",
   "projects/",
   "posts/",
 ] as const;

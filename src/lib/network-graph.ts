@@ -49,14 +49,27 @@ function refToId(ref: string, fallbackKind: Kind): string {
   return `${fallbackKind}/${stripKindPrefix(normalized)}`;
 }
 
+function refCandidateIds(ref: string, fallbackKinds: readonly Kind[]): string[] {
+  const withoutAnchor = ref.split("#")[0] ?? ref;
+  const normalized = stripMdExt(withoutAnchor);
+  const [maybeKind, ...rest] = normalized.split("/");
+  if (maybeKind !== undefined && KIND_SET.has(maybeKind as Kind) && rest.length > 0) {
+    return [`${maybeKind}/${rest.join("/")}`];
+  }
+  const slug = stripKindPrefix(normalized);
+  return fallbackKinds.map((kind) => `${kind}/${slug}`);
+}
+
 /** Pick a sensible fallback kind for an unprefixed link ref; mirrors the per-field semantics from each kind's Zod schema. */
 function fallbackKindFor(sourceKind: Kind, fieldName: string): Kind {
   if (sourceKind === "claims" && fieldName === "derived_from") return "thoughts";
   if (sourceKind === "thoughts" && fieldName === "inputs") return "inputs";
+  if (sourceKind === "thoughts" && fieldName === "observations") return "observations";
   if (sourceKind === "predictions" && fieldName === "evidence_at_time") return "thoughts";
   if (fieldName === "related_claims" || fieldName === "supersedes" || fieldName === "superseded_by")
     return "claims";
   if (fieldName === "related_thoughts") return "thoughts";
+  if (fieldName === "related_observations") return "observations";
   if (fieldName === "related_projects") return "projects";
   if (fieldName === "reverses") return "decisions";
   if (fieldName === "superseded_claims") return "claims";
@@ -102,7 +115,12 @@ export function buildNetworkGraph(entriesByKind: EntriesByKind): NetworkGraph {
         const fallback = fallbackKindFor(kind, fieldName);
         for (const ref of raw) {
           if (typeof ref !== "string" || ref.length === 0) continue;
-          const toId = refToId(ref, fallback);
+          const candidates =
+            kind === "predictions" && fieldName === "evidence_at_time"
+              ? refCandidateIds(ref, ["thoughts", "inputs", "observations"])
+              : [refToId(ref, fallback)];
+          const toId = candidates.find((candidate) => nodesById.has(candidate));
+          if (toId === undefined) continue;
           if (!nodesById.has(toId) || toId === fromId) continue;
           edges.push({ from: fromId, to: toId, label });
           nodesById.get(fromId)!.degreeMut += 1;

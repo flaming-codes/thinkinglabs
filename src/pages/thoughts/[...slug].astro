@@ -20,14 +20,15 @@ export const getStaticPaths = (async () => {
 }) satisfies GetStaticPaths;
 
 const { entry } = Astro.props as InferGetStaticPropsType<typeof getStaticPaths>;
-const [claims, inputs, predictions] = await Promise.all([
+const [claims, inputs, observations, predictions] = await Promise.all([
   getCollection("claims"),
   getCollection("inputs"),
+  getCollection("observations"),
   getCollection("predictions"),
 ]);
 const cwd = resolve(".");
 const history = mapThoughtHistory(walkFileHistory(cwd, `content/thoughts/${entry.id}.md`));
-const lookups = buildTitleLookup({ claims, inputs });
+const lookups = buildTitleLookup({ claims, inputs, observations });
 const claimLookup = buildClaimLookup(claims);
 const predictionEvidence = predictionEvidenceBacklinks({
   predictions,

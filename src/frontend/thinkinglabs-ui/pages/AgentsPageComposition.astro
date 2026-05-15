@@ -29,13 +29,14 @@ const staticResources: Resource[] = [
   { uri: "thinkinglabs://predictions/calibration", description: "Stated confidence vs realized accuracy." },
   { uri: "thinkinglabs://inputs", description: "Things I've read, watched, or listened to." },
   { uri: "thinkinglabs://inputs/recent", description: "The latest inputs." },
+  { uri: "thinkinglabs://observations", description: "Short first-party notes about the world." },
   { uri: "thinkinglabs://questions", description: "Open questions I'm tracking." },
   { uri: "thinkinglabs://current_focus", description: "What I'm actively working on right now." },
 ];
 
 const templateResources: Resource[] = [
   { uri: "thinkinglabs://claims/by-tag/{tag}", description: "All claims under a single tag." },
-  { uri: "thinkinglabs://{kind}/{slug}", description: "A single object by slug — claims, thoughts, projects, decisions, predictions, inputs, questions, posts, changed-my-mind." },
+  { uri: "thinkinglabs://{kind}/{slug}", description: "A single object by slug — claims, thoughts, projects, decisions, predictions, inputs, observations, questions, posts, changed-my-mind." },
 ];
 
 const metaResources: Resource[] = [
@@ -55,6 +56,7 @@ const apis: { url: string; description: string }[] = [
   { url: "/api/claims.json", description: "All claims with confidence, status, evidence." },
   { url: "/api/thoughts.json", description: "All draft thoughts with their derived claims." },
   { url: "/api/inputs.json", description: "Read/watch/listen log with citations." },
+  { url: "/api/observations.json", description: "Short first-party notes about the world." },
   { url: "/api/projects.json", description: "Project metadata and current state." },
   { url: "/api/predictions.json", description: "Predictions with stated confidence and resolution." },
   { url: "/api/decisions.json", description: "Decisions made and their reversals." },

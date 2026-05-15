@@ -40,7 +40,6 @@ const groupedKinds = Object.keys(grouped).sort();
 
 <div class="tl-graph-wrap" data-network-graph-root>
   <script id="network-graph-data" type="application/json" is:inline set:html={payloadJson} />
-  <h1 class="tl-graph-title">Knowledge graph.</h1>
   <div class="tl-graph-hover-label" data-graph-hover-label aria-hidden="true"></div>
   <aside class="tl-graph-legend" aria-label="Node legend">
     <ul>
@@ -106,20 +105,6 @@ const groupedKinds = Object.keys(grouped).sort();
     transition:
       opacity var(--tl-motion-base) var(--tl-ease-standard),
       transform var(--tl-motion-base) var(--tl-ease-emphasized);
-  }
-
-  .tl-graph-title {
-    position: absolute;
-    top: calc(var(--tl-ui-top) + clamp(4rem, 8vh, 5.5rem));
-    left: var(--tl-ui-left);
-    z-index: 5;
-    max-width: min(18rem, calc(100vw - var(--tl-ui-left) - var(--tl-ui-right)));
-    color: var(--tl-ink);
-    font-size: var(--tl-type-title-lg);
-    font-weight: var(--tl-type-heading-weight);
-    line-height: var(--tl-type-line-heading);
-    letter-spacing: var(--tl-type-track-heading);
-    pointer-events: none;
   }
 
   .tl-graph-hover-label.is-visible {
