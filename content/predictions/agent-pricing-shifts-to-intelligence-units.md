@@ -1,8 +1,8 @@
 ---
-prediction: "By 2027-11-15, at least one major AI platform will price off-the-shelf or rentable agents using an opaque blended unit such as credits, intelligence units, or agent capacity, where the customer-facing meter combines model choice, token use, tool calls, data access, execution speed, and runtime rather than exposing tokens or wall-clock time as the primary billable unit."
+prediction: "By 2027-02-01, at least one major AI platform will price off-the-shelf or rentable agents using an opaque blended unit such as credits, intelligence units, or agent capacity, where the customer-facing meter combines model choice, token use, tool calls, data access, execution speed, and runtime rather than exposing tokens or wall-clock time as the primary billable unit."
 made: 2026-05-15
-resolves: 2027-11-15
-confidence: 0.58
+resolves: 2027-02-01
+confidence: 0.7
 resolution: pending
 resolved_on: null
 resolution_note: null
