@@ -7,7 +7,6 @@ interface Props {
 }
 
 const { view } = Astro.props;
-const sorted = [...view.questions].sort((a, b) => b.heat - a.heat);
 
 const page: EntityIndexPage = {
   slug: "questions",
@@ -18,9 +17,9 @@ const page: EntityIndexPage = {
   stats: view.stats,
   sections: [
     {
-      label: "Hottest first",
+      label: "Latest first",
       title: "What is unresolved.",
-      rows: sorted.map((question) => ({
+      rows: view.questions.map((question) => ({
         kicker: question.asked,
         title: question.title,
         href: question.href,

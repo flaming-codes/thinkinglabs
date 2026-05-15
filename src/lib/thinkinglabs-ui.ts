@@ -940,7 +940,11 @@ export function mapPredictionsView(args: {
   const open: PredictionRow[] = [];
   const resolved: PredictionRow[] = [];
 
-  for (const entry of args.entries) {
+  const sortedEntries = [...args.entries].sort(
+    (a, b) => safeDate(b.data.made) - safeDate(a.data.made),
+  );
+
+  for (const entry of sortedEntries) {
     const isResolved = entry.data.resolution === "true" || entry.data.resolution === "false";
     if (isResolved) {
       resolved.push({
@@ -970,7 +974,6 @@ export function mapPredictionsView(args: {
     }
   }
 
-  open.sort((a, b) => a.days - b.days);
   resolved.sort((a, b) => safeDate(b.resolvedDate ?? "") - safeDate(a.resolvedDate ?? ""));
 
   const trueCount = resolved.filter((p) => p.outcome === "true").length;
@@ -1189,7 +1192,9 @@ export function mapQuestionsView(args: {
   now?: Date;
 }): QuestionsView {
   const now = args.now ?? new Date();
-  const open = args.entries.filter((entry) => entry.data.status !== "closed");
+  const open = [...args.entries]
+    .filter((entry) => entry.data.status !== "closed")
+    .sort((a, b) => safeDate(b.data.asked) - safeDate(a.data.asked));
 
   const questions: QuestionRow[] = open.map((entry) => ({
     slug: entry.id,
@@ -1259,7 +1264,7 @@ export function mapInputsView(args: {
   citationsBySlug?: ReadonlyMap<string, number>;
 }): InputsView {
   const sorted = [...args.entries].sort(
-    (a, b) => (args.citationsBySlug?.get(b.id) ?? 0) - (args.citationsBySlug?.get(a.id) ?? 0),
+    (a, b) => safeDate(b.data.consumed) - safeDate(a.data.consumed),
   );
 
   const inputs: InputRow[] = sorted.map((entry) => {
@@ -1278,7 +1283,7 @@ export function mapInputsView(args: {
   });
 
   const totalCitations = inputs.reduce((sum, row) => sum + row.influence, 0);
-  const mostCitedYear = inputs[0]?.year ?? "—";
+  const mostCited = [...inputs].sort((a, b) => b.influence - a.influence)[0];
 
   const stats: IndexStat[] = [
     { label: "On file", value: String(inputs.length), sub: "citable inputs" },
@@ -1287,7 +1292,7 @@ export function mapInputsView(args: {
       value: String(totalCitations),
       sub: "downstream from these inputs",
     },
-    { label: "Most-cited", value: mostCitedYear, sub: "leading vintage" },
+    { label: "Most-cited", value: mostCited?.year ?? "—", sub: "leading vintage" },
   ];
 
   return { total: inputs.length, stats, inputs };

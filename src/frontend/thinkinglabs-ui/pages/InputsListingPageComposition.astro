@@ -7,7 +7,6 @@ interface Props {
 }
 
 const { view } = Astro.props;
-const sorted = [...view.inputs].sort((a, b) => b.influence - a.influence);
 
 const page: EntityIndexPage = {
   slug: "inputs",
@@ -18,9 +17,9 @@ const page: EntityIndexPage = {
   stats: view.stats,
   sections: [
     {
-      label: "Most cited",
+      label: "Latest first",
       title: "What shaped the system.",
-      rows: sorted.map((input) => ({
+      rows: view.inputs.map((input) => ({
         kicker: input.kind,
         title: input.title,
         href: input.href,
