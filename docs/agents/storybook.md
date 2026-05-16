@@ -16,7 +16,7 @@ Astro support is provided by the community `@storybook-astro/framework` package.
 - `.storybook/main.ts` configures Storybook, serves `public/`, resolves the `@` alias to `src/`, and stubs `astro:toolbar:internal` for Storybook's Vite runtime.
 - `.storybook/manager.ts` hides the addon panel so the UI stays focused on component rendering.
 - `.storybook/preview.ts` loads the shared UI stylesheet and global preview parameters.
-- `.storybook/preview-head.html` loads the same `Geist` and `Linefont` families used by the production UI layout.
+- `.storybook/preview-head.html` loads the same swappable `Geist` family used by the production UI layout.
 - `.storybook/stories/*.stories.ts` are the canonical story files.
 - `src/frontend/thinkinglabs-ui/mocks/` holds fixture data for stories.
 - `src/frontend/thinkinglabs-ui/pages/*Composition.astro` contains page compositions that accept typed props and avoid content collection reads.

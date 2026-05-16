@@ -1,4 +1,5 @@
 ---
+import BrandLogo from "./BrandLogo.astro";
 import PathWordmarkVariant from "./PathWordmarkVariant.astro";
 import ScrollArrows from "./ScrollArrows.astro";
 
@@ -47,7 +48,7 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
   </div>
   <div class="tl-header-bar">
     <a class="tl-brand-link" href="/" aria-label="thinkinglabs home">
-      <span class="tl-wordmark">thinkinglabs</span>
+      <BrandLogo ariaLabel="thinkinglabs" />
     </a>
     <button
       type="button"
@@ -455,25 +456,17 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
     pointer-events: auto;
   }
 
-  .tl-wordmark {
+  .tl-brand-link :global(.tl-wordmark) {
     position: relative;
-    display: inline-block;
-    width: min(20rem, 80vw);
+    display: inline-flex;
+    width: clamp(36px, 4vw, 48px);
+    aspect-ratio: 1;
     color: var(--tl-ink);
-    font-family: var(--tl-wordmark-font);
-    font-size: clamp(28px, 3vw, 44px);
-    font-style: normal;
-    font-weight: 300;
-    font-optical-sizing: auto;
-    font-variation-settings: "wdth" 112.5;
-    line-height: 1;
-    letter-spacing: 0;
-    text-align: center;
     transition: opacity 280ms ease;
     will-change: opacity;
   }
 
-  .tl-header[data-tl-nav-open="true"] .tl-wordmark {
+  .tl-header[data-tl-nav-open="true"] .tl-brand-link :global(.tl-wordmark) {
     opacity: 0;
   }
 
@@ -853,7 +846,7 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
 
   @media (prefers-reduced-motion: reduce) {
     .tl-nav-panel,
-    .tl-wordmark,
+    .tl-brand-link :global(.tl-wordmark),
     .tl-nav-toggle-icon,
     .tl-nav-toggle-icon::before,
     .tl-nav-toggle-icon::after,

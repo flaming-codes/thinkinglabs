@@ -9,74 +9,56 @@ const { class: className, ariaLabel } = Astro.props;
 
 <span
   class:list={[className, "tl-wordmark"]}
-  data-wordmark="thinkinglabs"
   role={ariaLabel ? "img" : undefined}
   aria-label={ariaLabel}
   aria-hidden={ariaLabel ? undefined : "true"}
 >
-  thinkinglabs
+  <svg viewBox="0 0 512 512" focusable="false" aria-hidden="true">
+    <rect width="512" height="512" rx="96" />
+    <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path
+        d="M144 144c64-56 176-48 224 16 40 56 24 144-40 192-64 40-176 40-216-24-40-56-24-136 32-184Z"
+        stroke-width="21"
+      />
+      <path
+        d="M184 184c40-32 112-32 144 8 40 40 16 96-24 120-40 32-112 32-144-8-32-40-16-88 24-120Z"
+        stroke-width="18"
+      />
+      <path
+        d="M224 232c24-16 56-16 72 8 16 16 8 48-16 64-24 8-56 8-72-8-16-24-8-48 16-64Z"
+        stroke-width="16"
+      />
+    </g>
+    <circle cx="256" cy="272" r="19" />
+  </svg>
 </span>
 
 <style>
   .tl-wordmark {
     position: relative;
-    display: inline-grid;
+    display: inline-flex;
     align-items: center;
-    justify-items: center;
-    color: transparent;
-    font-family: var(--tl-wordmark-font);
-    font-size: clamp(28px, 3vw, 44px);
-    font-weight: 400;
-    line-height: 0.82;
-    letter-spacing: 0;
-    text-transform: none;
-    -webkit-text-fill-color: transparent;
-    --tl-wordmark-paint: var(--tl-ink);
-    --tl-wordmark-hover-paint: var(--tl-ink);
-    --tl-linefont-scale: 1;
-    --tl-linefont-size: 44px;
-    --tl-hover-font-size: 20px;
+    justify-content: center;
+    width: clamp(36px, 4vw, 48px);
+    aspect-ratio: 1;
+    color: var(--tl-ink);
   }
 
-  .tl-wordmark::before,
-  .tl-wordmark::after {
-    grid-area: 1 / 1;
-    color: var(--tl-wordmark-paint);
-    content: attr(data-wordmark);
-    -webkit-text-fill-color: var(--tl-wordmark-paint);
-    transition:
-      opacity 360ms ease,
-      transform 360ms ease;
-    transform-origin: center;
+  .tl-wordmark svg {
+    display: block;
+    width: 100%;
+    height: auto;
   }
 
-  .tl-wordmark::before {
-    font-family: var(--tl-wordmark-font);
-    font-size: var(--tl-linefont-size);
-    font-style: normal;
-    font-weight: 300;
-    font-optical-sizing: auto;
-    font-variation-settings: "wdth" 112.5;
-    opacity: 1;
-    transform: translateY(-0.08em) scale(var(--tl-linefont-scale));
+  .tl-wordmark rect {
+    fill: var(--tl-bg);
   }
 
-  .tl-wordmark::after {
-    color: var(--tl-wordmark-hover-paint);
-    font-family: var(--tl-wordmark-hover-font);
-    font-size: var(--tl-hover-font-size);
-    font-style: normal;
-    font-weight: 300;
-    font-variation-settings: normal;
-    opacity: 0;
-    -webkit-text-fill-color: var(--tl-wordmark-hover-paint);
-    transform: translateY(0.18em);
+  .tl-wordmark g {
+    stroke: currentColor;
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .tl-wordmark::before,
-    .tl-wordmark::after {
-      transition: none;
-    }
+  .tl-wordmark circle {
+    fill: currentColor;
   }
 </style>

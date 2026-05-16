@@ -74,7 +74,7 @@ The spacing is asymmetrical in practice: labels hang off the object, and the hor
 
 Two fonts define the system:
 
-- `Linefont` for the expressive wordmark.
+- The contour SVG icon for the brand mark.
 - `Geist` for nearly everything else.
 
 The visual system leans on weight and case more than font variety. Do not introduce additional font families for entity pages.
