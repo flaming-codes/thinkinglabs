@@ -2,6 +2,7 @@ import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { describe, expect, it } from "vite-plus/test";
+import { readThinkinglabsThemeColors } from "../src/lib/css-tokens.ts";
 
 const SOURCE_GLOBS = [
   "src/frontend",
@@ -56,6 +57,13 @@ describe("Thinkinglabs design tokens", () => {
     for (const token of required) {
       expect(css, `${token} should be defined in ${TOKEN_SOURCE}`).toContain(`${token}:`);
     }
+  });
+
+  it("keeps browser theme colors aligned with the theme backgrounds", () => {
+    expect(readThinkinglabsThemeColors()).toEqual({
+      light: "#ffffff",
+      dark: "#000000",
+    });
   });
 
   it("does not reference undefined Thinkinglabs CSS variables", () => {

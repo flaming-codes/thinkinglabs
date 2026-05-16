@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="thinkinglabs Thought Contours icon">
-  <rect width="512" height="512" rx="96" fill="#07090d" />
+  <rect width="512" height="512" rx="96" fill="#000000" />
   <g fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round">
     <path
       d="M144 144c64-56 176-48 224 16 40 56 24 144-40 192-64 40-176 40-216-24-40-56-24-136 32-184Z"

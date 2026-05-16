@@ -7,7 +7,7 @@
 
     @media (prefers-color-scheme: dark) {
       :root {
-        --tl-icon-bg: #07090d;
+        --tl-icon-bg: #000000;
         --tl-icon-fg: #ffffff;
       }
     }

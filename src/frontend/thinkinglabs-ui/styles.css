@@ -382,7 +382,7 @@
 @media (prefers-color-scheme: dark) {
   :root {
     color-scheme: dark;
-    --tl-color-bg: #07090d;
+    --tl-color-bg: #000000;
     --tl-color-ink: #f3f5f7;
     --tl-color-muted: rgba(243, 245, 247, 0.62);
     --tl-color-subtle: rgba(243, 245, 247, 0.5);
