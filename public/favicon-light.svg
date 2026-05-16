@@ -1,19 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="thinkinglabs Thought Contours icon">
-  <style>
-    :root {
-      --tl-icon-bg: #ffffff;
-      --tl-icon-fg: #07090d;
-    }
-
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --tl-icon-bg: #07090d;
-        --tl-icon-fg: #ffffff;
-      }
-    }
-  </style>
-  <rect width="512" height="512" rx="96" fill="var(--tl-icon-bg)" />
-  <g fill="none" stroke="var(--tl-icon-fg)" stroke-linecap="round" stroke-linejoin="round">
+  <rect width="512" height="512" rx="96" fill="#ffffff" />
+  <g fill="none" stroke="#07090d" stroke-linecap="round" stroke-linejoin="round">
     <path
       d="M144 144c64-56 176-48 224 16 40 56 24 144-40 192-64 40-176 40-216-24-40-56-24-136 32-184Z"
       stroke-width="21"
@@ -27,5 +14,5 @@
       stroke-width="16"
     />
   </g>
-  <circle cx="256" cy="272" r="19" fill="var(--tl-icon-fg)" />
+  <circle cx="256" cy="272" r="19" fill="#07090d" />
 </svg>
