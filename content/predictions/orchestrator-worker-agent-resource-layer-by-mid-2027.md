@@ -1,5 +1,5 @@
 ---
-prediction: "By 2027-06-30, a recognizable agent resource layer will exist in which user-facing orchestrator agents act as human-agent interfaces and delegate work to specialized remote worker agents or harnesses through A2A, an A2A-compatible protocol, or a directly comparable agent-to-agent contract."
+prediction: "By 2027-06-30, a recognizable agent resource layer will exist in which user-facing orchestrator agents act as human-to-agent-to-agents interfaces and delegate work to specialized remote worker agents or harnesses through A2A, an A2A-compatible protocol, or a directly comparable agent-to-agent contract."
 made: 2026-05-15
 resolves: 2027-06-30
 confidence: 0.6
@@ -9,7 +9,7 @@ resolution_note: null
 evidence_at_time:
   - thoughts/agent-harnesses-will-move-onto-the-shelf
   - inputs/a2a-agent2agent-protocol
-  - inputs/hai-human-agent-interface-working-term
+  - inputs/haai-human-to-agent-to-agents-interface-working-term
   - inputs/anthropic-claude-managed-agents
   - inputs/openai-workspace-agents-chatgpt
 tags:
@@ -19,7 +19,7 @@ tags:
   - harnesses
 ---
 
-The prediction is that agent systems will grow a new resource layer between the user's primary agent and the growing sea of specialist agents. The shape is a graph. At the border are orchestrator agents: Claude running on a user's machine, a managed ChatGPT workspace agent, Gemini or Copilot in an enterprise surface, or some similar agent that is trusted to represent a person's intent. These orchestrators become the HAI, the human-agent interface, not because they do all the work, but because they hold the relationship with the human.
+The prediction is that agent systems will grow a new resource layer between the user's primary agent and the growing sea of specialist agents. The shape is a chain into a graph: human to orchestrator agent to worker agents. At the border are orchestrator agents: OpenClaw, Claude running on a user's machine, a managed ChatGPT workspace agent, Gemini or Copilot in an enterprise surface, or some similar agent that is trusted to represent a person's intent. These orchestrators become the HAAI, the human-to-agent-to-agents interface, not because they do all the work, but because they hold the relationship with the human while routing work to other agents.
 
 Inside the graph is the worker layer: specialized agents and harnesses that can perform known categories of work reliably enough to be selected, invoked, monitored, and swapped. This is the same motion as the earlier off-the-shelf harness prediction, but with more attention on topology. The harness becomes a rentable capability; the orchestrator becomes the routing and accountability surface.
 
