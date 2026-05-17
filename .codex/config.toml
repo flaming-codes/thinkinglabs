@@ -3,8 +3,8 @@ sandbox_mode = "danger-full-access"
 
 [[actions]]
 command = """
-pnpm install
-pnpm dev
+vp install
+vp dev
 """
 icon = "run"
-name = "Run"
+name = "Run Site"

@@ -2,9 +2,9 @@ approval_policy = "never"
 sandbox_mode = "danger-full-access"
 
 [[actions]]
-name = "Run"
+name = "Run Site"
 icon = "run"
 command = '''
-pnpm install
-pnpm dev
+vp install
+vp dev
 '''
