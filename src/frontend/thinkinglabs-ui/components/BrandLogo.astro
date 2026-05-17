@@ -14,7 +14,6 @@ const { class: className, ariaLabel } = Astro.props;
   aria-hidden={ariaLabel ? undefined : "true"}
 >
   <svg viewBox="0 0 512 512" focusable="false" aria-hidden="true">
-    <rect width="512" height="512" rx="96" />
     <g fill="none" stroke-linecap="round" stroke-linejoin="round">
       <path
         d="M144 144c64-56 176-48 224 16 40 56 24 144-40 192-64 40-176 40-216-24-40-56-24-136 32-184Z"
@@ -48,10 +47,6 @@ const { class: className, ariaLabel } = Astro.props;
     display: block;
     width: 100%;
     height: auto;
-  }
-
-  .tl-wordmark rect {
-    fill: var(--tl-bg);
   }
 
   .tl-wordmark g {
