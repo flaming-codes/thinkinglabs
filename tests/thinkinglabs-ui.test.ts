@@ -2,11 +2,13 @@ import type { CollectionEntry } from "astro:content";
 import { describe, expect, it } from "vite-plus/test";
 import {
   buildTitleLookup,
+  inputCitationBacklinks,
+  inputCitationCounts,
   mapPredictionDetail,
   predictionEvidenceBacklinks,
 } from "../src/lib/thinkinglabs-ui.ts";
 
-type RelationshipCollection = "thoughts" | "inputs" | "observations" | "predictions";
+type RelationshipCollection = "thoughts" | "inputs" | "observations" | "predictions" | "claims";
 
 function entry<K extends RelationshipCollection>(
   collection: K,
@@ -24,7 +26,7 @@ describe("thinkinglabs UI relationship mappers", () => {
     updated: "2026-05-14",
     tags: ["agents"],
     claims: [],
-    inputs: [],
+    inputs: ["openai-workspace-agents-chatgpt"],
     observations: [],
   });
 
@@ -61,6 +63,19 @@ describe("thinkinglabs UI relationship mappers", () => {
       "inputs/openai-workspace-agents-chatgpt",
       "agent-work-is-supervisory",
     ],
+    tags: ["agents"],
+  });
+
+  const claim = entry("claims", "agent-marketplaces-need-sources", {
+    claim: "Agent marketplaces need explicit source trails.",
+    confidence: 0.68,
+    evidence: [],
+    opposing: [],
+    derived_from: ["inputs/openai-workspace-agents-chatgpt"],
+    last_reviewed: "2026-05-13",
+    status: "active",
+    supersedes: [],
+    superseded_by: [],
     tags: ["agents"],
   });
 
@@ -123,5 +138,48 @@ describe("thinkinglabs UI relationship mappers", () => {
         targetSlug: "agent-work-is-supervisory",
       }),
     ).toHaveLength(1);
+  });
+
+  it("derives input citation backlinks from every direct input link field", () => {
+    expect(
+      inputCitationBacklinks({
+        targetSlug: input.id,
+        thoughts: [thought],
+        claims: [claim],
+        predictions: [prediction],
+      }),
+    ).toEqual([
+      {
+        kind: "prediction",
+        title: "Agent marketplaces will succeed app stores.",
+        href: "/predictions/agent-marketplaces-succeed-app-stores",
+        conf: 0.57,
+        date: "2026-05-14",
+      },
+      {
+        kind: "thought",
+        title: "Agent harnesses will move onto the shelf",
+        href: "/thoughts/agent-harnesses-will-move-onto-the-shelf",
+        date: "2026-05-14",
+      },
+      {
+        kind: "claim",
+        title: "Agent marketplaces need explicit source trails.",
+        href: "/claims/agent-marketplaces-need-sources",
+        conf: 0.68,
+        date: "2026-05-13",
+      },
+    ]);
+  });
+
+  it("counts input citations for listing influence", () => {
+    expect(
+      inputCitationCounts({
+        inputs: [input],
+        thoughts: [thought],
+        claims: [claim],
+        predictions: [prediction],
+      }).get(input.id),
+    ).toBe(3);
   });
 });

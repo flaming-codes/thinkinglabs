@@ -57,6 +57,13 @@ type CountByKind = Partial<Record<Kind, number>>;
 type TitleLookup = Partial<Record<Kind, ReadonlyMap<string, string>>>;
 type ClaimLookup = ReadonlyMap<string, CollectionEntry<"claims">>;
 type PredictionEvidenceTargetKind = "thoughts" | "inputs" | "observations";
+type InputCitationBacklink = {
+  kind: string;
+  title: string;
+  href: string;
+  conf?: number;
+  date?: string;
+};
 
 function safeDate(value: Date | string | null | undefined): number {
   if (value === null || value === undefined) return 0;
@@ -233,6 +240,90 @@ export function predictionEvidenceBacklinks(args: {
       conf: prediction.data.confidence,
       date: formatDate(prediction.data.made),
     }));
+}
+
+function refTargetsInput(ref: string, slug: string): boolean {
+  const parsed = parseRef(ref, "inputs");
+  return parsed.kind === "inputs" && parsed.slug === slug;
+}
+
+function sortInputCitationBacklinks(
+  citations: ReadonlyArray<InputCitationBacklink>,
+): InputCitationBacklink[] {
+  return [...citations].sort((a, b) => {
+    const dateDelta = safeDate(b.date) - safeDate(a.date);
+    if (dateDelta !== 0) return dateDelta;
+    const kindDelta = a.kind.localeCompare(b.kind);
+    if (kindDelta !== 0) return kindDelta;
+    return a.title.localeCompare(b.title);
+  });
+}
+
+/** Derive pages that directly cite an input through canonical markdown link fields. */
+export function inputCitationBacklinks(args: {
+  targetSlug: string;
+  thoughts?: ReadonlyArray<CollectionEntry<"thoughts">>;
+  claims?: ReadonlyArray<CollectionEntry<"claims">>;
+  predictions?: ReadonlyArray<CollectionEntry<"predictions">>;
+}): ReadonlyArray<InputCitationBacklink> {
+  const citations: InputCitationBacklink[] = [];
+
+  for (const thought of args.thoughts ?? []) {
+    if (!thought.data.inputs.some((ref) => refTargetsInput(ref, args.targetSlug))) continue;
+    citations.push({
+      kind: kindLabel("thoughts"),
+      title: thought.data.title,
+      href: detailHref("thoughts", thought.id),
+      date: formatDate(thought.data.updated),
+    });
+  }
+
+  for (const claim of args.claims ?? []) {
+    if (!claim.data.derived_from.some((ref) => refTargetsInput(ref, args.targetSlug))) continue;
+    citations.push({
+      kind: kindLabel("claims"),
+      title: claim.data.claim,
+      href: detailHref("claims", claim.id),
+      conf: claim.data.confidence,
+      date: formatDate(claim.data.last_reviewed),
+    });
+  }
+
+  for (const prediction of args.predictions ?? []) {
+    if (!prediction.data.evidence_at_time.some((ref) => refTargetsInput(ref, args.targetSlug))) {
+      continue;
+    }
+    citations.push({
+      kind: kindLabel("predictions"),
+      title: prediction.data.prediction,
+      href: detailHref("predictions", prediction.id),
+      conf: prediction.data.confidence,
+      date: formatDate(prediction.data.made),
+    });
+  }
+
+  return sortInputCitationBacklinks(citations);
+}
+
+/** Count direct input citations once per citing page. */
+export function inputCitationCounts(args: {
+  inputs: ReadonlyArray<CollectionEntry<"inputs">>;
+  thoughts?: ReadonlyArray<CollectionEntry<"thoughts">>;
+  claims?: ReadonlyArray<CollectionEntry<"claims">>;
+  predictions?: ReadonlyArray<CollectionEntry<"predictions">>;
+}): ReadonlyMap<string, number> {
+  const counts = new Map<string, number>();
+  for (const input of args.inputs) {
+    const backlinksArgs = {
+      targetSlug: input.id,
+      ...(args.thoughts !== undefined ? { thoughts: args.thoughts } : {}),
+      ...(args.claims !== undefined ? { claims: args.claims } : {}),
+      ...(args.predictions !== undefined ? { predictions: args.predictions } : {}),
+    };
+    const count = inputCitationBacklinks(backlinksArgs).length;
+    counts.set(input.id, count);
+  }
+  return counts;
 }
 
 function firstParagraph(markdown: string, fallback: string): string {
@@ -1302,7 +1393,7 @@ function inputKind(input: CollectionEntry<"inputs">): string {
   return "article";
 }
 
-/** Build the inputs index view from real entries; influence is the citation count from claims/posts/decisions. */
+/** Build the inputs index view from real entries; influence is the derived citation count. */
 export function mapInputsView(args: {
   entries: ReadonlyArray<CollectionEntry<"inputs">>;
   citationsBySlug?: ReadonlyMap<string, number>;
@@ -1358,6 +1449,7 @@ export function mapInputDetail(args: {
   return {
     slug: entry.id,
     title: entry.data.title,
+    ...(entry.data.url !== undefined ? { url: entry.data.url } : {}),
     by: entry.data.source ?? "—",
     kind: inputKind(entry),
     year: consumedIso.slice(0, 4),

@@ -31,7 +31,9 @@ const meta = [
           {input.kind} · {input.year} · {input.publisher}
         </div>
         <h1>{input.title}</h1>
-        <div class="tl-input-detail-byline">{input.by}</div>
+        <div class="tl-input-detail-byline">
+          {input.url ? <a href={input.url}>{input.by}</a> : input.by}
+        </div>
       </div>
     </header>
 

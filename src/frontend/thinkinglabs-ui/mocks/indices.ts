@@ -528,6 +528,7 @@ const INPUTS_VIEW: InputsView = {
 const INPUT_DETAIL: InputDetail = {
   slug: "engelbart-augmenting",
   title: "Augmenting Human Intellect: A Conceptual Framework",
+  url: "https://dougengelbart.org/content/view/138/",
   by: "Douglas Engelbart",
   kind: "paper",
   year: "1962",

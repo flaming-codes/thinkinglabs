@@ -445,6 +445,7 @@ interface InputMarginNote {
 interface InputDetail {
   slug: string;
   title: string;
+  url?: string;
   by: string;
   kind: string;
   year: string;

@@ -3,7 +3,7 @@ import { getCollection } from "astro:content";
 import type { GetStaticPaths, InferGetStaticPropsType } from "astro";
 import InputDetailMinimalPageComposition from "../../frontend/thinkinglabs-ui/pages/InputDetailMinimalPageComposition.astro";
 import ThinkinglabsUiPage from "../../layouts/ThinkinglabsUiPage.astro";
-import { mapInputDetail, predictionEvidenceBacklinks } from "../../lib/thinkinglabs-ui.ts";
+import { inputCitationBacklinks, mapInputDetail } from "../../lib/thinkinglabs-ui.ts";
 import { inputStructuredData } from "../../lib/structured-data.ts";
 
 export const getStaticPaths = (async () => {
@@ -12,11 +12,16 @@ export const getStaticPaths = (async () => {
 }) satisfies GetStaticPaths;
 
 const { entry } = Astro.props as InferGetStaticPropsType<typeof getStaticPaths>;
-const predictions = await getCollection("predictions");
-const citations = predictionEvidenceBacklinks({
-  predictions,
-  targetKind: "inputs",
+const [thoughts, claims, predictions] = await Promise.all([
+  getCollection("thoughts"),
+  getCollection("claims"),
+  getCollection("predictions"),
+]);
+const citations = inputCitationBacklinks({
   targetSlug: entry.id,
+  thoughts,
+  claims,
+  predictions,
 });
 const input = mapInputDetail({ entry, citations });
 const site = Astro.site ?? new URL(Astro.url.origin);

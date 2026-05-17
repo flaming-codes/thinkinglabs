@@ -13,13 +13,18 @@ const citationLabel =
 const rereadLabel =
   input.reread.length === 1 ? "1 re-read" : `${input.reread.length} re-reads`;
 const sourceLine = [input.by, input.year].filter((item) => item !== "—").join(" / ");
+const sourceLabel = sourceLine || input.url;
 ---
 
 <AppShell activeNav="Index">
   <article class="tl-input-minimal" data-selected-label={input.title} data-entity="inputs">
     <header class="tl-input-minimal-hero">
       <h1>{input.title}</h1>
-      {sourceLine && <p class="tl-input-minimal-source">{sourceLine}</p>}
+      {sourceLabel && (
+        <p class="tl-input-minimal-source">
+          {input.url ? <a href={input.url}>{sourceLabel}</a> : sourceLabel}
+        </p>
+      )}
     </header>
 
     <div class="tl-input-minimal-layout">
