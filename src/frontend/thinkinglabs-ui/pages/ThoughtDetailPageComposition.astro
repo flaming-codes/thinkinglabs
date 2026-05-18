@@ -42,7 +42,7 @@ const hasHistory = thought.history.length > 1;
     {hasQuestions && (
       <section class="tl-aside-block">
         <div class="tl-eyebrow">Open questions</div>
-        <div>
+        <div class="tl-thought-question-list">
           {thought.questions.map((question) => (
             <p class="tl-quote-line">"{question}"</p>
           ))}
@@ -162,6 +162,12 @@ const hasHistory = thought.history.length > 1;
 
   .tl-rel-list {
     display: grid;
+  }
+
+  .tl-thought-question-list {
+    display: grid;
+    gap: clamp(0.9rem, 2vw, 1.25rem);
+    margin-top: clamp(1.1rem, 2.6vw, 1.75rem);
   }
 
   .tl-rel-row,
