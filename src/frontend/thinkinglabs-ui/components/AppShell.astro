@@ -357,13 +357,14 @@ const showSelectedHud = activeNav !== "Index" && !hideSelectedHud;
 
   .tl-shell :global(.tl-prose-body) {
     color: var(--tl-detail-body-ink);
-    font-size: 17px;
+    font-size: clamp(18px, 1.12vw, 20px);
     font-weight: var(--tl-detail-body-weight);
-    line-height: 1.78;
+    line-height: 1.82;
+    text-wrap: pretty;
   }
 
   .tl-shell :global(.tl-prose-body p + p) {
-    margin-top: 1.2rem;
+    margin-top: 1.35rem;
   }
 
   .tl-shell :global(.tl-pred-foot),

@@ -147,12 +147,12 @@ const hasHistory = thought.history.length > 1;
   }
 
   .tl-prose-shell {
-    width: min(100%, 640px);
+    width: min(100%, 680px);
     margin-inline: auto;
   }
 
   .tl-aside-block {
-    width: min(100%, 760px);
+    width: min(100%, 820px);
     margin-inline: auto;
   }
 
@@ -174,17 +174,26 @@ const hasHistory = thought.history.length > 1;
   .tl-history-row {
     position: relative;
     display: grid;
-    grid-template-columns: 56px minmax(0, 1fr) auto;
-    gap: 22px;
+    grid-template-columns: 9.5rem minmax(0, 1fr) auto;
+    gap: clamp(1.25rem, 3vw, 2.5rem);
     align-items: baseline;
-    padding: 30px 0;
+    padding: clamp(1.4rem, 3vw, 2rem) 0;
+  }
+
+  .tl-rel-row .tl-mono:first-child,
+  .tl-history-row .tl-mono:first-child {
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
 
   .tl-rel-row h3 {
-    font-size: clamp(25px, 3vw, 38px);
+    max-width: 54rem;
+    font-size: clamp(18px, 1.7vw, 25px);
     font-weight: 600;
-    line-height: 1.02;
+    line-height: 1.16;
     letter-spacing: 0;
+    overflow-wrap: anywhere;
+    text-wrap: pretty;
   }
 
   .tl-aside-block {
@@ -217,7 +226,13 @@ const hasHistory = thought.history.length > 1;
     .tl-rel-row,
     .tl-history-row {
       grid-template-columns: 1fr;
-      gap: 12px;
+      gap: 10px;
+      padding: 1.35rem 0;
+    }
+
+    .tl-rel-row h3 {
+      font-size: clamp(17px, 5vw, 22px);
+      line-height: 1.18;
     }
   }
 
