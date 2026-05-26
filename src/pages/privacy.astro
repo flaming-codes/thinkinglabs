@@ -11,20 +11,26 @@ import ThinkinglabsUiPage from "../layouts/ThinkinglabsUiPage.astro";
     <article class="tl-privacy-page">
       <header class="tl-privacy-hero">
         <div class="tl-privacy-hero-copy">
-          <h1>Privacy.</h1>
+          <p class="tl-privacy-kicker">Privacy</p>
+          <h1>Quiet by default.</h1>
           <p class="tl-privacy-lede">
-            This site is static, quiet, and deliberately uninterested in tracking readers.
+            thinkinglabs is static, public, and deliberately uninterested in identifying
+            readers. The site is built to publish work, not to observe the people reading it.
           </p>
         </div>
 
-        <figure class="tl-privacy-mark" aria-label="Privacy promise">
-          <span class="tl-privacy-mark-visual" aria-hidden="true"></span>
-        </figure>
+        <aside class="tl-privacy-promises" aria-label="Privacy summary">
+          <p>No analytics</p>
+          <p>No cookies</p>
+          <p>No fingerprinting</p>
+          <p>No reader profiles</p>
+        </aside>
       </header>
 
       <section class="tl-privacy-section" aria-labelledby="privacy-site-title">
-        <p class="tl-privacy-kicker">Site behavior</p>
+        <p class="tl-privacy-section-index">01</p>
         <div class="tl-privacy-copy">
+          <p class="tl-privacy-kicker">Site behavior</p>
           <h2 id="privacy-site-title">The page does not try to identify you.</h2>
           <p>
             thinkinglabs is static HTML generated from a public markdown repository. There is no
@@ -41,8 +47,9 @@ import ThinkinglabsUiPage from "../layouts/ThinkinglabsUiPage.astro";
       </section>
 
       <section class="tl-privacy-section" aria-labelledby="privacy-logs-title">
-        <p class="tl-privacy-kicker">Infrastructure</p>
+        <p class="tl-privacy-section-index">02</p>
         <div class="tl-privacy-copy">
+          <p class="tl-privacy-kicker">Infrastructure</p>
           <h2 id="privacy-logs-title">Hosts may keep ordinary operational logs.</h2>
           <p>
             The hosting layer may keep ordinary operational request logs, such as an IP address,
@@ -54,8 +61,9 @@ import ThinkinglabsUiPage from "../layouts/ThinkinglabsUiPage.astro";
       </section>
 
       <section class="tl-privacy-section" aria-labelledby="privacy-external-title">
-        <p class="tl-privacy-kicker">External places</p>
+        <p class="tl-privacy-section-index">03</p>
         <div class="tl-privacy-copy">
+          <p class="tl-privacy-kicker">External places</p>
           <h2 id="privacy-external-title">Other domains have their own rules.</h2>
           <p>
             Links to other domains leave this site. Once you follow one, your browser is
@@ -72,155 +80,166 @@ import ThinkinglabsUiPage from "../layouts/ThinkinglabsUiPage.astro";
 <style>
   .tl-privacy-page {
     display: grid;
-    gap: 8rem;
+    gap: clamp(6rem, 13vh, 10rem);
     width: min(100%, var(--tl-layout-page));
     margin-inline: auto;
-    padding: 10rem var(--tl-space-11) 12rem;
+    padding:
+      clamp(7rem, 13vh, 10rem)
+      max(var(--tl-space-8), var(--tl-safe-right))
+      clamp(8rem, 16vh, 12rem)
+      max(var(--tl-space-8), var(--tl-safe-left));
     color: var(--tl-ink);
   }
 
   .tl-privacy-hero {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(18rem, 26rem);
-    gap: clamp(3rem, 8vw, 8rem);
+    grid-template-columns: minmax(0, 1fr) minmax(11rem, 18rem);
+    gap: clamp(3rem, 9vw, 9rem);
     align-items: end;
+    min-height: min(620px, calc(var(--tl-viewport-height) - 8rem));
   }
 
-  .tl-privacy-hero-copy {
+  .tl-privacy-hero-copy,
+  .tl-privacy-promises,
+  .tl-privacy-copy {
     display: grid;
-    gap: 2rem;
-    max-width: 48rem;
   }
 
   .tl-privacy-hero h1,
   .tl-privacy-copy h2 {
     margin: 0;
     color: var(--tl-ink);
-    font-weight: var(--tl-type-heading-weight-strong);
+    font-weight: 430;
     letter-spacing: 0;
+  }
+
+  .tl-privacy-hero-copy {
+    gap: clamp(1.1rem, 2vw, 1.8rem);
+    max-width: 50rem;
   }
 
   .tl-privacy-hero h1 {
-    font-size: 56px;
-    line-height: var(--tl-type-line-tight);
+    max-width: 9.5ch;
+    font-size: clamp(54px, 9vw, 118px);
+    line-height: 0.9;
   }
 
   .tl-privacy-lede {
-    max-width: 43rem;
+    max-width: 36rem;
     margin: 0;
     color: var(--tl-prose-ink);
-    font-size: var(--tl-type-body-lg);
-    font-weight: 420;
-    line-height: 1.62;
+    font-size: clamp(17px, 1.6vw, 21px);
+    font-weight: 390;
+    line-height: 1.66;
     letter-spacing: 0;
   }
 
-  .tl-privacy-mark {
-    display: flex;
-    justify-content: center;
-    margin: 0;
-  }
-
-  .tl-privacy-mark-visual {
-    position: relative;
-    display: block;
-    overflow: hidden;
-    width: min(100%, 22rem);
-    aspect-ratio: 1 / 1;
-    border-radius: var(--tl-radius-round);
-    background: var(--tl-entity-gradient-luster), var(--tl-site-gradient-privacy);
-    background-blend-mode: var(--tl-entity-gradient-blend);
-    box-shadow: var(--tl-gallery-shadow);
+  .tl-privacy-promises {
+    gap: 0.8rem;
+    justify-self: end;
+    padding-bottom: clamp(0rem, 4vh, 3rem);
   }
 
   .tl-privacy-section {
     display: grid;
-    gap: 1.75rem;
+    grid-template-columns: minmax(7rem, 0.34fr) minmax(0, 1fr);
+    gap: clamp(2rem, 6vw, 7rem);
     align-items: start;
-    max-width: 48rem;
   }
 
-  .tl-privacy-kicker {
+  .tl-privacy-kicker,
+  .tl-privacy-section-index,
+  .tl-privacy-promises p {
     margin: 0;
-    color: var(--tl-muted);
-    font-size: var(--tl-type-metadata-size-lg);
-    font-weight: var(--tl-type-metadata-weight);
-    line-height: var(--tl-type-metadata-line);
-    letter-spacing: var(--tl-type-metadata-track-loose);
+    color: var(--tl-subtle);
+    font-size: var(--tl-type-metadata-size);
+    font-weight: 560;
+    line-height: 1.2;
+    letter-spacing: 0.11em;
     text-transform: uppercase;
   }
 
+  .tl-privacy-promises p {
+    color: var(--tl-muted);
+    text-align: right;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
   .tl-privacy-copy {
-    display: grid;
-    gap: 2rem;
-    max-width: 48rem;
+    gap: 1.75rem;
+    max-width: 45rem;
   }
 
   .tl-privacy-copy h2 {
-    max-width: 17ch;
-    font-size: 30px;
+    max-width: 18ch;
+    font-size: clamp(27px, 3vw, 41px);
     line-height: 1.08;
   }
 
   .tl-privacy-copy p {
     margin: 0;
     color: var(--tl-prose-ink);
-    font-size: var(--tl-type-body-lg);
-    font-weight: 420;
-    line-height: 1.72;
+    font-size: clamp(17px, 1.4vw, 19px);
+    font-weight: 390;
+    line-height: 1.74;
     letter-spacing: 0;
+  }
+
+  .tl-privacy-copy .tl-privacy-kicker {
+    color: var(--tl-subtle);
   }
 
   @media (max-width: 900px) {
     .tl-privacy-page {
-      gap: 7rem;
-      padding-top: 8rem;
+      gap: 6.5rem;
+      padding-top: 7rem;
+    }
+
+    .tl-privacy-hero,
+    .tl-privacy-section {
+      grid-template-columns: 1fr;
     }
 
     .tl-privacy-hero {
-      grid-template-columns: 1fr;
-      align-items: start;
+      gap: 3.2rem;
+      min-height: auto;
     }
 
-    .tl-privacy-mark {
-      width: min(100%, 34rem);
-      justify-self: center;
+    .tl-privacy-promises {
+      justify-self: start;
+      padding-bottom: 0;
     }
 
-    .tl-privacy-hero h1 {
-      font-size: 48px;
-    }
-
-    .tl-privacy-lede {
-      font-size: 18px;
+    .tl-privacy-promises p {
+      text-align: left;
     }
   }
 
   @media (max-width: 620px) {
     .tl-privacy-page {
-      gap: 5.5rem;
-      padding: 7rem var(--tl-space-8) 8rem;
+      gap: 5.4rem;
+      padding:
+        6rem
+        max(var(--tl-space-8), var(--tl-safe-right))
+        7rem
+        max(var(--tl-space-8), var(--tl-safe-left));
     }
 
     .tl-privacy-hero-copy {
-      gap: 1.6rem;
+      gap: 1.35rem;
     }
 
     .tl-privacy-hero h1 {
-      font-size: 40px;
+      max-width: 8.5ch;
     }
 
-    .tl-privacy-lede {
-      font-size: 17px;
-      line-height: 1.58;
+    .tl-privacy-copy {
+      gap: 1.45rem;
     }
 
-    .tl-privacy-copy h2 {
-      font-size: 24px;
-    }
-
-    .tl-privacy-copy p {
-      font-size: 17px;
+    .tl-privacy-promises {
+      gap: 0.65rem;
     }
   }
 </style>
