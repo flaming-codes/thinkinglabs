@@ -31,6 +31,24 @@
   --tl-og-bg: var(--tl-color-bg);
   --tl-og-ink: var(--tl-color-ink);
   --tl-og-muted: var(--tl-color-faint);
+  --tl-og-ink-soft: rgba(7, 9, 13, 0.7);
+  --tl-og-ink-eyebrow: rgba(7, 9, 13, 0.6);
+  --tl-og-dark-bg: #07090d;
+  --tl-og-dark-ink: #ffffff;
+  --tl-og-dark-ink-soft: rgba(243, 245, 247, 0.74);
+  --tl-og-dark-ink-eyebrow: rgba(243, 245, 247, 0.7);
+  /* Three soft-orb accent colors per kind, sampled from each kind's
+     conic-gradient stops. Consumed by the OG image route. */
+  --tl-og-palette-thoughts: #8dbbd0, #cddce6, #7fb1c8;
+  --tl-og-palette-claims: #c9ddff, #ffd9ed, #a9c4ff;
+  --tl-og-palette-projects: #0d8ba0, #5ea6d9, #b9d7c2;
+  --tl-og-palette-predictions: #b7cff7, #d6e3fa, #7da6e0;
+  --tl-og-palette-changed-my-mind: #ffba3d, #d94a45, #59616f;
+  --tl-og-palette-decisions: #b8c8aa, #e4d7b7, #3e6b59;
+  --tl-og-palette-questions: #ffcf4a, #ff6b50, #7137a8;
+  --tl-og-palette-posts: #f2b880, #b96d42, #d8dfe6;
+  --tl-og-palette-inputs: #6dd8ff, #3157d5, #70dfb2;
+  --tl-og-palette-observations: #b92f6e, #f4c95d, #2bb4a7;
   --tl-graph-bg: var(--tl-color-bg);
   --tl-graph-line: var(--tl-color-ink);
   --tl-graph-line-opacity: 0.18;

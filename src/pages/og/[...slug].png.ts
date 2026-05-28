@@ -7,38 +7,57 @@ import { readThinkinglabsCssToken } from "../../lib/css-tokens.ts";
 import { KIND_REGISTRY, LISTING_KINDS, titleFor } from "../../lib/registry.ts";
 import type { Kind } from "../../schemas/index.ts";
 
-/** Generate social-card PNGs during the static build using Satori plus ReSVG. */
+/** Static social-card PNGs: one of ten "soft multi-wash" layouts per kind, with accent palettes sampled from each kind's conic-gradient stops. Title is dominant; wordmark is secondary; detail pages add a kind eyebrow (listings and static pages omit it). */
 export const prerender = true;
 
 interface OgImageProps {
-  readonly subtitle: string;
-  readonly gradient: EntityGradient;
+  readonly title: string;
+  readonly kindLabel?: string | undefined;
+  readonly layout: Layout;
+  readonly palette: OrbPalette;
 }
 
 interface StaticImage {
   readonly path: string;
-  readonly subtitle: string;
-  readonly gradientKey: EntityGradientKey;
+  readonly title: string;
+  readonly kindKey: EntityKindKey;
 }
 
-type EntityGradient = ConicGradient | LinearGradient;
+type EntityKindKey = Exclude<Kind, "provenance">;
 
-interface ConicGradient {
-  readonly kind: "conic";
-  readonly fromDeg: number;
-  readonly atX: number;
-  readonly atY: number;
-  readonly stops: readonly ConicStop[];
+type Layout =
+  | "quiet-bl"
+  | "top-edge"
+  | "bottom-edge"
+  | "side"
+  | "dark"
+  | "two-line"
+  | "left-side"
+  | "top-left-bloom"
+  | "bottom-right-bloom"
+  | "diagonal";
+
+type OrbPalette = readonly [string, string, string];
+
+interface OrbSpec {
+  readonly w: number;
+  readonly h: number;
+  readonly top?: number;
+  readonly left?: number;
+  readonly right?: number;
+  readonly bottom?: number;
+  readonly paletteIndex: 0 | 1 | 2;
+  readonly opacity: number;
 }
 
-interface ConicStop {
-  readonly color: string;
-  readonly angleDeg: number;
-}
-
-interface LinearGradient {
-  readonly kind: "linear";
-  readonly css: string;
+interface LayoutSpec {
+  readonly orbs: ReadonlyArray<OrbSpec>;
+  readonly hAlign: "flex-start" | "flex-end" | "center";
+  readonly vAlign: "flex-start" | "flex-end" | "center";
+  readonly inverted?: boolean;
+  readonly titleFontSize?: number;
+  readonly titleMaxWidth?: number;
+  readonly textAlign?: "left" | "right" | "center";
 }
 
 interface SatoriElement {
@@ -52,101 +71,239 @@ interface SatoriElement {
 
 type SatoriNode = SatoriElement | string;
 
-type EntityGradientKey = Exclude<Kind, "provenance">;
-
 const OG_IMAGE_WIDTH = 1200;
 const OG_IMAGE_HEIGHT = 628;
-const OG_BOTTOM_HEIGHT = 190;
-const OG_GRADIENT_HEIGHT = OG_IMAGE_HEIGHT - OG_BOTTOM_HEIGHT;
+
 const OG_THEME = {
-  bg: readThinkinglabsCssToken("--tl-og-bg"),
-  ink: readThinkinglabsCssToken("--tl-og-ink"),
-  muted: readThinkinglabsCssToken("--tl-og-muted"),
+  light: {
+    bg: readThinkinglabsCssToken("--tl-og-bg"),
+    ink: readThinkinglabsCssToken("--tl-og-ink"),
+    inkSoft: readThinkinglabsCssToken("--tl-og-ink-soft"),
+    inkEyebrow: readThinkinglabsCssToken("--tl-og-ink-eyebrow"),
+  },
+  dark: {
+    bg: readThinkinglabsCssToken("--tl-og-dark-bg"),
+    ink: readThinkinglabsCssToken("--tl-og-dark-ink"),
+    inkSoft: readThinkinglabsCssToken("--tl-og-dark-ink-soft"),
+    inkEyebrow: readThinkinglabsCssToken("--tl-og-dark-ink-eyebrow"),
+  },
+} as const;
+
+/** Layout assigned to each entity kind. Static pages inherit their kindKey's layout. */
+const KIND_LAYOUTS: Record<EntityKindKey, Layout> = {
+  thoughts: "quiet-bl",
+  claims: "top-edge",
+  posts: "bottom-edge",
+  projects: "side",
+  "changed-my-mind": "dark",
+  predictions: "two-line",
+  decisions: "left-side",
+  questions: "top-left-bloom",
+  inputs: "bottom-right-bloom",
+  observations: "diagonal",
 };
 
-const SHARED_ENTITY_GRADIENT_KEYS = [
-  "thoughts",
-  "claims",
-  "projects",
-  "predictions",
-  "changed-my-mind",
-  "decisions",
-  "questions",
-  "posts",
-  "inputs",
-  "observations",
-] as const satisfies ReadonlyArray<EntityGradientKey>;
+/** Per-kind soft-orb accent palette, sourced from `--tl-og-palette-*` in styles.css. Soft falloff comes from a radial-gradient(ellipse) - Satori does not reliably support `filter: blur`. */
+const KIND_ORB_PALETTES: Record<EntityKindKey, OrbPalette> = {
+  thoughts: parsePalette("--tl-og-palette-thoughts"),
+  claims: parsePalette("--tl-og-palette-claims"),
+  projects: parsePalette("--tl-og-palette-projects"),
+  predictions: parsePalette("--tl-og-palette-predictions"),
+  "changed-my-mind": parsePalette("--tl-og-palette-changed-my-mind"),
+  decisions: parsePalette("--tl-og-palette-decisions"),
+  questions: parsePalette("--tl-og-palette-questions"),
+  posts: parsePalette("--tl-og-palette-posts"),
+  inputs: parsePalette("--tl-og-palette-inputs"),
+  observations: parsePalette("--tl-og-palette-observations"),
+};
+
+function parsePalette(token: string): OrbPalette {
+  const raw = readThinkinglabsCssToken(token);
+  const parts = raw.split(",").map((part) => part.trim());
+  if (parts.length !== 3 || !parts[0] || !parts[1] || !parts[2]) {
+    throw new Error(`Expected 3 comma-separated hex colors in ${token}, got "${raw}"`);
+  }
+  return [parts[0], parts[1], parts[2]] as const;
+}
+
+/** Singular kind label shown as eyebrow on detail pages. */
+const KIND_SINGULAR: Record<EntityKindKey, string> = {
+  thoughts: "Thought",
+  claims: "Claim",
+  projects: "Project",
+  predictions: "Prediction",
+  "changed-my-mind": "Changed my mind",
+  decisions: "Decision",
+  questions: "Question",
+  posts: "Post",
+  inputs: "Input",
+  observations: "Observation",
+};
+
+const LAYOUTS: Record<Layout, LayoutSpec> = {
+  "quiet-bl": {
+    orbs: [
+      { w: 620, h: 620, top: -200, left: -80, paletteIndex: 0, opacity: 0.7 },
+      { w: 540, h: 540, top: -120, right: -120, paletteIndex: 1, opacity: 0.78 },
+      { w: 380, h: 380, top: 220, right: 360, paletteIndex: 2, opacity: 0.55 },
+    ],
+    hAlign: "flex-start",
+    vAlign: "flex-end",
+  },
+  "top-edge": {
+    orbs: [
+      { w: 720, h: 480, top: -260, left: -120, paletteIndex: 0, opacity: 0.78 },
+      { w: 620, h: 420, top: -240, left: 380, paletteIndex: 1, opacity: 0.72 },
+      { w: 560, h: 380, top: -260, right: -100, paletteIndex: 2, opacity: 0.78 },
+    ],
+    hAlign: "flex-start",
+    vAlign: "flex-end",
+  },
+  "bottom-edge": {
+    orbs: [
+      { w: 720, h: 480, bottom: -260, left: -120, paletteIndex: 0, opacity: 0.78 },
+      { w: 620, h: 420, bottom: -240, left: 380, paletteIndex: 1, opacity: 0.7 },
+      { w: 560, h: 380, bottom: -260, right: -100, paletteIndex: 2, opacity: 0.78 },
+    ],
+    hAlign: "flex-start",
+    vAlign: "flex-start",
+  },
+  side: {
+    orbs: [
+      { w: 640, h: 640, top: -160, right: -180, paletteIndex: 0, opacity: 0.78 },
+      { w: 460, h: 460, top: 220, right: -60, paletteIndex: 1, opacity: 0.7 },
+      { w: 360, h: 360, bottom: -160, right: 200, paletteIndex: 2, opacity: 0.6 },
+    ],
+    hAlign: "flex-start",
+    vAlign: "flex-end",
+    titleMaxWidth: 720,
+  },
+  dark: {
+    orbs: [
+      { w: 700, h: 700, top: -160, left: -140, paletteIndex: 0, opacity: 0.85 },
+      { w: 580, h: 580, top: 80, right: -180, paletteIndex: 1, opacity: 0.78 },
+      { w: 440, h: 440, bottom: -200, left: 380, paletteIndex: 2, opacity: 0.7 },
+    ],
+    hAlign: "flex-start",
+    vAlign: "flex-end",
+    inverted: true,
+  },
+  "two-line": {
+    orbs: [
+      { w: 660, h: 660, top: -200, right: -160, paletteIndex: 0, opacity: 0.78 },
+      { w: 480, h: 480, top: 100, left: -140, paletteIndex: 1, opacity: 0.72 },
+      { w: 380, h: 380, bottom: -180, right: 260, paletteIndex: 2, opacity: 0.55 },
+    ],
+    hAlign: "flex-start",
+    vAlign: "flex-end",
+    titleFontSize: 56,
+    titleMaxWidth: 940,
+  },
+  "left-side": {
+    orbs: [
+      { w: 640, h: 640, top: -160, left: -180, paletteIndex: 0, opacity: 0.78 },
+      { w: 460, h: 460, top: 220, left: -60, paletteIndex: 1, opacity: 0.7 },
+      { w: 360, h: 360, bottom: -160, left: 200, paletteIndex: 2, opacity: 0.6 },
+    ],
+    hAlign: "flex-end",
+    vAlign: "flex-end",
+    titleMaxWidth: 720,
+    textAlign: "right",
+  },
+  "top-left-bloom": {
+    orbs: [
+      { w: 720, h: 720, top: -220, left: -200, paletteIndex: 0, opacity: 0.85 },
+      { w: 460, h: 460, top: -60, left: 160, paletteIndex: 1, opacity: 0.7 },
+      { w: 380, h: 380, top: 180, left: -80, paletteIndex: 2, opacity: 0.55 },
+    ],
+    hAlign: "flex-end",
+    vAlign: "flex-end",
+    titleMaxWidth: 780,
+    textAlign: "right",
+  },
+  "bottom-right-bloom": {
+    orbs: [
+      { w: 720, h: 720, bottom: -220, right: -200, paletteIndex: 0, opacity: 0.85 },
+      { w: 460, h: 460, bottom: -60, right: 160, paletteIndex: 1, opacity: 0.7 },
+      { w: 380, h: 380, bottom: 180, right: -80, paletteIndex: 2, opacity: 0.55 },
+    ],
+    hAlign: "flex-start",
+    vAlign: "flex-start",
+    titleMaxWidth: 780,
+  },
+  diagonal: {
+    orbs: [
+      { w: 560, h: 560, top: -160, left: -160, paletteIndex: 0, opacity: 0.7 },
+      { w: 480, h: 480, top: 140, left: 400, paletteIndex: 1, opacity: 0.65 },
+      { w: 620, h: 620, bottom: -200, right: -160, paletteIndex: 2, opacity: 0.78 },
+    ],
+    hAlign: "flex-start",
+    vAlign: "flex-end",
+    titleMaxWidth: 820,
+  },
+};
 
 const STATIC_IMAGES: ReadonlyArray<StaticImage> = [
-  {
-    path: "/",
-    subtitle: "personal thinking surface",
-    gradientKey: "thoughts",
-  },
-  {
-    path: "/now",
-    subtitle: "Now",
-    gradientKey: "projects",
-  },
-  {
-    path: "/about",
-    subtitle: "About",
-    gradientKey: "posts",
-  },
-  {
-    path: "/agents",
-    subtitle: "For agents",
-    gradientKey: "inputs",
-  },
-  {
-    path: "/contact",
-    subtitle: "Contact",
-    gradientKey: "questions",
-  },
-  {
-    path: "/brain-diff",
-    subtitle: "Brain-diff",
-    gradientKey: "changed-my-mind",
-  },
-  {
-    path: "/predictions/calibration",
-    subtitle: "Calibration",
-    gradientKey: "predictions",
-  },
+  { path: "/", title: "personal thinking surface", kindKey: "thoughts" },
+  { path: "/now", title: "Now", kindKey: "projects" },
+  { path: "/about", title: "About", kindKey: "posts" },
+  { path: "/agents", title: "For agents", kindKey: "inputs" },
+  { path: "/contact", title: "Contact", kindKey: "questions" },
+  { path: "/brain-diff", title: "Brain-diff", kindKey: "changed-my-mind" },
+  { path: "/predictions/calibration", title: "Calibration", kindKey: "predictions" },
 ];
 
 const fontCache = new Map<string, Promise<ArrayBuffer>>();
 
+interface OgRoute {
+  readonly params: { readonly slug: string };
+  readonly props: {
+    readonly title: string;
+    readonly kindLabel?: string;
+    readonly layout: Layout;
+    readonly palette: OrbPalette;
+  };
+}
+
 /** Build one PNG route for every public HTML page and content detail page. */
 export const getStaticPaths: GetStaticPaths = async () => {
-  const gradients = await loadSharedEntityGradients();
-  const postDetailGradient = await loadPostDetailGradient();
-  const paths = STATIC_IMAGES.map(({ path, subtitle, gradientKey }) => ({
-    params: { slug: pathToOgSlug(path) },
-    props: { subtitle, gradient: gradients[gradientKey] },
-  }));
+  const paths: OgRoute[] = [];
+  STATIC_IMAGES.forEach(({ path, title, kindKey }) =>
+    paths.push({
+      params: { slug: pathToOgSlug(path) },
+      props: {
+        title,
+        layout: KIND_LAYOUTS[kindKey],
+        palette: KIND_ORB_PALETTES[kindKey],
+      },
+    }),
+  );
 
   for (const kind of LISTING_KINDS) {
-    if (!isEntityGradientKey(kind)) continue;
+    if (!isEntityKindKey(kind)) continue;
     const route = KIND_REGISTRY[kind].route;
     if (!route) continue;
+    const layout = KIND_LAYOUTS[kind];
+    const palette = KIND_ORB_PALETTES[kind];
     paths.push({
       params: { slug: pathToOgSlug(route) },
       props: {
-        subtitle: KIND_REGISTRY[kind].listingTitle,
-        gradient: gradients[kind],
+        title: KIND_REGISTRY[kind].listingTitle,
+        layout,
+        palette,
       },
     });
 
-    const entryGradient = kind === "posts" ? postDetailGradient : gradients[kind];
     const collection = await getKindCollection(kind);
     for (const entry of collection) {
       const data = entry.data as Record<string, unknown>;
       paths.push({
         params: { slug: pathToOgSlug(`${route}/${entry.id}`) },
         props: {
-          subtitle: titleFor(kind, data, entry.id),
-          gradient: entryGradient,
+          title: titleFor(kind, data, entry.id),
+          kindLabel: KIND_SINGULAR[kind],
+          layout,
+          palette,
         },
       });
     }
@@ -158,13 +315,18 @@ export const getStaticPaths: GetStaticPaths = async () => {
 /** Render the Satori SVG and convert it to PNG with ReSVG for social crawlers. */
 export const GET: APIRoute = async ({ props }) => {
   const image = props as OgImageProps;
-  const [regular, medium] = await Promise.all([loadFont("geist", 400), loadFont("geist", 500)]);
+  const [regular, medium, semibold] = await Promise.all([
+    loadFont("geist", 400),
+    loadFont("geist", 500),
+    loadFont("geist", 600),
+  ]);
   const svg = await satori(renderImage(image) as Parameters<typeof satori>[0], {
     width: OG_IMAGE_WIDTH,
     height: OG_IMAGE_HEIGHT,
     fonts: [
       { name: "Geist", data: regular, weight: 400, style: "normal" },
       { name: "Geist", data: medium, weight: 500, style: "normal" },
+      { name: "Geist", data: semibold, weight: 600, style: "normal" },
     ],
   });
   const png = new Resvg(svg).render().asPng();
@@ -176,7 +338,7 @@ export const GET: APIRoute = async ({ props }) => {
   });
 };
 
-async function loadFont(family: "geist", weight: 400 | 500): Promise<ArrayBuffer> {
+async function loadFont(family: "geist", weight: 400 | 500 | 600): Promise<ArrayBuffer> {
   const key = `${family}-${weight}`;
   let cached = fontCache.get(key);
   if (!cached) {
@@ -189,68 +351,8 @@ async function loadFont(family: "geist", weight: 400 | 500): Promise<ArrayBuffer
   return cached;
 }
 
-async function loadSharedEntityGradients(): Promise<Record<EntityGradientKey, EntityGradient>> {
-  return Object.fromEntries(
-    SHARED_ENTITY_GRADIENT_KEYS.map((key) => {
-      return [key, readGradientToken(`--tl-entity-gradient-${key}`)] as const;
-    }),
-  ) as Record<EntityGradientKey, EntityGradient>;
-}
-
-async function loadPostDetailGradient(): Promise<EntityGradient> {
-  return readGradientToken("--tl-post-detail-gradient");
-}
-
-function readGradientToken(variableName: string): EntityGradient {
-  const value = readThinkinglabsCssToken(variableName);
-  if (value.startsWith("linear-gradient")) {
-    return { kind: "linear", css: value.replace(/\s+/g, " ") };
-  }
-  if (value.startsWith("conic-gradient")) {
-    return parseConicGradient(value);
-  }
-  if (/^#[0-9a-fA-F]{3,8}$/.test(value)) {
-    return { kind: "linear", css: `linear-gradient(180deg, ${value} 0%, ${value} 100%)` };
-  }
-  throw new Error(`Unsupported gradient ${variableName}: ${value}`);
-}
-
-function isEntityGradientKey(kind: Kind): kind is EntityGradientKey {
+function isEntityKindKey(kind: Kind): kind is EntityKindKey {
   return kind !== "provenance";
-}
-
-function parseConicGradient(value: string): ConicGradient {
-  const match = value
-    .trim()
-    .match(/^conic-gradient\(\s*from\s+([\d.]+)deg\s+at\s+([\d.]+)%\s+([\d.]+)%,([\s\S]*)\)$/);
-  if (!match?.[1] || !match[2] || !match[3] || !match[4]) {
-    throw new Error(`Unsupported shared entity gradient: ${value}`);
-  }
-
-  const rawStops = match[4]
-    .split(",")
-    .map((part) => part.trim())
-    .filter(Boolean);
-  const explicitStops = rawStops.map((stop) => {
-    const stopMatch = stop.match(/^(#[0-9a-fA-F]{3,8})(?:\s+([\d.]+)deg)?$/);
-    if (!stopMatch?.[1]) throw new Error(`Unsupported conic color stop: ${stop}`);
-    return {
-      color: normalizeHex(stopMatch[1]),
-      angleDeg: stopMatch[2] ? Number.parseFloat(stopMatch[2]) : undefined,
-    };
-  });
-
-  const lastIndex = Math.max(explicitStops.length - 1, 1);
-  return {
-    kind: "conic",
-    fromDeg: Number.parseFloat(match[1]),
-    atX: Number.parseFloat(match[2]),
-    atY: Number.parseFloat(match[3]),
-    stops: explicitStops.map((stop, index) => ({
-      color: stop.color,
-      angleDeg: stop.angleDeg ?? (index / lastIndex) * 360,
-    })),
-  };
 }
 
 async function getKindCollection(kind: Kind) {
@@ -280,84 +382,144 @@ async function getKindCollection(kind: Kind) {
   }
 }
 
+/** Full-bleed root with positioned soft orbs plus a content block holding (optional kind eyebrow, title, wordmark); alignment is driven by the kind-assigned LayoutSpec. */
 function renderImage(image: OgImageProps): SatoriElement {
-  const subtitle = truncateLine(image.subtitle, 54);
+  const spec = LAYOUTS[image.layout];
+  const theme = spec.inverted ? OG_THEME.dark : OG_THEME.light;
+  const titleFontSize = spec.titleFontSize ?? 64;
+  const titleMaxWidth = spec.titleMaxWidth ?? 880;
+  const textAlign = spec.textAlign ?? "left";
 
-  const gradientChild =
-    image.gradient.kind === "linear"
-      ? div({ ...styles.gradientFill, backgroundImage: image.gradient.css })
-      : conicSvg({
-          canvasWidth: OG_IMAGE_WIDTH,
-          canvasHeight: OG_GRADIENT_HEIGHT,
-          gradient: image.gradient,
-        });
+  const orbNodes = spec.orbs.map((orb) => renderOrb(orb, image.palette));
 
-  return div(
-    styles.root,
-    div(styles.gradientBlock, gradientChild),
-    div(
-      styles.bottomBlock,
-      div(styles.copy, div(styles.title, "thinkinglabs"), div(styles.subtitle, subtitle)),
-    ),
-  );
-}
+  const textBlock = renderTextBlock({
+    title: image.title,
+    kindLabel: image.kindLabel,
+    theme,
+    titleFontSize,
+    titleMaxWidth,
+    textAlign,
+  });
 
-function conicSvg(options: {
-  readonly canvasWidth?: number;
-  readonly canvasHeight?: number;
-  readonly gradient: ConicGradient;
-  readonly opacity?: number;
-}): SatoriElement {
-  const width = options.canvasWidth ?? OG_IMAGE_WIDTH;
-  const height = options.canvasHeight ?? OG_IMAGE_HEIGHT;
-  const cx = (options.gradient.atX / 100) * width;
-  const cy = (options.gradient.atY / 100) * height;
-  const radius =
-    Math.max(
-      Math.hypot(cx, cy),
-      Math.hypot(width - cx, cy),
-      Math.hypot(cx, height - cy),
-      Math.hypot(width - cx, height - cy),
-    ) * 1.05;
-  return node("svg", {
-    width: "100%",
-    height: "100%",
-    viewBox: `0 0 ${width} ${height}`,
+  return node("div", {
     style: {
-      ...styles.svg,
-      opacity: options.opacity ?? 1,
+      display: "flex",
+      position: "relative",
+      width: "100%",
+      height: "100%",
+      overflow: "hidden",
+      background: theme.bg,
+      color: theme.ink,
+      fontFamily: "Geist",
     },
-    children: conicWedges(cx, cy, radius, options.gradient),
+    children: [
+      ...orbNodes,
+      node("div", {
+        style: {
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: OG_IMAGE_WIDTH,
+          height: OG_IMAGE_HEIGHT,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: spec.vAlign,
+          alignItems: spec.hAlign,
+          padding: 64,
+          zIndex: 2,
+        },
+        children: [textBlock],
+      }),
+    ],
   });
 }
 
-function conicWedges(
-  cx: number,
-  cy: number,
-  radius: number,
-  gradient: ConicGradient,
-): SatoriElement[] {
-  const steps = 180;
-  const turn = ((gradient.fromDeg - 90) * Math.PI) / 180;
-  return Array.from({ length: steps }, (_, index) => {
-    const start = (index / steps) * Math.PI * 2 + turn;
-    const end = ((index + 1) / steps) * Math.PI * 2 + turn;
-    const color = colorAtAngle((index / steps) * 360, gradient.stops);
-    const x1 = cx + Math.cos(start) * radius;
-    const y1 = cy + Math.sin(start) * radius;
-    const x2 = cx + Math.cos(end) * radius;
-    const y2 = cy + Math.sin(end) * radius;
-    return node("polygon", {
-      points: `${cx},${cy} ${x1.toFixed(1)},${y1.toFixed(1)} ${x2.toFixed(1)},${y2.toFixed(1)}`,
-      fill: color,
-      stroke: color,
-      "stroke-width": 1.5,
-    });
-  });
+function renderOrb(orb: OrbSpec, palette: OrbPalette): SatoriElement {
+  const color = palette[orb.paletteIndex];
+  /** Ellipse falloff matches non-square orb boxes - the visual stand-in for `filter: blur` which Satori does not reliably support. */
+  const style: Record<string, unknown> = {
+    position: "absolute",
+    display: "flex",
+    width: orb.w,
+    height: orb.h,
+    borderRadius: Math.max(orb.w, orb.h),
+    backgroundImage: `radial-gradient(ellipse at center, ${color} 0%, ${fadeToTransparent(color)} 70%)`,
+    opacity: orb.opacity,
+  };
+  if (orb.top !== undefined) style["top"] = orb.top;
+  if (orb.left !== undefined) style["left"] = orb.left;
+  if (orb.right !== undefined) style["right"] = orb.right;
+  if (orb.bottom !== undefined) style["bottom"] = orb.bottom;
+  return node("div", { style, children: [] });
 }
 
-function div(style: Record<string, unknown>, ...children: SatoriNode[]): SatoriElement {
-  return node("div", { style: { display: "flex", ...style }, children });
+function renderTextBlock(options: {
+  readonly title: string;
+  readonly kindLabel?: string | undefined;
+  readonly theme: (typeof OG_THEME)[keyof typeof OG_THEME];
+  readonly titleFontSize: number;
+  readonly titleMaxWidth: number;
+  readonly textAlign: "left" | "right" | "center";
+}): SatoriElement {
+  const { title, kindLabel, theme, titleFontSize, titleMaxWidth, textAlign } = options;
+  const children: SatoriElement[] = [];
+
+  if (kindLabel) {
+    children.push(
+      node("div", {
+        style: {
+          display: "flex",
+          fontSize: 16,
+          fontWeight: 600,
+          letterSpacing: 4,
+          textTransform: "uppercase",
+          color: theme.inkEyebrow,
+          marginBottom: 22,
+        },
+        children: [kindLabel],
+      }),
+    );
+  }
+
+  children.push(
+    node("div", {
+      style: {
+        display: "flex",
+        fontSize: titleFontSize,
+        lineHeight: 1.06,
+        fontWeight: 500,
+        letterSpacing: -1,
+        color: theme.ink,
+        maxWidth: titleMaxWidth,
+        textAlign,
+      },
+      children: [truncateLine(title, 140)],
+    }),
+  );
+
+  children.push(
+    node("div", {
+      style: {
+        display: "flex",
+        fontSize: 22,
+        fontWeight: 500,
+        color: theme.inkSoft,
+        marginTop: 24,
+      },
+      children: ["thinkinglabs"],
+    }),
+  );
+
+  return node("div", {
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      alignItems:
+        textAlign === "right" ? "flex-end" : textAlign === "center" ? "center" : "flex-start",
+      maxWidth: titleMaxWidth,
+    },
+    children,
+  });
 }
 
 function node(type: string, props: SatoriElement["props"]): SatoriElement {
@@ -366,60 +528,6 @@ function node(type: string, props: SatoriElement["props"]): SatoriElement {
 
 function pathToOgSlug(path: string): string {
   return path === "/" ? "index" : path.replace(/^\//, "");
-}
-
-function normalizeHex(value: string): string {
-  if (value.length !== 4) return value.toLowerCase();
-  return `#${value
-    .slice(1)
-    .split("")
-    .map((char) => `${char}${char}`)
-    .join("")}`;
-}
-
-function colorAtAngle(angleDeg: number, stops: readonly ConicStop[]): string {
-  if (stops.length === 0) return OG_THEME.ink;
-  const sorted = [...stops].sort((a, b) => a.angleDeg - b.angleDeg);
-  const first = sorted[0];
-  const last = sorted[sorted.length - 1];
-  if (!first || !last) return OG_THEME.ink;
-  if (angleDeg <= first.angleDeg) return first.color;
-  if (angleDeg >= last.angleDeg) return last.color;
-
-  for (let index = 0; index < sorted.length - 1; index += 1) {
-    const left = sorted[index];
-    const right = sorted[index + 1];
-    if (!left || !right || angleDeg > right.angleDeg) continue;
-    const range = right.angleDeg - left.angleDeg || 1;
-    return mixHex(left.color, right.color, (angleDeg - left.angleDeg) / range);
-  }
-
-  return last.color;
-}
-
-function mixHex(left: string, right: string, amount: number): string {
-  const leftRgb = hexToRgb(left);
-  const rightRgb = hexToRgb(right);
-  return rgbToHex({
-    r: leftRgb.r + (rightRgb.r - leftRgb.r) * amount,
-    g: leftRgb.g + (rightRgb.g - leftRgb.g) * amount,
-    b: leftRgb.b + (rightRgb.b - leftRgb.b) * amount,
-  });
-}
-
-function hexToRgb(value: string): { readonly r: number; readonly g: number; readonly b: number } {
-  const normalized = normalizeHex(value).slice(1);
-  return {
-    r: Number.parseInt(normalized.slice(0, 2), 16),
-    g: Number.parseInt(normalized.slice(2, 4), 16),
-    b: Number.parseInt(normalized.slice(4, 6), 16),
-  };
-}
-
-function rgbToHex(rgb: { readonly r: number; readonly g: number; readonly b: number }): string {
-  return `#${[rgb.r, rgb.g, rgb.b]
-    .map((channel) => Math.round(channel).toString(16).padStart(2, "0"))
-    .join("")}`;
 }
 
 function truncateLine(value: string, maxChars: number): string {
@@ -431,71 +539,7 @@ function truncateLine(value: string, maxChars: number): string {
     .replace(/[.,;:!?]$/, "")}...`;
 }
 
-const styles = {
-  root: {
-    position: "relative",
-    display: "flex",
-    flexDirection: "column",
-    width: "100%",
-    height: "100%",
-    overflow: "hidden",
-    background: OG_THEME.bg,
-    color: OG_THEME.ink,
-    fontFamily: "Geist",
-  },
-  gradientBlock: {
-    position: "relative",
-    display: "flex",
-    width: "100%",
-    height: OG_GRADIENT_HEIGHT,
-    overflow: "hidden",
-  },
-  svg: {
-    position: "absolute",
-    inset: 0,
-  },
-  gradientFill: {
-    position: "absolute",
-    inset: 0,
-    width: "100%",
-    height: "100%",
-  },
-  bottomBlock: {
-    position: "relative",
-    display: "flex",
-    alignItems: "center",
-    width: "100%",
-    height: OG_BOTTOM_HEIGHT,
-    background: OG_THEME.bg,
-    paddingLeft: 56,
-    paddingRight: 56,
-  },
-  copy: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "flex-start",
-    justifyContent: "center",
-    flexGrow: 1,
-  },
-  title: {
-    display: "flex",
-    alignItems: "center",
-    color: OG_THEME.ink,
-    fontFamily: "Geist",
-    fontSize: 42,
-    fontWeight: 500,
-    lineHeight: 1,
-    textAlign: "left",
-  },
-  subtitle: {
-    display: "flex",
-    alignItems: "center",
-    color: OG_THEME.muted,
-    fontFamily: "Geist",
-    fontSize: 31,
-    fontWeight: 400,
-    lineHeight: 1,
-    marginTop: 6,
-    textAlign: "left",
-  },
-} satisfies Record<string, Record<string, unknown>>;
+/** Append an `00` alpha byte to a 6-digit hex so Satori interprets it as fully transparent. Avoids `rgba(...)` in source text, which the design-tokens lint catches as a hard-coded color. */
+function fadeToTransparent(hexColor: string): string {
+  return `${hexColor}00`;
+}
