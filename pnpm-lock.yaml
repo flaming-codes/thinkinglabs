@@ -75,6 +75,9 @@ importers:
       '@astrojs/check':
         specifier: ^0.9.9
         version: 0.9.9(prettier@3.8.3)(typescript@6.0.3)
+      '@astrojs/markdown-remark':
+        specifier: 7.2.0
+        version: 7.2.0
       '@madebywild/agent-harness-framework':
         specifier: ^1.10.1
         version: 1.10.1(@types/react@19.2.15)

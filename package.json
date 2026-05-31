@@ -69,6 +69,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.9",
+    "@astrojs/markdown-remark": "7.2.0",
     "@madebywild/agent-harness-framework": "^1.10.1",
     "@playwright/test": "^1.60.0",
     "@storybook-astro/framework": "^1.2.0",

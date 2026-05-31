@@ -1,5 +1,6 @@
 import { defineConfig } from "astro/config";
 import react from "@astrojs/react";
+import { unified } from "@astrojs/markdown-remark";
 import { env } from "./src/lib/env.ts";
 import remarkSectionFreshness from "./src/markdown/remark-section-freshness.ts";
 import rehypeSectionFreshness from "./src/markdown/rehype-section-freshness.ts";
@@ -26,8 +27,10 @@ export default defineConfig({
   },
   markdown: {
     syntaxHighlight: "prism",
-    remarkPlugins: [remarkSectionFreshness],
-    rehypePlugins: [rehypeSectionFreshness],
+    processor: unified({
+      remarkPlugins: [remarkSectionFreshness],
+      rehypePlugins: [rehypeSectionFreshness],
+    }),
   },
   security: {
     csp: {
