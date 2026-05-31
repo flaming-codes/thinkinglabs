@@ -8,7 +8,13 @@ import {
   predictionEvidenceBacklinks,
 } from "../src/lib/thinkinglabs-ui.ts";
 
-type RelationshipCollection = "thoughts" | "inputs" | "observations" | "predictions" | "claims";
+type RelationshipCollection =
+  | "thoughts"
+  | "inputs"
+  | "observations"
+  | "predictions"
+  | "claims"
+  | "posts";
 
 function entry<K extends RelationshipCollection>(
   collection: K,
@@ -76,6 +82,17 @@ describe("thinkinglabs UI relationship mappers", () => {
     status: "active",
     supersedes: [],
     superseded_by: [],
+    tags: ["agents"],
+  });
+
+  const post = entry("posts", "agent-markets-and-source-trails", {
+    title: "Agent markets and source trails",
+    created: "2026-05-15",
+    updated: "2026-05-15",
+    summary: "Source trails matter for agent marketplaces.",
+    related_claims: [],
+    related_thoughts: [],
+    inputs: ["inputs/openai-workspace-agents-chatgpt"],
     tags: ["agents"],
   });
 
@@ -147,8 +164,15 @@ describe("thinkinglabs UI relationship mappers", () => {
         thoughts: [thought],
         claims: [claim],
         predictions: [prediction],
+        posts: [post],
       }),
     ).toEqual([
+      {
+        kind: "post",
+        title: "Agent markets and source trails",
+        href: "/posts/agent-markets-and-source-trails",
+        date: "2026-05-15",
+      },
       {
         kind: "prediction",
         title: "Agent marketplaces will succeed app stores.",
@@ -179,7 +203,8 @@ describe("thinkinglabs UI relationship mappers", () => {
         thoughts: [thought],
         claims: [claim],
         predictions: [prediction],
+        posts: [post],
       }).get(input.id),
-    ).toBe(3);
+    ).toBe(4);
   });
 });

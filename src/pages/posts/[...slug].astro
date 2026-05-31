@@ -12,10 +12,15 @@ export const getStaticPaths = (async () => {
 }) satisfies GetStaticPaths;
 
 const { entry } = Astro.props as InferGetStaticPropsType<typeof getStaticPaths>;
-const [claims, thoughts] = await Promise.all([getCollection("claims"), getCollection("thoughts")]);
-const lookups = buildTitleLookup({ claims, thoughts });
+const [claims, thoughts, inputs] = await Promise.all([
+  getCollection("claims"),
+  getCollection("thoughts"),
+  getCollection("inputs"),
+]);
+const lookups = buildTitleLookup({ claims, thoughts, inputs });
 const claimLookup = buildClaimLookup(claims);
-const post = mapPostDetail({ entry, lookups, claimLookup });
+const inputLookup = new Map(inputs.map((input) => [input.id, input]));
+const post = mapPostDetail({ entry, lookups, claimLookup, inputLookup });
 const site = Astro.site ?? new URL(Astro.url.origin);
 ---
 

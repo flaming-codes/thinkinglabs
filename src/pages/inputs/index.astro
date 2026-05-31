@@ -5,13 +5,14 @@ import ThinkinglabsUiPage from "../../layouts/ThinkinglabsUiPage.astro";
 import { inputCitationCounts, mapInputsView } from "../../lib/thinkinglabs-ui.ts";
 import { listStructuredData } from "../../lib/structured-data.ts";
 
-const [entries, thoughts, claims, predictions] = await Promise.all([
+const [entries, thoughts, claims, predictions, posts] = await Promise.all([
   getCollection("inputs"),
   getCollection("thoughts"),
   getCollection("claims"),
   getCollection("predictions"),
+  getCollection("posts"),
 ]);
-const citationsBySlug = inputCitationCounts({ inputs: entries, thoughts, claims, predictions });
+const citationsBySlug = inputCitationCounts({ inputs: entries, thoughts, claims, predictions, posts });
 const view = mapInputsView({ entries, citationsBySlug });
 const site = Astro.site ?? new URL(Astro.url.origin);
 ---

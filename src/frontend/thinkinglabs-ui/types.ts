@@ -112,6 +112,15 @@ interface PostRelated {
   href?: string;
 }
 
+interface PostInput {
+  title: string;
+  source: string;
+  note: string;
+  consumed: string;
+  href?: string;
+  externalHref?: string;
+}
+
 type PostBlock =
   | { type: "p"; text: string; html: string; drop?: boolean }
   | { type: "pull"; text: string; html: string; attrib?: string | null }
@@ -144,6 +153,7 @@ interface PostDetail {
   citation: string;
   backlinks: number;
   related: PostRelated[];
+  inputs: PostInput[];
   sections: PostSection[];
   footnotes: PostFootnote[];
 }
@@ -510,6 +520,7 @@ export type {
   PostBlock,
   PostDetail,
   PostFootnote,
+  PostInput,
   PostRelated,
   PostSection,
   PostSummary,

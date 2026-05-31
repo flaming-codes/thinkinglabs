@@ -9,6 +9,7 @@ export const postSchema = z.object({
   summary: z.string().optional(),
   related_claims: linkArray.default([]),
   related_thoughts: linkArray.default([]),
+  inputs: linkArray.default([]),
   tags: tagsField,
 });
 
@@ -19,4 +20,5 @@ export type Post = z.infer<typeof postSchema>;
 export const postLinkFields = {
   related_claims: "related_claims",
   related_thoughts: "related_thoughts",
+  inputs: "derived_from",
 } as const;

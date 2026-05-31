@@ -1,6 +1,10 @@
 import type { Heading, Root, Text } from "mdast";
 import { visit } from "unist-util-visit";
 
+type HeadingDataWithProperties = NonNullable<Heading["data"]> & {
+  hProperties?: Record<string, string>;
+};
+
 /** Pandoc-style trailing attribute block on a heading: `## Title {#id key="value"}`. */
 const ATTR_RE = /\s*\{([^{}]*)\}\s*$/;
 
@@ -44,8 +48,8 @@ export default function remarkSectionFreshness() {
       const parsed = parseAttrs(tnode.value);
       if (!parsed) return;
       tnode.value = parsed.head;
-      const data = (node.data ??= {});
-      const hp = (data.hProperties ??= {}) as Record<string, string>;
+      const data = (node.data ??= {}) as HeadingDataWithProperties;
+      const hp = (data.hProperties ??= {});
       Object.assign(hp, toHProperties(parsed.attrs));
     });
   };

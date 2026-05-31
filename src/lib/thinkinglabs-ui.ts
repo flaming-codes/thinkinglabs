@@ -24,6 +24,7 @@ import type {
   PostBlock,
   PostDetail,
   PostFootnote,
+  PostInput,
   PostRelated,
   PostSection,
   PostSummary,
@@ -265,6 +266,7 @@ export function inputCitationBacklinks(args: {
   thoughts?: ReadonlyArray<CollectionEntry<"thoughts">>;
   claims?: ReadonlyArray<CollectionEntry<"claims">>;
   predictions?: ReadonlyArray<CollectionEntry<"predictions">>;
+  posts?: ReadonlyArray<CollectionEntry<"posts">>;
 }): ReadonlyArray<InputCitationBacklink> {
   const citations: InputCitationBacklink[] = [];
 
@@ -302,6 +304,16 @@ export function inputCitationBacklinks(args: {
     });
   }
 
+  for (const post of args.posts ?? []) {
+    if (!post.data.inputs.some((ref) => refTargetsInput(ref, args.targetSlug))) continue;
+    citations.push({
+      kind: kindLabel("posts"),
+      title: post.data.title,
+      href: detailHref("posts", post.id),
+      date: formatDate(post.data.updated),
+    });
+  }
+
   return sortInputCitationBacklinks(citations);
 }
 
@@ -311,6 +323,7 @@ export function inputCitationCounts(args: {
   thoughts?: ReadonlyArray<CollectionEntry<"thoughts">>;
   claims?: ReadonlyArray<CollectionEntry<"claims">>;
   predictions?: ReadonlyArray<CollectionEntry<"predictions">>;
+  posts?: ReadonlyArray<CollectionEntry<"posts">>;
 }): ReadonlyMap<string, number> {
   const counts = new Map<string, number>();
   for (const input of args.inputs) {
@@ -319,6 +332,7 @@ export function inputCitationCounts(args: {
       ...(args.thoughts !== undefined ? { thoughts: args.thoughts } : {}),
       ...(args.claims !== undefined ? { claims: args.claims } : {}),
       ...(args.predictions !== undefined ? { predictions: args.predictions } : {}),
+      ...(args.posts !== undefined ? { posts: args.posts } : {}),
     };
     const count = inputCitationBacklinks(backlinksArgs).length;
     counts.set(input.id, count);
@@ -792,8 +806,9 @@ export function mapPostDetail(args: {
   entry: CollectionEntry<"posts">;
   lookups?: TitleLookup;
   claimLookup?: ClaimLookup;
+  inputLookup?: ReadonlyMap<string, CollectionEntry<"inputs">>;
 }): PostDetail {
-  const { entry, lookups = {}, claimLookup = new Map() } = args;
+  const { entry, lookups = {}, claimLookup = new Map(), inputLookup = new Map() } = args;
   const words = wordCount(entry.body ?? "");
   const deck =
     entry.data.summary ?? truncate(firstParagraph(entry.body ?? "", entry.data.title), 280);
@@ -817,6 +832,19 @@ export function mapPostDetail(args: {
       };
     }),
   ];
+  const inputs: PostInput[] = entry.data.inputs.map((ref) => {
+    const resolved = titleFromLookup(ref, "inputs", lookups);
+    const parsed = parseRef(ref, "inputs");
+    const input = inputLookup.get(parsed.slug);
+    return {
+      title: resolved.title,
+      source: input?.data.source ?? "input",
+      note: input?.data.note ?? "",
+      consumed: input ? formatDate(input.data.consumed) : "",
+      href: resolved.href,
+      ...(input?.data.url !== undefined ? { externalHref: input.data.url } : {}),
+    };
+  });
 
   const sections = buildSections(entry.body ?? "");
   const footnotes = extractFootnotes(entry.body ?? "");
@@ -835,6 +863,7 @@ export function mapPostDetail(args: {
     citation: `Tom, ${entry.data.title}, thinkinglabs, ${formatDate(entry.data.created)}.`,
     backlinks: related.length,
     related,
+    inputs,
     sections: sections.length > 0 ? sections : [{ number: "01", title: "Overview", blocks: [] }],
     footnotes,
   };

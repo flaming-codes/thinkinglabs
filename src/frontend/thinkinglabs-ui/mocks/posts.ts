@@ -89,6 +89,14 @@ const POST_DETAIL: PostDetail = {
     },
     { kind: "input", title: "Engelbart, Augmenting Human Intellect (1962)" },
   ],
+  inputs: [
+    {
+      title: "Augmenting Human Intellect",
+      source: "Douglas Engelbart",
+      note: "The original framing of human-computer augmentation as a system of tools, practices, and trained judgment.",
+      consumed: "2026-04-12",
+    },
+  ],
   sections: [
     {
       number: "01",

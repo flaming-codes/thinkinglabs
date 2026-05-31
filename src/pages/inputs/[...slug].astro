@@ -12,16 +12,18 @@ export const getStaticPaths = (async () => {
 }) satisfies GetStaticPaths;
 
 const { entry } = Astro.props as InferGetStaticPropsType<typeof getStaticPaths>;
-const [thoughts, claims, predictions] = await Promise.all([
+const [thoughts, claims, predictions, posts] = await Promise.all([
   getCollection("thoughts"),
   getCollection("claims"),
   getCollection("predictions"),
+  getCollection("posts"),
 ]);
 const citations = inputCitationBacklinks({
   targetSlug: entry.id,
   thoughts,
   claims,
   predictions,
+  posts,
 });
 const input = mapInputDetail({ entry, citations });
 const site = Astro.site ?? new URL(Astro.url.origin);
