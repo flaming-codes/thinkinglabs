@@ -103,7 +103,7 @@
       "sharp"
     ],
     "overrides": {
-      "vitest": "npm:@voidzero-dev/vite-plus-test@latest"
+      "vitest": "npm:@voidzero-dev/vite-plus-test@^0.1.23"
     }
   }
 }
