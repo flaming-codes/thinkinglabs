@@ -95,7 +95,7 @@ const tags = entry.data.tags ?? [];
           class="block cursor-pointer origin-top-right lg:scale-75"
           aria-label="Open navigation"
         >
-          <BrandLogo ariaLabel="thinkinglabs" />
+          <BrandLogo class="tl-nav-logo" ariaLabel="thinkinglabs" />
         </label>
 
         <div
@@ -246,15 +246,28 @@ const tags = entry.data.tags ?? [];
 </ThinkinglabsUiPage>
 
 <style>
-  /* The nav badge sits transparent over the hero, then fades to a solid
-     black disc once the hero has scrolled fully out of view, so the logo
-     stays legible against the page background. Driven entirely by a
-     scroll-driven view-timeline (no JS). The timeline is declared on the
-     hero image and exposed to the fixed badge via timeline-scope on their
-     shared frame. Chromium-only today; @supports keeps it transparent as a
-     graceful fallback in Safari/Firefox instead of always-black. */
+  /* The nav badge fills to a solid disc once the hero has scrolled out of
+     view, so the logo stays legible against the page background. Both the
+     disc and the logo are theme-aware: the disc fades to the page
+     background (--tl-bg) and the logo settles on the ink color (--tl-ink),
+     so it reads as a black logo on a white disc on light and a white logo
+     on a black disc on dark - never a black logo on a white disc on dark.
+
+     On mobile/tablet the badge sits over the hero, so the logo starts white
+     (legible on the photo) and animates to the ink color as the disc
+     fills. On desktop (lg+) the badge moves top-right, off the hero and
+     onto the page background, so the logo is the ink colour throughout.
+
+     Driven entirely by a scroll-driven view-timeline (no JS): the timeline
+     is declared on the hero image and exposed to the fixed badge via
+     timeline-scope on their shared frame. Chromium-only today; @supports
+     keeps the badge transparent as a graceful fallback in Safari/Firefox. */
   .tl-nav-badge {
     background-color: transparent;
+  }
+
+  .tl-nav-badge :global(.tl-nav-logo) {
+    color: #fff;
   }
 
   @keyframes tl-nav-badge-reveal {
@@ -262,7 +275,16 @@ const tags = entry.data.tags ?? [];
       background-color: transparent;
     }
     to {
-      background-color: #000;
+      background-color: var(--tl-bg);
+    }
+  }
+
+  @keyframes tl-nav-logo-reveal {
+    from {
+      color: #fff;
+    }
+    to {
+      color: var(--tl-ink);
     }
   }
 
@@ -279,6 +301,22 @@ const tags = entry.data.tags ?? [];
       animation: tl-nav-badge-reveal linear both;
       animation-timeline: --tl-hero;
       animation-range: exit;
+    }
+
+    .tl-nav-badge :global(.tl-nav-logo) {
+      animation: tl-nav-logo-reveal linear both;
+      animation-timeline: --tl-hero;
+      animation-range: exit;
+    }
+  }
+
+  /* Desktop: badge lives top-right on the page background, not over the
+     hero, so the logo uses the theme ink color throughout (black on light,
+     white on dark) and the white-start reveal is dropped. */
+  @media (min-width: 64rem) {
+    .tl-nav-badge :global(.tl-nav-logo) {
+      color: var(--tl-ink);
+      animation: none;
     }
   }
 
