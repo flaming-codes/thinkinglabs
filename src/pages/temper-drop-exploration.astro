@@ -1,7 +1,9 @@
 ---
 import { getCollection, render } from "astro:content";
+import { Image } from "astro:assets";
 import ThinkinglabsUiPage from "../layouts/ThinkinglabsUiPage.astro";
 import BrandLogo from "../frontend/thinkinglabs-ui/components/BrandLogo.astro";
+import heroImage from "../assets/hero.png";
 
 const thoughts = await getCollection("thoughts");
 const entry = thoughts.sort((a, b) =>
@@ -26,15 +28,19 @@ const tags = entry.data.tags ?? [];
   allowScroll
 >
   <main class="font-sans flex flex-col gap-y-2">
-    <div class="relative h-dvh p-2">
-      <img
-        src="/images/hero.png"
+    <div class="tl-hero-frame relative h-dvh p-2">
+      <Image
+        src={heroImage}
         alt={entry.data.title}
-        class="h-full w-full object-cover md:w-3/4"
+        widths={[480, 768, 1024, 1280, 1600, 2048]}
+        sizes="(min-width: 768px) 75vw, 100vw"
+        format="webp"
+        quality={80}
+        class="tl-hero-media h-full w-full object-cover md:w-3/4"
       />
 
       <aside
-        class="absolute top-2 left-2 lg:left-auto lg:top-0 md:right-0 z-20"
+        class="tl-nav-badge fixed rounded-full overflow-hidden aspect-square top-2 left-2 lg:left-auto lg:top-0 md:right-0 z-20"
       >
         <input id="tl-nav" type="checkbox" class="tl-nav-toggle peer sr-only" />
         <label
@@ -62,16 +68,66 @@ const tags = entry.data.tags ?? [];
               <ul
                 class="flex list-none flex-col gap-1 p-0 lg:items-end lg:text-right"
               >
-                <li><a class="text-sm text-black no-underline transition-opacity hover:opacity-50" href="/now">now</a></li>
-                <li><a class="text-sm text-black no-underline transition-opacity hover:opacity-50" href="/thoughts">thoughts</a></li>
-                <li><a class="text-sm text-black no-underline transition-opacity hover:opacity-50" href="/claims">claims</a></li>
-                <li><a class="text-sm text-black no-underline transition-opacity hover:opacity-50" href="/predictions">predictions</a></li>
-                <li><a class="text-sm text-black no-underline transition-opacity hover:opacity-50" href="/decisions">decisions</a></li>
-                <li><a class="text-sm text-black no-underline transition-opacity hover:opacity-50" href="/experiments">experiments</a></li>
-                <li><a class="text-sm text-black no-underline transition-opacity hover:opacity-50" href="/observations">observations</a></li>
-                <li><a class="text-sm text-black no-underline transition-opacity hover:opacity-50" href="/changed-my-mind">changed my mind</a></li>
-                <li><a class="text-sm text-black no-underline transition-opacity hover:opacity-50" href="/about">about</a></li>
-                <li><a class="text-sm text-black no-underline transition-opacity hover:opacity-50" href="/contact">contact</a></li>
+                <li>
+                  <a
+                    class="text-sm text-black no-underline transition-opacity hover:opacity-50"
+                    href="/now">now</a
+                  >
+                </li>
+                <li>
+                  <a
+                    class="text-sm text-black no-underline transition-opacity hover:opacity-50"
+                    href="/thoughts">thoughts</a
+                  >
+                </li>
+                <li>
+                  <a
+                    class="text-sm text-black no-underline transition-opacity hover:opacity-50"
+                    href="/claims">claims</a
+                  >
+                </li>
+                <li>
+                  <a
+                    class="text-sm text-black no-underline transition-opacity hover:opacity-50"
+                    href="/predictions">predictions</a
+                  >
+                </li>
+                <li>
+                  <a
+                    class="text-sm text-black no-underline transition-opacity hover:opacity-50"
+                    href="/decisions">decisions</a
+                  >
+                </li>
+                <li>
+                  <a
+                    class="text-sm text-black no-underline transition-opacity hover:opacity-50"
+                    href="/experiments">experiments</a
+                  >
+                </li>
+                <li>
+                  <a
+                    class="text-sm text-black no-underline transition-opacity hover:opacity-50"
+                    href="/observations">observations</a
+                  >
+                </li>
+                <li>
+                  <a
+                    class="text-sm text-black no-underline transition-opacity hover:opacity-50"
+                    href="/changed-my-mind">changed my mind</a
+                  >
+                </li>
+                <li>
+                  <a
+                    class="text-sm text-black no-underline transition-opacity hover:opacity-50"
+                    href="/about">about</a
+                  >
+                </li>
+                <li>
+                  <a
+                    class="text-sm text-black no-underline transition-opacity hover:opacity-50"
+                    href="/contact">contact</a
+                  >
+                </li>
               </ul>
             </nav>
           </div>
@@ -119,6 +175,42 @@ const tags = entry.data.tags ?? [];
 </ThinkinglabsUiPage>
 
 <style>
+  /* The nav badge sits transparent over the hero, then fades to a solid
+     black disc once the hero has scrolled fully out of view, so the logo
+     stays legible against the page background. Driven entirely by a
+     scroll-driven view-timeline (no JS). The timeline is declared on the
+     hero image and exposed to the fixed badge via timeline-scope on their
+     shared frame. Chromium-only today; @supports keeps it transparent as a
+     graceful fallback in Safari/Firefox instead of always-black. */
+  .tl-nav-badge {
+    background-color: transparent;
+  }
+
+  @keyframes tl-nav-badge-reveal {
+    from {
+      background-color: transparent;
+    }
+    to {
+      background-color: #000;
+    }
+  }
+
+  @supports (animation-timeline: view()) {
+    .tl-hero-frame {
+      timeline-scope: --tl-hero;
+    }
+
+    .tl-hero-media {
+      view-timeline-name: --tl-hero;
+    }
+
+    .tl-nav-badge {
+      animation: tl-nav-badge-reveal linear both;
+      animation-timeline: --tl-hero;
+      animation-range: exit;
+    }
+  }
+
   .entity-prose {
     max-width: 65ch;
   }
