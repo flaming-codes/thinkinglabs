@@ -1,8 +1,8 @@
 ---
 import { getCollection, render } from "astro:content";
-import { Image } from "astro:assets";
 import ThinkinglabsUiPage from "../layouts/ThinkinglabsUiPage.astro";
-import BrandLogo from "../frontend/thinkinglabs-ui/components/BrandLogo.astro";
+import EntityDetail from "../frontend/thinkinglabs-ui/components/EntityDetail.astro";
+import type { EntityRelationGroup } from "../frontend/thinkinglabs-ui/components/EntityDetail.astro";
 import { titleFor } from "../lib/registry.ts";
 import heroImage from "../assets/hero.png";
 
@@ -16,15 +16,15 @@ const { Content } = await render(entry);
 
 // Relation edges from the thought schema (claims/inputs/observations) are the
 // only data-model fields not yet surfaced on this page. Resolve each referenced
-// slug to its display title and detail-page link; render conditionally so the
-// addendum stays absent when a thought has no edges.
+// slug to its display title and detail-page link; the component drops empty
+// groups so the addendum stays absent when a thought has no edges.
 const [relatedClaims, relatedInputs, relatedObservations] = await Promise.all([
   getCollection("claims"),
   getCollection("inputs"),
   getCollection("observations"),
 ]);
 
-const relations = (
+const relations: EntityRelationGroup[] = (
   [
     {
       kind: "claims",
@@ -57,15 +57,6 @@ const relations = (
     }),
   }))
   .filter((group) => group.links.length > 0);
-
-const dateFmt = new Intl.DateTimeFormat("en", {
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-});
-const created = dateFmt.format(new Date(entry.data.created));
-const updated = dateFmt.format(new Date(entry.data.updated));
-const tags = entry.data.tags ?? [];
 ---
 
 <ThinkinglabsUiPage
@@ -74,259 +65,14 @@ const tags = entry.data.tags ?? [];
   robots="noindex"
   allowScroll
 >
-  <main class="font-sans flex flex-col gap-y-2 pb-8">
-    <div class="tl-hero-frame relative h-dvh p-2">
-      <Image
-        src={heroImage}
-        alt={entry.data.title}
-        widths={[480, 768, 1024, 1280, 1600, 2048]}
-        sizes="(min-width: 768px) 75vw, 100vw"
-        format="webp"
-        quality={80}
-        class="tl-hero-media h-full w-full object-cover md:w-3/4"
-      />
-
-      <aside
-        class="tl-nav-badge fixed rounded-full overflow-hidden aspect-square top-2 left-2 lg:left-auto lg:right-0 lg:top-0 z-20"
-      >
-        <input id="tl-nav" type="checkbox" class="tl-nav-toggle peer sr-only" />
-        <label
-          for="tl-nav"
-          class="block cursor-pointer origin-top-right lg:scale-75"
-          aria-label="Open navigation"
-        >
-          <BrandLogo class="tl-nav-logo" ariaLabel="thinkinglabs" />
-        </label>
-
-        <div
-          class="invisible fixed inset-0 z-50 flex scale-95 flex-col bg-white p-2 text-black opacity-0 transition duration-200 ease-out origin-top-left peer-checked:visible peer-checked:scale-100 peer-checked:opacity-100 lg:origin-top-right"
-        >
-          <div class="flex flex-col gap-10 lg:items-end">
-            <label
-              for="tl-nav"
-              class="flex cursor-pointer items-center gap-2"
-              aria-label="Close navigation"
-            >
-              <BrandLogo class="text-black!" />
-              <span class="text-sm tracking-tight">thinkinglabs</span>
-            </label>
-
-            <nav>
-              <ul
-                class="flex list-none flex-col gap-1 p-0 lg:items-end lg:text-right"
-              >
-                <li>
-                  <a
-                    class="text-sm text-black no-underline transition-opacity hover:opacity-50"
-                    href="/now">now</a
-                  >
-                </li>
-                <li>
-                  <a
-                    class="text-sm text-black no-underline transition-opacity hover:opacity-50"
-                    href="/thoughts">thoughts</a
-                  >
-                </li>
-                <li>
-                  <a
-                    class="text-sm text-black no-underline transition-opacity hover:opacity-50"
-                    href="/claims">claims</a
-                  >
-                </li>
-                <li>
-                  <a
-                    class="text-sm text-black no-underline transition-opacity hover:opacity-50"
-                    href="/predictions">predictions</a
-                  >
-                </li>
-                <li>
-                  <a
-                    class="text-sm text-black no-underline transition-opacity hover:opacity-50"
-                    href="/decisions">decisions</a
-                  >
-                </li>
-                <li>
-                  <a
-                    class="text-sm text-black no-underline transition-opacity hover:opacity-50"
-                    href="/experiments">experiments</a
-                  >
-                </li>
-                <li>
-                  <a
-                    class="text-sm text-black no-underline transition-opacity hover:opacity-50"
-                    href="/observations">observations</a
-                  >
-                </li>
-                <li>
-                  <a
-                    class="text-sm text-black no-underline transition-opacity hover:opacity-50"
-                    href="/changed-my-mind">changed my mind</a
-                  >
-                </li>
-                <li>
-                  <a
-                    class="text-sm text-black no-underline transition-opacity hover:opacity-50"
-                    href="/about">about</a
-                  >
-                </li>
-                <li>
-                  <a
-                    class="text-sm text-black no-underline transition-opacity hover:opacity-50"
-                    href="/contact">contact</a
-                  >
-                </li>
-              </ul>
-            </nav>
-          </div>
-        </div>
-      </aside>
-
-      <aside
-        class="absolute top-1/2 -translate-y-1/2 left-4 right-4 md:right-auto"
-      >
-        <!-- Needs to stay gray-50 regardless of theme -->
-        <h2 class="font-normal text-gray-50">{entry.data.title}</h2>
-      </aside>
-    </div>
-
-    <section
-      class="px-2 flex flex-col gap-4 md:pr-8 lg:max-w-3/4 lg:flex-row lg:justify-end lg:pr-2 lg:gap-16"
-    >
-      <header class="flex flex-col">
-        <p class="text-sm opacity-70">
-          <time datetime={entry.data.created}>{created}</time>
-          {
-            updated !== created && (
-              <>
-                {" · updated "}
-                <time datetime={entry.data.updated}>{updated}</time>
-              </>
-            )
-          }
-        </p>
-        {
-          tags.length > 0 && (
-            <ul class="flex flex-wrap gap-x-1 list-none p-0">
-              {tags.map((tag) => (
-                <li class="text-sm opacity-50">#{tag}</li>
-              ))}
-            </ul>
-          )
-        }
-      </header>
-      <article class="entity-prose md:pl-16 lg:pl-0">
-        <Content />
-      </article>
-    </section>
-
-    {
-      relations.length > 0 && (
-        <footer class="flex flex-col px-2 md:pr-8 lg:max-w-3/4 lg:items-end lg:pr-2">
-          <dl class="flex w-full flex-col gap-6 border-t border-black/10 pt-6 lg:max-w-prose">
-            {relations.map((group) => (
-              <div class="flex flex-col gap-1">
-                <dt class="text-sm opacity-50">{group.label}</dt>
-                {group.links.map((link) => (
-                  <dd class="m-0">
-                    <a
-                      class="text-sm no-underline opacity-80 transition-opacity hover:opacity-100"
-                      href={link.href}
-                    >
-                      {link.title}
-                    </a>
-                  </dd>
-                ))}
-              </div>
-            ))}
-          </dl>
-        </footer>
-      )
-    }
-  </main>
+  <EntityDetail
+    title={entry.data.title}
+    created={entry.data.created}
+    updated={entry.data.updated}
+    tags={entry.data.tags ?? []}
+    heroImage={heroImage}
+    relations={relations}
+  >
+    <Content />
+  </EntityDetail>
 </ThinkinglabsUiPage>
-
-<style>
-  /* The nav badge fills to a solid disc once the hero has scrolled out of
-     view, so the logo stays legible against the page background. Both the
-     disc and the logo are theme-aware: the disc fades to the page
-     background (--tl-bg) and the logo settles on the ink color (--tl-ink),
-     so it reads as a black logo on a white disc on light and a white logo
-     on a black disc on dark - never a black logo on a white disc on dark.
-
-     On mobile/tablet the badge sits over the hero, so the logo starts white
-     (legible on the photo) and animates to the ink color as the disc
-     fills. On desktop (lg+) the badge moves top-right, off the hero and
-     onto the page background, so the logo is the ink colour throughout.
-
-     Driven entirely by a scroll-driven view-timeline (no JS): the timeline
-     is declared on the hero image and exposed to the fixed badge via
-     timeline-scope on their shared frame. Chromium-only today; @supports
-     keeps the badge transparent as a graceful fallback in Safari/Firefox. */
-  .tl-nav-badge {
-    background-color: transparent;
-  }
-
-  .tl-nav-badge :global(.tl-nav-logo) {
-    color: #fff;
-  }
-
-  @keyframes tl-nav-badge-reveal {
-    from {
-      background-color: transparent;
-    }
-    to {
-      background-color: var(--tl-bg);
-    }
-  }
-
-  @keyframes tl-nav-logo-reveal {
-    from {
-      color: #fff;
-    }
-    to {
-      color: var(--tl-ink);
-    }
-  }
-
-  @supports (animation-timeline: view()) {
-    .tl-hero-frame {
-      timeline-scope: --tl-hero;
-    }
-
-    .tl-hero-media {
-      view-timeline-name: --tl-hero;
-    }
-
-    .tl-nav-badge {
-      animation: tl-nav-badge-reveal linear both;
-      animation-timeline: --tl-hero;
-      animation-range: exit;
-    }
-
-    .tl-nav-badge :global(.tl-nav-logo) {
-      animation: tl-nav-logo-reveal linear both;
-      animation-timeline: --tl-hero;
-      animation-range: exit;
-    }
-  }
-
-  /* Desktop: badge lives top-right on the page background, not over the
-     hero, so the logo uses the theme ink color throughout (black on light,
-     white on dark) and the white-start reveal is dropped. */
-  @media (min-width: 64rem) {
-    .tl-nav-badge :global(.tl-nav-logo) {
-      color: var(--tl-ink);
-      animation: none;
-    }
-  }
-
-  .entity-prose {
-    max-width: 65ch;
-  }
-
-  /* <Content /> markup is not Tailwind-aware during migration, so space
-     paragraphs with plain scoped CSS reaching into the rendered markdown. */
-  .entity-prose :global(p) {
-    margin-block: 1.5em;
-  }
-</style>
