@@ -26,22 +26,23 @@ const tags = entry.data.tags ?? [];
   allowScroll
 >
   <main class="font-sans gap-y-2">
+    <aside class="fixed top-0 right-0 origin-top-right scale-75">
+      <BrandLogo ariaLabel="thinkinglabs" />
+    </aside>
     <div class="relative h-dvh p-2">
       <img
         src="/images/hero.png"
         alt={entry.data.title}
         class="h-full w-3/4 object-cover"
       />
-      <aside class="absolute top-4 left-4">
-        <BrandLogo ariaLabel="thinkinglabs" />
-      </aside>
+
       <aside class="absolute top-1/2 -translate-y-1/2 left-4">
         <h2 class="font-normal">{entry.data.title}</h2>
       </aside>
     </div>
 
-    <section class="px-2">
-      <header class="flex flex-col gap-y-2">
+    <section class="px-2 max-w-3/4 flex justify-end">
+      <header class="flex flex-col">
         <p class="text-sm opacity-70">
           <time datetime={entry.data.created}>{created}</time>
           {
@@ -55,15 +56,15 @@ const tags = entry.data.tags ?? [];
         </p>
         {
           tags.length > 0 && (
-            <ul class="flex flex-wrap gap-2 list-none p-0">
+            <ul class="flex flex-wrap gap-x-1 list-none p-0">
               {tags.map((tag) => (
-                <li class="text-sm opacity-70">#{tag}</li>
+                <li class="text-sm opacity-50">#{tag}</li>
               ))}
             </ul>
           )
         }
       </header>
-      <article class="entity-prose mt-6">
+      <article class="entity-prose">
         <Content />
       </article>
     </section>
