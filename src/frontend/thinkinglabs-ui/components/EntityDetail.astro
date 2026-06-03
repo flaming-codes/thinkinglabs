@@ -1,28 +1,15 @@
 ---
 import type { ImageMetadata } from "astro";
-import { Image } from "astro:assets";
-import BrandLogo from "./BrandLogo.astro";
+import PageShell from "./PageShell.astro";
+import EntityHero from "./EntityHero.astro";
+import EntityBody from "./EntityBody.astro";
+import EntityFooter from "./EntityFooter.astro";
+import type { EntityDate } from "./EntityBody.astro";
+import type { EntityRelationGroup, EntityRelationLink } from "./EntityFooter.astro";
 
-/** One resolved link inside a relation group (already title-resolved upstream). */
-export interface EntityRelationLink {
-  href: string;
-  title: string;
-  /** Optional trailing value (e.g. a claim confidence) shown muted after the title. */
-  value?: string;
-}
-
-/** A labelled group of related entities (e.g. "Claims", "Observations"). */
-export interface EntityRelationGroup {
-  label: string;
-  links: EntityRelationLink[];
-}
-
-/** One entry in the dateline; kinds map their own date fields (reviewed, made, asked, ...) to this. */
-export interface EntityDate {
-  label: string;
-  /** ISO value for the `<time datetime>` attribute; omit when only a formatted label is available. */
-  iso?: string;
-}
+// Re-exported so existing consumers keep importing these from EntityDetail even
+// though the canonical definitions now live with the container that renders them.
+export type { EntityDate, EntityRelationGroup, EntityRelationLink };
 
 interface Props {
   /** Entity title; rendered in the hero overlay and as the document heading. */
@@ -41,238 +28,28 @@ interface Props {
 
 const { title, dates = [], tags = [], heroImage, heroAlt, relations = [] } = Astro.props;
 
-// Top-level site navigation, surfaced from the hero badge. Kept as data so the
-// markup stays a single mapped list rather than a repeated block of anchors.
-const navLinks = [
-  { href: "/now", label: "now" },
-  { href: "/thoughts", label: "thoughts" },
-  { href: "/claims", label: "claims" },
-  { href: "/predictions", label: "predictions" },
-  { href: "/decisions", label: "decisions" },
-  { href: "/experiments", label: "experiments" },
-  { href: "/observations", label: "observations" },
-  { href: "/changed-my-mind", label: "changed my mind" },
-  { href: "/about", label: "about" },
-  { href: "/contact", label: "contact" },
-] as const;
-
+// Forward slots only when present so the body/footer keep their "absent when
+// empty" behaviour - an unconditionally forwarded slot would read as present.
 const hasMeta = Astro.slots.has("meta");
 const hasAside = Astro.slots.has("aside");
-const hasRelations = relations.length > 0;
-const hasFooter = hasRelations || hasAside;
-const hasDates = dates.length > 0;
 ---
 
-<main class="font-sans flex flex-col gap-y-2 pb-8">
-  <div class="tl-hero-frame relative h-dvh p-2">
-    <Image
-      src={heroImage}
-      alt={heroAlt ?? title}
-      widths={[480, 768, 1024, 1280, 1600, 2048]}
-      sizes="(min-width: 768px) 75vw, 100vw"
-      format="webp"
-      quality={80}
-      class="tl-hero-media h-full w-full object-cover md:w-3/4"
-    />
+{/*
+  EntityDetail is now a thin composition over reusable containers:
+    PageShell  - base document column
+    EntityHero - hero media + title overlay + nav (scroll-reveal timeline)
+    EntityBody - dateline/tags + meta slot + prose
+    EntityFooter - relation groups + aside slot
+*/}
+<PageShell>
+  <EntityHero title={title} heroImage={heroImage} heroAlt={heroAlt} />
 
-    <aside
-      class="tl-nav-badge fixed rounded-full overflow-hidden aspect-square top-2 left-2 lg:left-auto lg:right-0 lg:top-0 z-20"
-    >
-      <input id="tl-nav" type="checkbox" class="tl-nav-toggle peer sr-only" />
-      <label
-        for="tl-nav"
-        class="block cursor-pointer origin-top-right lg:scale-75"
-        aria-label="Open navigation"
-      >
-        <BrandLogo class="tl-nav-logo" ariaLabel="thinkinglabs" />
-      </label>
+  <EntityBody dates={dates} tags={tags}>
+    {hasMeta && <slot name="meta" slot="meta" />}
+    <slot />
+  </EntityBody>
 
-      <div
-        class="invisible fixed inset-0 z-50 flex scale-95 flex-col bg-white p-2 text-black opacity-0 transition duration-200 ease-out origin-top-left peer-checked:visible peer-checked:scale-100 peer-checked:opacity-100 lg:origin-top-right"
-      >
-        <div class="flex flex-col gap-10 lg:items-end">
-          <label
-            for="tl-nav"
-            class="flex cursor-pointer items-center gap-2"
-            aria-label="Close navigation"
-          >
-            <BrandLogo class="text-black!" />
-            <span class="text-sm tracking-tight">thinkinglabs</span>
-          </label>
-
-          <nav>
-            <ul
-              class="flex list-none flex-col gap-1 p-0 lg:items-end lg:text-right"
-            >
-              {
-                navLinks.map((link) => (
-                  <li>
-                    <a
-                      class="text-sm text-black no-underline transition-opacity hover:opacity-50"
-                      href={link.href}
-                    >
-                      {link.label}
-                    </a>
-                  </li>
-                ))
-              }
-            </ul>
-          </nav>
-        </div>
-      </div>
-    </aside>
-
-    <aside class="absolute top-1/2 -translate-y-1/2 left-4 right-4 md:right-auto md:max-w-3/4">
-      <!-- Needs to stay gray-50 regardless of theme -->
-      <h2 class="font-normal text-gray-50">{title}</h2>
-    </aside>
-  </div>
-
-  <section
-    class="px-2 flex flex-col gap-4 md:pr-8 lg:max-w-3/4 lg:flex-row lg:justify-end lg:pr-2 lg:gap-16"
-  >
-    <header class="flex flex-col gap-3">
-      {
-        hasDates && (
-          <p class="flex flex-wrap gap-x-1 text-sm opacity-70">
-            {dates.map((date, index) => (
-              <>
-                {index > 0 && <span aria-hidden="true">·</span>}
-                {date.iso ? <time datetime={date.iso}>{date.label}</time> : <span>{date.label}</span>}
-              </>
-            ))}
-          </p>
-        )
-      }
-      {
-        tags.length > 0 && (
-          <ul class="flex flex-wrap gap-x-1 list-none p-0">
-            {tags.map((tag) => (
-              <li class="text-sm opacity-50">#{tag}</li>
-            ))}
-          </ul>
-        )
-      }
-      {hasMeta && <slot name="meta" />}
-    </header>
-    <article class="entity-prose md:pl-16 lg:pl-0">
-      <slot />
-    </article>
-  </section>
-
-  {
-    hasFooter && (
-      <footer class="px-2 flex flex-col md:pr-8 lg:max-w-3/4 lg:flex-row lg:justify-end lg:pr-2 lg:gap-16">
-        <div class="entity-relations flex w-full flex-col gap-10 pt-6 md:pl-16 lg:max-w-prose lg:pl-0">
-          {hasRelations && (
-            <dl class="flex w-full flex-col gap-6">
-              {relations.map((group) => (
-                <div class="flex flex-col gap-1">
-                  <dt class="text-sm opacity-50">{group.label}</dt>
-                  {group.links.map((link) => (
-                    <dd class="m-0">
-                      <a
-                        class="text-sm no-underline opacity-80 transition-opacity hover:opacity-100"
-                        href={link.href}
-                      >
-                        {link.title}
-                      </a>
-                      {link.value && <span class="text-sm opacity-40"> {link.value}</span>}
-                    </dd>
-                  ))}
-                </div>
-              ))}
-            </dl>
-          )}
-          {hasAside && <slot name="aside" />}
-        </div>
-      </footer>
-    )
-  }
-</main>
-
-<style>
-  /* The nav badge fills to a solid disc once the hero has scrolled out of
-     view, so the logo stays legible against the page background. Both the
-     disc and the logo are theme-aware: the disc fades to the page
-     background (--tl-bg) and the logo settles on the ink color (--tl-ink),
-     so it reads as a black logo on a white disc on light and a white logo
-     on a black disc on dark - never a black logo on a white disc on dark.
-
-     On mobile/tablet the badge sits over the hero, so the logo starts white
-     (legible on the photo) and animates to the ink color as the disc
-     fills. On desktop (lg+) the badge moves top-right, off the hero and
-     onto the page background, so the logo is the ink colour throughout.
-
-     Driven entirely by a scroll-driven view-timeline (no JS): the timeline
-     is declared on the hero image and exposed to the fixed badge via
-     timeline-scope on their shared frame. Chromium-only today; @supports
-     keeps the badge transparent as a graceful fallback in Safari/Firefox. */
-  .tl-nav-badge {
-    background-color: transparent;
-  }
-
-  .tl-nav-badge :global(.tl-nav-logo) {
-    color: var(--tl-media-ink);
-  }
-
-  @keyframes tl-nav-badge-reveal {
-    from {
-      background-color: transparent;
-    }
-    to {
-      background-color: var(--tl-bg);
-    }
-  }
-
-  @keyframes tl-nav-logo-reveal {
-    from {
-      color: var(--tl-media-ink);
-    }
-    to {
-      color: var(--tl-ink);
-    }
-  }
-
-  @supports (animation-timeline: view()) {
-    .tl-hero-frame {
-      timeline-scope: --tl-hero;
-    }
-
-    .tl-hero-media {
-      view-timeline-name: --tl-hero;
-    }
-
-    .tl-nav-badge {
-      animation: tl-nav-badge-reveal linear both;
-      animation-timeline: --tl-hero;
-      animation-range: exit;
-    }
-
-    .tl-nav-badge :global(.tl-nav-logo) {
-      animation: tl-nav-logo-reveal linear both;
-      animation-timeline: --tl-hero;
-      animation-range: exit;
-    }
-  }
-
-  /* Desktop: badge lives top-right on the page background, not over the
-     hero, so the logo uses the theme ink color throughout (black on light,
-     white on dark) and the white-start reveal is dropped. */
-  @media (min-width: 64rem) {
-    .tl-nav-badge :global(.tl-nav-logo) {
-      color: var(--tl-ink);
-      animation: none;
-    }
-  }
-
-  .entity-prose {
-    max-width: 65ch;
-  }
-
-  /* <Content /> markup is not Tailwind-aware during migration, so space
-     paragraphs with plain scoped CSS reaching into the rendered markdown. */
-  .entity-prose :global(p) {
-    margin-block: 1.5em;
-  }
-</style>
+  <EntityFooter relations={relations}>
+    {hasAside && <slot name="aside" slot="aside" />}
+  </EntityFooter>
+</PageShell>

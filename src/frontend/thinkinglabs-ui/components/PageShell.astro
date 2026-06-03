@@ -1,0 +1,18 @@
+---
+/**
+ * Base document column. The outermost container every page/detail view sits in,
+ * setting the shared font, vertical rhythm, and trailing padding. Kept free of
+ * any entity- or hero-specific concerns so listings, index, and detail layouts
+ * can all compose against the same shell.
+ */
+interface Props {
+  /** Extra classes appended to the wrapper (escape hatch for one-off layouts). */
+  class?: string | undefined;
+}
+
+const { class: className } = Astro.props;
+---
+
+<main class:list={["font-sans flex flex-col gap-y-2 pb-8", className]}>
+  <slot />
+</main>
