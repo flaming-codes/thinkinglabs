@@ -34,6 +34,7 @@ const site = Astro.site ?? new URL(Astro.url.origin);
   description={entry.data.note ?? entry.data.source ?? entry.data.title}
   structuredData={inputStructuredData(entry, Astro.url, site)}
   ogType="article"
+  allowScroll
 >
   <InputDetailMinimalPageComposition input={input} />
 </ThinkinglabsUiPage>

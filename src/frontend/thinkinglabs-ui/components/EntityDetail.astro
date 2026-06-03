@@ -7,6 +7,8 @@ import BrandLogo from "./BrandLogo.astro";
 export interface EntityRelationLink {
   href: string;
   title: string;
+  /** Optional trailing value (e.g. a claim confidence) shown muted after the title. */
+  value?: string;
 }
 
 /** A labelled group of related entities (e.g. "Claims", "Observations"). */
@@ -15,40 +17,29 @@ export interface EntityRelationGroup {
   links: EntityRelationLink[];
 }
 
+/** One entry in the dateline; kinds map their own date fields (reviewed, made, asked, ...) to this. */
+export interface EntityDate {
+  label: string;
+  /** ISO value for the `<time datetime>` attribute; omit when only a formatted label is available. */
+  iso?: string;
+}
+
 interface Props {
   /** Entity title; rendered in the hero overlay and as the document heading. */
   title: string;
-  /** ISO date the entity was created. */
-  created: string;
-  /** ISO date the entity was last updated; the "updated" line is hidden when equal to `created`. */
-  updated: string;
+  /** Dateline entries, joined with "·". Empty/omitted hides the dateline. */
+  dates?: EntityDate[];
   /** Optional tag list rendered under the dateline. */
   tags?: string[];
   /** Hero artwork; the scroll-driven nav badge reveal is timed against this image. */
   heroImage: ImageMetadata;
   /** Hero image alt text; defaults to the title. */
   heroAlt?: string;
-  /** Resolved relation groups; the footer is omitted when empty. */
+  /** Resolved relation groups; the footer is omitted when empty and no `aside` slot is present. */
   relations?: EntityRelationGroup[];
 }
 
-const {
-  title,
-  created,
-  updated,
-  tags = [],
-  heroImage,
-  heroAlt,
-  relations = [],
-} = Astro.props;
-
-const dateFmt = new Intl.DateTimeFormat("en", {
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-});
-const createdLabel = dateFmt.format(new Date(created));
-const updatedLabel = dateFmt.format(new Date(updated));
+const { title, dates = [], tags = [], heroImage, heroAlt, relations = [] } = Astro.props;
 
 // Top-level site navigation, surfaced from the hero badge. Kept as data so the
 // markup stays a single mapped list rather than a repeated block of anchors.
@@ -68,6 +59,8 @@ const navLinks = [
 const hasMeta = Astro.slots.has("meta");
 const hasAside = Astro.slots.has("aside");
 const hasRelations = relations.length > 0;
+const hasFooter = hasRelations || hasAside;
+const hasDates = dates.length > 0;
 ---
 
 <main class="font-sans flex flex-col gap-y-2 pb-8">
@@ -129,7 +122,7 @@ const hasRelations = relations.length > 0;
       </div>
     </aside>
 
-    <aside class="absolute top-1/2 -translate-y-1/2 left-4 right-4 md:right-auto">
+    <aside class="absolute top-1/2 -translate-y-1/2 left-4 right-4 md:right-auto md:max-w-3/4">
       <!-- Needs to stay gray-50 regardless of theme -->
       <h2 class="font-normal text-gray-50">{title}</h2>
     </aside>
@@ -138,18 +131,19 @@ const hasRelations = relations.length > 0;
   <section
     class="px-2 flex flex-col gap-4 md:pr-8 lg:max-w-3/4 lg:flex-row lg:justify-end lg:pr-2 lg:gap-16"
   >
-    <header class="flex flex-col">
-      <p class="text-sm opacity-70">
-        <time datetime={created}>{createdLabel}</time>
-        {
-          updatedLabel !== createdLabel && (
-            <>
-              {" · updated "}
-              <time datetime={updated}>{updatedLabel}</time>
-            </>
-          )
-        }
-      </p>
+    <header class="flex flex-col gap-3">
+      {
+        hasDates && (
+          <p class="flex flex-wrap gap-x-1 text-sm opacity-70">
+            {dates.map((date, index) => (
+              <>
+                {index > 0 && <span aria-hidden="true">·</span>}
+                {date.iso ? <time datetime={date.iso}>{date.label}</time> : <span>{date.label}</span>}
+              </>
+            ))}
+          </p>
+        )
+      }
       {
         tags.length > 0 && (
           <ul class="flex flex-wrap gap-x-1 list-none p-0">
@@ -167,11 +161,11 @@ const hasRelations = relations.length > 0;
   </section>
 
   {
-    (hasRelations || hasAside) && (
+    hasFooter && (
       <footer class="px-2 flex flex-col md:pr-8 lg:max-w-3/4 lg:flex-row lg:justify-end lg:pr-2 lg:gap-16">
-        <div class="entity-relations w-full md:pl-16 lg:max-w-prose lg:pl-0">
+        <div class="entity-relations flex w-full flex-col gap-10 pt-6 md:pl-16 lg:max-w-prose lg:pl-0">
           {hasRelations && (
-            <dl class="flex w-full flex-col gap-6 pt-6">
+            <dl class="flex w-full flex-col gap-6">
               {relations.map((group) => (
                 <div class="flex flex-col gap-1">
                   <dt class="text-sm opacity-50">{group.label}</dt>
@@ -183,6 +177,7 @@ const hasRelations = relations.length > 0;
                       >
                         {link.title}
                       </a>
+                      {link.value && <span class="text-sm opacity-40"> {link.value}</span>}
                     </dd>
                   ))}
                 </div>
@@ -218,7 +213,7 @@ const hasRelations = relations.length > 0;
   }
 
   .tl-nav-badge :global(.tl-nav-logo) {
-    color: #fff;
+    color: var(--tl-media-ink);
   }
 
   @keyframes tl-nav-badge-reveal {
@@ -232,7 +227,7 @@ const hasRelations = relations.length > 0;
 
   @keyframes tl-nav-logo-reveal {
     from {
-      color: #fff;
+      color: var(--tl-media-ink);
     }
     to {
       color: var(--tl-ink);

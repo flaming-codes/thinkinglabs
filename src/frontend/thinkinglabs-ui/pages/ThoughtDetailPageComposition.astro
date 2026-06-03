@@ -1,7 +1,10 @@
 ---
-import AppShell from "../components/AppShell.astro";
-import EntityConicGradient from "../components/EntityConicGradient.astro";
-import StatusTag from "../components/StatusTag.astro";
+import heroImage from "@/assets/hero.png";
+import EntityDetail from "../components/EntityDetail.astro";
+import type { EntityRelationGroup } from "../components/EntityDetail.astro";
+import EntityFacts from "../components/EntityFacts.astro";
+import type { EntityFact } from "../components/EntityFacts.astro";
+import EntitySection from "../components/EntitySection.astro";
 import type { ThoughtDetail } from "../types";
 
 interface Props {
@@ -9,231 +12,90 @@ interface Props {
 }
 
 const { thought } = Astro.props;
+
+const dates =
+  thought.touched === thought.started
+    ? [{ label: thought.started }]
+    : [{ label: thought.started }, { label: `updated ${thought.touched}` }];
+
+const facts: EntityFact[] = [
+  { label: "State", value: thought.state },
+  { label: "Length", value: `${thought.minutes} min read`, sub: `${thought.words.toLocaleString()} words` },
+];
+if (thought.history.length > 1) {
+  facts.push({ label: "Revisions", value: String(thought.history.length) });
+}
+
+const relations: EntityRelationGroup[] = [];
+if (thought.related.length > 0) {
+  relations.push({
+    label: "Connects to",
+    links: thought.related.map((rel) => ({
+      href: rel.href ?? "#",
+      title: rel.title,
+      ...(rel.conf !== undefined ? { value: rel.conf.toFixed(2) } : {}),
+    })),
+  });
+}
+if (thought.predictionEvidence.length > 0) {
+  relations.push({
+    label: "Prediction evidence",
+    links: thought.predictionEvidence.map((rel) => ({
+      href: rel.href ?? "#",
+      title: rel.title,
+      ...(rel.conf !== undefined ? { value: rel.conf.toFixed(2) } : {}),
+    })),
+  });
+}
+
 const hasQuestions = thought.questions.length > 0;
-const hasRelated = thought.related.length > 0;
-const hasPredictionEvidence = thought.predictionEvidence.length > 0;
 const hasHistory = thought.history.length > 1;
 ---
 
-<AppShell activeNav="Index">
-  <article class="tl-thought-detail" data-selected-label={thought.title} data-entity="thoughts">
-    <EntityConicGradient class="tl-thought-hero-art" entity="thoughts" />
-    <header class="tl-thought-hero">
-      <div class="tl-thought-title">
-        <h1>{thought.title}</h1>
-        <div class="tl-thought-detail-meta">
-          <StatusTag label={thought.state} tone={thought.state === "settled" ? "active" : "default"} />
-          <span class="tl-mono">started {thought.started}</span>
-          <span class="tl-mono">touched {thought.touched}</span>
-          {hasHistory && <span class="tl-mono">{thought.history.length} revisions</span>}
-        </div>
-        <p class="tl-thought-deck">{thought.minutes} min read across {thought.words.toLocaleString()} words.</p>
-      </div>
-    </header>
+<EntityDetail title={thought.title} dates={dates} heroImage={heroImage} relations={relations}>
+  <EntityFacts slot="meta" facts={facts} />
 
-    <section class="tl-prose-shell">
-      <div class="tl-prose-body">
-        {thought.paragraphs.map((paragraph) => (
-          <p>{paragraph}</p>
-        ))}
-      </div>
-    </section>
+  {thought.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
 
+  <Fragment slot="aside">
     {hasQuestions && (
-      <section class="tl-aside-block">
-        <div class="tl-eyebrow">Open questions</div>
-        <div class="tl-thought-question-list">
-          {thought.questions.map((question) => (
-            <p class="tl-quote-line">"{question}"</p>
-          ))}
-        </div>
-      </section>
-    )}
-
-    {hasRelated && (
-      <section class="tl-aside-block">
-        <div class="tl-eyebrow">Connects to</div>
-        <div class="tl-rel-list">
-          {thought.related.map((rel) => (
-            <article class="tl-rel-row">
-              <span class="tl-mono">{rel.kind}</span>
-              <h3>{rel.href ? <a href={rel.href}>{rel.title}</a> : rel.title}</h3>
-              <span class="tl-mono is-right">{rel.conf !== undefined ? rel.conf.toFixed(2) : ""}</span>
-            </article>
-          ))}
-        </div>
-      </section>
-    )}
-
-    {hasPredictionEvidence && (
-      <section class="tl-aside-block">
-        <div class="tl-eyebrow">Prediction evidence</div>
-        <div class="tl-rel-list">
-          {thought.predictionEvidence.map((rel) => (
-            <article class="tl-rel-row">
-              <span class="tl-mono">{rel.kind}</span>
-              <h3>{rel.href ? <a href={rel.href}>{rel.title}</a> : rel.title}</h3>
-              <span class="tl-mono is-right">{rel.conf !== undefined ? rel.conf.toFixed(2) : ""}</span>
-            </article>
-          ))}
-        </div>
-      </section>
+      <EntitySection label="Open questions">
+        {thought.questions.map((question) => (
+          <p class="tl-quote">“{question}”</p>
+        ))}
+      </EntitySection>
     )}
 
     {hasHistory && (
-      <section class="tl-aside-block">
-        <div class="tl-eyebrow">How it got here</div>
-        <div>
-          {thought.history.map((entry) => (
-            <article class="tl-history-row is-wide">
-              <span class="tl-mono">{entry.date}</span>
-              <span>{entry.note}</span>
-            </article>
-          ))}
-        </div>
-      </section>
+      <EntitySection label="How it got here">
+        {thought.history.map((item) => (
+          <div class="tl-history-row">
+            <span class="opacity-50">{item.date}</span>
+            <span>{item.note}</span>
+          </div>
+        ))}
+      </EntitySection>
     )}
-  </article>
-</AppShell>
+  </Fragment>
+</EntityDetail>
 
 <style>
-  .tl-thought-detail {
-    padding: clamp(7rem, 13vh, 10rem) 20px clamp(7rem, 16vh, 12rem);
+  .tl-quote {
+    margin: 0;
+    font-style: italic;
   }
 
-  .tl-thought-hero {
-    display: grid;
-    width: min(100%, 980px);
-    margin-inline: auto;
-    padding: 0 0 clamp(2.5rem, 8vh, 5rem);
-  }
-
-  :global(.tl-thought-hero-art) {
-    width: 100%;
-    max-width: 980px;
-    min-height: clamp(16rem, 42vh, 28rem);
-    margin-inline: auto;
-    background: var(--tl-media-bg);
-  }
-
-  .tl-thought-title {
-    display: grid;
-    gap: clamp(1.2rem, 2.8vh, 2rem);
-    margin-top: clamp(2rem, 6vw, 4.5rem);
-  }
-
-  .tl-thought-title h1 {
-    max-width: min(100%, 24ch);
-    color: var(--tl-ink);
-    font-size: clamp(34px, 4.4vw, 56px);
-    font-weight: 680;
-    line-height: 0.96;
-    letter-spacing: 0;
-    overflow-wrap: anywhere;
-  }
-
-  .tl-thought-deck {
-    max-width: 48ch;
-    color: var(--tl-muted);
-    font-size: 16px;
-    line-height: 1.55;
-  }
-
-  .tl-thought-detail-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px 16px;
-    align-items: center;
-  }
-
-  .tl-prose-shell {
-    width: min(100%, 680px);
-    margin-inline: auto;
-  }
-
-  .tl-aside-block {
-    width: min(100%, 820px);
-    margin-inline: auto;
-  }
-
-  .tl-prose-shell {
-    padding: clamp(1.5rem, 4vh, 3rem) 0 clamp(4rem, 10vh, 7rem);
-  }
-
-  .tl-rel-list {
-    display: grid;
-  }
-
-  .tl-thought-question-list {
-    display: grid;
-    gap: clamp(0.9rem, 2vw, 1.25rem);
-    margin-top: clamp(1.1rem, 2.6vw, 1.75rem);
-  }
-
-  .tl-rel-row,
   .tl-history-row {
-    position: relative;
     display: grid;
-    grid-template-columns: 9.5rem minmax(0, 1fr) auto;
-    gap: clamp(1.25rem, 3vw, 2.5rem);
+    grid-template-columns: 8rem minmax(0, 1fr);
+    gap: 1rem;
     align-items: baseline;
-    padding: clamp(1.4rem, 3vw, 2rem) 0;
   }
 
-  .tl-rel-row .tl-mono:first-child,
-  .tl-history-row .tl-mono:first-child {
-    min-width: 0;
-    overflow-wrap: anywhere;
-  }
-
-  .tl-rel-row h3 {
-    max-width: 54rem;
-    font-size: clamp(18px, 1.7vw, 25px);
-    font-weight: 600;
-    line-height: 1.16;
-    letter-spacing: 0;
-    overflow-wrap: anywhere;
-    text-wrap: pretty;
-  }
-
-  .tl-aside-block {
-    padding-bottom: clamp(4rem, 12vh, 8rem);
-  }
-
-  @media (max-width: 767px) {
-    .tl-thought-detail {
-      padding: 5rem 16px 3rem;
-    }
-
-    .tl-thought-hero {
-      padding-top: 2rem;
-    }
-
-    .tl-thought-title h1 {
-      font-size: clamp(30px, 9vw, 42px);
-      line-height: 0.98;
-    }
-
-    :global(.tl-thought-hero-art) {
-      min-height: 15rem;
-    }
-
-    .tl-prose-shell,
-    .tl-aside-block {
-      width: 100%;
-    }
-
-    .tl-rel-row,
+  @media (max-width: 640px) {
     .tl-history-row {
       grid-template-columns: 1fr;
-      gap: 10px;
-      padding: 1.35rem 0;
-    }
-
-    .tl-rel-row h3 {
-      font-size: clamp(17px, 5vw, 22px);
-      line-height: 1.18;
+      gap: 0.25rem;
     }
   }
-
 </style>

@@ -57,6 +57,21 @@ const relations: EntityRelationGroup[] = (
     }),
   }))
   .filter((group) => group.links.length > 0);
+
+const dateFmt = new Intl.DateTimeFormat("en", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
+const createdLabel = dateFmt.format(new Date(entry.data.created));
+const updatedLabel = dateFmt.format(new Date(entry.data.updated));
+const dates =
+  updatedLabel === createdLabel
+    ? [{ label: createdLabel, iso: entry.data.created }]
+    : [
+        { label: createdLabel, iso: entry.data.created },
+        { label: `updated ${updatedLabel}`, iso: entry.data.updated },
+      ];
 ---
 
 <ThinkinglabsUiPage
@@ -67,8 +82,7 @@ const relations: EntityRelationGroup[] = (
 >
   <EntityDetail
     title={entry.data.title}
-    created={entry.data.created}
-    updated={entry.data.updated}
+    dates={dates}
     tags={entry.data.tags ?? []}
     heroImage={heroImage}
     relations={relations}

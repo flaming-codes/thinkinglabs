@@ -44,6 +44,7 @@ const site = Astro.site ?? new URL(Astro.url.origin);
   description={`Thought: ${entry.data.title}`}
   structuredData={thoughtStructuredData(entry, Astro.url, site)}
   ogType="article"
+  allowScroll
 >
   <ThoughtDetailPageComposition thought={thought} />
 </ThinkinglabsUiPage>

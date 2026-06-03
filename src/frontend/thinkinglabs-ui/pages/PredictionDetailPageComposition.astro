@@ -1,6 +1,10 @@
 ---
-import AppShell from "../components/AppShell.astro";
-import EntityConicGradient from "../components/EntityConicGradient.astro";
+import heroImage from "@/assets/hero.png";
+import EntityDetail from "../components/EntityDetail.astro";
+import type { EntityRelationGroup } from "../components/EntityDetail.astro";
+import EntityFacts from "../components/EntityFacts.astro";
+import type { EntityFact } from "../components/EntityFacts.astro";
+import EntitySection from "../components/EntitySection.astro";
 
 export interface PredictionEvidence {
   label: string;
@@ -36,347 +40,87 @@ const statusLabel = (() => {
   if (prediction.resolution === "false") return "Resolved false";
   return "Resolved ambiguous";
 })();
-const horizonLabel = (() => {
-  if (isResolved && prediction.resolvedOn) return prediction.resolvedOn;
-  if (prediction.daysUntil === null) return prediction.resolves;
-  if (prediction.daysUntil < 0) return `overdue by ${Math.abs(prediction.daysUntil)}d`;
-  if (prediction.daysUntil === 0) return "resolves today";
-  return `${prediction.daysUntil}d to go`;
-})();
+
+const dates = [
+  { label: `made ${prediction.made}` },
+  isResolved && prediction.resolvedOn
+    ? { label: `resolved ${prediction.resolvedOn}` }
+    : { label: `resolves ${prediction.resolves}` },
+];
+
+const facts: EntityFact[] = [
+  { label: "Confidence", value: `${confPct}%` },
+  {
+    label: "Status",
+    value: statusLabel,
+    ...(!isResolved && prediction.daysUntil !== null
+      ? { sub: prediction.daysUntil < 0 ? `overdue ${Math.abs(prediction.daysUntil)}d` : `${prediction.daysUntil}d to go` }
+      : {}),
+  },
+  { label: "Topic", value: prediction.topic },
+];
+
+const relations: EntityRelationGroup[] =
+  prediction.evidence.length > 0
+    ? [
+        {
+          label: "Evidence at time",
+          links: prediction.evidence.map((item) => ({ href: item.href ?? "#", title: item.label })),
+        },
+      ]
+    : [];
 ---
 
-<AppShell activeNav="Index">
-  <article
-    class="tl-pred-detail tl-token-detail-page"
-    data-selected-label={prediction.prediction}
-    data-entity="predictions"
-  >
-    <EntityConicGradient class="tl-pred-hero tl-token-detail-hero" entity="predictions" />
+<EntityDetail
+  title={prediction.prediction}
+  dates={dates}
+  tags={[...prediction.tags]}
+  heroImage={heroImage}
+  relations={relations}
+>
+  <EntityFacts slot="meta" facts={facts} />
 
-    <div class="tl-pred-grid tl-token-detail-grid">
-      <div class="tl-pred-main tl-token-detail-main">
-        <header class="tl-pred-head">
-          <p class="tl-pred-eyebrow">Prediction detail</p>
-          <h1>{prediction.prediction}</h1>
-          <p class="tl-pred-deck">
-            <span class="tl-pred-conf-inline">{confPct}%</span> confidence held since {prediction.made}.
-            <span class="tl-pred-deck-soft">{horizonLabel}.</span>
-          </p>
-        </header>
-
-        <section class="tl-pred-prose tl-token-prose">
-          <slot />
-        </section>
-
-        {prediction.resolutionNote ? (
-          <section class="tl-pred-aside">
-            <span class="tl-pred-aside-label">Resolution note</span>
-            <p>{prediction.resolutionNote}</p>
-          </section>
-        ) : null}
-
-        {prediction.evidence.length > 0 ? (
-          <section class="tl-pred-aside">
-            <span class="tl-pred-aside-label">Evidence at time</span>
-            <ul>
-              {prediction.evidence.map((item) => (
-                <li>
-                  {item.href ? <a href={item.href}>{item.label}</a> : <span>{item.label}</span>}
-                </li>
-              ))}
-            </ul>
-          </section>
-        ) : null}
-
-        {prediction.tags.length > 0 ? (
-          <section class="tl-pred-tags">
-            {prediction.tags.map((tag) => (
-              <span>#{tag}</span>
-            ))}
-          </section>
-        ) : null}
+  {
+    prediction.resolutionNote && (
+      <div class="tl-lede">
+        <p class="tl-eyebrow">Resolution note</p>
+        <p class="tl-lede-text">{prediction.resolutionNote}</p>
       </div>
+    )
+  }
 
-      <aside class="tl-pred-rail tl-token-detail-rail">
-        <div>
-          <span class="tl-eyebrow">Confidence</span>
-          <p class="tl-pred-rail-figure">{confPct}<span>%</span></p>
-        </div>
-        <div>
-          <span class="tl-eyebrow">Status</span>
-          <p>{statusLabel}</p>
-          {isResolved && prediction.resolvedOn ? (
-            <p class="is-muted">on {prediction.resolvedOn}</p>
-          ) : null}
-        </div>
-        <div>
-          <span class="tl-eyebrow">Made</span>
-          <p>{prediction.made}</p>
-          {prediction.daysSinceMade !== null && prediction.daysSinceMade > 0 ? (
-            <p class="is-muted">{prediction.daysSinceMade}d ago</p>
-          ) : null}
-        </div>
-        <div>
-          <span class="tl-eyebrow">Resolves</span>
-          <p>{prediction.resolves}</p>
-          {!isResolved && prediction.daysUntil !== null ? (
-            <p class="is-muted">
-              {prediction.daysUntil < 0
-                ? `overdue ${Math.abs(prediction.daysUntil)}d`
-                : `${prediction.daysUntil}d to go`}
-            </p>
-          ) : null}
-        </div>
-        {prediction.topic ? (
-          <div>
-            <span class="tl-eyebrow">Topic</span>
-            <p>{prediction.topic}</p>
-          </div>
-        ) : null}
-      </aside>
-    </div>
-  </article>
-</AppShell>
+  <slot />
+
+  {
+    prediction.daysSinceMade !== null && prediction.daysSinceMade > 0 && (
+      <Fragment slot="aside">
+        <EntitySection label="Timeline">
+          <p class="m-0">Held for {prediction.daysSinceMade} days since it was made.</p>
+        </EntitySection>
+      </Fragment>
+    )
+  }
+</EntityDetail>
 
 <style>
-  .tl-pred-detail {
-    padding: var(--tl-space-page-top) var(--tl-space-9) var(--tl-space-page-bottom);
-    background: var(--tl-bg);
-    color: var(--tl-ink);
-  }
-
-  :global(.tl-pred-hero) {
-    position: relative;
-    overflow: hidden;
-    width: min(100%, var(--tl-layout-detail));
-    min-height: var(--tl-artifact-min-height);
-    margin: 0 auto clamp(3rem, 7vw, 5rem);
-    background: var(--tl-media-bg);
-  }
-
-  .tl-pred-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(11rem, 14rem);
-    gap: clamp(2rem, 5vw, 4.5rem);
-    align-items: start;
-    width: min(100%, var(--tl-layout-detail));
-    margin: 0 auto;
-  }
-
-  .tl-pred-main {
-    display: grid;
-    gap: clamp(2.5rem, 7vh, 4.5rem);
-    min-width: 0;
-  }
-
-  .tl-pred-head {
-    display: grid;
-    gap: 18px;
-  }
-
-  .tl-pred-eyebrow {
-    color: var(--tl-muted);
-    font-size: 12px;
-    letter-spacing: 0.08em;
-  }
-
-  .tl-pred-head h1 {
-    max-width: 28ch;
-    font-size: clamp(28px, 4vw, 44px);
-    font-weight: 580;
-    line-height: 1.12;
-    letter-spacing: -0.025em;
-  }
-
-  .tl-pred-deck {
-    max-width: 56ch;
-    color: var(--tl-muted);
-    font-size: 16px;
-    line-height: var(--tl-type-line-body);
-  }
-
-  .tl-pred-conf-inline {
-    color: var(--tl-ink);
-    font-weight: 580;
-  }
-
-  .tl-pred-deck-soft {
-    color: var(--tl-muted);
-  }
-
-  .tl-pred-prose {
-    color: var(--tl-prose-ink);
-    font-size: var(--tl-type-body-md);
-    font-weight: 420;
-    line-height: 1.78;
-  }
-
-  .tl-pred-prose :global(p) {
-    margin: 0 0 1.15rem;
-    font-weight: 420;
-  }
-
-  .tl-pred-prose :global(p:last-child) {
-    margin-bottom: 0;
-  }
-
-  .tl-pred-prose :global(a) {
-    color: inherit;
-    text-decoration: underline;
-    text-decoration-thickness: 1px;
-    text-decoration-color: var(--tl-link-underline);
-    text-underline-offset: 3px;
-    transition: text-decoration-color 0.15s ease;
-  }
-
-  .tl-pred-prose :global(a:hover) {
-    text-decoration-color: var(--tl-ink);
-  }
-
-  .tl-pred-prose :global(strong) {
-    color: var(--tl-ink);
-    font-weight: 600;
-  }
-
-  .tl-pred-prose :global(em) {
-    font-style: italic;
-  }
-
-  .tl-pred-prose :global(code) {
-    padding: 0.08em 0.35em;
-    background: var(--tl-code-bg);
-    border-radius: var(--tl-radius-xs);
-    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-    font-size: 0.86em;
-  }
-
-  .tl-pred-prose :global(blockquote) {
-    margin: 0.6rem 0;
-    padding: 0.2rem 0 0.2rem 1.1rem;
-    border-left: 2px solid var(--tl-ink);
-    color: var(--tl-ink);
-    font-style: italic;
-  }
-
-  .tl-pred-aside {
-    display: grid;
-    gap: 10px;
-    max-width: 56ch;
-  }
-
-  .tl-pred-aside-label {
-    color: var(--tl-muted);
-    font-size: 11px;
-    font-weight: 650;
-    letter-spacing: 0.24em;
-    text-transform: uppercase;
-  }
-
-  .tl-pred-aside p {
-    color: var(--tl-prose-ink);
-    font-size: 16px;
-    line-height: 1.7;
-  }
-
-  .tl-pred-aside ul {
-    display: grid;
-    gap: 6px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .tl-pred-aside li {
-    color: var(--tl-prose-ink);
-    font-size: 15px;
-    line-height: 1.6;
-  }
-
-  .tl-pred-aside a {
-    color: inherit;
-    text-decoration: underline;
-    text-decoration-thickness: 1px;
-    text-decoration-color: var(--tl-link-underline);
-    text-underline-offset: 3px;
-  }
-
-  .tl-pred-aside a:hover {
-    text-decoration-color: var(--tl-ink);
-  }
-
-  .tl-pred-tags {
+  .tl-lede {
     display: flex;
-    flex-wrap: wrap;
-    gap: 14px 18px;
-    color: var(--tl-muted);
-    font-size: 13px;
-    letter-spacing: 0.02em;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-block: 1.5em;
   }
 
-  .tl-pred-rail {
-    display: grid;
-    gap: 26px;
-    padding-top: 6px;
-    font-size: 13px;
-    line-height: 1.55;
-  }
-
-  .tl-pred-rail > div {
-    display: grid;
-    gap: 6px;
-  }
-
-  .tl-pred-rail p {
+  .tl-eyebrow {
     margin: 0;
-    color: var(--tl-ink);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    opacity: 0.5;
   }
 
-  .tl-pred-rail p.is-muted {
-    color: var(--tl-muted);
+  .tl-lede-text {
+    margin: 0;
+    font-size: 1.15rem;
+    line-height: 1.4;
   }
-
-  .tl-pred-rail-figure {
-    font-size: clamp(36px, 4vw, 52px);
-    font-weight: 600;
-    line-height: 1;
-    letter-spacing: -0.04em;
-  }
-
-  .tl-pred-rail-figure span {
-    margin-left: 2px;
-    color: var(--tl-muted);
-    font-size: 0.42em;
-    font-weight: 500;
-    letter-spacing: 0.04em;
-    vertical-align: top;
-  }
-
-  @media (max-width: 900px) {
-    .tl-pred-grid {
-      grid-template-columns: 1fr;
-      gap: clamp(2rem, 5vw, 3rem);
-    }
-
-    .tl-pred-rail {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      column-gap: 22px;
-      row-gap: 18px;
-      padding-top: clamp(1.5rem, 4vh, 2.5rem);
-    }
-  }
-
-  @media (max-width: 767px) {
-    .tl-pred-detail {
-      padding: 5rem var(--tl-space-7) 3rem;
-    }
-
-    :global(.tl-pred-hero) {
-      min-height: 13rem;
-    }
-
-    .tl-pred-rail {
-      grid-template-columns: 1fr;
-    }
-  }
-
 </style>

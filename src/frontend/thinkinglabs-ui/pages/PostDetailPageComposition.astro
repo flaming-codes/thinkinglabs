@@ -1,6 +1,10 @@
 ---
-import AppShell from "../components/AppShell.astro";
-import EntityConicGradient from "../components/EntityConicGradient.astro";
+import heroImage from "@/assets/hero.png";
+import EntityDetail from "../components/EntityDetail.astro";
+import type { EntityRelationGroup } from "../components/EntityDetail.astro";
+import EntityFacts from "../components/EntityFacts.astro";
+import type { EntityFact } from "../components/EntityFacts.astro";
+import EntitySection from "../components/EntitySection.astro";
 import FigureChartPlate from "../components/FigureChartPlate.astro";
 import type { PostDetail } from "../types";
 
@@ -11,478 +15,189 @@ interface Props {
 const { post } = Astro.props;
 const hasEpigraph = post.epigraph.text.trim().length > 0 && post.epigraph.text !== post.deck;
 const hasFootnotes = post.footnotes.length > 0;
-const hasRelated = post.related.length > 0;
 const hasInputs = post.inputs.length > 0;
+
+const dates =
+  post.updated === post.date
+    ? [{ label: post.date }]
+    : [{ label: post.date }, { label: `updated ${post.updated}` }];
+
+const facts: EntityFact[] = [
+  { label: "Length", value: `${post.minutes} min read`, sub: `${post.words.toLocaleString()} words` },
+  { label: "Filed", value: post.topic },
+];
+if (post.backlinks > 0) {
+  facts.push({ label: "Backlinks", value: `${post.backlinks} ${post.backlinks === 1 ? "entry" : "entries"}` });
+}
+facts.push({ label: "License", value: post.license });
+
+const relations: EntityRelationGroup[] =
+  post.related.length > 0
+    ? [
+        {
+          label: "Where this sits in the graph",
+          links: post.related.map((rel) => ({
+            href: rel.href ?? "#",
+            title: rel.title,
+            ...(rel.conf !== undefined ? { value: rel.conf.toFixed(2) } : {}),
+          })),
+        },
+      ]
+    : [];
 ---
 
-<AppShell activeNav="Index">
-  <article class="tl-post-detail-page tl-token-detail-page" data-selected-label={post.title}>
-    <EntityConicGradient class="tl-post-hero tl-token-detail-hero" entity="posts" />
+<EntityDetail title={post.title} dates={dates} heroImage={heroImage} relations={relations}>
+  <EntityFacts slot="meta" facts={facts} />
 
-    <div class="tl-post-detail-grid tl-token-detail-grid">
-      <div class="tl-post-detail-main tl-token-detail-main">
-        <header class="tl-post-detail-head">
-          {hasEpigraph ? (
-            <p class="tl-post-epigraph">
-              “{post.epigraph.text}”
-              <span class="tl-post-epigraph-by">— {post.epigraph.by}</span>
-            </p>
-          ) : null}
-          <h1>{post.title}</h1>
-          <p class="tl-post-detail-deck">{post.deck}</p>
-        </header>
+  {
+    hasEpigraph && (
+      <p class="tl-epigraph">
+        “{post.epigraph.text}”<span class="tl-epigraph-by">— {post.epigraph.by}</span>
+      </p>
+    )
+  }
+  <p class="tl-deck">{post.deck}</p>
 
-        {post.sections.map((section) => (
-          <section class="tl-post-section">
-            <header class="tl-post-section-head">
-              <h2>{section.title}</h2>
-            </header>
-            <div class="tl-post-prose tl-token-prose">
-              {section.blocks.map((block) => {
-                if (block.type === "p") {
-                  return <p class="tl-post-paragraph" set:html={block.html} />;
-                }
+  {
+    post.sections.map((section) => (
+      <section class="tl-section">
+        {section.title && <h2 class="tl-section-title">{section.title}</h2>}
+        {section.blocks.map((block) => {
+          if (block.type === "p") return <p set:html={block.html} />;
+          if (block.type === "pull") return <blockquote class="tl-pull" set:html={block.html} />;
+          if (block.type === "fig") {
+            return (
+              <figure class="tl-figure">
+                <FigureChartPlate />
+                <figcaption>
+                  <span>{block.caption}</span>
+                  {block.source && <span class="opacity-50"> · {block.source}</span>}
+                </figcaption>
+              </figure>
+            );
+          }
+          if (block.type === "list") {
+            return (
+              <ol class="tl-list">
+                {block.itemsHtml.map((html) => (
+                  <li set:html={html} />
+                ))}
+              </ol>
+            );
+          }
+          return null;
+        })}
+      </section>
+    ))
+  }
 
-                if (block.type === "pull") {
-                  return <blockquote class="tl-post-pull" set:html={block.html} />;
-                }
-
-                if (block.type === "fig") {
-                  return (
-                    <figure class="tl-post-figure">
-                      <div class="tl-post-figure-plate">
-                        <FigureChartPlate />
-                      </div>
-                      <figcaption>
-                        <span class="tl-mono">Fig. 01</span>
-                        <span>{block.caption}</span>
-                        <span class="tl-mono is-right">{block.source}</span>
-                      </figcaption>
-                    </figure>
-                  );
-                }
-
-                if (block.type === "list") {
-                  return (
-                    <ol class="tl-post-list">
-                      {block.itemsHtml.map((html, itemIndex) => (
-                        <li>
-                          <span class="tl-mono">{String(itemIndex + 1).padStart(2, "0")}</span>
-                          <span set:html={html} />
-                        </li>
-                      ))}
-                    </ol>
-                  );
-                }
-
-                return null;
-              })}
-            </div>
-          </section>
-        ))}
-
-        {hasFootnotes ? (
-          <section class="tl-post-footnotes">
-            <header class="tl-post-section-head">
-              <h2>Sources and asides.</h2>
-            </header>
-            <div class="tl-post-prose tl-token-prose">
-              {post.footnotes.map((note, index) => (
-                <article class="tl-post-footnote-row">
-                  <span class="tl-mono">{String(index + 1).padStart(2, "0")}</span>
-                  <p set:html={note.html} />
-                </article>
-              ))}
-            </div>
-          </section>
-        ) : null}
-
-        {hasRelated ? (
-          <section class="tl-post-related">
-            <header class="tl-post-section-head">
-              <h2>Where this sits in the graph.</h2>
-            </header>
-            <div class="tl-post-prose tl-token-prose">
-              {post.related.map((rel) => (
-                <article class="tl-rel-row">
-                  <span class="tl-mono">{rel.kind}</span>
-                  <h3>{rel.href ? <a href={rel.href}>{rel.title}</a> : rel.title}</h3>
-                  <span class="tl-mono is-right">
-                    {rel.conf !== undefined ? rel.conf.toFixed(2) : ""}
-                  </span>
-                </article>
-              ))}
-            </div>
-          </section>
-        ) : null}
-
-        {hasInputs ? (
-          <section class="tl-post-inputs">
-            <header class="tl-post-section-head">
-              <h2>Inputs.</h2>
-            </header>
-            <div class="tl-post-prose tl-token-prose">
-              {post.inputs.map((input, index) => (
-                <article class="tl-post-input-row">
-                  <span class="tl-mono">{String(index + 1).padStart(2, "0")}</span>
-                  <div>
-                    <h3>{input.href ? <a href={input.href}>{input.title}</a> : input.title}</h3>
-                    {input.note ? <p>{input.note}</p> : null}
-                  </div>
-                  <div class="tl-post-input-meta">
-                    <span>{input.source}</span>
-                    <span>{input.consumed}</span>
-                    {input.externalHref ? <a href={input.externalHref}>source</a> : null}
-                  </div>
-                </article>
-              ))}
-            </div>
-          </section>
-        ) : null}
-      </div>
-
-      <aside class="tl-post-rail tl-token-detail-rail">
-        <div>
-          <span class="tl-eyebrow">Essay</span>
-          <p>{post.title}</p>
-        </div>
-        <div>
-          <span class="tl-eyebrow">Published</span>
-          <p>{post.date}</p>
-          <p class="is-muted">updated {post.updated}</p>
-        </div>
-        <div>
-          <span class="tl-eyebrow">Length</span>
-          <p>{post.minutes} min read</p>
-          <p class="is-muted">{post.words.toLocaleString()} words</p>
-        </div>
-        <div>
-          <span class="tl-eyebrow">Filed</span>
-          <p>{post.topic}</p>
-        </div>
-        {post.backlinks > 0 ? (
-          <div>
-            <span class="tl-eyebrow">Backlinks</span>
-            <p>{post.backlinks} {post.backlinks === 1 ? "entry" : "entries"}</p>
+  <Fragment slot="aside">
+    {hasInputs && (
+      <EntitySection label="Inputs">
+        {post.inputs.map((input) => (
+          <div class="tl-input">
+            <span>
+              {input.href ? (
+                <a class="no-underline opacity-90 transition-opacity hover:opacity-100" href={input.href}>
+                  {input.title}
+                </a>
+              ) : (
+                input.title
+              )}
+            </span>
+            <span class="opacity-50">
+              {[input.source, input.consumed].filter(Boolean).join(" · ")}
+              {input.externalHref && (
+                <>
+                  {" "}
+                  <a class="underline" href={input.externalHref}>
+                    source
+                  </a>
+                </>
+              )}
+            </span>
           </div>
-        ) : null}
-        <div>
-          <span class="tl-eyebrow">License</span>
-          <p>{post.license}</p>
-        </div>
-        <div>
-          <span class="tl-eyebrow">Cite</span>
-          <p>{post.citation}</p>
-        </div>
-      </aside>
-    </div>
-  </article>
-</AppShell>
+        ))}
+      </EntitySection>
+    )}
+
+    {hasFootnotes && (
+      <EntitySection label="Sources and asides">
+        {post.footnotes.map((note, index) => (
+          <div class="tl-footnote">
+            <span class="opacity-50">{String(index + 1).padStart(2, "0")}</span>
+            <span set:html={note.html} />
+          </div>
+        ))}
+      </EntitySection>
+    )}
+
+    <EntitySection label="Cite">
+      <p class="m-0">{post.citation}</p>
+    </EntitySection>
+  </Fragment>
+</EntityDetail>
 
 <style>
-  .tl-post-detail-page {
-    padding: var(--tl-space-page-top) var(--tl-space-9) var(--tl-space-page-bottom);
-    background: var(--tl-bg);
-    color: var(--tl-ink);
-  }
-
-  :global(.tl-post-hero) {
-    position: relative;
-    overflow: hidden;
-    width: min(100%, var(--tl-layout-detail));
-    min-height: var(--tl-artifact-min-height);
-    margin: 0 auto clamp(3rem, 7vw, 5rem);
-    background: var(--tl-media-bg);
-  }
-
-  .tl-post-detail-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(11rem, 14rem);
-    gap: clamp(2rem, 5vw, 4.5rem);
-    align-items: start;
-    width: min(100%, var(--tl-layout-detail));
-    margin: 0 auto;
-  }
-
-  .tl-post-detail-main {
-    display: grid;
-    gap: clamp(2.25rem, 6vh, 4rem);
-    min-width: 0;
-  }
-
-  .tl-post-detail-head {
-    display: grid;
-    gap: 16px;
-  }
-
-  .tl-post-epigraph {
-    max-width: 36rem;
-    color: var(--tl-muted);
-    font-size: 14px;
+  .tl-epigraph {
+    margin-block: 1.5em;
     font-style: italic;
-    line-height: 1.55;
+    opacity: 0.7;
   }
 
-  .tl-post-epigraph-by {
-    margin-left: 6px;
+  .tl-epigraph-by {
+    margin-left: 0.4rem;
     font-style: normal;
   }
 
-  .tl-post-detail-head h1 {
-    max-width: 22ch;
-    font-size: clamp(34px, 5.4vw, 64px);
-    font-weight: 620;
-    line-height: 0.96;
-    letter-spacing: -0.04em;
+  .tl-deck {
+    margin-block: 1.5em;
+    font-size: 1.2rem;
+    line-height: 1.5;
+    opacity: 0.75;
   }
 
-  .tl-post-detail-deck {
-    max-width: 56ch;
-    color: var(--tl-muted);
-    font-size: var(--tl-type-body-md);
-    line-height: var(--tl-type-line-body);
-  }
-
-  .tl-post-section,
-  .tl-post-footnotes,
-  .tl-post-related,
-  .tl-post-inputs {
-    display: grid;
-    grid-template-columns: minmax(7rem, 9rem) minmax(0, 1fr);
-    gap: clamp(1.25rem, 3vw, 2.25rem);
-    align-items: start;
-  }
-
-  .tl-post-section-head {
-    position: sticky;
-    top: clamp(5.5rem, 10vh, 7.5rem);
-    align-self: start;
-    padding: 0;
-  }
-
-  .tl-post-section-head h2 {
-    margin: 0;
-    color: var(--tl-faint);
-    font-size: clamp(15px, 1.6vw, 19px);
-    font-weight: 500;
-    line-height: 1.22;
-    letter-spacing: -0.012em;
-  }
-
-  .tl-post-prose {
-    display: grid;
-    gap: 1.1rem;
-    color: var(--tl-prose-ink);
-    font-size: var(--tl-type-body-md);
-    font-weight: 420;
-    line-height: var(--tl-type-line-prose);
-  }
-
-  .tl-post-paragraph {
-    margin: 0;
-    font-weight: 420;
-  }
-
-  .tl-post-prose :global(a) {
-    color: inherit;
-    text-decoration: underline;
-    text-decoration-thickness: 1px;
-    text-decoration-color: var(--tl-link-underline);
-    text-underline-offset: 3px;
-    transition: text-decoration-color 0.15s ease;
-  }
-
-  .tl-post-prose :global(a:hover) {
-    text-decoration-color: var(--tl-ink);
-  }
-
-  .tl-post-prose :global(code) {
-    padding: 0.08em 0.35em;
-    border: 1px solid var(--tl-line);
-    border-radius: var(--tl-radius-xs);
-    background: var(--tl-code-bg);
-    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-    font-size: 0.86em;
-    white-space: nowrap;
-  }
-
-  .tl-post-prose :global(strong) {
-    color: var(--tl-ink);
+  .tl-section-title {
+    margin-block: 1.8em 0.6em;
+    font-size: 1.05rem;
     font-weight: 600;
   }
 
-  .tl-post-prose :global(em) {
+  .tl-pull {
+    margin-block: 1.2em;
+    padding-left: 1rem;
+    border-left: 2px solid currentColor;
     font-style: italic;
   }
 
-  .tl-post-pull {
-    margin: 0.6rem 0;
-    padding: 0.4rem 0 0.4rem 1.1rem;
-    border-left: 2px solid var(--tl-ink);
-    color: var(--tl-ink);
-    font-size: clamp(18px, 2vw, 22px);
-    font-style: italic;
-    line-height: 1.4;
-  }
-
-  .tl-post-list {
-    display: grid;
-    gap: 0.6rem;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .tl-post-list li {
-    display: grid;
-    grid-template-columns: 2.4rem minmax(0, 1fr);
-    gap: 12px;
-    align-items: baseline;
-  }
-
-  .tl-post-figure {
-    display: grid;
-    gap: 10px;
-    margin: 0.4rem 0;
-  }
-
-  .tl-post-figure figcaption {
+  .tl-list {
+    margin-block: 1.2em;
+    padding-left: 1.2rem;
     display: flex;
-    flex-wrap: wrap;
-    gap: 6px 12px;
-    color: var(--tl-muted);
-    font-size: 12px;
+    flex-direction: column;
+    gap: 0.5rem;
   }
 
-  .tl-rel-row,
-  .tl-post-footnote-row,
-  .tl-post-input-row {
+  .tl-figure {
+    margin-block: 1.5em;
+  }
+
+  .tl-figure figcaption {
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  .tl-input,
+  .tl-footnote {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .tl-footnote {
     display: grid;
-    grid-template-columns: 56px minmax(0, 1fr) auto;
-    gap: 22px;
+    grid-template-columns: 2rem minmax(0, 1fr);
+    gap: 0.75rem;
     align-items: baseline;
-    padding: 12px 0;
   }
-
-  .tl-rel-row h3,
-  .tl-post-input-row h3 {
-    margin: 0;
-    font-size: clamp(17px, 1.6vw, 20px);
-    font-weight: 560;
-    line-height: 1.25;
-    letter-spacing: -0.012em;
-  }
-
-  .tl-post-input-row p {
-    margin: 6px 0 0;
-    max-width: 60ch;
-    color: var(--tl-muted);
-    font-size: 0.92em;
-    line-height: 1.5;
-  }
-
-  .tl-rel-row a,
-  .tl-post-input-row a {
-    color: inherit;
-    text-decoration: none;
-  }
-
-  .tl-rel-row a:hover,
-  .tl-post-input-row a:hover {
-    text-decoration: underline;
-    text-underline-offset: 3px;
-  }
-
-  .tl-post-input-meta {
-    display: grid;
-    gap: 3px;
-    justify-items: end;
-    color: var(--tl-muted);
-    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-    font-size: 11px;
-    line-height: 1.35;
-    text-align: right;
-    text-transform: uppercase;
-  }
-
-  .tl-post-rail {
-    display: grid;
-    gap: 18px;
-    padding-top: 6px;
-    font-size: 13px;
-    line-height: 1.55;
-  }
-
-  .tl-post-rail > div {
-    display: grid;
-    gap: 4px;
-    padding-bottom: 14px;
-    border-bottom: 1px solid var(--tl-line);
-  }
-
-  .tl-post-rail > div:last-child {
-    border-bottom: none;
-  }
-
-  .tl-post-rail p {
-    margin: 0;
-    color: var(--tl-ink);
-  }
-
-  .tl-post-rail p.is-muted {
-    color: var(--tl-muted);
-  }
-
-  @media (max-width: 900px) {
-    .tl-post-detail-grid {
-      grid-template-columns: 1fr;
-      gap: clamp(2rem, 5vw, 3rem);
-    }
-
-    .tl-post-section-head {
-      position: static;
-    }
-
-    .tl-post-rail {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      column-gap: 22px;
-      row-gap: 14px;
-      padding-top: clamp(1.5rem, 4vh, 2.5rem);
-    }
-  }
-
-  @media (max-width: 767px) {
-    .tl-post-detail-page {
-      padding: 5rem var(--tl-space-7) 3rem;
-    }
-
-    :global(.tl-post-hero) {
-      min-height: 13rem;
-    }
-
-    .tl-post-section,
-    .tl-post-footnotes,
-    .tl-post-related,
-    .tl-post-inputs {
-      grid-template-columns: 1fr;
-      gap: 14px;
-    }
-
-    .tl-rel-row,
-    .tl-post-footnote-row,
-    .tl-post-input-row {
-      grid-template-columns: 1fr;
-      gap: 10px;
-    }
-
-    .tl-post-input-meta {
-      justify-items: start;
-      text-align: left;
-    }
-
-    .tl-post-rail {
-      grid-template-columns: 1fr;
-    }
-  }
-
 </style>

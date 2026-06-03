@@ -26,6 +26,7 @@ const site = Astro.site ?? new URL(Astro.url.origin);
   description={entry.data.current_question ?? entry.data.help_welcome}
   structuredData={projectStructuredData(entry, Astro.url, site, lastTouched)}
   ogType="article"
+  allowScroll
 >
   <ProjectDetailPageComposition project={project}>
     <Content />

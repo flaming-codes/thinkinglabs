@@ -1,7 +1,8 @@
 ---
-import AppShell from "../components/AppShell.astro";
-import EntityConicGradient from "../components/EntityConicGradient.astro";
-import StatusTag from "../components/StatusTag.astro";
+import heroImage from "@/assets/hero.png";
+import EntityDetail from "../components/EntityDetail.astro";
+import type { EntityRelationGroup } from "../components/EntityDetail.astro";
+import EntityFacts from "../components/EntityFacts.astro";
 import type { QuestionDetail } from "../types";
 
 interface Props {
@@ -9,346 +10,176 @@ interface Props {
 }
 
 const { question } = Astro.props;
+
 const related = [...question.relatedClaims, ...question.relatedProjects];
+const relations: EntityRelationGroup[] =
+  related.length > 0
+    ? [
+        {
+          label: "Related",
+          links: related.map((rel) => ({
+            href: rel.href ?? "#",
+            title: rel.title,
+            ...(rel.value !== undefined ? { value: rel.value } : {}),
+          })),
+        },
+      ]
+    : [];
+
+const hasAttempts = question.attempts.length > 0;
 ---
 
-<AppShell activeNav="Index">
-  <article class="tl-question-detail" data-selected-label={question.question} data-entity="questions">
-    <header class="tl-question-head">
-      <EntityConicGradient class="tl-question-mark" entity="questions">?</EntityConicGradient>
-      <div class="tl-question-title">
-        <p class="tl-mono">Open question</p>
-        <h1>{question.question}</h1>
-        <div class="tl-question-meta">
-          <StatusTag label={question.status} tone={question.status === "open" ? "active" : "default"} />
-          <span class="tl-mono">asked {question.asked}</span>
-        </div>
-      </div>
-    </header>
+<EntityDetail
+  title={question.question}
+  dates={[{ label: `asked ${question.asked}` }]}
+  tags={question.tags}
+  heroImage={heroImage}
+  relations={relations}
+>
+  <EntityFacts slot="meta" facts={[{ label: "Status", value: question.status }]} />
 
-    <section class="tl-question-context">
-      <article>
-        <span class="tl-eyebrow">Context</span>
-        <p>{question.context}</p>
-      </article>
-      <article>
-        <span class="tl-eyebrow">Ideal responder</span>
-        <p>{question.idealResponder}</p>
-      </article>
-    </section>
+  <div class="tl-lede">
+    <p class="tl-eyebrow">Context</p>
+    <p class="tl-lede-text">{question.context}</p>
+  </div>
+  <div class="tl-lede">
+    <p class="tl-eyebrow">Ideal responder</p>
+    <p class="tl-lede-text">{question.idealResponder}</p>
+  </div>
 
-    <section class="tl-question-body">
-      <slot />
-    </section>
+  <slot />
 
-    {question.attempts.length > 0 ? (
-      <section class="tl-question-attempts">
-        <header class="tl-split-header is-tight">
-          <div class="tl-eyebrow">Attempts</div>
-          <div class="tl-mono">{question.attempts.length} tried</div>
-        </header>
-        <ol>
-          {question.attempts.map((attempt, index) => (
-            <li>
-              <span class="tl-mono">{String(index + 1).padStart(2, "0")}</span>
-              <p>{attempt}</p>
-            </li>
+  {
+    hasAttempts && (
+      <div class="tl-lede">
+        <p class="tl-eyebrow">Attempts</p>
+        <ol class="tl-attempts">
+          {question.attempts.map((attempt) => (
+            <li>{attempt}</li>
           ))}
         </ol>
-      </section>
-    ) : null}
-
-    <section class="tl-question-response">
-      <div>
-        <span class="tl-eyebrow">Submit an answer</span>
-        <p>Send a concise answer, pointers, or a route to someone who knows.</p>
       </div>
-      <form method="post" action={question.responseAction} enctype="text/plain">
-        <input type="hidden" name="questionSlug" value={question.slug} />
-        <label>
-          <span>Name</span>
-          <input name="responder.name" required />
-        </label>
-        <label>
-          <span>Contact</span>
-          <input name="responder.contact" />
-        </label>
-        <label>
-          <span>Pointers</span>
-          <input name="pointers" placeholder="URLs or references" />
-        </label>
-        <label class="is-wide">
-          <span>Answer</span>
-          <textarea name="body" required></textarea>
-        </label>
-        <button type="submit">Send for triage</button>
-      </form>
-    </section>
+    )
+  }
 
-    {related.length > 0 ? (
-      <section class="tl-question-related">
-        <header class="tl-split-header is-tight">
-          <div class="tl-eyebrow">Related</div>
-          <div class="tl-mono">{related.length} linked entries</div>
-        </header>
-        <div>
-          {related.map((rel) => (
-            <article class="tl-question-relation">
-              <span class="tl-mono">{rel.kind}</span>
-              <h3>{rel.href ? <a href={rel.href}>{rel.title}</a> : rel.title}</h3>
-              <span class="tl-mono is-right">{rel.value ?? ""}</span>
-            </article>
-          ))}
-        </div>
-      </section>
-    ) : null}
-
-    {question.tags.length > 0 ? (
-      <section class="tl-question-tags">
-        {question.tags.map((tag) => <span>#{tag}</span>)}
-      </section>
-    ) : null}
-  </article>
-</AppShell>
+  <form class="tl-answer" method="post" action={question.responseAction} enctype="text/plain">
+    <p class="tl-eyebrow">Submit an answer</p>
+    <p class="tl-answer-deck">Send a concise answer, pointers, or a route to someone who knows.</p>
+    <input type="hidden" name="questionSlug" value={question.slug} />
+    <label>
+      <span>Name</span>
+      <input name="responder.name" required />
+    </label>
+    <label>
+      <span>Contact</span>
+      <input name="responder.contact" />
+    </label>
+    <label>
+      <span>Pointers</span>
+      <input name="pointers" placeholder="URLs or references" />
+    </label>
+    <label class="is-wide">
+      <span>Answer</span>
+      <textarea name="body" required></textarea>
+    </label>
+    <button type="submit">Send for triage</button>
+  </form>
+</EntityDetail>
 
 <style>
-  .tl-question-detail {
-    padding: clamp(7rem, 13vh, 10rem) 20px clamp(7rem, 16vh, 12rem);
-    background: var(--tl-bg);
-    color: var(--tl-ink);
-  }
-
-  .tl-question-head,
-  .tl-question-context,
-  .tl-question-body,
-  .tl-question-attempts,
-  .tl-question-response,
-  .tl-question-related,
-  .tl-question-tags {
-    width: min(100%, 980px);
-    margin-inline: auto;
-  }
-
-  .tl-question-head {
-    display: grid;
-    grid-template-columns: minmax(9rem, 0.35fr) minmax(0, 1fr);
-    gap: clamp(1.5rem, 5vw, 4rem);
-    align-items: center;
-    min-height: clamp(22rem, 58vh, 37rem);
-  }
-
-  :global(.tl-question-mark) {
-    display: grid;
-    place-items: center;
-    aspect-ratio: 1;
-    overflow: hidden;
-    background: var(--tl-media-bg);
-    color: var(--tl-media-ink);
-    font-size: clamp(86px, 17vw, 210px);
-    font-weight: 680;
-    line-height: 1;
-    mix-blend-mode: normal;
-  }
-
-  .tl-question-title {
-    display: grid;
-    gap: 18px;
-  }
-
-  .tl-question-title h1 {
-    max-width: 21ch;
-    font-size: clamp(34px, 5vw, 68px);
-    font-weight: 620;
-    line-height: 1;
-    letter-spacing: -0.04em;
-  }
-
-  .tl-question-meta {
+  .tl-lede {
     display: flex;
-    flex-wrap: wrap;
-    gap: 10px 16px;
-    align-items: center;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-block: 1.5em;
   }
 
-  .tl-question-context {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 0.85fr);
-    gap: 1px;
-    background: var(--tl-line);
-  }
-
-  .tl-question-context article {
-    display: grid;
-    gap: 16px;
-    min-height: 13rem;
-    padding: clamp(1.25rem, 3vw, 2rem);
-    background: var(--tl-bg);
-  }
-
-  .tl-question-context p {
-    font-size: clamp(20px, 2.5vw, 32px);
-    font-weight: 580;
-    line-height: 1.12;
-    letter-spacing: -0.025em;
-  }
-
-  .tl-question-body {
-    padding: clamp(3rem, 9vh, 5.5rem) 0;
-    color: var(--tl-prose-ink);
-    font-size: 17px;
-    line-height: 1.75;
-  }
-
-  .tl-question-body :global(p) {
-    max-width: 43rem;
-    margin: 0 0 1.1rem;
-  }
-
-  .tl-question-attempts ol {
-    display: grid;
-    gap: 0;
+  .tl-eyebrow {
     margin: 0;
-    padding: 0;
-    list-style: none;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    opacity: 0.5;
   }
 
-  .tl-question-attempts li {
-    display: grid;
-    grid-template-columns: 60px minmax(0, 1fr);
-    gap: 22px;
-    padding: 22px 0;
-    border-bottom: 1px solid var(--tl-line);
+  .tl-lede-text {
+    margin: 0;
+    font-size: 1.15rem;
+    line-height: 1.4;
   }
 
-  .tl-question-attempts p {
-    color: var(--tl-prose-ink);
-    font-size: 16px;
-    line-height: 1.72;
+  .tl-attempts {
+    margin: 0;
+    padding-left: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
   }
 
-  .tl-question-response {
-    display: grid;
-    grid-template-columns: minmax(12rem, 0.52fr) minmax(0, 1fr);
-    gap: clamp(1.5rem, 4vw, 3rem);
-    margin-top: clamp(3rem, 8vh, 5rem);
-    padding: clamp(1.25rem, 3vw, 2rem) 0 clamp(3rem, 8vh, 5rem);
-    border-top: 1px solid var(--tl-line);
-  }
-
-  .tl-question-response > div {
-    display: grid;
-    gap: 14px;
-    align-content: start;
-  }
-
-  .tl-question-response p {
-    color: var(--tl-prose-soft);
-    font-size: 15px;
-    line-height: 1.55;
-  }
-
-  .tl-question-response form {
+  .tl-answer {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px;
+    gap: 0.75rem;
+    margin-block: 2.5em 1.5em;
+    padding-top: 1.5rem;
+    border-top: 1px solid color-mix(in srgb, currentColor 12%, transparent);
   }
 
-  .tl-question-response label {
-    display: grid;
-    gap: 8px;
-    color: var(--tl-muted);
-    font-size: 12px;
-    font-weight: 650;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-
-  .tl-question-response label.is-wide,
-  .tl-question-response button {
+  .tl-answer .tl-eyebrow,
+  .tl-answer-deck {
     grid-column: 1 / -1;
   }
 
-  .tl-question-response input,
-  .tl-question-response textarea {
+  .tl-answer-deck {
+    margin: 0;
+    font-size: 0.95rem;
+    opacity: 0.6;
+  }
+
+  .tl-answer label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    opacity: 0.6;
+  }
+
+  .tl-answer label.is-wide,
+  .tl-answer button {
+    grid-column: 1 / -1;
+  }
+
+  .tl-answer input,
+  .tl-answer textarea {
     width: 100%;
-    border: 1px solid var(--tl-line);
-    border-radius: 0;
+    padding: 0.55rem 0.7rem;
+    border: 1px solid color-mix(in srgb, currentColor 18%, transparent);
     background: transparent;
-    color: var(--tl-ink);
-    font-size: 15px;
-    line-height: 1.4;
-    letter-spacing: 0;
+    color: inherit;
+    font: inherit;
     text-transform: none;
+    letter-spacing: 0;
   }
 
-  .tl-question-response input {
-    min-height: 42px;
-    padding: 9px 11px;
-  }
-
-  .tl-question-response textarea {
-    min-height: 9rem;
+  .tl-answer textarea {
+    min-height: 8rem;
     resize: vertical;
-    padding: 11px;
   }
 
-  .tl-question-response button {
-    min-height: 44px;
-    border: 1px solid var(--tl-ink);
-    border-radius: 0;
+  .tl-answer button {
+    padding: 0.7rem 1rem;
+    border: 1px solid currentColor;
     background: var(--tl-ink);
     color: var(--tl-bg);
     cursor: pointer;
+    font: inherit;
   }
 
-  .tl-question-relation {
-    display: grid;
-    grid-template-columns: 66px minmax(0, 1fr) auto;
-    gap: 22px;
-    align-items: baseline;
-    padding: 26px 0;
-    border-bottom: 1px solid var(--tl-line);
-  }
-
-  .tl-question-relation h3 {
-    font-size: clamp(22px, 2.8vw, 35px);
-    font-weight: 600;
-    line-height: 1.05;
-    letter-spacing: -0.03em;
-  }
-
-  .tl-question-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 14px 18px;
-    padding-top: clamp(3rem, 8vh, 5rem);
-    color: var(--tl-muted);
-    font-size: 13px;
-  }
-
-  @media (max-width: 840px) {
-    .tl-question-head,
-    .tl-question-context,
-    .tl-question-response {
+  @media (max-width: 640px) {
+    .tl-answer {
       grid-template-columns: 1fr;
     }
-
-    :global(.tl-question-mark) {
-      width: min(15rem, 70vw);
-    }
   }
-
-  @media (max-width: 767px) {
-    .tl-question-detail {
-      padding: 5rem 16px 3rem;
-    }
-
-    .tl-question-response form,
-    .tl-question-relation,
-    .tl-question-attempts li {
-      grid-template-columns: 1fr;
-      gap: 10px;
-    }
-  }
-
 </style>

@@ -3,11 +3,12 @@ import { Resvg } from "@resvg/resvg-js";
 import { getCollection } from "astro:content";
 import type { APIRoute, GetStaticPaths } from "astro";
 import satori from "satori";
+import sharp from "sharp";
 import { readThinkinglabsCssToken } from "../../lib/css-tokens.ts";
 import { KIND_REGISTRY, LISTING_KINDS, titleFor } from "../../lib/registry.ts";
 import type { Kind } from "../../schemas/index.ts";
 
-/** Static social-card PNGs: one of ten "soft multi-wash" layouts per kind, with accent palettes sampled from each kind's conic-gradient stops. Title is dominant; wordmark is secondary; detail pages add a kind eyebrow (listings and static pages omit it). */
+/** Static social-card PNGs. Detail pages mirror the page's above-the-fold: black background, a thin gap to the edges, the shared hero photo at 3/4 width, and the title set center-left over it (no wordmark or eyebrow). Listings and static pages keep the per-kind "soft multi-wash" orb layouts with a secondary wordmark. */
 export const prerender = true;
 
 interface OgImageProps {
@@ -73,6 +74,26 @@ type SatoriNode = SatoriElement | string;
 
 const OG_IMAGE_WIDTH = 1200;
 const OG_IMAGE_HEIGHT = 628;
+
+/** Detail-card hero geometry, mirroring the page above-the-fold: a thin gap to the edges and the hero photo at 3/4 width. */
+const HERO_PAD = 16;
+const HERO_W = Math.round((OG_IMAGE_WIDTH - HERO_PAD * 2) * 0.75);
+const HERO_H = OG_IMAGE_HEIGHT - HERO_PAD * 2;
+const HERO_SOURCE = "src/assets/hero.png";
+
+let heroDataUri: Promise<string> | null = null;
+
+/** Resize the shared hero once to the card's image box and inline it as a data URI (Satori cannot read from the filesystem). */
+function loadHeroDataUri(): Promise<string> {
+  if (!heroDataUri) {
+    heroDataUri = sharp(HERO_SOURCE)
+      .resize(HERO_W, HERO_H, { fit: "cover" })
+      .jpeg({ quality: 82 })
+      .toBuffer()
+      .then((buffer) => `data:image/jpeg;base64,${buffer.toString("base64")}`);
+  }
+  return heroDataUri;
+}
 
 const OG_THEME = {
   light: {
@@ -320,7 +341,9 @@ export const GET: APIRoute = async ({ props }) => {
     loadFont("golos-text", 500),
     loadFont("golos-text", 600),
   ]);
-  const svg = await satori(renderImage(image) as Parameters<typeof satori>[0], {
+  /* Detail pages (the ones carrying a kind label) render the hero-photo card; everything else keeps the orb layout. */
+  const hero = image.kindLabel ? await loadHeroDataUri() : null;
+  const svg = await satori(renderImage(image, hero) as Parameters<typeof satori>[0], {
     width: OG_IMAGE_WIDTH,
     height: OG_IMAGE_HEIGHT,
     fonts: [
@@ -382,8 +405,66 @@ async function getKindCollection(kind: Kind) {
   }
 }
 
+/** Detail-page card mirroring the page above-the-fold: black field, thin gap to edges, hero photo at 3/4 width, title set center-left over it. No wordmark or eyebrow. */
+function renderDetailImage(image: OgImageProps, hero: string): SatoriElement {
+  const theme = OG_THEME.dark;
+  return node("div", {
+    style: {
+      display: "flex",
+      width: "100%",
+      height: "100%",
+      padding: HERO_PAD,
+      background: theme.bg,
+      fontFamily: "Golos Text",
+    },
+    children: [
+      node("div", {
+        style: { position: "relative", display: "flex", width: "100%", height: "100%" },
+        children: [
+          node("img", {
+            src: hero,
+            width: HERO_W,
+            height: HERO_H,
+            style: { width: HERO_W, height: HERO_H, objectFit: "cover" },
+          }),
+          node("div", {
+            style: {
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: HERO_W,
+              height: HERO_H,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "flex-start",
+              paddingLeft: 28,
+              paddingRight: 40,
+            },
+            children: [
+              node("div", {
+                style: {
+                  display: "flex",
+                  fontSize: 54,
+                  lineHeight: 1.07,
+                  fontWeight: 500,
+                  letterSpacing: -1,
+                  color: theme.ink,
+                  maxWidth: HERO_W - 68,
+                },
+                children: [truncateLine(image.title, 140)],
+              }),
+            ],
+          }),
+        ],
+      }),
+    ],
+  });
+}
+
 /** Full-bleed root with positioned soft orbs plus a content block holding (optional kind eyebrow, title, wordmark); alignment is driven by the kind-assigned LayoutSpec. */
-function renderImage(image: OgImageProps): SatoriElement {
+function renderImage(image: OgImageProps, hero: string | null): SatoriElement {
+  if (hero) return renderDetailImage(image, hero);
   const spec = LAYOUTS[image.layout];
   const theme = spec.inverted ? OG_THEME.dark : OG_THEME.light;
   const titleFontSize = spec.titleFontSize ?? 64;
