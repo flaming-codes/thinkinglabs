@@ -3,13 +3,60 @@ import { getCollection, render } from "astro:content";
 import { Image } from "astro:assets";
 import ThinkinglabsUiPage from "../layouts/ThinkinglabsUiPage.astro";
 import BrandLogo from "../frontend/thinkinglabs-ui/components/BrandLogo.astro";
+import { titleFor } from "../lib/registry.ts";
 import heroImage from "../assets/hero.png";
 
 const thoughts = await getCollection("thoughts");
-const entry = thoughts.sort((a, b) =>
-  b.data.created.localeCompare(a.data.created),
-)[0]!;
+// Exploration page: prefer a thought with populated relation edges so the
+// addendum renders; fall back to the most recent thought otherwise.
+const entry =
+  thoughts.find((t) => t.id === "agent-harnesses-are-state-machines") ??
+  thoughts.sort((a, b) => b.data.created.localeCompare(a.data.created))[0]!;
 const { Content } = await render(entry);
+
+// Relation edges from the thought schema (claims/inputs/observations) are the
+// only data-model fields not yet surfaced on this page. Resolve each referenced
+// slug to its display title and detail-page link; render conditionally so the
+// addendum stays absent when a thought has no edges.
+const [relatedClaims, relatedInputs, relatedObservations] = await Promise.all([
+  getCollection("claims"),
+  getCollection("inputs"),
+  getCollection("observations"),
+]);
+
+const relations = (
+  [
+    {
+      kind: "claims",
+      label: "Claims",
+      ids: entry.data.claims,
+      pool: relatedClaims,
+    },
+    {
+      kind: "inputs",
+      label: "Inputs",
+      ids: entry.data.inputs,
+      pool: relatedInputs,
+    },
+    {
+      kind: "observations",
+      label: "Observations",
+      ids: entry.data.observations,
+      pool: relatedObservations,
+    },
+  ] as const
+)
+  .map((group) => ({
+    label: group.label,
+    links: group.ids.map((id) => {
+      const ref = group.pool.find((candidate) => candidate.id === id);
+      return {
+        href: `/${group.kind}/${id}`,
+        title: titleFor(group.kind, ref?.data ?? {}, id),
+      };
+    }),
+  }))
+  .filter((group) => group.links.length > 0);
 
 const dateFmt = new Intl.DateTimeFormat("en", {
   year: "numeric",
@@ -27,7 +74,7 @@ const tags = entry.data.tags ?? [];
   robots="noindex"
   allowScroll
 >
-  <main class="font-sans flex flex-col gap-y-2">
+  <main class="font-sans flex flex-col gap-y-2 pb-8">
     <div class="tl-hero-frame relative h-dvh p-2">
       <Image
         src={heroImage}
@@ -171,6 +218,30 @@ const tags = entry.data.tags ?? [];
         <Content />
       </article>
     </section>
+
+    {
+      relations.length > 0 && (
+        <footer class="flex flex-col px-2 md:pr-8 lg:max-w-3/4 lg:items-end lg:pr-2">
+          <dl class="flex w-full flex-col gap-6 border-t border-black/10 pt-6 lg:max-w-prose">
+            {relations.map((group) => (
+              <div class="flex flex-col gap-1">
+                <dt class="text-sm opacity-50">{group.label}</dt>
+                {group.links.map((link) => (
+                  <dd class="m-0">
+                    <a
+                      class="text-sm no-underline opacity-80 transition-opacity hover:opacity-100"
+                      href={link.href}
+                    >
+                      {link.title}
+                    </a>
+                  </dd>
+                ))}
+              </div>
+            ))}
+          </dl>
+        </footer>
+      )
+    }
   </main>
 </ThinkinglabsUiPage>
 
