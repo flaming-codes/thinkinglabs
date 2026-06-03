@@ -11,5 +11,21 @@ import SiteNav from "../frontend/thinkinglabs-ui/components/SiteNav.astro";
   <PageShell>
     <SiteNav />
     {/* Intentionally bare: nav + shell only. Page content goes here. */}
+
+    <div class="p-2 h-dvh relative">
+      <img
+        src="/images/index.png"
+        alt="Screenshot of thinkinglabs home page"
+        class="h-full w-1/2 object-cover"
+      />
+      <section
+        class="absolute top-1/2 -translate-y-1/2 inset-x-4 gap-8 justify-between flex"
+      >
+        <h1>thinkinglabs</h1>
+        <p class="max-w-sm text-right text-xs">
+          Personal thinking surface and structured public operating layer.
+        </p>
+      </section>
+    </div>
   </PageShell>
 </ThinkinglabsUiPage>
