@@ -1,4 +1,5 @@
 ---
+import { Font } from "astro:assets";
 import { ClientRouter } from "astro:transitions";
 import "../frontend/thinkinglabs-ui/styles.css";
 import "../styles/view-transitions.css";
@@ -14,9 +15,10 @@ interface Props {
   structuredData?: StructuredData | undefined;
   ogType?: "website" | "article" | "profile";
   robots?: string | undefined;
+  allowScroll?: boolean | undefined;
 }
 
-const { title, description, structuredData, ogType = "website", robots } = Astro.props;
+const { title, description, structuredData, ogType = "website", robots, allowScroll = false } = Astro.props;
 const site = Astro.site ?? new URL(Astro.url.origin);
 const canonical = canonicalUrl(Astro.url.pathname, site);
 const image = ogImageUrl(Astro.url.pathname, site);
@@ -53,16 +55,11 @@ const jsonLd = buildPageGraph({ site, url: canonical, title: titleMeta, descript
     {description ? <meta name="twitter:description" content={description} /> : null}
     <meta name="twitter:image" content={image} />
     <meta name="twitter:image:alt" content={imageAlt} />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap"
-    />
+    <Font cssVariable="--font-golos-text" preload />
     <JsonLd data={jsonLd} />
     <ClientRouter />
   </head>
-  <body>
+  <body data-tl-allow-scroll={allowScroll ? "true" : undefined}>
     <slot />
   </body>
 </html>

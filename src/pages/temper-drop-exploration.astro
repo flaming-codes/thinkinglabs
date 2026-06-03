@@ -1,0 +1,35 @@
+---
+import ThinkinglabsUiPage from "../layouts/ThinkinglabsUiPage.astro";
+---
+
+<ThinkinglabsUiPage
+  title="Temper Drop Exploration"
+  description="An isolated design exploration for a sticky-sidebar product story layout."
+  robots="noindex"
+  allowScroll
+>
+  <main class="font-sans gap-y-2">
+    <div class="relative h-dvh p-2">
+      <img
+        src="/images/hero.png"
+        alt="Temper Drop Exploration"
+        class="h-full object-cover"
+      />
+      <aside class="absolute top-4 left-4">
+        <!-- TODO: Replace with logo -->
+        <span class="text-sm opacity-70">thinkinglabs</span>
+      </aside>
+      <aside class="absolute top-1/2 -translate-y-1/2 left-4">
+        <h2 class="font-normal">The title of the entity</h2>
+      </aside>
+    </div>
+
+    <section class="px-2">
+      <p>
+        Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptas,
+        voluptate.
+      </p>
+      <h1 class="text-5xl font-normal">Title</h1>
+    </section>
+  </main>
+</ThinkinglabsUiPage>

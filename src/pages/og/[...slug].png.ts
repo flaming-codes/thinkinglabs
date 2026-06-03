@@ -316,17 +316,17 @@ export const getStaticPaths: GetStaticPaths = async () => {
 export const GET: APIRoute = async ({ props }) => {
   const image = props as OgImageProps;
   const [regular, medium, semibold] = await Promise.all([
-    loadFont("geist", 400),
-    loadFont("geist", 500),
-    loadFont("geist", 600),
+    loadFont("golos-text", 400),
+    loadFont("golos-text", 500),
+    loadFont("golos-text", 600),
   ]);
   const svg = await satori(renderImage(image) as Parameters<typeof satori>[0], {
     width: OG_IMAGE_WIDTH,
     height: OG_IMAGE_HEIGHT,
     fonts: [
-      { name: "Geist", data: regular, weight: 400, style: "normal" },
-      { name: "Geist", data: medium, weight: 500, style: "normal" },
-      { name: "Geist", data: semibold, weight: 600, style: "normal" },
+      { name: "Golos Text", data: regular, weight: 400, style: "normal" },
+      { name: "Golos Text", data: medium, weight: 500, style: "normal" },
+      { name: "Golos Text", data: semibold, weight: 600, style: "normal" },
     ],
   });
   const png = new Resvg(svg).render().asPng();
@@ -338,11 +338,11 @@ export const GET: APIRoute = async ({ props }) => {
   });
 };
 
-async function loadFont(family: "geist", weight: 400 | 500 | 600): Promise<ArrayBuffer> {
+async function loadFont(family: "golos-text", weight: 400 | 500 | 600): Promise<ArrayBuffer> {
   const key = `${family}-${weight}`;
   let cached = fontCache.get(key);
   if (!cached) {
-    const filename = `node_modules/@fontsource/geist/files/geist-latin-${weight}-normal.woff`;
+    const filename = `node_modules/@fontsource/golos-text/files/golos-text-latin-${weight}-normal.woff`;
     cached = readFile(filename).then((buffer) =>
       buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength),
     );
@@ -410,7 +410,7 @@ function renderImage(image: OgImageProps): SatoriElement {
       overflow: "hidden",
       background: theme.bg,
       color: theme.ink,
-      fontFamily: "Geist",
+      fontFamily: "Golos Text",
     },
     children: [
       ...orbNodes,

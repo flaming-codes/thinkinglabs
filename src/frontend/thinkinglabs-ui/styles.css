@@ -1,3 +1,9 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-golos-text);
+}
+
 :root {
   color-scheme: light;
   --tl-color-bg: #ffffff;
@@ -113,8 +119,8 @@
   --tl-shadow: var(--tl-shadow-soft);
   --tl-gallery-hover-shadow: var(--tl-shadow-gallery-hover);
   --tl-gallery-shadow: var(--tl-shadow-gallery);
-  --tl-font: "Geist", system-ui, sans-serif;
-  --tl-type-body-weight: 520;
+  --tl-font: var(--font-golos-text, "Golos Text", system-ui, sans-serif);
+  --tl-type-body-weight: 400;
   --tl-type-detail-body-weight: 400;
   --tl-type-strong-weight: 650;
   --tl-type-heading-weight: 620;
@@ -734,6 +740,11 @@ body {
 body {
   min-width: 320px;
   overflow: hidden;
+}
+
+body[data-tl-allow-scroll="true"] {
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 button,
