@@ -13,6 +13,7 @@ const site = Astro.site ?? new URL(Astro.url.origin);
 <ThinkinglabsUiPage
   title="Posts — Tom"
   description="Long-form evergreen posts with per-section freshness."
+  allowScroll
   structuredData={listStructuredData(
     Astro.url,
     site,

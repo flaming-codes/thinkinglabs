@@ -14,6 +14,7 @@ const site = Astro.site ?? new URL(Astro.url.origin);
 <ThinkinglabsUiPage
   title="Changed my mind — Tom"
   description="Belief revisions, by date."
+  allowScroll
   structuredData={listStructuredData(
     Astro.url,
     site,
