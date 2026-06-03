@@ -25,24 +25,70 @@ const tags = entry.data.tags ?? [];
   robots="noindex"
   allowScroll
 >
-  <main class="font-sans gap-y-2">
-    <aside class="fixed top-0 right-0 origin-top-right scale-75">
-      <BrandLogo ariaLabel="thinkinglabs" />
-    </aside>
+  <main class="font-sans flex flex-col gap-y-2">
     <div class="relative h-dvh p-2">
       <img
         src="/images/hero.png"
         alt={entry.data.title}
-        class="h-full w-3/4 object-cover"
+        class="h-full w-full object-cover md:w-3/4"
       />
 
-      <aside class="absolute top-1/2 -translate-y-1/2 left-4">
+      <aside
+        class="absolute top-2 left-2 lg:left-auto lg:top-0 md:right-0 z-20"
+      >
+        <input id="tl-nav" type="checkbox" class="tl-nav-toggle peer sr-only" />
+        <label
+          for="tl-nav"
+          class="block cursor-pointer origin-top-right lg:scale-75"
+          aria-label="Open navigation"
+        >
+          <BrandLogo ariaLabel="thinkinglabs" />
+        </label>
+
+        <div
+          class="invisible fixed inset-0 z-50 flex scale-95 flex-col bg-white p-2 text-black opacity-0 transition duration-200 ease-out origin-top-left peer-checked:visible peer-checked:scale-100 peer-checked:opacity-100 lg:origin-top-right"
+        >
+          <div class="flex flex-col gap-10 lg:items-end">
+            <label
+              for="tl-nav"
+              class="flex cursor-pointer items-center gap-2"
+              aria-label="Close navigation"
+            >
+              <BrandLogo class="text-black!" />
+              <span class="text-sm tracking-tight">thinkinglabs</span>
+            </label>
+
+            <nav>
+              <ul
+                class="flex list-none flex-col gap-1 p-0 lg:items-end lg:text-right"
+              >
+                <li><a class="text-sm text-black no-underline transition-opacity hover:opacity-50" href="/now">now</a></li>
+                <li><a class="text-sm text-black no-underline transition-opacity hover:opacity-50" href="/thoughts">thoughts</a></li>
+                <li><a class="text-sm text-black no-underline transition-opacity hover:opacity-50" href="/claims">claims</a></li>
+                <li><a class="text-sm text-black no-underline transition-opacity hover:opacity-50" href="/predictions">predictions</a></li>
+                <li><a class="text-sm text-black no-underline transition-opacity hover:opacity-50" href="/decisions">decisions</a></li>
+                <li><a class="text-sm text-black no-underline transition-opacity hover:opacity-50" href="/experiments">experiments</a></li>
+                <li><a class="text-sm text-black no-underline transition-opacity hover:opacity-50" href="/observations">observations</a></li>
+                <li><a class="text-sm text-black no-underline transition-opacity hover:opacity-50" href="/changed-my-mind">changed my mind</a></li>
+                <li><a class="text-sm text-black no-underline transition-opacity hover:opacity-50" href="/about">about</a></li>
+                <li><a class="text-sm text-black no-underline transition-opacity hover:opacity-50" href="/contact">contact</a></li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </aside>
+
+      <aside
+        class="absolute top-1/2 -translate-y-1/2 left-4 right-4 md:right-auto"
+      >
         <!-- Needs to stay gray-50 regardless of theme -->
         <h2 class="font-normal text-gray-50">{entry.data.title}</h2>
       </aside>
     </div>
 
-    <section class="px-2 max-w-3/4 flex justify-end">
+    <section
+      class="px-2 flex flex-col gap-4 md:pr-8 lg:max-w-3/4 lg:flex-row lg:justify-end lg:pr-2 lg:gap-16"
+    >
       <header class="flex flex-col">
         <p class="text-sm opacity-70">
           <time datetime={entry.data.created}>{created}</time>
@@ -65,7 +111,7 @@ const tags = entry.data.tags ?? [];
           )
         }
       </header>
-      <article class="entity-prose">
+      <article class="entity-prose md:pl-16 lg:pl-0">
         <Content />
       </article>
     </section>
