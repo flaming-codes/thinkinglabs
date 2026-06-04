@@ -1,13 +1,6 @@
 import { readFileSync } from "node:fs";
 import matter from "gray-matter";
-import {
-  describe,
-  expect,
-  it,
-  vi,
-  beforeEach,
-  afterEach,
-} from "vite-plus/test";
+import { describe, expect, it, vi, beforeEach, afterEach } from "vite-plus/test";
 import { KIND_REGISTRY, LISTING_KINDS } from "../src/lib/registry.ts";
 
 const postEntry = {
@@ -16,8 +9,7 @@ const postEntry = {
     title: "The site is the instrument",
     created: "2026-05-09",
     updated: "2026-05-10",
-    summary:
-      "How thinkinglabs became a markdown-canonical public working surface.",
+    summary: "How thinkinglabs became a markdown-canonical public working surface.",
     related_claims: ["prompt-is-spec-is-implementation", "missing-claim"],
     related_thoughts: [],
     tags: ["systems", "agents"],
@@ -150,8 +142,7 @@ describe("Markdown route contracts and serializers", () => {
   });
 
   it("rejects malformed, non-public, and unknown-link envelopes before response generation", async () => {
-    const { markdownDetailEnvelopeSchema } =
-      await import("../src/lib/markdown-routes.ts");
+    const { markdownDetailEnvelopeSchema } = await import("../src/lib/markdown-routes.ts");
     expect(() =>
       markdownDetailEnvelopeSchema.parse({
         variant: "detail",
@@ -178,8 +169,7 @@ describe("Markdown route contracts and serializers", () => {
   });
 
   it("preserves detail body bytes after the YAML envelope", async () => {
-    const { renderDetailMarkdown } =
-      await import("../src/lib/markdown-routes.ts");
+    const { renderDetailMarkdown } = await import("../src/lib/markdown-routes.ts");
     const markdown = renderDetailMarkdown({ kind: "posts", entry: postEntry });
     const parsed = matter(markdown);
 
@@ -192,8 +182,7 @@ describe("Markdown route contracts and serializers", () => {
   });
 
   it("emits resolved and unresolved internal detail links without adding UI-derived fields", async () => {
-    const { buildMarkdownRouteRecords } =
-      await import("../src/lib/markdown-routes.ts");
+    const { buildMarkdownRouteRecords } = await import("../src/lib/markdown-routes.ts");
     const records = await buildMarkdownRouteRecords();
     const postRecord = records.find(
       (record) => record.route === "/posts/the-site-is-the-instrument",
@@ -223,12 +212,10 @@ describe("Markdown route contracts and serializers", () => {
   });
 
   it("emits prediction evidence links to thoughts and inputs", async () => {
-    const { buildMarkdownRouteRecords } =
-      await import("../src/lib/markdown-routes.ts");
+    const { buildMarkdownRouteRecords } = await import("../src/lib/markdown-routes.ts");
     const records = await buildMarkdownRouteRecords();
     const predictionRecord = records.find(
-      (record) =>
-        record.route === "/predictions/agent-marketplaces-succeed-app-stores",
+      (record) => record.route === "/predictions/agent-marketplaces-succeed-app-stores",
     );
     expect(predictionRecord).toBeDefined();
 
@@ -256,26 +243,18 @@ describe("Markdown route contracts and serializers", () => {
   });
 
   it("does not generate provenance or other non-public Markdown records", async () => {
-    const { buildMarkdownRouteRecords } =
-      await import("../src/lib/markdown-routes.ts");
-    const routes = (await buildMarkdownRouteRecords()).map(
-      (record) => record.route,
-    );
+    const { buildMarkdownRouteRecords } = await import("../src/lib/markdown-routes.ts");
+    const routes = (await buildMarkdownRouteRecords()).map((record) => record.route);
 
     expect(routes).toContain("/posts");
     expect(routes).toContain("/posts/the-site-is-the-instrument");
     expect(routes).not.toContain("/provenance");
-    expect(routes.some((route) => route.startsWith("/provenance/"))).toBe(
-      false,
-    );
+    expect(routes.some((route) => route.startsWith("/provenance/"))).toBe(false);
   });
 
   it("generates listing Markdown routes for every public listing kind", async () => {
-    const { buildMarkdownRouteRecords } =
-      await import("../src/lib/markdown-routes.ts");
-    const routes = (await buildMarkdownRouteRecords()).map(
-      (record) => record.route,
-    );
+    const { buildMarkdownRouteRecords } = await import("../src/lib/markdown-routes.ts");
+    const routes = (await buildMarkdownRouteRecords()).map((record) => record.route);
 
     for (const kind of LISTING_KINDS) {
       const route = KIND_REGISTRY[kind].route;
@@ -311,11 +290,8 @@ describe("Markdown route contracts and serializers", () => {
       }),
     }));
 
-    const { buildMarkdownRouteRecords } =
-      await import("../src/lib/markdown-routes.ts");
-    await expect(buildMarkdownRouteRecords()).rejects.toThrow(
-      "Duplicate Markdown route slug",
-    );
+    const { buildMarkdownRouteRecords } = await import("../src/lib/markdown-routes.ts");
+    await expect(buildMarkdownRouteRecords()).rejects.toThrow("Duplicate Markdown route slug");
   });
 });
 
@@ -337,9 +313,7 @@ describe("Markdown route endpoint", () => {
     } as never);
 
     expect(response.status).toBe(200);
-    expect(response.headers.get("content-type")?.toLowerCase()).toContain(
-      "text/markdown",
-    );
+    expect(response.headers.get("content-type")?.toLowerCase()).toContain("text/markdown");
     const parsed = matter(await response.text());
     expect(parsed.data["variant"]).toBe("detail");
     expect(parsed.content).toBe(postEntry.body);
@@ -361,9 +335,7 @@ describe("Markdown route endpoint", () => {
 
     expect(response.status).toBe(200);
     const text = await response.text();
-    expect(text).toContain(
-      "Canonical public content pages, listings, and selected static pages",
-    );
+    expect(text).toContain("Canonical public content pages, listings, and selected static pages");
     expect(text).toContain("contract-validated envelopes");
   });
 
@@ -393,39 +365,24 @@ describe("Markdown route endpoint", () => {
 
 describe("Markdown surface documentation", () => {
   it("documents Markdown URL variants in README, rendering docs, ADR, and About source", () => {
-    const readme = readFileSync(
-      new URL("../README.md", import.meta.url),
-      "utf8",
-    );
+    const readme = readFileSync(new URL("../README.md", import.meta.url), "utf8");
     const rendering = readFileSync(
       new URL("../docs/agents/rendering-pipeline.md", import.meta.url),
       "utf8",
     );
     const adr = readFileSync(
-      new URL(
-        "../docs/architecture/ADR-004-renderer-pipeline.md",
-        import.meta.url,
-      ),
+      new URL("../docs/architecture/ADR-004-renderer-pipeline.md", import.meta.url),
       "utf8",
     );
     const about = readFileSync(
-      new URL(
-        "../src/frontend/thinkinglabs-ui/pages/AboutPageComposition.astro",
-        import.meta.url,
-      ),
+      new URL("../src/frontend/thinkinglabs-ui/pages/AboutPageComposition.astro", import.meta.url),
       "utf8",
     );
 
     expect(readme).toContain("contract-validated Markdown variants");
     expect(rendering).toContain("Markdown URL variants");
-    expect(adr).toContain(
-      "appending `.md` to a canonical public page or content URL",
-    );
-    expect(about).toContain(
-      "Canonical public content pages, listings, and selected static pages",
-    );
-    expect(about).not.toContain(
-      "Every public page has an agent-readable Markdown sibling",
-    );
+    expect(adr).toContain("appending `.md` to a canonical public page or content URL");
+    expect(about).toContain("Canonical public content pages, listings, and selected static pages");
+    expect(about).not.toContain("Every public page has an agent-readable Markdown sibling");
   });
 });

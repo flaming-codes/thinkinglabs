@@ -106,7 +106,9 @@ function escapeHtml(text: string): string {
 function inlineToHtml(text: string): string {
   const escaped = escapeHtml(text.replace(/^>\s?/gm, "").replace(/^#{1,6}\s+/gm, ""));
   return escaped
-    .replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, '<img alt="$1" src="$2" />')
+    .replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, (_, alt: string, src: string) =>
+      alt ? `${alt} (${src})` : src,
+    )
     .replace(
       /\[([^\]]+)\]\(([^)\s]+)\)/g,
       (_, label: string, href: string) => `<a href="${href}">${label}</a>`,

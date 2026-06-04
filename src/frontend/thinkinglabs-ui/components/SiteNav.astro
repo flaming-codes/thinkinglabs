@@ -10,6 +10,8 @@ export interface SiteNavLink {
 interface Props {
   /** Navigation entries; defaults to the full site nav. */
   links?: readonly SiteNavLink[] | undefined;
+  /** Disable the scroll-timeline badge fill on pages without a hero timeline. */
+  revealBadge?: boolean | undefined;
 }
 
 // Top-level site navigation. Kept as data so the markup stays a single mapped
@@ -23,10 +25,11 @@ const DEFAULT_LINKS: readonly SiteNavLink[] = [
   { href: "/observations", label: "observations" },
   { href: "/changed-my-mind", label: "changed my mind" },
   { href: "/about", label: "about" },
+  { href: "/privacy", label: "privacy" },
   { href: "/contact", label: "contact" },
 ];
 
-const { links = DEFAULT_LINKS } = Astro.props;
+const { links = DEFAULT_LINKS, revealBadge = true } = Astro.props;
 ---
 
 {/*
@@ -37,6 +40,7 @@ const { links = DEFAULT_LINKS } = Astro.props;
 */}
 <aside
   class="tl-nav-badge fixed rounded-full overflow-hidden aspect-square top-2 left-2 lg:left-auto lg:right-0 lg:top-0 z-20"
+  data-reveal-badge={revealBadge ? "true" : "false"}
 >
   <input id="tl-nav" type="checkbox" class="tl-nav-toggle peer sr-only" />
   <label
@@ -102,6 +106,11 @@ const { links = DEFAULT_LINKS } = Astro.props;
     background-color: transparent;
   }
 
+  .tl-nav-badge[data-reveal-badge="false"] {
+    background-color: transparent !important;
+    animation: none !important;
+  }
+
   /* The open menu fills the viewport with the page background and ink so it
      reads correctly in both themes (was hard-coded white/black). Links and the
      brand logo inherit this ink. */
@@ -133,7 +142,7 @@ const { links = DEFAULT_LINKS } = Astro.props;
   }
 
   @supports (animation-timeline: view()) {
-    .tl-nav-badge :global(.tl-nav-logo) {
+    .tl-nav-badge[data-reveal-badge="true"] :global(.tl-nav-logo) {
       animation: tl-nav-logo-reveal linear both;
       animation-timeline: --tl-hero;
       animation-range: exit;
@@ -146,7 +155,7 @@ const { links = DEFAULT_LINKS } = Astro.props;
        no `--tl-hero` timeline (e.g. the index), since an inactive timeline
        resolves the `both` fill to the filled end state. */
     @media (min-width: 64rem) {
-      .tl-nav-badge {
+      .tl-nav-badge[data-reveal-badge="true"] {
         animation: tl-nav-badge-reveal linear both;
         animation-timeline: --tl-hero;
         animation-range: exit;

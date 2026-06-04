@@ -1,0 +1,152 @@
+---
+import { Image } from "astro:assets";
+import contactHero from "../../../assets/contact-hero.png";
+import type { Contact } from "../../../schemas/contact.ts";
+import PageShell from "../components/PageShell.astro";
+import SiteNav from "../components/SiteNav.astro";
+
+interface Props {
+  contact: Contact;
+}
+
+const { contact } = Astro.props;
+
+const routing: { label: string; items: string[] }[] = [
+  { label: "Same-day reply", items: contact.same_day_reply },
+  { label: "Queued", items: contact.queued },
+  { label: "Decline", items: contact.decline },
+];
+---
+
+<PageShell>
+  <SiteNav revealBadge={false} />
+
+  <article
+    class="flex w-full flex-col gap-16 px-2 pt-2 pb-24 text-sm leading-[var(--tl-type-line-body)] text-[color:var(--tl-ink)] md:ml-auto md:w-1/2 md:pb-32 [&_a:hover]:opacity-70 [&_a]:text-inherit [&_a]:no-underline [&_h1]:m-0 [&_h2]:m-0 [&_h2]:max-w-[18ch] [&_h2]:text-inherit [&_h2]:leading-inherit [&_h2]:font-[var(--tl-type-heading-weight-strong)] [&_h2]:tracking-[0] [&_p]:m-0 [&_ul]:m-0 [&_ul]:list-none [&_ul]:p-0"
+  >
+    <figure class="m-0 w-full" aria-label="Seascape at dusk">
+      <Image
+        src={contactHero}
+        alt="A blurred figure standing by the sea at dusk with an island on the horizon."
+        widths={[480, 768, 1024, 1280, 1600, 2048, 2752]}
+        sizes="(min-width: 768px) 50vw, 100vw"
+        format="webp"
+        quality={82}
+        priority
+        class="h-auto w-full"
+      />
+    </figure>
+
+    <header class="flex max-w-xs flex-col gap-3 md:fixed md:top-1/2 md:left-2 md:w-[calc(50%-1rem)] md:-translate-y-1/2">
+      <h1
+        class="text-[var(--tl-type-display-md)] leading-[var(--tl-type-line-tight)] font-[var(--tl-type-heading-weight-strong)] tracking-[0] md:text-inherit md:leading-inherit md:font-inherit"
+      >
+        Contact
+      </h1>
+      <p class="md:max-w-xs md:opacity-60">
+        I prefer messages with a clear reason, a concrete artifact, and enough context to decide
+        whether a reply would be useful.
+      </p>
+    </header>
+
+    <section class="flex max-w-xs flex-col gap-6" aria-labelledby="contact-routing-title">
+      <h2 id="contact-routing-title">What tends to get a reply</h2>
+      <p class="opacity-70">
+        The fastest route is a specific note about AI systems, MCP, agent infrastructure, or
+        work connected to Wild. Vague requests are easier to decline than to triage.
+      </p>
+      <div class="flex flex-col gap-10">
+        {
+          routing.map((group) => (
+            <section class="flex flex-col gap-3">
+              <h3 class="m-0 text-[9px] leading-none font-semibold tracking-[0.14em] uppercase opacity-40">
+                {group.label}
+              </h3>
+              {group.items.length > 0 ? (
+                <ul class="flex flex-col gap-2 opacity-70">
+                  {group.items.map((item) => (
+                    <li>{item}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p class="opacity-40">(none)</p>
+              )}
+            </section>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="flex max-w-xs flex-col gap-6" aria-labelledby="contact-details-title">
+      <h2 id="contact-details-title">How to reach me</h2>
+      <p class="opacity-70">
+        Email is the reliable channel. The same policy is also available as structured JSON for
+        agents that want to preflight a message before handing it to a person.
+      </p>
+
+      <dl class="m-0 flex flex-col gap-7">
+        <div class="flex flex-col gap-1">
+          <dt class="text-[9px] leading-none font-semibold tracking-[0.14em] uppercase opacity-40">
+            Fastest no
+          </dt>
+          <dd class="m-0 opacity-70">{contact.fastest_no}</dd>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <dt class="text-[9px] leading-none font-semibold tracking-[0.14em] uppercase opacity-40">
+            Channels
+          </dt>
+          <dd class="m-0">
+            <ul class="flex flex-col gap-2 opacity-70">
+              {
+                contact.channels.map((channel) => (
+                  <li class="flex items-baseline gap-3">
+                    <span class="text-[9px] leading-none font-semibold tracking-[0.14em] uppercase opacity-60">
+                      {channel.type}
+                    </span>
+                    {channel.type === "email" ? (
+                      <a
+                        href={`mailto:${channel.address}`}
+                        class="underline decoration-[var(--tl-link-underline)] underline-offset-[3px] hover:decoration-[var(--tl-ink)]"
+                      >
+                        {channel.address}
+                      </a>
+                    ) : (
+                      <a
+                        href={channel.url}
+                        class="underline decoration-[var(--tl-link-underline)] underline-offset-[3px] hover:decoration-[var(--tl-ink)]"
+                      >
+                        {channel.url}
+                      </a>
+                    )}
+                  </li>
+                ))
+              }
+            </ul>
+          </dd>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <dt class="text-[9px] leading-none font-semibold tracking-[0.14em] uppercase opacity-40">
+            Agent-readable policy
+          </dt>
+          <dd class="m-0 opacity-70">
+            <a
+              href="/contact.json"
+              class="underline decoration-[var(--tl-link-underline)] underline-offset-[3px] hover:decoration-[var(--tl-ink)]"
+            >
+              contact.json
+            </a>
+          </dd>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <dt class="text-[9px] leading-none font-semibold tracking-[0.14em] uppercase opacity-40">
+            Languages
+          </dt>
+          <dd class="m-0 opacity-70">{contact.languages.join(", ")}.</dd>
+        </div>
+      </dl>
+    </section>
+  </article>
+</PageShell>

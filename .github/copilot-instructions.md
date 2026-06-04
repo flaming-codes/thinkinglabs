@@ -88,6 +88,10 @@ Astro pages, `/api/<kind>.json.ts` handlers, and `public/llms.txt` all derive fr
 
 Shared components (`src/components/`: `StatusPill`, `Tags`, `MetaBlock`, `EmptyState`) are kind-agnostic. Per-kind logic belongs in the page file or a `src/lib/<kind>.ts` helper, never in a component. See `docs/conventions/components.md`.
 
+### Images
+
+Use Astro's `Image` or `Picture` components from `astro:assets` for rendered site images. Keep optimizable local assets in `src/assets` and import them; use `public/` only for files that must be served unchanged by URL, such as favicons, PWA manifest assets, screenshots, or third-party static runtime assets.
+
 ### MCP server (ADR-010, ADR-013)
 
 A single server factory - `createThinkinglabsMcpServer({ repoRoot })` in `servers/thinkinglabs-mcp/server.ts` - backs two transports. Both expose the same fixed JSON views (`thinkinglabs://thoughts`, `thinkinglabs://claims/by-tag/{tag}`, `thinkinglabs://predictions/calibration`, etc.) and tools (`query_view`, `contact.precheck`, `contact.send`, `question.submit`, `subscribe_brain_diff`). The store prefers `dist/index.sqlite` and falls back to validated markdown under `content/`.

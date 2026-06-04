@@ -31,6 +31,7 @@ interface StaticImage {
   readonly path: string;
   readonly title: string;
   readonly kindKey: EntityKindKey;
+  readonly heroSource?: string | undefined;
 }
 
 type EntityKindKey = Exclude<Kind, "provenance">;
@@ -98,6 +99,15 @@ const HERO_EXTENSIONS = ["png", "jpg", "jpeg", "webp"] as const;
 function resolveHeroSource(folder: string, slug: string): string {
   for (const ext of HERO_EXTENSIONS) {
     const candidate = `src/assets/${folder}/${slug}.${ext}`;
+    if (existsSync(candidate)) return candidate;
+  }
+  return HERO_SOURCE;
+}
+
+/** Resolve the listing/static hero to the same `<slug>-hero` asset convention used by HalfHeroLayout. */
+function resolveListingHeroSource(slug: string): string {
+  for (const ext of HERO_EXTENSIONS) {
+    const candidate = `src/assets/${slug}-hero.${ext}`;
     if (existsSync(candidate)) return candidate;
   }
   return HERO_SOURCE;
@@ -290,9 +300,19 @@ const LAYOUTS: Record<Layout, LayoutSpec> = {
 };
 
 const STATIC_IMAGES: ReadonlyArray<StaticImage> = [
-  { path: "/", title: "personal thinking surface", kindKey: "thoughts" },
-  { path: "/now", title: "Now", kindKey: "projects" },
-  { path: "/about", title: "About", kindKey: "posts" },
+  {
+    path: "/",
+    title: "personal thinking surface",
+    kindKey: "thoughts",
+    heroSource: "src/assets/index.png",
+  },
+  { path: "/now", title: "Now", kindKey: "projects", heroSource: resolveListingHeroSource("now") },
+  {
+    path: "/about",
+    title: "About",
+    kindKey: "posts",
+    heroSource: "src/assets/about/portrait-light.webp",
+  },
   { path: "/agents", title: "For agents", kindKey: "inputs" },
   { path: "/contact", title: "Contact", kindKey: "questions" },
   { path: "/brain-diff", title: "Brain-diff", kindKey: "changed-my-mind" },
@@ -308,20 +328,21 @@ interface OgRoute {
     readonly kindLabel?: string;
     readonly layout: Layout;
     readonly palette: OrbPalette;
-    readonly heroSource?: string;
+    readonly heroSource?: string | undefined;
   };
 }
 
 /** Build one PNG route for every public HTML page and content detail page. */
 export const getStaticPaths: GetStaticPaths = async () => {
   const paths: OgRoute[] = [];
-  STATIC_IMAGES.forEach(({ path, title, kindKey }) =>
+  STATIC_IMAGES.forEach(({ path, title, kindKey, heroSource }) =>
     paths.push({
       params: { slug: pathToOgSlug(path) },
       props: {
         title,
         layout: KIND_LAYOUTS[kindKey],
         palette: KIND_ORB_PALETTES[kindKey],
+        heroSource,
       },
     }),
   );
@@ -332,16 +353,17 @@ export const getStaticPaths: GetStaticPaths = async () => {
     if (!route) continue;
     const layout = KIND_LAYOUTS[kind];
     const palette = KIND_ORB_PALETTES[kind];
+    const folder = route.replace(/^\//, "");
     paths.push({
       params: { slug: pathToOgSlug(route) },
       props: {
         title: KIND_REGISTRY[kind].listingTitle,
         layout,
         palette,
+        heroSource: resolveListingHeroSource(folder),
       },
     });
 
-    const folder = route.replace(/^\//, "");
     const collection = await getKindCollection(kind);
     for (const entry of collection) {
       const data = entry.data as Record<string, unknown>;
@@ -381,7 +403,7 @@ export const GET: APIRoute = async ({ params, props }) => {
     },
     sourceFilePaths: [OG_ROUTE_SOURCE],
     fontFilePaths: [fontPath(400), fontPath(500), fontPath(600)],
-    heroAssetPath: image.kindLabel ? (image.heroSource ?? HERO_SOURCE) : undefined,
+    heroAssetPath: image.heroSource,
   });
   const cached = await readOgImageCache(cacheEntry);
   if (cached) {
@@ -395,8 +417,8 @@ export const GET: APIRoute = async ({ params, props }) => {
     loadFont("golos-text", 500),
     loadFont("golos-text", 600),
   ]);
-  /* Detail pages (the ones carrying a kind label) render the hero-photo card; everything else keeps the orb layout. */
-  const hero = image.kindLabel ? await loadHeroDataUri(image.heroSource ?? HERO_SOURCE) : null;
+  /* Any route carrying a resolved hero source renders the photo card; the rest keep the orb layout. */
+  const hero = image.heroSource ? await loadHeroDataUri(image.heroSource) : null;
   const svg = await satori(renderImage(image, hero) as Parameters<typeof satori>[0], {
     width: OG_IMAGE_WIDTH,
     height: OG_IMAGE_HEIGHT,

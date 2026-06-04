@@ -1,4 +1,6 @@
 ---
+import { Picture } from "astro:assets";
+import homeHeroImage from "../assets/index.png";
 import ThinkinglabsUiPage from "../layouts/ThinkinglabsUiPage.astro";
 import PageShell from "../frontend/thinkinglabs-ui/components/PageShell.astro";
 import SiteNav from "../frontend/thinkinglabs-ui/components/SiteNav.astro";
@@ -10,7 +12,6 @@ const ENTITY_INDEXES = [
   { href: "/claims", label: "claims" },
   { href: "/predictions", label: "predictions" },
   { href: "/decisions", label: "decisions" },
-  { href: "/experiments", label: "experiments" },
   { href: "/observations", label: "observations" },
   { href: "/changed-my-mind", label: "changed my mind" },
   { href: "/questions", label: "questions" },
@@ -40,9 +41,14 @@ const ENTITY_INDEXES = [
     */
     }
     <div class="fixed inset-0 p-2 pointer-events-none">
-      <img
-        src="/images/index.png"
+      <Picture
+        src={homeHeroImage}
+        formats={["avif", "webp"]}
         alt="Screenshot of thinkinglabs home page"
+        widths={[480, 768, 1024, 1280, 1600, 2048, 2752]}
+        sizes="(min-width: 768px) 50vw, 100vw"
+        quality={80}
+        priority
         class="h-full w-full object-cover md:w-1/2"
       />
       <h1
@@ -56,7 +62,7 @@ const ENTITY_INDEXES = [
       class="relative ml-auto flex h-dvh w-full flex-col justify-end p-2 text-xs text-white md:w-1/2 md:bg-none md:text-inherit"
     >
       <p
-        class="absolute right-0 top-1/2 hidden max-w-xs -translate-y-1/2 opacity-60 md:block"
+        class="absolute right-2 top-1/2 hidden max-w-xs -translate-y-1/2 opacity-60 md:block"
       >
         Personal thinking surface and structured public operating layer.
       </p>
