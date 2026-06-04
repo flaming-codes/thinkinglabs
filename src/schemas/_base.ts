@@ -11,3 +11,9 @@ export const isoDate = z.preprocess(
   (v) => (v instanceof Date ? v.toISOString() : v),
   z.iso.date().or(z.iso.datetime({ offset: true })),
 );
+
+/** Load-bearing probability in [0,1] shared by claims and predictions; declared once so the constraint and message never drift. */
+export const confidenceField = z
+  .number({ message: "confidence must be a number in [0,1]" })
+  .min(0, { message: "confidence must be >= 0" })
+  .max(1, { message: "confidence must be <= 1" });

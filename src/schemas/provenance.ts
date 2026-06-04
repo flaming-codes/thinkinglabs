@@ -33,19 +33,21 @@ export const provenanceEventTypeSchema = z.enum([
   "content_triage",
 ]);
 
-/** Reusable provenance record for accepted AI-assisted effects. */
-export const provenanceEventSchema = z.object({
-  title: z.string().min(1),
-  event_type: provenanceEventTypeSchema,
-  process_id: z.string().min(1),
-  actor: provenanceActorSchema,
-  started_at: isoDate,
-  accepted_at: isoDate,
-  source_objects: z.array(objectRefSchema).default([]),
-  target_objects: z.array(objectRefSchema).default([]),
-  outcome: z.enum(["accepted", "edited", "merged"]),
-  tags: tagsField,
-});
+/** Reusable provenance record for accepted AI-assisted effects; strict keys turn a typo'd field into a build error. */
+export const provenanceEventSchema = z
+  .object({
+    title: z.string().min(1),
+    event_type: provenanceEventTypeSchema,
+    process_id: z.string().min(1),
+    actor: provenanceActorSchema,
+    started_at: isoDate,
+    accepted_at: isoDate,
+    source_objects: z.array(objectRefSchema).default([]),
+    target_objects: z.array(objectRefSchema).default([]),
+    outcome: z.enum(["accepted", "edited", "merged"]),
+    tags: tagsField,
+  })
+  .strict();
 
 /** Inferred frontmatter type for provenance entries. */
 export type ProvenanceEvent = z.infer<typeof provenanceEventSchema>;

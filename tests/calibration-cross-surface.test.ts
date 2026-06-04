@@ -36,7 +36,9 @@ const FIXTURES: ReadonlyArray<Fixture> = [
 function writePrediction(f: Fixture): void {
   const dir = join(root, "content", "predictions");
   mkdirSync(dir, { recursive: true });
-  const resolvedOn = f.resolution === "pending" ? "null" : '"2026-02-02"';
+  const resolved = f.resolution !== "pending";
+  const resolvedOn = resolved ? '"2026-02-02"' : "null";
+  const resolutionNote = resolved ? `"Resolved as ${f.resolution}."` : "null";
   const fm = [
     `prediction: "Prediction ${f.slug}."`,
     'made: "2026-01-01"',
@@ -44,7 +46,7 @@ function writePrediction(f: Fixture): void {
     `confidence: ${f.confidence}`,
     `resolution: "${f.resolution}"`,
     `resolved_on: ${resolvedOn}`,
-    "resolution_note: null",
+    `resolution_note: ${resolutionNote}`,
     "evidence_at_time: []",
     "tags: []",
   ].join("\n");
