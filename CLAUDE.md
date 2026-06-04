@@ -32,7 +32,6 @@ Package manager is `pnpm` (v10, see `packageManager` in `package.json`). Node >=
 
 - `pnpm dev` - Astro dev server for the site
 - `pnpm preview` - `astro preview` against the built `dist/` (dev/Playwright use only; not a production server)
-- `pnpm storybook` / `pnpm storybook:build` - Storybook v10 dev server and static build
 - `pnpm build` - `astro check && astro build`, then rebuild `dist/index.sqlite` (validates every frontmatter file against its Zod schema)
 - `pnpm build:index` - rebuild the derived `dist/index.sqlite` query layer
 - `pnpm artifacts` - offline artifact build: brain-diff feeds, site, `public/llms.txt`, JSON feeds, `dist/index.sqlite`
