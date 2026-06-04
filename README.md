@@ -34,6 +34,9 @@ Useful commands:
 ```sh
 pnpm dev                 # Astro dev server
 pnpm build               # astro check + astro build + dist/index.sqlite
+pnpm clean               # remove build outputs only; preserves .cache/og-images
+pnpm clean:og-cache      # manually invalidate prerendered OG image cache
+pnpm clean:local         # clean build outputs, OG cache, and Storybook outputs
 pnpm preview             # astro preview (local QA / Playwright only; not a prod server)
 pnpm storybook           # Storybook v10 UI review
 pnpm storybook:build     # static Storybook build
@@ -54,6 +57,8 @@ pnpm mcp:thinkinglabs:http  # Streamable HTTP MCP server, default 127.0.0.1:8787
 ```
 
 `pnpm verify` is the normal local gate before publishing code changes. For content-only edits, `pnpm artifacts` is usually the useful rebuild because it refreshes the derived public artifacts as well as the site.
+
+Prerendered `/og/*.png` responses use a persistent local cache in `.cache/og-images`. `pnpm clean` intentionally preserves that cache because `pnpm build` calls `clean`; use `pnpm clean:og-cache` when you need to force OG image regeneration.
 
 ## Source model
 

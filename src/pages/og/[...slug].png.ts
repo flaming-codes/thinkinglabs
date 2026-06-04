@@ -1,11 +1,17 @@
 import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { Resvg } from "@resvg/resvg-js";
 import { getCollection } from "astro:content";
 import type { APIRoute, GetStaticPaths } from "astro";
 import satori from "satori";
 import sharp from "sharp";
 import { readThinkinglabsCssToken } from "../../lib/css-tokens.ts";
+import {
+  createOgImageCacheEntry,
+  readOgImageCache,
+  writeOgImageCache,
+} from "../../lib/og-image-cache.ts";
 import { KIND_REGISTRY, LISTING_KINDS, titleFor } from "../../lib/registry.ts";
 import type { Kind } from "../../schemas/index.ts";
 
@@ -77,6 +83,7 @@ type SatoriNode = SatoriElement | string;
 
 const OG_IMAGE_WIDTH = 1200;
 const OG_IMAGE_HEIGHT = 628;
+const OG_ROUTE_SOURCE = join(process.cwd(), "src/pages/og/[...slug].png.ts");
 
 /** Detail-card hero geometry, mirroring the page above-the-fold: a thin gap to the edges and the hero photo at 3/4 width. */
 const HERO_PAD = 16;
@@ -355,8 +362,34 @@ export const getStaticPaths: GetStaticPaths = async () => {
 };
 
 /** Render the Satori SVG and convert it to PNG with ReSVG for social crawlers. */
-export const GET: APIRoute = async ({ props }) => {
+export const GET: APIRoute = async ({ params, props }) => {
   const image = props as OgImageProps;
+  const cacheEntry = await createOgImageCacheEntry({
+    routeSlug: params.slug ?? "index",
+    props: image,
+    renderInputs: {
+      width: OG_IMAGE_WIDTH,
+      height: OG_IMAGE_HEIGHT,
+      heroPad: HERO_PAD,
+      heroWidth: HERO_W,
+      heroHeight: HERO_H,
+      heroSource: HERO_SOURCE,
+      heroExtensions: HERO_EXTENSIONS,
+      heroResize: { fit: "cover", format: "jpeg", quality: 82 },
+      theme: OG_THEME,
+      layouts: LAYOUTS,
+    },
+    sourceFilePaths: [OG_ROUTE_SOURCE],
+    fontFilePaths: [fontPath(400), fontPath(500), fontPath(600)],
+    heroAssetPath: image.kindLabel ? (image.heroSource ?? HERO_SOURCE) : undefined,
+  });
+  const cached = await readOgImageCache(cacheEntry);
+  if (cached) {
+    return new Response(toExactArrayBuffer(cached), {
+      headers: ogResponseHeaders(),
+    });
+  }
+
   const [regular, medium, semibold] = await Promise.all([
     loadFont("golos-text", 400),
     loadFont("golos-text", 500),
@@ -374,11 +407,9 @@ export const GET: APIRoute = async ({ props }) => {
     ],
   });
   const png = new Resvg(svg).render().asPng();
-  return new Response(new Uint8Array(png).buffer, {
-    headers: {
-      "cache-control": "public, max-age=31536000, immutable",
-      "content-type": "image/png",
-    },
+  await writeOgImageCache(cacheEntry, png);
+  return new Response(toExactArrayBuffer(png), {
+    headers: ogResponseHeaders(),
   });
 };
 
@@ -386,13 +417,29 @@ async function loadFont(family: "golos-text", weight: 400 | 500 | 600): Promise<
   const key = `${family}-${weight}`;
   let cached = fontCache.get(key);
   if (!cached) {
-    const filename = `node_modules/@fontsource/golos-text/files/golos-text-latin-${weight}-normal.woff`;
-    cached = readFile(filename).then((buffer) =>
+    cached = readFile(fontPath(weight)).then((buffer) =>
       buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength),
     );
     fontCache.set(key, cached);
   }
   return cached;
+}
+
+function fontPath(weight: 400 | 500 | 600): string {
+  return `node_modules/@fontsource/golos-text/files/golos-text-latin-${weight}-normal.woff`;
+}
+
+function ogResponseHeaders(): HeadersInit {
+  return {
+    "cache-control": "public, max-age=31536000, immutable",
+    "content-type": "image/png",
+  };
+}
+
+function toExactArrayBuffer(bytes: Uint8Array): ArrayBuffer {
+  const exact = new Uint8Array(bytes.byteLength);
+  exact.set(bytes);
+  return exact.buffer;
 }
 
 function isEntityKindKey(kind: Kind): kind is EntityKindKey {

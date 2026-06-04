@@ -26,33 +26,41 @@ const ENTITY_INDEXES = [
   description="Personal thinking surface and structured public operating layer."
   allowScroll
 >
-  <PageShell class="pb-2!">
+  <PageShell class="pb-0!">
     <SiteNav />
 
     {
       /*
-      Fixed hero: the left-half image and the title stay pinned to the viewport
-      while the right column scrolls past. pointer-events-none lets clicks reach
-      the scrollable links underneath the right (image-free) half.
+      Fixed hero: the image and the title stay pinned to the viewport while the
+      link column scrolls past. On desktop (md+) the image is the left half and
+      the column sits on the image-free right half. On mobile the image is
+      full-bleed and the column overlays it, so the column carries a bottom
+      scrim and white ink for legibility over the photo. pointer-events-none
+      lets clicks reach the column underneath.
     */
     }
     <div class="fixed inset-0 p-2 pointer-events-none">
       <img
         src="/images/index.png"
         alt="Screenshot of thinkinglabs home page"
-        class="h-full w-1/2 object-cover"
+        class="h-full w-full object-cover md:w-1/2"
       />
-      <h1 class="absolute top-1/2 -translate-y-1/2 left-4">thinkinglabs</h1>
+      <h1
+        class="absolute left-4 top-14 text-white md:top-1/2 md:-translate-y-1/2"
+      >
+        thinkinglabs
+      </h1>
     </div>
 
-    {/* Scrollable right column: secondary paragraph + entity index links. */}
     <div
-      class="relative ml-auto flex min-h-dvh w-1/2 flex-col px-2 text-xs items-end"
+      class="relative ml-auto flex h-dvh w-full flex-col justify-end p-2 text-xs text-white md:w-1/2 md:bg-none md:text-inherit"
     >
-      <p class="max-w-xs h-dvh flex flex-col justify-center">
+      <p
+        class="absolute right-0 top-1/2 hidden max-w-xs -translate-y-1/2 opacity-60 md:block"
+      >
         Personal thinking surface and structured public operating layer.
       </p>
-      <nav class="self-start">
+      <nav>
         <ul>
           {
             ENTITY_INDEXES.map((entry) => (

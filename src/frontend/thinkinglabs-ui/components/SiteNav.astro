@@ -133,16 +133,24 @@ const { links = DEFAULT_LINKS } = Astro.props;
   }
 
   @supports (animation-timeline: view()) {
-    .tl-nav-badge {
-      animation: tl-nav-badge-reveal linear both;
-      animation-timeline: --tl-hero;
-      animation-range: exit;
-    }
-
     .tl-nav-badge :global(.tl-nav-logo) {
       animation: tl-nav-logo-reveal linear both;
       animation-timeline: --tl-hero;
       animation-range: exit;
+    }
+
+    /* Only fill the badge to a solid disc on desktop, where it sits top-right
+       on the page background. On smaller and tablet screens the badge sits in
+       the top-left corner over the hero, so it stays the bare SVG with no
+       background - otherwise the reveal paints a stray disc on pages that have
+       no `--tl-hero` timeline (e.g. the index), since an inactive timeline
+       resolves the `both` fill to the filled end state. */
+    @media (min-width: 64rem) {
+      .tl-nav-badge {
+        animation: tl-nav-badge-reveal linear both;
+        animation-timeline: --tl-hero;
+        animation-range: exit;
+      }
     }
   }
 

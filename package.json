@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "clean": "rimraf .astro dist node_modules/.astro",
+    "clean:og-cache": "rimraf .cache/og-images",
+    "clean:local": "pnpm clean && pnpm clean:og-cache && rimraf storybook-static storybook-server",
     "dev": "astro dev",
     "prebuild": "pnpm clean && pnpm build:llms-txt && pnpm build:feeds",
     "build": "astro check && astro build",
