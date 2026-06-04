@@ -1,20 +1,39 @@
-# Shared rendering components
+# Component conventions
 
-The four primitives in `src/components/` cover almost every per-kind rendering need; reach for them before introducing kind-specific markup.
+The codebase has two component tiers with distinct roles. Put new work in the right tier; do not mix them.
 
-- **`StatusPill.astro`** — a single-prop badge for any status enum value (`alive`/`dormant`/`shipped`/`abandoned`, `standing`/`reversed`/`superseded`, `open`/`partial`/`closed`). Color is keyed off `data-status` in the Base layout's CSS; new status values style as a neutral pill until added.
-- **`MetaBlock.astro`** — renders frontmatter as a `<dl>` from a `fields: ReadonlyArray<[label, key]>` mapping. Skips entries that are `undefined`, `null`, `""`, or empty arrays so callers can pass partially-populated data without conditionals.
-- **`Tags.astro`** — renders nothing on an empty array; safe to drop in unconditionally next to a heading or row.
-- **`EmptyState.astro`** — italicized muted message; default is `"no items yet"`. Use this — not inline `<p>`s — so the empty rendering stays uniform across listings.
+## Infrastructure layer: `src/components/`
 
-Components must stay thin and kind-agnostic. Per-kind logic (e.g., grouping projects by status, splitting predictions into pending vs resolved) lives in the page file or a `src/lib/<kind>.ts` helper, never in the component.
+This directory holds head/SEO helpers that are kind-agnostic and have no visual presentation logic:
 
-## Thinkinglabs UI detail layouts
+- **`JsonLd.astro`** - injects a `<script type="application/ld+json">` block. Used by `src/layouts/ThinkinglabsUiPage.astro`.
+- **`PwaHead.astro`** - injects PWA manifest links and theme-color meta. Used by `src/layouts/ThinkinglabsUiPage.astro`.
 
-Use `DetailPage.astro` for generic detail-shaped pages such as errors, status messages, or other pages that need the shared hero + body + addendum layout but are not content entities. `EntityDetail.astro` is only for content-kind detail pages backed by repository source data; it wraps `DetailPage.astro` and adds the entity-facing relation prop names. Keep new generic layout behavior in the `Detail*` components so entity and non-entity pages share one implementation.
+Do not add visual UI components here. If a component affects the page's rendered appearance, it belongs in the design-system layer below.
+
+## Design-system layer: `src/frontend/thinkinglabs-ui/components/`
+
+All visual UI components live here. The key building blocks are:
+
+- **`DetailPage.astro`** - generic hero + body + addendum layout for any detail-shaped page (errors, status pages, non-entity pages). Prefer this for pages that are not backed by a content-kind entity.
+- **`EntityDetail.astro`** - wraps `DetailPage.astro` and adds entity-facing relation prop names. Use only for content-kind detail pages backed by repository source data.
+- **`EntityFacts.astro`** - renders a `<dl>` of frontmatter metadata fields.
+- **`EntitySection.astro`** - a content section with optional heading.
+- **`StatusTag.astro`** - a badge for status enum values (`alive`/`dormant`/`shipped`/`abandoned`, `standing`/`reversed`/`superseded`, `open`/`partial`/`closed`). Uses its own scoped styles; new status values render as a neutral tag until added.
+- **`ConfidenceMeter.astro`** - visualizes a confidence score in [0,1].
+- **`MetricTile.astro`** - a labeled metric display tile.
+- **`AppShell.astro`**, **`PageShell.astro`** - top-level page shells.
+- **`SiteHeader.astro`**, **`SiteFooter.astro`**, **`SiteNav.astro`** - site-wide navigation and footer.
+- Other components (`CalibrationChart`, `NetworkGraph3D`, `ScrollArrows`, etc.) - domain-specific visualizations and interactive elements.
+
+Page compositions live in `src/frontend/thinkinglabs-ui/pages/` (named `*PageComposition.astro`). These are the assembled page layouts that `src/pages/**/*.astro` route files delegate to.
+
+## Rules
+
+- Components must stay thin and kind-agnostic. Per-kind logic (for example, grouping projects by status, splitting predictions into pending vs resolved) lives in the page file or a `src/lib/<kind>.ts` helper, never in a component.
+- Reach for an existing `EntityDetail`/`EntityFacts`/`EntitySection` composition before introducing kind-specific markup.
+- Keep new generic layout behavior in the `Detail*` family so entity and non-entity pages share one implementation.
 
 ## Propose-then-curate UX primitives
 
-Any new "agent proposes, human confirms" workflow (M5 background agents, future automation) builds on three shared primitives: `runReview` (`src/lib/review-cli.ts`) for the keystroke loop, `editInEditor` (`src/lib/editor.ts`) for editor-mediated mutations, and `patchFrontmatter` (extracted in Slice C) for writing frontmatter fields back to a content file. New scripts register their own action vocabularies against `runReview`; they do not reimplement the loop, raw-mode guard, or test-injection seam. See ADR-008 for the rationale.
-
-Unattended agents (M5) write proposals to the queue documented in ADR-009; the same review-cli primitives drain the queue interactively.
+Any "agent proposes, human confirms" workflow builds on three shared primitives: `runReview` (`src/lib/review-cli.ts`) for the keystroke loop, `editInEditor` (`src/lib/editor.ts`) for editor-mediated mutations, and `patchFrontmatter` (`src/lib/frontmatter.ts`) for writing frontmatter fields back to a content file. New scripts register their own action vocabularies against `runReview`; they do not reimplement the loop, raw-mode guard, or test-injection seam. Background agents (see ADR-009) write proposals to the queue; the same review-cli primitives drain it interactively. See ADR-008 for the rationale.

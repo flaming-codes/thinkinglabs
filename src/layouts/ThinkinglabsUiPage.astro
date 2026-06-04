@@ -60,6 +60,42 @@ const jsonLd = buildPageGraph({ site, url: canonical, title: titleMeta, descript
     <ClientRouter />
   </head>
   <body data-tl-allow-scroll={allowScroll ? "true" : undefined}>
+    <a href="#main-content" class="tl-skip-link">Skip to main content</a>
     <slot />
   </body>
 </html>
+
+<style>
+  /* Visually hidden until focused. The first focusable element on every page so
+     keyboard users can jump past the navigation straight to the main landmark.
+     Sits above every layer token (header is 60, the nav overlay is 50). */
+  .tl-skip-link {
+    position: fixed;
+    z-index: 100;
+    top: 0;
+    left: 0;
+    padding: 0.75rem 1rem;
+    background: var(--tl-bg);
+    color: var(--tl-ink);
+    font-family: var(--tl-font);
+    font-size: var(--tl-type-metadata-size);
+    text-decoration: none;
+    border: 1px solid var(--tl-line);
+    border-radius: 0 0 var(--tl-radius-md) 0;
+    transform: translateY(-150%);
+    transition: transform var(--tl-motion-fast) var(--tl-ease-standard);
+  }
+
+  .tl-skip-link:focus-visible,
+  .tl-skip-link:focus {
+    transform: translateY(0);
+    outline: 2px solid var(--tl-focus);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tl-skip-link {
+      transition: none;
+    }
+  }
+</style>

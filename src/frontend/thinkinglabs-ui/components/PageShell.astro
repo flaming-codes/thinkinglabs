@@ -13,6 +13,15 @@ interface Props {
 const { class: className } = Astro.props;
 ---
 
-<main class:list={["font-sans flex flex-col gap-y-2 pb-2", className]}>
+<main id="main-content" tabindex="-1" class:list={["font-sans flex flex-col gap-y-2 pb-2", className]}>
   <slot />
 </main>
+
+<style>
+  /* The main landmark is a skip-link target (tabindex="-1"); suppress the
+     programmatic-focus outline so jumping to it does not paint a ring. */
+  main:focus,
+  main:focus-visible {
+    outline: none;
+  }
+</style>

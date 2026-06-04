@@ -1,5 +1,4 @@
 import { defineConfig, fontProviders } from "astro/config";
-import react from "@astrojs/react";
 import tailwindcss from "@tailwindcss/vite";
 import { unified } from "@astrojs/markdown-remark";
 import { env } from "./src/lib/env.ts";
@@ -32,7 +31,7 @@ export default defineConfig({
     // navigation under CSP.
     inlineStylesheets: "never",
   },
-  integrations: [react()],
+  integrations: [],
   prefetch: {
     defaultStrategy: "hover",
     prefetchAll: true,

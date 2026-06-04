@@ -1,12 +1,14 @@
 ---
-import { BRAIN_DIFF } from "../frontend/thinkinglabs-ui/mocks/extras.ts";
 import BrainDiffPageComposition from "../frontend/thinkinglabs-ui/pages/BrainDiffPageComposition.astro";
 import ThinkinglabsUiPage from "../layouts/ThinkinglabsUiPage.astro";
+import { loadBrainDiff } from "../lib/brain-diff-view.ts";
+
+const { days, build } = loadBrainDiff();
 ---
 
 <ThinkinglabsUiPage
   title="Brain-diff - thinkinglabs"
   description="Substantive changes across the thinkinglabs corpus."
 >
-  <BrainDiffPageComposition days={BRAIN_DIFF} />
+  <BrainDiffPageComposition days={days} build={build} />
 </ThinkinglabsUiPage>

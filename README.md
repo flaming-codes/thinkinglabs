@@ -10,7 +10,7 @@ The important rule is simple: edit source files, then rebuild derived artifacts.
 - `src/schemas/` - per-kind Zod schemas and `KIND_SCHEMAS`, the shared schema registry.
 - `src/lib/registry.ts` - public metadata for each kind: routes, title/date fields, API exposure, MCP views, and feed participation.
 - `src/pages/` - Astro pages and one JSON endpoint per public kind.
-- `src/frontend/thinkinglabs-ui/` - Astro UI compositions, components, styles, and mock data.
+- `src/frontend/thinkinglabs-ui/` - Astro UI compositions, components, and styles.
 - `scripts/` - artifact builders, curation CLIs, background-agent entrypoints, and review tools.
 - `servers/thinkinglabs-mcp/` - local stdio MCP server.
 - `servers/thinkinglabs-mcp-http/` - Streamable HTTP MCP transport over the same server factory.
@@ -147,7 +147,6 @@ The HTTP transport is stateless, uses raw `node:http`, enforces a 1 MiB body cap
 
 The production pages compose reusable Astro UI from `src/frontend/thinkinglabs-ui/`.
 
-- `src/frontend/thinkinglabs-ui/mocks/` keeps handoff-derived mock data separate from presentation.
 - `src/frontend/thinkinglabs-ui/components/` holds reusable primitives, including headers, confidence meters, status tags, and charts.
 - `src/frontend/thinkinglabs-ui/pages/` holds full-page compositions used by routes.
 

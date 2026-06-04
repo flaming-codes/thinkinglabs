@@ -24,7 +24,7 @@ Docs are local at `node_modules/vite-plus/docs` or online at https://viteplus.de
 - [ ] Run `pnpm typecheck` for TypeScript and Astro type checks.
 - [ ] Run `pnpm test` for Vitest coverage relevant to the change.
 - [ ] Run `pnpm harness apply` after any Harness-source change.
-- [ ] Check whether `vite.config.ts` tasks or `package.json` scripts add necessary validation; run those with `vp run <script>` when relevant.
+- [ ] Check whether `vite.config.js` tasks or `package.json` scripts add necessary validation; run those with `vp run <script>` when relevant.
 
 ## Common commands
 
@@ -57,7 +57,7 @@ This is a personal knowledge / agentic-space repo. Architectural decisions live 
 
 ### Schemas drive everything (ADR-002)
 
-Every object is a markdown file with YAML frontmatter validated by a per-kind Zod schema in `src/schemas/`. `src/schemas/index.ts` exports `KIND_SCHEMAS` - the single registry consumed by Astro Content Collections (`src/content.config.ts`), the index builder (`src/index/builder.ts`), the MCP server, and CLIs. Adding a new kind = new `src/schemas/<kind>.ts` + entry in `KIND_SCHEMAS` + `src/content.config.ts` collection + listing/detail pages + a one-line `src/pages/api/<kind>.json.ts`. There's a compile-time assertion in `src/content.config.ts` that the collections object covers every `Kind` exactly.
+Every object is a markdown file with YAML frontmatter validated by a per-kind Zod schema in `src/schemas/`. `src/schemas/index.ts` exports `KIND_SCHEMAS` - the single registry consumed by Astro Content Collections (`src/content.config.ts`), the index builder (`src/index/builder.ts`), the MCP server, and CLIs. The current kinds are: `thoughts`, `claims`, `projects`, `predictions`, `changed-my-mind`, `decisions`, `questions`, `posts`, `inputs`, `observations`, `provenance`. Adding a new kind requires all of: new `src/schemas/<kind>.ts` + entry in `KIND_SCHEMAS` + entry in `KIND_REGISTRY` in `src/lib/registry.ts` (governs routes, nav, MCP exposure, title/date fields) + `src/content.config.ts` collection + listing/detail pages + a one-line `src/pages/api/<kind>.json.ts`. There are compile-time assertions in `src/content.config.ts` and `src/lib/registry.ts` that the registries cover every `Kind` exactly. Omitting the `KIND_REGISTRY` entry means the new kind has no route, no nav entry, and no MCP resource.
 
 A malformed frontmatter file fails `astro build` and the index builder with a path-and-issue error.
 
@@ -85,7 +85,7 @@ All LLM calls go through `runToolCall` in `src/lib/llm.ts` (Vercel AI SDK + `@ai
 
 Astro pages, `/api/<kind>.json.ts` handlers, and `public/llms.txt` all derive from typed `getCollection(kind)` plus the inventory in `src/lib/surfaces.ts`. New public surface = append to `surfaces.ts`. Markdown bodies pass through `src/markdown/remark-section-freshness.ts` + `src/markdown/rehype-section-freshness.ts` (wired in `astro.config.mjs`) to add per-section freshness pills from Pandoc-style `## Title {#id last_verified="YYYY-MM-DD"}` headings; both no-op on content lacking the syntax. `/claims/<slug>` renders confidence history via `walkFileHistory` + `parseClaimHistory` - read-only at render time.
 
-Shared components (`src/components/`: `StatusPill`, `Tags`, `MetaBlock`, `EmptyState`) are kind-agnostic. Per-kind logic belongs in the page file or a `src/lib/<kind>.ts` helper, never in a component. See `docs/conventions/components.md`.
+The component architecture has two tiers. `src/components/` is the infrastructure/utility layer: `JsonLd.astro` and `PwaHead.astro` are used by the shared layout (`src/layouts/ThinkinglabsUiPage.astro`). The design-system and page-composition layer lives under `src/frontend/thinkinglabs-ui/components/` and includes `StatusTag.astro`, `EntityDetail.astro`, `EntityFacts.astro`, `EntitySection.astro`, `DetailPage.astro`, `AppShell.astro`, `SiteHeader.astro`, `SiteFooter.astro`, `ConfidenceMeter.astro`, `MetricTile.astro`, and ~30 others. Use `DetailPage.astro` for generic detail-shaped pages; use `EntityDetail.astro` for content-kind detail pages backed by source data. Per-kind logic belongs in the page file or a `src/lib/<kind>.ts` helper, never in a component. See `docs/conventions/components.md`.
 
 ### Images
 

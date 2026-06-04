@@ -14,7 +14,7 @@ const showSelectedHud = activeNav !== "Index" && !hideSelectedHud;
 
 <article class="tl-shell" id="top" data-active-nav={activeNav} data-layout={mode}>
   <SiteHeader activeNav={activeNav} />
-  <main class="tl-scroll" data-tl-scroll>
+  <main id="main-content" tabindex="-1" class="tl-scroll" data-tl-scroll>
     <div class="tl-scroll-content">
       <slot />
     </div>
@@ -117,6 +117,14 @@ const showSelectedHud = activeNav !== "Index" && !hideSelectedHud;
     overscroll-behavior: none;
     scrollbar-width: none;
     scroll-behavior: smooth;
+  }
+
+  /* The main landmark is a skip-link target (tabindex="-1"); suppress the
+     programmatic-focus outline so jumping to it does not paint a ring around
+     the whole scroll region. */
+  .tl-scroll:focus,
+  .tl-scroll:focus-visible {
+    outline: none;
   }
 
   .tl-scroll::-webkit-scrollbar {

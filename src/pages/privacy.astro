@@ -15,7 +15,7 @@ import ThinkinglabsUiPage from "../layouts/ThinkinglabsUiPage.astro";
     <SiteNav revealBadge={false} />
 
     <article
-      class="flex w-full flex-col gap-16 px-2 pt-2 pb-24 text-sm leading-[var(--tl-type-line-body)] text-[color:var(--tl-ink)] md:ml-auto md:w-1/2 md:pb-32 [&_a:hover]:opacity-70 [&_a]:text-inherit [&_a]:no-underline [&_h1]:m-0 [&_h2]:m-0 [&_h2]:max-w-[18ch] [&_h2]:text-inherit [&_h2]:leading-inherit [&_h2]:font-[var(--tl-type-heading-weight-strong)] [&_h2]:tracking-[0] [&_p]:m-0 [&_ul]:m-0 [&_ul]:list-none [&_ul]:p-0"
+      class="flex w-full flex-col gap-16 px-2 pt-2 pb-24 text-sm leading-(--tl-type-line-body) text-(--tl-ink) md:ml-auto md:w-1/2 md:pb-32 [&_a:hover]:opacity-70 [&_a]:text-inherit [&_a]:no-underline [&_h1]:m-0 [&_h2]:m-0 [&_h2]:max-w-[18ch] [&_h2]:text-inherit [&_h2]:leading-inherit [&_h2]:font-[var(--tl-type-heading-weight-strong)] [&_h2]:tracking-[0] [&_p]:m-0 [&_ul]:m-0 [&_ul]:list-none [&_ul]:p-0"
     >
       <figure class="m-0 w-full" aria-label="Rainforest canopy">
         <Image
@@ -30,19 +30,25 @@ import ThinkinglabsUiPage from "../layouts/ThinkinglabsUiPage.astro";
         />
       </figure>
 
-      <header class="flex max-w-xs flex-col gap-3 md:fixed md:top-1/2 md:left-2 md:w-[calc(50%-1rem)] md:-translate-y-1/2">
+      <header
+        class="flex max-w-xs flex-col gap-3 md:fixed md:top-1/2 md:left-2 md:w-[calc(50%-1rem)] md:-translate-y-1/2"
+      >
         <h1
-          class="text-[var(--tl-type-display-md)] leading-[var(--tl-type-line-tight)] font-[var(--tl-type-heading-weight-strong)] tracking-[0] md:text-inherit md:leading-inherit md:font-inherit"
+          class="text-(--tl-type-display-md) leading-(--tl-type-line-tight) font-(--tl-type-heading-weight-strong) tracking-normal md:text-inherit md:leading-inherit md:font-inherit"
         >
           Privacy
         </h1>
         <p class="md:max-w-xs md:opacity-60">
-          thinkinglabs is static, public, and deliberately uninterested in identifying readers.
-          The site is built to publish work, not to observe the people reading it.
+          thinkinglabs is static, public, and deliberately uninterested in
+          identifying readers. The site is built to publish work, not to observe
+          the people reading it.
         </p>
       </header>
 
-      <section class="flex max-w-xs flex-col gap-4" aria-labelledby="privacy-summary-title">
+      <section
+        class="flex max-w-xs flex-col gap-4"
+        aria-labelledby="privacy-summary-title"
+      >
         <h2 id="privacy-summary-title">Quiet by default</h2>
         <ul class="flex flex-col gap-1 opacity-70">
           <li>No analytics</li>
@@ -52,43 +58,57 @@ import ThinkinglabsUiPage from "../layouts/ThinkinglabsUiPage.astro";
         </ul>
       </section>
 
-      <section class="flex max-w-xs flex-col gap-4" aria-labelledby="privacy-site-title">
+      <section
+        class="flex max-w-xs flex-col gap-4"
+        aria-labelledby="privacy-site-title"
+      >
         <h2 id="privacy-site-title">The page does not try to identify you</h2>
         <div class="flex flex-col gap-3 opacity-70">
           <p>
-            thinkinglabs is static HTML generated from a public markdown repository. There is no
-            analytics product sitting behind the pages, no cookie banner because there are no site
-            cookies to accept, and no client-side fingerprinting script trying to infer who you
-            are.
+            thinkinglabs is static HTML generated from a public markdown
+            repository. There is no analytics product sitting behind the pages,
+            no cookie banner because there are no site cookies to accept, and no
+            client-side fingerprinting script trying to infer who you are.
           </p>
           <p>
-            The site does not write to localStorage, sessionStorage, IndexedDB, or any other
-            browser storage API. It does not include pixels, embedded trackers, or third-party SDKs
-            that quietly assemble a profile of your reading habits.
+            The site does not write to localStorage, sessionStorage, IndexedDB,
+            or any other browser storage API. It does not include pixels,
+            embedded trackers, or third-party SDKs that quietly assemble a
+            profile of your reading habits.
           </p>
         </div>
       </section>
 
-      <section class="flex max-w-xs flex-col gap-4" aria-labelledby="privacy-logs-title">
-        <h2 id="privacy-logs-title">Hosts may keep ordinary operational logs</h2>
+      <section
+        class="flex max-w-xs flex-col gap-4"
+        aria-labelledby="privacy-logs-title"
+      >
+        <h2 id="privacy-logs-title">
+          Hosts may keep ordinary operational logs
+        </h2>
         <div class="flex flex-col gap-3 opacity-70">
           <p>
-            The hosting layer may keep ordinary operational request logs, such as an IP address,
-            path, timestamp, user agent, or status code. Those records are the kind of transient
-            plumbing hosts use for abuse mitigation and debugging. They are not read, joined, sold,
-            or used by this site to identify readers.
+            The hosting layer may keep ordinary operational request logs, such
+            as an IP address, path, timestamp, user agent, or status code. Those
+            records are the kind of transient plumbing hosts use for abuse
+            mitigation and debugging. They are not read, joined, sold, or used
+            by this site to identify readers.
           </p>
         </div>
       </section>
 
-      <section class="flex max-w-xs flex-col gap-4" aria-labelledby="privacy-external-title">
+      <section
+        class="flex max-w-xs flex-col gap-4"
+        aria-labelledby="privacy-external-title"
+      >
         <h2 id="privacy-external-title">Other domains have their own rules</h2>
         <div class="flex flex-col gap-3 opacity-70">
           <p>
-            Links to other domains leave this site. Once you follow one, your browser is
-            interacting with that domain and its own policies apply. The privacy promise here is
-            intentionally narrow: while you are reading thinkinglabs pages, the site itself is not
-            trying to observe you.
+            Links to other domains leave this site. Once you follow one, your
+            browser is interacting with that domain and its own policies apply.
+            The privacy promise here is intentionally narrow: while you are
+            reading thinkinglabs pages, the site itself is not trying to observe
+            you.
           </p>
         </div>
       </section>

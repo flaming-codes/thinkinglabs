@@ -42,17 +42,19 @@ const { links = DEFAULT_LINKS, revealBadge = true } = Astro.props;
   class="tl-nav-badge fixed rounded-full overflow-hidden aspect-square top-2 left-2 lg:left-auto lg:right-0 lg:top-0 z-20"
   data-reveal-badge={revealBadge ? "true" : "false"}
 >
-  <input id="tl-nav" type="checkbox" class="tl-nav-toggle peer sr-only" />
+  <input id="tl-nav" type="checkbox" class="tl-nav-toggle peer sr-only" data-tl-nav-checkbox />
   <label
     for="tl-nav"
     class="block cursor-pointer origin-top-right lg:scale-75"
     aria-label="Open navigation"
+    data-tl-nav-open-trigger
   >
     <BrandLogo class="tl-nav-logo" ariaLabel="thinkinglabs" />
   </label>
 
   <div
     class="tl-nav-panel invisible fixed inset-0 z-50 flex flex-col p-2 opacity-0 transition-opacity duration-200 ease-out peer-checked:visible peer-checked:opacity-100"
+    data-tl-nav-panel
   >
     <div class="flex flex-col gap-10 lg:items-end">
       <label
@@ -84,6 +86,87 @@ const { links = DEFAULT_LINKS, revealBadge = true } = Astro.props;
   </div>
 </aside>
 
+<script>
+  // Bring the CSS checkbox-toggle nav up to keyboard parity with SiteHeader:
+  // Escape closes, focus is trapped within the open panel, and focus returns to
+  // the trigger on close. The checkbox stays the single source of truth for the
+  // open/closed visual state (CSS peer-checked); this script only layers focus
+  // management on top of it. Mirrors SiteHeader's AbortController +
+  // astro:page-load lifecycle so it survives view transitions cleanly.
+  let controller: AbortController | null = null;
+
+  const init = () => {
+    controller?.abort();
+    controller = new AbortController();
+    const { signal } = controller;
+
+    const checkbox = document.querySelector<HTMLInputElement>("[data-tl-nav-checkbox]");
+    const openTrigger = document.querySelector<HTMLElement>("[data-tl-nav-open-trigger]");
+    const panel = document.querySelector<HTMLElement>("[data-tl-nav-panel]");
+    if (!checkbox || !openTrigger || !panel) return;
+
+    const FOCUSABLE =
+      'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+    const focusable = (): HTMLElement[] =>
+      Array.from(panel.querySelectorAll<HTMLElement>(FOCUSABLE));
+
+    const close = (returnFocus: boolean) => {
+      if (!checkbox.checked) return;
+      checkbox.checked = false;
+      if (returnFocus) openTrigger.focus({ preventScroll: true });
+    };
+
+    // When the panel opens, move focus inside it so the keyboard user is not
+    // left behind the trigger; when it closes via the trigger label, hand focus
+    // back to the trigger.
+    checkbox.addEventListener(
+      "change",
+      () => {
+        if (checkbox.checked) {
+          const first = focusable()[0];
+          first?.focus({ preventScroll: true });
+        } else {
+          openTrigger.focus({ preventScroll: true });
+        }
+      },
+      { signal }
+    );
+
+    document.addEventListener(
+      "keydown",
+      (event) => {
+        if (!checkbox.checked) return;
+        if (event.key === "Escape") {
+          event.preventDefault();
+          close(true);
+          return;
+        }
+        if (event.key !== "Tab") return;
+        const items = focusable();
+        if (items.length === 0) return;
+        const first = items[0]!;
+        const last = items[items.length - 1]!;
+        const active = document.activeElement as HTMLElement | null;
+        // Trap Tab within the open panel so focus cannot escape behind the
+        // now-invisible page content.
+        if (event.shiftKey) {
+          if (active === first || !panel.contains(active)) {
+            event.preventDefault();
+            last.focus({ preventScroll: true });
+          }
+        } else if (active === last || !panel.contains(active)) {
+          event.preventDefault();
+          first.focus({ preventScroll: true });
+        }
+      },
+      { signal }
+    );
+  };
+
+  document.addEventListener("astro:page-load", init);
+</script>
+
 <style>
   /* The nav badge fills to a solid disc once the hero has scrolled out of
      view, so the logo stays legible against the page background. Both the
@@ -104,6 +187,14 @@ const { links = DEFAULT_LINKS, revealBadge = true } = Astro.props;
      Safari/Firefox. */
   .tl-nav-badge {
     background-color: transparent;
+  }
+
+  /* The toggle checkbox is sr-only, so keyboard focus is otherwise invisible.
+     Surface a focus ring on the adjacent label when the checkbox is focused. */
+  .tl-nav-toggle:focus-visible + label {
+    outline: 2px solid var(--tl-focus);
+    outline-offset: 4px;
+    border-radius: var(--tl-radius-sm);
   }
 
   .tl-nav-badge[data-reveal-badge="false"] {

@@ -12,10 +12,7 @@ const SOURCE_GLOBS = [
   "src/styles",
 ] as const;
 const TOKEN_SOURCE = "src/frontend/thinkinglabs-ui/styles.css";
-const APPROVED_COLOR_SOURCES = new Set([
-  TOKEN_SOURCE,
-  "src/frontend/thinkinglabs-ui/entity-shader-presets.ts",
-]);
+const APPROVED_COLOR_SOURCES = new Set([TOKEN_SOURCE]);
 
 function rgFiles(): string[] {
   return execFileSync("rg", ["--files", "-g", "*.{astro,css,ts,tsx}", ...SOURCE_GLOBS], {
