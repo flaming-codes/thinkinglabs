@@ -1,55 +1,48 @@
 ---
 import type { ImageMetadata } from "astro";
-import PageShell from "./PageShell.astro";
-import EntityHero from "./EntityHero.astro";
-import EntityBody from "./EntityBody.astro";
-import EntityFooter from "./EntityFooter.astro";
-import type { EntityDate } from "./EntityBody.astro";
-import type { EntityRelationGroup, EntityRelationLink } from "./EntityFooter.astro";
+import DetailPage from "./DetailPage.astro";
+import type { DetailDate, DetailLink, DetailLinkGroup } from "./DetailPage.astro";
 
 // Re-exported so existing consumers keep importing these from EntityDetail even
-// though the canonical definitions now live with the container that renders them.
-export type { EntityDate, EntityRelationGroup, EntityRelationLink };
+// though the canonical definitions now live with the generic detail container.
+export type EntityDate = DetailDate;
+export type EntityRelationLink = DetailLink;
+export type EntityRelationGroup = DetailLinkGroup;
 
 interface Props {
   /** Entity title; rendered in the hero overlay and as the document heading. */
   title: string;
   /** Dateline entries, joined with "·". Empty/omitted hides the dateline. */
-  dates?: EntityDate[];
+  dates?: EntityDate[] | undefined;
   /** Optional tag list rendered under the dateline. */
-  tags?: string[];
+  tags?: string[] | undefined;
   /** Hero artwork; the scroll-driven nav badge reveal is timed against this image. */
   heroImage: ImageMetadata;
   /** Hero image alt text; defaults to the title. */
-  heroAlt?: string;
+  heroAlt?: string | undefined;
   /** Resolved relation groups; the footer is omitted when empty and no `aside` slot is present. */
-  relations?: EntityRelationGroup[];
+  relations?: EntityRelationGroup[] | undefined;
 }
 
 const { title, dates = [], tags = [], heroImage, heroAlt, relations = [] } = Astro.props;
 
 // Forward slots only when present so the body/footer keep their "absent when
 // empty" behaviour - an unconditionally forwarded slot would read as present.
+const hasNav = Astro.slots.has("nav");
 const hasMeta = Astro.slots.has("meta");
 const hasAside = Astro.slots.has("aside");
 ---
 
-{/*
-  EntityDetail is now a thin composition over reusable containers:
-    PageShell  - base document column
-    EntityHero - hero media + title overlay + nav (scroll-reveal timeline)
-    EntityBody - dateline/tags + meta slot + prose
-    EntityFooter - relation groups + aside slot
-*/}
-<PageShell>
-  <EntityHero title={title} heroImage={heroImage} heroAlt={heroAlt} />
-
-  <EntityBody dates={dates} tags={tags}>
+<DetailPage
+  title={title}
+  dates={dates}
+  tags={tags}
+  heroImage={heroImage}
+  heroAlt={heroAlt}
+  linkGroups={relations}
+>
+    {hasNav && <slot name="nav" slot="nav" />}
     {hasMeta && <slot name="meta" slot="meta" />}
     <slot />
-  </EntityBody>
-
-  <EntityFooter relations={relations}>
     {hasAside && <slot name="aside" slot="aside" />}
-  </EntityFooter>
-</PageShell>
+</DetailPage>

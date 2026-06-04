@@ -31,7 +31,7 @@ const { links = DEFAULT_LINKS } = Astro.props;
 
 {/*
   The badge is `fixed`, but it must live as a descendant of the hero frame so
-  the scroll-driven reveal can read the `--tl-hero` view-timeline that EntityHero
+  the scroll-driven reveal can read the `--tl-hero` view-timeline that DetailHero
   exposes via `timeline-scope`. The reveal CSS keyed to that timeline ships here,
   with the badge it animates.
 */}
@@ -95,7 +95,7 @@ const { links = DEFAULT_LINKS } = Astro.props;
 
      Driven entirely by a scroll-driven view-timeline (no JS): the timeline
      is declared on the hero image and exposed to this fixed badge via
-     timeline-scope on EntityHero's shared frame. Chromium-only today;
+     timeline-scope on DetailHero's shared frame. Chromium-only today;
      @supports keeps the badge transparent as a graceful fallback in
      Safari/Firefox. */
   .tl-nav-badge {

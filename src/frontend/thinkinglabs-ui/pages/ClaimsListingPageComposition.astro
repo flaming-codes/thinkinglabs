@@ -18,12 +18,16 @@ const avgConf =
 const page: EntityIndexPage = {
   slug: "claims",
   eyebrow: "/claims",
-  title: "Claims.",
+  title: "Claims",
   deck: "Atomic assertions with confidence, evidence, opposing views, and a review date. This is the ledger layer: small enough to audit, explicit enough to update.",
   count: `${claims.length} of ${totalCount} visible`,
   stats: [
     { label: "Active", value: String(active), sub: "currently defended" },
-    { label: "Mean conf", value: avgConf > 0 ? avgConf.toFixed(2) : "-", sub: "across visible claims" },
+    {
+      label: "Mean conf",
+      value: avgConf > 0 ? avgConf.toFixed(2) : "-",
+      sub: "across visible claims",
+    },
     { label: "Evidence", value: String(evidence), sub: "linked support items" },
   ],
   sections: [
@@ -35,13 +39,19 @@ const page: EntityIndexPage = {
         title: claim.title,
         href: claim.href,
         summary: claim.tags.join(" / ") || claim.status,
-        meta: [`status ${claim.status}`, `reviewed ${claim.reviewed}`, `${claim.evidence} ev`, `${claim.opposing} opp`],
+        meta: [
+          `status ${claim.status}`,
+          `reviewed ${claim.reviewed}`,
+          `${claim.evidence} ev`,
+          `${claim.opposing} opp`,
+        ],
         value: claim.conf.toFixed(2),
         valueLabel: "confidence",
       })),
     },
   ],
-  footer: "A claim is allowed to be boring. It is not allowed to hide what would make it weaker.",
+  footer:
+    "A claim is allowed to be boring. It is not allowed to hide what would make it weaker.",
 };
 ---
 

@@ -1,0 +1,49 @@
+---
+import type { ImageMetadata } from "astro";
+import PageShell from "./PageShell.astro";
+import DetailHero from "./DetailHero.astro";
+import DetailBody from "./DetailBody.astro";
+import DetailFooter from "./DetailFooter.astro";
+import type { DetailDate } from "./DetailBody.astro";
+import type { DetailLink, DetailLinkGroup } from "./DetailFooter.astro";
+
+export type { DetailDate, DetailLink, DetailLinkGroup };
+
+interface Props {
+  /** Page title; rendered in the hero overlay and as the document heading. */
+  title: string;
+  /** Dateline entries, joined with "·". Empty/omitted hides the dateline. */
+  dates?: DetailDate[] | undefined;
+  /** Optional tag list rendered under the dateline. */
+  tags?: string[] | undefined;
+  /** Hero artwork; the scroll-driven nav badge reveal is timed against this image. */
+  heroImage: ImageMetadata;
+  /** Hero image alt text; defaults to the title. */
+  heroAlt?: string | undefined;
+  /** Resolved link groups; the footer is omitted when empty and no `aside` slot is present. */
+  linkGroups?: DetailLinkGroup[] | undefined;
+}
+
+const { title, dates = [], tags = [], heroImage, heroAlt, linkGroups = [] } = Astro.props;
+
+// Forward slots only when present so child sections keep their "absent when
+// empty" behaviour - an unconditionally forwarded slot would read as present.
+const hasNav = Astro.slots.has("nav");
+const hasMeta = Astro.slots.has("meta");
+const hasAside = Astro.slots.has("aside");
+---
+
+<PageShell>
+  <DetailHero title={title} heroImage={heroImage} heroAlt={heroAlt}>
+    {hasNav && <slot name="nav" slot="nav" />}
+  </DetailHero>
+
+  <DetailBody dates={dates} tags={tags}>
+    {hasMeta && <slot name="meta" slot="meta" />}
+    <slot />
+  </DetailBody>
+
+  <DetailFooter linkGroups={linkGroups}>
+    {hasAside && <slot name="aside" slot="aside" />}
+  </DetailFooter>
+</PageShell>

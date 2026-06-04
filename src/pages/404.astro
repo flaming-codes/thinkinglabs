@@ -1,6 +1,6 @@
 ---
 import heroImage from "@/assets/error.png";
-import EntityDetail from "../frontend/thinkinglabs-ui/components/EntityDetail.astro";
+import DetailPage from "../frontend/thinkinglabs-ui/components/DetailPage.astro";
 import ThinkinglabsUiPage from "../layouts/ThinkinglabsUiPage.astro";
 ---
 
@@ -10,7 +10,7 @@ import ThinkinglabsUiPage from "../layouts/ThinkinglabsUiPage.astro";
   robots="noindex"
   allowScroll
 >
-  <EntityDetail
+  <DetailPage
     title="Not found"
     heroAlt="Page not found"
     heroImage={heroImage}
@@ -22,5 +22,5 @@ import ThinkinglabsUiPage from "../layouts/ThinkinglabsUiPage.astro";
       files are renamed, retired, or merged into something else.
     </p>
     <p><a class="tl-token-link" href="/">Back to the index</a></p>
-  </EntityDetail>
+  </DetailPage>
 </ThinkinglabsUiPage>

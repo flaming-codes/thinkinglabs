@@ -9,6 +9,10 @@ The four primitives in `src/components/` cover almost every per-kind rendering n
 
 Components must stay thin and kind-agnostic. Per-kind logic (e.g., grouping projects by status, splitting predictions into pending vs resolved) lives in the page file or a `src/lib/<kind>.ts` helper, never in the component.
 
+## Thinkinglabs UI detail layouts
+
+Use `DetailPage.astro` for generic detail-shaped pages such as errors, status messages, or other pages that need the shared hero + body + addendum layout but are not content entities. `EntityDetail.astro` is only for content-kind detail pages backed by repository source data; it wraps `DetailPage.astro` and adds the entity-facing relation prop names. Keep new generic layout behavior in the `Detail*` components so entity and non-entity pages share one implementation.
+
 ## Propose-then-curate UX primitives
 
 Any new "agent proposes, human confirms" workflow (M5 background agents, future automation) builds on three shared primitives: `runReview` (`src/lib/review-cli.ts`) for the keystroke loop, `editInEditor` (`src/lib/editor.ts`) for editor-mediated mutations, and `patchFrontmatter` (extracted in Slice C) for writing frontmatter fields back to a content file. New scripts register their own action vocabularies against `runReview`; they do not reimplement the loop, raw-mode guard, or test-injection seam. See ADR-008 for the rationale.

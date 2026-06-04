@@ -1,7 +1,6 @@
 ---
 import type { ImageMetadata } from "astro";
-import { Image } from "astro:assets";
-import SiteNav from "./SiteNav.astro";
+import DetailHero from "./DetailHero.astro";
 
 interface Props {
   /** Heading rendered in the hero overlay; also the default image alt. */
@@ -13,40 +12,9 @@ interface Props {
 }
 
 const { title, heroImage, heroAlt } = Astro.props;
+const hasNav = Astro.slots.has("nav");
 ---
 
-<div class="tl-hero-frame relative h-dvh p-2">
-  <Image
-    src={heroImage}
-    alt={heroAlt ?? title}
-    widths={[480, 768, 1024, 1280, 1600, 2048]}
-    sizes="(min-width: 768px) 75vw, 100vw"
-    format="webp"
-    quality={80}
-    class="tl-hero-media h-full w-full object-cover md:w-3/4"
-  />
-
-  {/* Default to the site nav; the slot lets a page swap in a different nav. */}
-  <slot name="nav"><SiteNav /></slot>
-
-  <aside class="absolute top-1/2 -translate-y-1/2 left-4 right-4 md:right-auto md:max-w-3/4">
-    <!-- Needs to stay gray-50 regardless of theme -->
-    <h2 class="font-normal text-gray-50">{title}</h2>
-  </aside>
-</div>
-
-<style>
-  /* The hero declares the `--tl-hero` view-timeline on its media and exposes
-     it to the fixed nav badge (a descendant of this frame) via timeline-scope.
-     The badge's reveal animation lives in SiteNav; this side only publishes
-     the timeline. Chromium-only today; @supports degrades gracefully. */
-  @supports (animation-timeline: view()) {
-    .tl-hero-frame {
-      timeline-scope: --tl-hero;
-    }
-
-    .tl-hero-media {
-      view-timeline-name: --tl-hero;
-    }
-  }
-</style>
+<DetailHero title={title} heroImage={heroImage} heroAlt={heroAlt}>
+  {hasNav && <slot name="nav" slot="nav" />}
+</DetailHero>

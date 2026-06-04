@@ -1,0 +1,58 @@
+---
+/** One resolved link inside a detail link group. */
+export interface DetailLink {
+  href: string;
+  title: string;
+  /** Optional trailing value shown muted after the title. */
+  value?: string;
+}
+
+/** A labelled group of related links. */
+export interface DetailLinkGroup {
+  label: string;
+  links: DetailLink[];
+}
+
+interface Props {
+  /** Link groups; the footer is omitted when empty and no `aside` slot is present. */
+  linkGroups?: DetailLinkGroup[] | undefined;
+}
+
+const { linkGroups = [] } = Astro.props;
+
+const hasAside = Astro.slots.has("aside");
+const hasLinkGroups = linkGroups.length > 0;
+const hasFooter = hasLinkGroups || hasAside;
+---
+
+{/* Footer addendum: link groups plus an open-ended `aside` slot (history,
+   evidence, ...). Shares DetailBody's right-aligned 3/4 measure on lg+. */}
+{
+  hasFooter && (
+    <footer class="px-2 flex flex-col md:pr-8 lg:max-w-3/4 lg:flex-row lg:justify-end lg:pr-2 lg:gap-16">
+      <div class="detail-links flex w-full flex-col gap-10 pt-6 md:pl-16 lg:max-w-prose lg:pl-0">
+        {hasLinkGroups && (
+          <dl class="flex w-full flex-col gap-6">
+            {linkGroups.map((group) => (
+              <div class="flex flex-col gap-1">
+                <dt class="text-sm opacity-50">{group.label}</dt>
+                {group.links.map((link) => (
+                  <dd class="m-0">
+                    <a
+                      class="text-sm no-underline opacity-80 transition-opacity hover:opacity-100"
+                      href={link.href}
+                    >
+                      {link.title}
+                    </a>
+                    {link.value && <span class="text-sm opacity-40"> {link.value}</span>}
+                  </dd>
+                ))}
+              </div>
+            ))}
+          </dl>
+        )}
+        {hasAside && <slot name="aside" />}
+      </div>
+    </footer>
+  )
+}

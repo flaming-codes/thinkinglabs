@@ -11,7 +11,7 @@ const { view } = Astro.props;
 const page: EntityIndexPage = {
   slug: "predictions",
   eyebrow: "/predictions",
-  title: "Predictions.",
+  title: "Predictions",
   deck: "Forecasts with a date, a number, and a resolution rule. The point is not to sound certain; it is to become measurable.",
   count: `${view.open.length} open / ${view.resolved.length} resolved`,
   stats: view.stats,
@@ -37,7 +37,10 @@ const page: EntityIndexPage = {
         title: prediction.title,
         href: prediction.href,
         summary: prediction.topic,
-        meta: [`resolved ${prediction.resolvedDate ?? prediction.due}`, `was ${prediction.conf.toFixed(2)}`],
+        meta: [
+          `resolved ${prediction.resolvedDate ?? prediction.due}`,
+          `was ${prediction.conf.toFixed(2)}`,
+        ],
         value: prediction.outcome ?? "-",
         valueLabel: "outcome",
       })),
@@ -52,7 +55,8 @@ const page: EntityIndexPage = {
       ],
     },
   ],
-  footer: "A prediction resolves only against the rule written before the outcome was known.",
+  footer:
+    "A prediction resolves only against the rule written before the outcome was known.",
 };
 ---
 

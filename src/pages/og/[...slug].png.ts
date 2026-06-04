@@ -87,11 +87,7 @@ const HERO_SOURCE = "src/assets/hero.png";
 /** Per-entity hero artwork mirrors the route shape on disk: `src/assets/<folder>/<slug>.<ext>`. */
 const HERO_EXTENSIONS = ["png", "jpg", "jpeg", "webp"] as const;
 
-/**
- * Resolve a detail card's on-disk hero by route folder + slug, matching the
- * site's `resolveEntityHero` glob. Falls back to the shared hero when no
- * per-entity asset exists.
- */
+/** Resolve a detail card's on-disk hero by route folder + slug, falling back to the shared hero when no per-entity asset exists. */
 function resolveHeroSource(folder: string, slug: string): string {
   for (const ext of HERO_EXTENSIONS) {
     const candidate = `src/assets/${folder}/${slug}.${ext}`;
