@@ -1,5 +1,5 @@
 ---
-import heroImage from "@/assets/hero.png";
+import { resolveEntityHero } from "../lib/entity-hero.ts";
 import EntityDetail from "../components/EntityDetail.astro";
 import type { EntityRelationGroup } from "../components/EntityDetail.astro";
 import EntityFacts from "../components/EntityFacts.astro";
@@ -10,6 +10,7 @@ interface Props {
 }
 
 const { question } = Astro.props;
+const heroImage = resolveEntityHero("questions", question.slug);
 
 const related = [...question.relatedClaims, ...question.relatedProjects];
 const relations: EntityRelationGroup[] =

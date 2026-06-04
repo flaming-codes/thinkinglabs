@@ -1,5 +1,5 @@
 ---
-import heroImage from "@/assets/hero.png";
+import { resolveEntityHero } from "../lib/entity-hero.ts";
 import EntityDetail from "../components/EntityDetail.astro";
 import EntityFacts from "../components/EntityFacts.astro";
 import EntitySection from "../components/EntitySection.astro";
@@ -10,6 +10,7 @@ interface Props {
 }
 
 const { claim } = Astro.props;
+const heroImage = resolveEntityHero("claims", claim.id);
 const claimStatement = claim.title.trim();
 const proseParagraphs = claim.body.filter((paragraph) => paragraph.trim() !== claimStatement);
 

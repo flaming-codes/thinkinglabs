@@ -1,8 +1,5 @@
 ---
-import type { ImageMetadata } from "astro";
-import { Image } from "astro:assets";
-import PageShell from "../components/PageShell.astro";
-import SiteNav from "../components/SiteNav.astro";
+import HalfHeroLayout from "../components/HalfHeroLayout.astro";
 import type { EntityIndexPage } from "../types";
 
 interface Props {
@@ -10,125 +7,80 @@ interface Props {
 }
 
 const { page } = Astro.props;
-
-// Per-kind hero artwork: `<slug>-hero.png` when present, otherwise the generic
-// `hero.png`. Eager glob so Astro can resolve and optimise the chosen image.
-const heroes = import.meta.glob<{ default: ImageMetadata }>("../../../assets/*.png", { eager: true });
-const heroImage = (heroes[`../../../assets/${page.slug}-hero.png`] ?? heroes["../../../assets/hero.png"])?.default;
 ---
 
-<PageShell class="pb-2!">
-  <SiteNav />
+<HalfHeroLayout title={page.title} heroSlug={page.slug}>
+  <Fragment slot="deck">
+    <p>{page.deck}</p>
 
-  {/*
-    Fixed hero, mirroring the home page: the per-kind image fills the left half
-    and the title is pinned vertically centered, while the right column scrolls
-    past. pointer-events-none lets clicks reach the links underneath the
-    image-free right half.
-  */}
-  <div class="fixed inset-0 p-2 pointer-events-none">
     {
-      heroImage ? (
-        <Image
-          src={heroImage}
-          alt=""
-          widths={[480, 768, 1024, 1280, 1600, 2048]}
-          sizes="(min-width: 768px) 50vw, 100vw"
-          format="webp"
-          quality={80}
-          class="h-full w-1/2 object-cover"
-          aria-hidden="true"
-        />
+      page.stats.length > 0 ? (
+        <dl class="flex flex-wrap gap-x-6 gap-y-3">
+          {page.stats.map((stat) => (
+            <div class="flex flex-col gap-0.5">
+              <dt class="text-[9px] font-semibold uppercase tracking-[0.14em]">{stat.label}</dt>
+              <dd class="m-0">{stat.value}</dd>
+              <small class="text-[10px] opacity-60">{stat.sub}</small>
+            </div>
+          ))}
+        </dl>
       ) : null
     }
-    <h1 class="absolute top-1/2 -translate-y-1/2 left-4">{page.title}</h1>
-  </div>
+  </Fragment>
 
-  {/* Scrollable right column: deck (first screen) then the entity entries. */}
-  <div class="relative ml-auto flex min-h-dvh w-1/2 flex-col px-2 text-xs items-end">
-    <div class="flex h-dvh max-w-xs flex-col justify-center gap-6">
-      <p>{page.deck}</p>
+  {
+    page.sections.map((section) => {
+      const rows = section.rows ?? [];
+      const hasBody = Boolean(section.body?.length);
+      return (
+        <section class="flex flex-col gap-6">
+          <header class="flex flex-col gap-1">
+            <span class="text-[9px] font-semibold uppercase tracking-[0.14em]">{section.label}</span>
+            <h2 class="opacity-70">{section.title}</h2>
+          </header>
 
-      {
-        page.stats.length > 0 ? (
-          <dl class="flex flex-wrap gap-x-6 gap-y-3">
-            {page.stats.map((stat) => (
-              <div class="flex flex-col gap-0.5">
-                <dt class="tl-kicker">{stat.label}</dt>
-                <dd class="m-0">{stat.value}</dd>
-                <small class="text-[10px] opacity-60">{stat.sub}</small>
-              </div>
-            ))}
-          </dl>
-        ) : null
-      }
-    </div>
+          {hasBody ? (
+            <div class="flex flex-col gap-2 opacity-70">
+              {section.body?.map((paragraph) => <p>{paragraph}</p>)}
+            </div>
+          ) : null}
 
-    <div class="flex w-full max-w-md flex-col gap-16 self-start pb-16">
-      {
-        page.sections.map((section) => {
-          const rows = section.rows ?? [];
-          const hasBody = Boolean(section.body?.length);
-          return (
-            <section class="flex flex-col gap-6">
-              <header class="flex flex-col gap-1">
-                <span class="tl-kicker">{section.label}</span>
-                <h2 class="opacity-70">{section.title}</h2>
-              </header>
-
-              {hasBody ? (
-                <div class="flex flex-col gap-2 opacity-70">
-                  {section.body?.map((paragraph) => <p>{paragraph}</p>)}
-                </div>
-              ) : null}
-
-              {rows.length > 0 ? (
-                <ul class="flex flex-col gap-7">
-                  {rows.map((row) => (
-                    <li class="flex flex-col gap-1">
-                      <div class="flex items-baseline justify-between gap-4">
-                        <span class="tl-kicker opacity-40">{row.kicker}</span>
-                        {row.value ? (
-                          <span class="opacity-60">
-                            {row.value}
-                            {row.valueLabel ? ` ${row.valueLabel}` : ""}
-                          </span>
-                        ) : null}
-                      </div>
-                      <h3 class="m-0">
-                        {row.href ? (
-                          <a href={row.href} class="no-underline">
-                            {row.title}
-                          </a>
-                        ) : (
-                          row.title
-                        )}
-                      </h3>
-                      {row.summary ? <p class="opacity-70">{row.summary}</p> : null}
-                      {row.meta?.length ? <p class="tl-kicker opacity-40">{row.meta.join(" · ")}</p> : null}
-                    </li>
-                  ))}
-                </ul>
-              ) : !hasBody ? (
-                <p class="opacity-50">Nothing filed here yet.</p>
-              ) : null}
-            </section>
-          );
-        })
-      }
-
-      {page.footer ? <footer class="opacity-60">{page.footer}</footer> : null}
-    </div>
-  </div>
-</PageShell>
-
-<style>
-  /* Uppercase metadata kicker, matching the index page's quiet label scale. */
-  .tl-kicker {
-    font-size: 9px;
-    font-weight: 620;
-    line-height: 1.1;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
+          {rows.length > 0 ? (
+            <ul class="flex flex-col gap-7">
+              {rows.map((row) => (
+                <li class="flex flex-col gap-1">
+                  <div class="flex items-baseline justify-between gap-4">
+                    <span class="text-[9px] font-semibold uppercase tracking-[0.14em] opacity-40">{row.kicker}</span>
+                    {row.value ? (
+                      <span class="opacity-60">
+                        {row.value}
+                        {row.valueLabel ? ` ${row.valueLabel}` : ""}
+                      </span>
+                    ) : null}
+                  </div>
+                  <h3 class="m-0">
+                    {row.href ? (
+                      <a href={row.href} class="no-underline">
+                        {row.title}
+                      </a>
+                    ) : (
+                      row.title
+                    )}
+                  </h3>
+                  {row.summary ? <p class="opacity-70">{row.summary}</p> : null}
+                  {row.meta?.length ? (
+                    <p class="text-[9px] font-semibold uppercase tracking-[0.14em] opacity-40">{row.meta.join(" · ")}</p>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          ) : !hasBody ? (
+            <p class="opacity-50">Nothing filed here yet.</p>
+          ) : null}
+        </section>
+      );
+    })
   }
-</style>
+
+  {page.footer ? <footer class="opacity-60">{page.footer}</footer> : null}
+</HalfHeroLayout>

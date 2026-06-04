@@ -1,6 +1,5 @@
 ---
-import AppShell from "../components/AppShell.astro";
-import ConfidenceMeter from "../components/ConfidenceMeter.astro";
+import HalfHeroLayout from "../components/HalfHeroLayout.astro";
 import type { NowData } from "../types";
 
 interface Props {
@@ -10,72 +9,70 @@ interface Props {
 const { now } = Astro.props;
 ---
 
-<AppShell activeNav="Now">
-  <section class="tl-page-head">
-    <div class="tl-eyebrow">/now</div>
-    <h1>Now.</h1>
-    <div class="tl-mono">{now.season} · last touched 2026-05-03</div>
-    <p class="tl-page-sub">{now.thesis}</p>
-  </section>
+<HalfHeroLayout title="Now." heroSlug="now">
+  <Fragment slot="deck">
+    <span class="text-[9px] font-semibold uppercase tracking-[0.14em] opacity-60">{now.season}</span>
+    <p>{now.thesis}</p>
+  </Fragment>
 
-  <section>
-    <header class="tl-split-header is-tight">
-      <div class="tl-eyebrow">Active threads</div>
-      <div class="tl-mono">{now.active.length} alive</div>
+  <section class="flex flex-col gap-6">
+    <header class="flex items-baseline justify-between gap-4">
+      <span class="text-[9px] font-semibold uppercase tracking-[0.14em]">Active threads</span>
+      <span class="opacity-40">{now.active.length} alive</span>
     </header>
-    {now.active.map((thread) => (
-      <article class="tl-now-row">
-        <div>
-          <h3>{thread.href ? <a href={thread.href}>{thread.title}</a> : thread.title}</h3>
-          <div class="tl-mono">{thread.kind} · since {thread.since}</div>
-        </div>
-        <p>“{thread.currentQ}”</p>
-        <div>
-          <div class="tl-mono is-right">pulse</div>
-          <ConfidenceMeter value={thread.pulse} showDelta={false} compact />
-        </div>
-      </article>
-    ))}
-  </section>
 
-  <section class="tl-now-two-col">
-    <article>
-      <h2>Reading</h2>
-      {now.reading.map((entry) => (
-        <p>{entry}</p>
-      ))}
-    </article>
-    <article>
-      <h2>Not reading</h2>
-      {now.notReading.map((entry) => (
-        <p class="is-strike">{entry}</p>
-      ))}
-    </article>
-  </section>
-</AppShell>
-
-<style>
-  .tl-now-two-col {
-    width: var(--tl-center);
-    margin-inline: auto;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 24px;
-    padding: 8vh 0;
-  }
-
-  .tl-now-two-col h2 {
-    font-size: clamp(25px, 3vw, 38px);
-    font-weight: 600;
-    line-height: 1.02;
-    letter-spacing: -0.03em;
-  }
-
-  @media (max-width: 767px) {
-    .tl-now-two-col {
-      width: min(100% - 40px, 43.75rem);
-      grid-template-columns: 1fr;
-      gap: 12px;
+    {
+      now.active.length > 0 ? (
+        <ul class="flex flex-col gap-7">
+          {now.active.map((thread) => (
+            <li class="flex flex-col gap-1">
+              <div class="flex items-baseline justify-between gap-4">
+                <span class="text-[9px] font-semibold uppercase tracking-[0.14em] opacity-40">{thread.kind}</span>
+                <span class="opacity-60">{Math.round(thread.pulse * 100)}% pulse</span>
+              </div>
+              <h3 class="m-0">
+                {thread.href ? (
+                  <a href={thread.href} class="no-underline">
+                    {thread.title}
+                  </a>
+                ) : (
+                  thread.title
+                )}
+              </h3>
+              <p class="italic opacity-70">“{thread.currentQ}”</p>
+              <p class="text-[9px] font-semibold uppercase tracking-[0.14em] opacity-40">since {thread.since}</p>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p class="opacity-50">Nothing active right now.</p>
+      )
     }
+  </section>
+
+  {
+    now.reading.length > 0 ? (
+      <section class="flex flex-col gap-6">
+        <span class="text-[9px] font-semibold uppercase tracking-[0.14em]">Reading</span>
+        <ul class="flex flex-col gap-2 opacity-70">
+          {now.reading.map((entry) => (
+            <li>{entry}</li>
+          ))}
+        </ul>
+      </section>
+    ) : null
   }
-</style>
+
+  {
+    now.notReading.length > 0 ? (
+      <section class="flex flex-col gap-6">
+        <span class="text-[9px] font-semibold uppercase tracking-[0.14em]">Not reading</span>
+        <ul class="flex flex-col gap-2 opacity-50">
+          {now.notReading.map((entry) => (
+            <li class="line-through">{entry}</li>
+          ))}
+        </ul>
+      </section>
+    ) : null
+  }
+</HalfHeroLayout>

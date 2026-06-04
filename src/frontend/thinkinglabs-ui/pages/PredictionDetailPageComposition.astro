@@ -1,5 +1,5 @@
 ---
-import heroImage from "@/assets/hero.png";
+import { resolveEntityHero } from "../lib/entity-hero.ts";
 import EntityDetail from "../components/EntityDetail.astro";
 import type { EntityRelationGroup } from "../components/EntityDetail.astro";
 import EntityFacts from "../components/EntityFacts.astro";
@@ -32,6 +32,7 @@ interface Props {
 }
 
 const { prediction } = Astro.props;
+const heroImage = resolveEntityHero("predictions", prediction.slug);
 const confPct = Math.round(prediction.confidence * 100);
 const isResolved = prediction.resolution !== "pending";
 const statusLabel = (() => {

@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { Resvg } from "@resvg/resvg-js";
 import { getCollection } from "astro:content";
@@ -16,6 +17,8 @@ interface OgImageProps {
   readonly kindLabel?: string | undefined;
   readonly layout: Layout;
   readonly palette: OrbPalette;
+  /** On-disk hero source for detail cards; resolved per-entity, falls back to the shared hero. */
+  readonly heroSource?: string | undefined;
 }
 
 interface StaticImage {
@@ -81,18 +84,37 @@ const HERO_W = Math.round((OG_IMAGE_WIDTH - HERO_PAD * 2) * 0.75);
 const HERO_H = OG_IMAGE_HEIGHT - HERO_PAD * 2;
 const HERO_SOURCE = "src/assets/hero.png";
 
-let heroDataUri: Promise<string> | null = null;
+/** Per-entity hero artwork mirrors the route shape on disk: `src/assets/<folder>/<slug>.<ext>`. */
+const HERO_EXTENSIONS = ["png", "jpg", "jpeg", "webp"] as const;
 
-/** Resize the shared hero once to the card's image box and inline it as a data URI (Satori cannot read from the filesystem). */
-function loadHeroDataUri(): Promise<string> {
-  if (!heroDataUri) {
-    heroDataUri = sharp(HERO_SOURCE)
+/**
+ * Resolve a detail card's on-disk hero by route folder + slug, matching the
+ * site's `resolveEntityHero` glob. Falls back to the shared hero when no
+ * per-entity asset exists.
+ */
+function resolveHeroSource(folder: string, slug: string): string {
+  for (const ext of HERO_EXTENSIONS) {
+    const candidate = `src/assets/${folder}/${slug}.${ext}`;
+    if (existsSync(candidate)) return candidate;
+  }
+  return HERO_SOURCE;
+}
+
+/** Cache the resized data URI per source path - detail cards may share the fallback or carry their own hero. */
+const heroDataUris = new Map<string, Promise<string>>();
+
+/** Resize a hero to the card's image box and inline it as a data URI (Satori cannot read from the filesystem). */
+function loadHeroDataUri(source: string): Promise<string> {
+  let cached = heroDataUris.get(source);
+  if (!cached) {
+    cached = sharp(source)
       .resize(HERO_W, HERO_H, { fit: "cover" })
       .jpeg({ quality: 82 })
       .toBuffer()
       .then((buffer) => `data:image/jpeg;base64,${buffer.toString("base64")}`);
+    heroDataUris.set(source, cached);
   }
-  return heroDataUri;
+  return cached;
 }
 
 const OG_THEME = {
@@ -283,6 +305,7 @@ interface OgRoute {
     readonly kindLabel?: string;
     readonly layout: Layout;
     readonly palette: OrbPalette;
+    readonly heroSource?: string;
   };
 }
 
@@ -315,6 +338,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
       },
     });
 
+    const folder = route.replace(/^\//, "");
     const collection = await getKindCollection(kind);
     for (const entry of collection) {
       const data = entry.data as Record<string, unknown>;
@@ -325,6 +349,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
           kindLabel: KIND_SINGULAR[kind],
           layout,
           palette,
+          heroSource: resolveHeroSource(folder, entry.id),
         },
       });
     }
@@ -342,7 +367,7 @@ export const GET: APIRoute = async ({ props }) => {
     loadFont("golos-text", 600),
   ]);
   /* Detail pages (the ones carrying a kind label) render the hero-photo card; everything else keeps the orb layout. */
-  const hero = image.kindLabel ? await loadHeroDataUri() : null;
+  const hero = image.kindLabel ? await loadHeroDataUri(image.heroSource ?? HERO_SOURCE) : null;
   const svg = await satori(renderImage(image, hero) as Parameters<typeof satori>[0], {
     width: OG_IMAGE_WIDTH,
     height: OG_IMAGE_HEIGHT,

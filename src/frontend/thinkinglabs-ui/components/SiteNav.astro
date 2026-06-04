@@ -15,12 +15,11 @@ interface Props {
 // Top-level site navigation. Kept as data so the markup stays a single mapped
 // list rather than a repeated block of anchors.
 const DEFAULT_LINKS: readonly SiteNavLink[] = [
-  { href: "/now", label: "now" },
+  { href: "/", label: "index" },
   { href: "/thoughts", label: "thoughts" },
   { href: "/claims", label: "claims" },
   { href: "/predictions", label: "predictions" },
   { href: "/decisions", label: "decisions" },
-  { href: "/experiments", label: "experiments" },
   { href: "/observations", label: "observations" },
   { href: "/changed-my-mind", label: "changed my mind" },
   { href: "/about", label: "about" },
@@ -49,7 +48,7 @@ const { links = DEFAULT_LINKS } = Astro.props;
   </label>
 
   <div
-    class="invisible fixed inset-0 z-50 flex scale-95 flex-col bg-white p-2 text-black opacity-0 transition duration-200 ease-out origin-top-left peer-checked:visible peer-checked:scale-100 peer-checked:opacity-100 lg:origin-top-right"
+    class="tl-nav-panel invisible fixed inset-0 z-50 flex flex-col p-2 opacity-0 transition-opacity duration-200 ease-out peer-checked:visible peer-checked:opacity-100"
   >
     <div class="flex flex-col gap-10 lg:items-end">
       <label
@@ -57,7 +56,7 @@ const { links = DEFAULT_LINKS } = Astro.props;
         class="flex cursor-pointer items-center gap-2"
         aria-label="Close navigation"
       >
-        <BrandLogo class="text-black!" />
+        <BrandLogo />
         <span class="text-sm tracking-tight">thinkinglabs</span>
       </label>
 
@@ -67,7 +66,7 @@ const { links = DEFAULT_LINKS } = Astro.props;
             links.map((link) => (
               <li>
                 <a
-                  class="text-sm text-black no-underline transition-opacity hover:opacity-50"
+                  class="text-sm no-underline transition-opacity hover:opacity-50"
                   href={link.href}
                 >
                   {link.label}
@@ -101,6 +100,14 @@ const { links = DEFAULT_LINKS } = Astro.props;
      Safari/Firefox. */
   .tl-nav-badge {
     background-color: transparent;
+  }
+
+  /* The open menu fills the viewport with the page background and ink so it
+     reads correctly in both themes (was hard-coded white/black). Links and the
+     brand logo inherit this ink. */
+  .tl-nav-panel {
+    background-color: var(--tl-bg);
+    color: var(--tl-ink);
   }
 
   .tl-nav-badge :global(.tl-nav-logo) {

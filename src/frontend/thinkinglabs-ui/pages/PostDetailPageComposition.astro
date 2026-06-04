@@ -1,5 +1,5 @@
 ---
-import heroImage from "@/assets/hero.png";
+import { resolveEntityHero } from "../lib/entity-hero.ts";
 import EntityDetail from "../components/EntityDetail.astro";
 import type { EntityRelationGroup } from "../components/EntityDetail.astro";
 import EntityFacts from "../components/EntityFacts.astro";
@@ -13,6 +13,7 @@ interface Props {
 }
 
 const { post } = Astro.props;
+const heroImage = resolveEntityHero("posts", post.slug);
 const hasEpigraph = post.epigraph.text.trim().length > 0 && post.epigraph.text !== post.deck;
 const hasFootnotes = post.footnotes.length > 0;
 const hasInputs = post.inputs.length > 0;
