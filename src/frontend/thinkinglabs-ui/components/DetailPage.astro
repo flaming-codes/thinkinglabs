@@ -4,17 +4,18 @@ import PageShell from "./PageShell.astro";
 import DetailHero from "./DetailHero.astro";
 import DetailBody from "./DetailBody.astro";
 import DetailFooter from "./DetailFooter.astro";
-import type { DetailDate } from "./DetailBody.astro";
+import SiteNav from "./SiteNav.astro";
+import type { DetailMetadataItem } from "./DetailBody.astro";
 import type { DetailLink, DetailLinkGroup } from "./DetailFooter.astro";
 
-export type { DetailDate, DetailLink, DetailLinkGroup };
+export type { DetailMetadataItem, DetailLink, DetailLinkGroup };
 
 interface Props {
   /** Page title; rendered in the hero overlay and as the document heading. */
   title: string;
-  /** Dateline entries, joined with "·". Empty/omitted hides the dateline. */
-  dates?: DetailDate[] | undefined;
-  /** Optional tag list rendered under the dateline. */
+  /** Header metadata entries, joined with "·". Empty/omitted hides the line. */
+  metadata?: DetailMetadataItem[] | undefined;
+  /** Optional tag list rendered under the metadata line. */
   tags?: string[] | undefined;
   /** Hero artwork; the scroll-driven nav badge reveal is timed against this image. */
   heroImage: ImageMetadata;
@@ -24,7 +25,7 @@ interface Props {
   linkGroups?: DetailLinkGroup[] | undefined;
 }
 
-const { title, dates = [], tags = [], heroImage, heroAlt, linkGroups = [] } = Astro.props;
+const { title, metadata = [], tags = [], heroImage, heroAlt, linkGroups = [] } = Astro.props;
 
 // Forward slots only when present so child sections keep their "absent when
 // empty" behaviour - an unconditionally forwarded slot would read as present.
@@ -35,10 +36,10 @@ const hasAside = Astro.slots.has("aside");
 
 <PageShell>
   <DetailHero title={title} heroImage={heroImage} heroAlt={heroAlt}>
-    {hasNav && <slot name="nav" slot="nav" />}
+    {hasNav ? <slot name="nav" slot="nav" /> : <SiteNav slot="nav" />}
   </DetailHero>
 
-  <DetailBody dates={dates} tags={tags}>
+  <DetailBody metadata={metadata} tags={tags}>
     {hasMeta && <slot name="meta" slot="meta" />}
     <slot />
   </DetailBody>

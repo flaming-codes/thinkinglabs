@@ -1,13 +1,14 @@
 ---
 import type { ImageMetadata } from "astro";
 import DetailPage from "./DetailPage.astro";
-import type { DetailDate, DetailLink, DetailLinkGroup } from "./DetailPage.astro";
+import SiteNav from "./SiteNav.astro";
+import type { DetailMetadataItem, DetailLinkGroup } from "./DetailPage.astro";
+import type { EntityRelationGroup, EntityRelationLink } from "./EntityFooter.astro";
 
 // Re-exported so existing consumers keep importing these from EntityDetail even
 // though the canonical definitions now live with the generic detail container.
-export type EntityDate = DetailDate;
-export type EntityRelationLink = DetailLink;
-export type EntityRelationGroup = DetailLinkGroup;
+export type EntityDate = DetailMetadataItem;
+export type { EntityRelationGroup, EntityRelationLink };
 
 interface Props {
   /** Entity title; rendered in the hero overlay and as the document heading. */
@@ -31,17 +32,25 @@ const { title, dates = [], tags = [], heroImage, heroAlt, relations = [] } = Ast
 const hasNav = Astro.slots.has("nav");
 const hasMeta = Astro.slots.has("meta");
 const hasAside = Astro.slots.has("aside");
+const linkGroups: DetailLinkGroup[] = relations.map((group) => ({
+  label: group.label,
+  links: group.links.map((link) => ({
+    href: link.href,
+    label: link.title,
+    ...(link.value === undefined ? {} : { value: link.value }),
+  })),
+}));
 ---
 
 <DetailPage
   title={title}
-  dates={dates}
+  metadata={dates}
   tags={tags}
   heroImage={heroImage}
   heroAlt={heroAlt}
-  linkGroups={relations}
+  linkGroups={linkGroups}
 >
-    {hasNav && <slot name="nav" slot="nav" />}
+    {hasNav ? <slot name="nav" slot="nav" /> : <SiteNav slot="nav" />}
     {hasMeta && <slot name="meta" slot="meta" />}
     <slot />
     {hasAside && <slot name="aside" slot="aside" />}

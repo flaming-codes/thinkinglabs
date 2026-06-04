@@ -2,8 +2,8 @@
 /** One resolved link inside a detail link group. */
 export interface DetailLink {
   href: string;
-  title: string;
-  /** Optional trailing value shown muted after the title. */
+  label: string;
+  /** Optional trailing value shown muted after the label. */
   value?: string;
 }
 
@@ -42,7 +42,7 @@ const hasFooter = hasLinkGroups || hasAside;
                       class="text-sm no-underline opacity-80 transition-opacity hover:opacity-100"
                       href={link.href}
                     >
-                      {link.title}
+                      {link.label}
                     </a>
                     {link.value && <span class="text-sm opacity-40"> {link.value}</span>}
                   </dd>

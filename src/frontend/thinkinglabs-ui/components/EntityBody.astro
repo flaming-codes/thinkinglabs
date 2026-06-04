@@ -1,8 +1,8 @@
 ---
 import DetailBody from "./DetailBody.astro";
-import type { DetailDate } from "./DetailBody.astro";
+import type { DetailMetadataItem } from "./DetailBody.astro";
 
-export type EntityDate = DetailDate;
+export type EntityDate = DetailMetadataItem;
 
 interface Props {
   /** Dateline entries, joined with "·". Empty/omitted hides the dateline. */
@@ -16,7 +16,7 @@ const { dates = [], tags = [] } = Astro.props;
 const hasMeta = Astro.slots.has("meta");
 ---
 
-<DetailBody dates={dates} tags={tags}>
+<DetailBody metadata={dates} tags={tags}>
   {hasMeta && <slot name="meta" slot="meta" />}
   <slot />
 </DetailBody>

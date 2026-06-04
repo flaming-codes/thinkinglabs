@@ -19,8 +19,30 @@ describe("detail component boundaries", () => {
     const text = source("src/frontend/thinkinglabs-ui/components/EntityDetail.astro");
 
     expect(text).toContain('import DetailPage from "./DetailPage.astro"');
-    expect(text).not.toContain('from "./EntityHero.astro"');
-    expect(text).not.toContain('from "./EntityBody.astro"');
-    expect(text).not.toContain('from "./EntityFooter.astro"');
+    expect(text).toContain('import SiteNav from "./SiteNav.astro"');
+    expect(text).toContain('<SiteNav slot="nav" />');
+    expect(text).not.toContain('import EntityHero from "./EntityHero.astro"');
+    expect(text).not.toContain('import EntityBody from "./EntityBody.astro"');
+    expect(text).not.toContain('import EntityFooter from "./EntityFooter.astro"');
+  });
+
+  it("keeps the default nav explicit when forwarding nested slots", () => {
+    const text = source("src/frontend/thinkinglabs-ui/components/DetailPage.astro");
+
+    expect(text).toContain('import SiteNav from "./SiteNav.astro"');
+    expect(text).toContain('<SiteNav slot="nav" />');
+  });
+
+  it("keeps generic detail props domain-neutral", () => {
+    const page = source("src/frontend/thinkinglabs-ui/components/DetailPage.astro");
+    const body = source("src/frontend/thinkinglabs-ui/components/DetailBody.astro");
+    const footer = source("src/frontend/thinkinglabs-ui/components/DetailFooter.astro");
+
+    expect(page).toContain("metadata?: DetailMetadataItem[]");
+    expect(page).not.toContain("dates?:");
+    expect(body).toContain("metadata?: DetailMetadataItem[]");
+    expect(body).not.toContain("DetailDate");
+    expect(footer).toContain("label: string");
+    expect(footer).not.toContain("title: string");
   });
 });

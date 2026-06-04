@@ -1,26 +1,26 @@
 ---
-/** One entry in the dateline; callers map their own date fields to this. */
-export interface DetailDate {
+/** One small metadata item shown above the detail body. */
+export interface DetailMetadataItem {
   label: string;
   /** ISO value for the `<time datetime>` attribute; omit when only a formatted label is available. */
   iso?: string;
 }
 
 interface Props {
-  /** Dateline entries, joined with "·". Empty/omitted hides the dateline. */
-  dates?: DetailDate[] | undefined;
-  /** Optional tag list rendered under the dateline. */
+  /** Header metadata entries, joined with "·". Empty/omitted hides the line. */
+  metadata?: DetailMetadataItem[] | undefined;
+  /** Optional tag list rendered under the metadata line. */
   tags?: string[] | undefined;
 }
 
-const { dates = [], tags = [] } = Astro.props;
+const { metadata = [], tags = [] } = Astro.props;
 
 const hasMeta = Astro.slots.has("meta");
-const hasDates = dates.length > 0;
+const hasMetadata = metadata.length > 0;
 ---
 
 {/*
-  Two-column reading row: a left meta column (dateline, tags, `meta` slot) and
+  Two-column reading row: a left meta column (metadata, tags, `meta` slot) and
   the prose `article`. On narrow screens the columns stack; on lg+ they sit in a
   right-aligned 3/4 measure shared with DetailFooter.
 */}
@@ -29,12 +29,12 @@ const hasDates = dates.length > 0;
 >
   <header class="flex flex-col gap-3">
     {
-      hasDates && (
+      hasMetadata && (
         <p class="flex flex-wrap gap-x-1 text-sm opacity-70">
-          {dates.map((date, index) => (
+          {metadata.map((item, index) => (
             <>
               {index > 0 && <span aria-hidden="true">·</span>}
-              {date.iso ? <time datetime={date.iso}>{date.label}</time> : <span>{date.label}</span>}
+              {item.iso ? <time datetime={item.iso}>{item.label}</time> : <span>{item.label}</span>}
             </>
           ))}
         </p>
