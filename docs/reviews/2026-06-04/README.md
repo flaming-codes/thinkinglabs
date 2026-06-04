@@ -10,17 +10,19 @@ This is the index. Each linked report stands alone with full `file:line` finding
 
 ## Implementation status (updated 2026-06-04, after the review)
 
-The review was acted on the same day via four subagent-driven implementation rounds, each gated by `pnpm format` + `astro check` + `vp lint` + `vp test` + `astro build`, with an independent subagent review round in between to catch regression and drift.
+The review was acted on via subagent-driven implementation rounds, each gated by `pnpm format` + `astro check` + `vp lint` + `vp test` + `astro build` (+ `build:index` where content schemas changed), with an independent subagent review round in between to catch regression and drift. Final state: 371 tests pass, 72 pages build, 0 type errors, lint clean. Landed across commits `6e4c758`, `44d4d0f`, `34298a7`, `ae18ecf`, `37d1fa3` on `feat-design-v2`.
 
-**Done and verified** (327 tests pass, 73 pages build, 0 type errors, lint clean):
+**Done and verified:**
 
 - **P0 correctness + agent fixes.** `/brain-diff` rewired from mock fixtures to the real generated feed via `src/lib/brain-diff-view.ts` (UTC-correct day grouping + real build timestamp; graceful empty state). The stale agent system prompt, `docs/conventions/components.md`, and `docs/agents/rendering-pipeline.md` were corrected at the Harness source and re-applied; the `observations` kind and the required `KIND_REGISTRY` step were added to the add-a-kind recipe; `.harness/src/settings/codex.toml` path and Node version fixed.
 - **P1 dead-code sweep.** Over 3,050 LOC of verified-dead code removed: the orphaned mock layer, redesign-orphaned compositions/components, the abandoned shader chain, `EmbeddedTool.astro`, `EmptyState.astro`, and empty experiment dirs. The 3D-dependency disagreement below was resolved: git forensics proved the maintainer abandoned the shader on 2026-05-14, so `@shadergradient/react`, `@react-three/fiber`, `camera-controls`, and `three-stdlib` were removed (plus ~4.5 MB of orphaned `.hdr` assets); `three` stays for the live network graph.
 - **Accessibility.** Site-wide skip-to-main link; `prefers-reduced-motion` guard + accessible name/description for the 3D graph; `SiteNav` brought to keyboard parity with `SiteHeader` (Escape, focus trap, focus return).
+- **Deferred cleanups (maintainer-approved).** Removed the now-orphaned React stack (`@astrojs/react`, `react`, `react-dom`, `@types/react`, `@types/react-dom`) and the unused `react()` Astro integration; removed `@vite-pwa/assets-generator`; deleted the `/icon-prototypes` page and `src/lib/icon-prototypes/`.
+- **P2-P4.** Added `.github/workflows/ci.yml` (runs `pnpm verify` + a Playwright job on push/PR, full-history checkout). Added tests for the HTTP MCP transport and `structured-data.ts`. Batched the two O(N) build-time `git` patterns (index last-touched: N spawns to 1; `walkFileHistory`: 1+H to 2; output verified identical). Added `.strict()` + cross-field refinements to all kind schemas (the "malformed frontmatter fails the build" invariant) and hoisted the shared `confidence` field into `_base.ts`. Decomposed the 1,566-LOC `thinkinglabs-ui.ts` god-module into 14 focused modules behind an API-identical barrel.
 
 **Superseded recommendation:** `dependencies-api-modernization.md` advised KEEPING the three r3f-adjacent deps because they backed the shader surface. That was conditional on the shader being live; the forensic review proved it was dead, so the deps were removed instead.
 
-**Deferred (maintainer's call):** removing the now-orphaned React stack (`@astrojs/react`, `react`, `react-dom` - zero live importers after the shader deletion); the `/icon-prototypes` page + `src/lib/icon-prototypes/`; `@vite-pwa/assets-generator`; and the P2-P4 items (CI workflow, HTTP-MCP + `structured-data.ts` tests, schema `.strict()` + refinements, batching the build-time `git` spawns, decomposing `thinkinglabs-ui.ts`).
+**Still open (informational, non-blocking):** a `build-feeds` test-helper could derive `resolved_on` from `resolution` to stay future-proof against the new prediction refinement; the prediction `made <= resolves` rule has an exotic mixed-date-form corner case that current date-only content cannot trigger. Neither is a defect in shipped code.
 
 ---
 
