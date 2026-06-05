@@ -4,6 +4,7 @@ import {
   HERO_ASSET_EXTENSIONS,
   heroAssetKeyFromPath,
   heroAssetPath,
+  resolveFallbackHeroSource,
   resolveHeroSource,
 } from "../src/lib/hero-assets.ts";
 
@@ -36,6 +37,21 @@ describe("hero asset resolution", () => {
         exists: () => false,
       }),
     ).toBe(FALLBACK_HERO_SOURCE);
+  });
+
+  it("resolves the shared fallback hero through the same extension precedence", () => {
+    const existing = new Set(["src/assets/hero.png", "src/assets/hero.webp"]);
+
+    expect(resolveFallbackHeroSource({ exists: (path) => existing.has(path) })).toBe(
+      "src/assets/hero.webp",
+    );
+    expect(
+      resolveHeroSource({
+        folder: "projects",
+        slug: "missing-project",
+        exists: (path) => existing.has(path),
+      }),
+    ).toBe("src/assets/hero.webp");
   });
 
   it("builds the documented convention path", () => {

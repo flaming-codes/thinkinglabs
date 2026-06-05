@@ -1,22 +1,25 @@
 ---
 import type { ImageMetadata } from "astro";
 import { Image } from "astro:assets";
-import fallbackHero from "../../../assets/hero.png";
-import { heroAssetExtensionRank, heroAssetKeyFromPath } from "../../../lib/hero-assets.ts";
+import {
+  FALLBACK_HERO_KEY,
+  heroAssetExtensionRank,
+  heroAssetKeyFromPath,
+} from "../../../lib/hero-assets.ts";
 import PageShell from "./PageShell.astro";
 import SiteNav from "./SiteNav.astro";
 
 interface Props {
   /** Heading pinned over the hero image. */
   title: string;
-  /** Resolves `<heroSlug>-hero.<ext>`, falling back to the generic `hero.png`. */
+  /** Resolves `<heroSlug>-hero.<ext>`, falling back to the generic `hero.<ext>`. */
   heroSlug?: string | undefined;
 }
 
 const { title, heroSlug } = Astro.props;
 
 // Per-surface hero artwork: `<slug>-hero.<ext>` when present, otherwise the
-// generic `hero.png`. Eager glob so Astro can resolve and optimise the image.
+// generic `hero.<ext>`. Eager glob so Astro can resolve and optimise the image.
 const heroModules = import.meta.glob<{ default: ImageMetadata }>(
   "../../../assets/*.{avif,webp,png,jpg,jpeg}",
   { eager: true },
@@ -33,6 +36,13 @@ for (const [path, mod] of Object.entries(heroModules)) {
     heroes.set(key, { image: mod.default, extensionRank });
   }
 }
+const fallbackHero: ImageMetadata = (() => {
+  const image = heroes.get(FALLBACK_HERO_KEY)?.image;
+  if (!image) {
+    throw new Error(`Missing fallback hero asset: src/assets/${FALLBACK_HERO_KEY}.<ext>`);
+  }
+  return image;
+})();
 const heroImage = (heroSlug ? heroes.get(`${heroSlug}-hero`)?.image : undefined) ?? fallbackHero;
 ---
 

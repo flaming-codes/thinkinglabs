@@ -200,13 +200,13 @@
       },
       "kind": "function",
       "namespaces": ["value"],
-      "line": 34,
+      "line": 42,
       "column": 17,
       "declarations": [
         {
           "file": "src/frontend/thinkinglabs-ui/lib/entity-hero.ts",
           "kind": "function",
-          "line": 34,
+          "line": 42,
           "column": 17
         }
       ]
@@ -221,13 +221,13 @@
       },
       "kind": "function",
       "namespaces": ["value"],
-      "line": 45,
+      "line": 70,
       "column": 17,
       "declarations": [
         {
           "file": "src/lib/hero-assets.ts",
           "kind": "function",
-          "line": 45,
+          "line": 70,
           "column": 17
         }
       ]

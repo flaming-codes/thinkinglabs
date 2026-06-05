@@ -26,16 +26,16 @@
   ],
   "screenshots": [
     {
-      "src": "/screenshots/desktop-home.png",
+      "src": "/screenshots/desktop-home.webp",
       "sizes": "1280x720",
-      "type": "image/png",
+      "type": "image/webp",
       "form_factor": "wide",
       "label": "thinkinglabs home view on desktop"
     },
     {
-      "src": "/screenshots/mobile-home.png",
+      "src": "/screenshots/mobile-home.webp",
       "sizes": "540x720",
-      "type": "image/png",
+      "type": "image/webp",
       "form_factor": "narrow",
       "label": "thinkinglabs home view on mobile"
     }

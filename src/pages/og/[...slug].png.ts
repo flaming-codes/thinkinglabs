@@ -302,7 +302,7 @@ const STATIC_IMAGES: ReadonlyArray<StaticImage> = [
     path: "/",
     title: "personal thinking surface",
     kindKey: "thoughts",
-    heroSource: "src/assets/index.png",
+    heroSource: "src/assets/index.webp",
   },
   { path: "/now", title: "Now", kindKey: "projects", heroSource: resolveListingHeroSource("now") },
   {

@@ -31,6 +31,7 @@ Add `src/assets/<kind>/<slug>.<ext>` where `<kind>` is the route folder and
 `<slug>` is the content file slug.
 
 Supported extensions are `avif`, `webp`, `png`, `jpg`, and `jpeg`, in that
-precedence order. Missing per-entity assets fall back to `src/assets/hero.png`.
+precedence order. Missing per-entity assets fall back to `src/assets/hero.<ext>`
+using the same extension precedence.
 The rendered detail page and generated OG detail image share the same convention
 and extension order.

@@ -1,6 +1,6 @@
 import type { ImageMetadata } from "astro";
-import fallbackHero from "../../../assets/hero.png";
 import {
+  FALLBACK_HERO_KEY,
   heroAssetExtensionRank,
   heroAssetKey,
   heroAssetKeyFromPath,
@@ -30,7 +30,15 @@ for (const [path, mod] of Object.entries(assetModules)) {
   }
 }
 
-/** Resolve a detail page's hero artwork by route folder + detail slug; falls back to `src/assets/hero.png` when no per-entity asset exists. */
+const fallbackHero: ImageMetadata = (() => {
+  const image = entityHeroes.get(FALLBACK_HERO_KEY)?.image;
+  if (!image) {
+    throw new Error(`Missing fallback hero asset: src/assets/${FALLBACK_HERO_KEY}.<ext>`);
+  }
+  return image;
+})();
+
+/** Resolve a detail page's hero artwork by route folder + detail slug; falls back to the shared `src/assets/hero.<ext>` asset when no per-entity asset exists. */
 export function resolveEntityHero(folder: string, slug: string): ImageMetadata {
   return entityHeroes.get(heroAssetKey(folder, slug))?.image ?? fallbackHero;
 }

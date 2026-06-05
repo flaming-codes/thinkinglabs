@@ -1,8 +1,11 @@
 /** Supported local hero image extensions, ordered from most to least preferred when multiple assets exist. */
 export const HERO_ASSET_EXTENSIONS = ["avif", "webp", "png", "jpg", "jpeg"] as const;
 
-/** Shared fallback hero used when an entity or surface has no custom local asset. */
-export const FALLBACK_HERO_SOURCE = "src/assets/hero.png";
+/** Shared fallback hero key used when an entity or surface has no custom local asset. */
+export const FALLBACK_HERO_KEY = "hero";
+
+/** Shared fallback hero used when no preferred fallback format can be found. */
+export const FALLBACK_HERO_SOURCE = "src/assets/hero.webp";
 
 /** One supported local hero image extension. */
 export type HeroAssetExtension = (typeof HERO_ASSET_EXTENSIONS)[number];
@@ -26,6 +29,15 @@ export function heroAssetPath(folder: string, slug: string, extension: HeroAsset
   return `src/assets/${heroAssetKey(folder, slug)}.${extension}`;
 }
 
+/** Build the documented `src/assets/<slug>.<ext>` top-level hero path. */
+export function topLevelHeroAssetPath(
+  slug: string,
+  extension: HeroAssetExtension,
+  assetsRoot = "src/assets",
+): string {
+  return `${assetsRoot}/${slug}.${extension}`;
+}
+
 /** Return the configured precedence rank for a supported hero extension. */
 export function heroAssetExtensionRank(extension: string): number | null {
   const rank = HERO_ASSET_EXTENSIONS.indexOf(extension as HeroAssetExtension);
@@ -41,17 +53,30 @@ export function heroAssetKeyFromPath(path: string, assetsPrefix: string): string
   return heroAssetExtensionRank(match[2]) === null ? null : match[1];
 }
 
+/** Resolve the first existing shared fallback hero by configured extension precedence. */
+export function resolveFallbackHeroSource({
+  exists,
+  assetsRoot = "src/assets",
+  fallback = FALLBACK_HERO_SOURCE,
+}: Pick<ResolveHeroSourceOptions, "exists" | "assetsRoot" | "fallback">): string {
+  for (const extension of HERO_ASSET_EXTENSIONS) {
+    const candidate = topLevelHeroAssetPath(FALLBACK_HERO_KEY, extension, assetsRoot);
+    if (exists(candidate)) return candidate;
+  }
+  return fallback;
+}
+
 /** Resolve the first existing local hero source by configured extension precedence, otherwise return the fallback. */
 export function resolveHeroSource({
   folder,
   slug,
   exists,
   assetsRoot = "src/assets",
-  fallback = FALLBACK_HERO_SOURCE,
+  fallback,
 }: ResolveHeroSourceOptions): string {
   for (const extension of HERO_ASSET_EXTENSIONS) {
     const candidate = `${assetsRoot}/${heroAssetKey(folder, slug)}.${extension}`;
     if (exists(candidate)) return candidate;
   }
-  return fallback;
+  return resolveFallbackHeroSource({ exists, assetsRoot, fallback });
 }
