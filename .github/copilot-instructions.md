@@ -26,6 +26,10 @@ Docs are local at `node_modules/vite-plus/docs` or online at https://viteplus.de
 - [ ] Run `pnpm harness apply` after any Harness-source change.
 - [ ] Check whether `vite.config.js` tasks or `package.json` scripts add necessary validation; run those with `vp run <script>` when relevant.
 
+### Commit messages
+
+Use Conventional Commits for commits and PR titles: `<type>(<scope>): <description>`, with the scope optional. Prefer common types such as `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, and `ci`.
+
 ## Common commands
 
 Package manager is `pnpm` (v10, see `packageManager` in `package.json`). Node >= 22.19.0.
