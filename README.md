@@ -129,13 +129,17 @@ LLM-mediated code goes through `src/lib/llm.ts`. By default it expects `OPENAI_A
 The human site exposes listings, details, `/now`, `/about`, `/agents`, prediction calibration, contact, and health routes. Machine-readable surfaces are generated from the same registries:
 
 - `/llms.txt` - inventory of public pages, listings, detail patterns, APIs, data files, and feeds
+- `/skill.md` - Harness-managed capability signal for agents integrating with the public corpus
+- `/agent-permissions.json` - automated-access policy, preferred entrypoints, and rate-limit guidance
 - `/<page>.md` - contract-validated Markdown variants for canonical public page and content routes; use `/index.md` for `/`
 - `/api/<kind>.json` - flat JSON for each public kind
 - `/feed/*.json` - deterministic JSON Feed outputs for revisions and resolutions
 - `/feed/brain-diff.*` - local artifact feeds for substantive content changes
 - `thinkinglabs://...` - MCP resources for public views, detail objects, schema version, model refs, and prediction calibration
 
-The `.md` variants are derived page representations, not a second source model. Detail pages preserve the canonical markdown body after a small validated YAML envelope; listing pages come from the public kind registry; static pages are intentionally compact maintained summaries. The source schemas in `src/schemas/` remain the authority for content, while the Markdown route contracts only lock down the public envelope shape.
+The `.md` variants are derived page representations, not a second source model. Detail pages preserve the canonical markdown body after a small validated YAML envelope; listing pages come from the public kind registry; static pages are intentionally compact maintained summaries. Detail Markdown envelopes, JSON APIs, MCP responses, and detail-page agent controls share derived `agent_metadata`, including source links, `.md` URLs, word counts, and rough `chars/4` token estimates. The source schemas in `src/schemas/` remain the authority for content, while the Markdown route contracts only lock down the public envelope shape.
+
+Detail pages expose an "Agent context" block with a Markdown link and a "Copy for AI" action that copies the clean `.md` sibling instead of rendered HTML.
 
 ## Semantic layer
 
