@@ -1,0 +1,6 @@
+version: 1
+schemas:
+  - id: architecture
+    title: Architecture
+    parent: root
+    children: [source-index, mcp]

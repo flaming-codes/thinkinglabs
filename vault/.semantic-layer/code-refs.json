@@ -1,0 +1,194 @@
+{
+  "schema_version": 1,
+  "refs": [
+    {
+      "note_id": "agents.proposals",
+      "ref": {
+        "file": "src/lib/proposal-dispatch.ts",
+        "symbol": "registerHandler",
+        "kind": "function",
+        "namespace": "value"
+      },
+      "kind": "function",
+      "namespaces": ["value"],
+      "line": 27,
+      "column": 17,
+      "declarations": [
+        {
+          "file": "src/lib/proposal-dispatch.ts",
+          "kind": "function",
+          "line": 27,
+          "column": 17
+        }
+      ]
+    },
+    {
+      "note_id": "agents.proposals",
+      "ref": {
+        "file": "src/lib/review-cli.ts",
+        "symbol": "runReview",
+        "kind": "function",
+        "namespace": "value"
+      },
+      "kind": "function",
+      "namespaces": ["value"],
+      "line": 36,
+      "column": 23,
+      "declarations": [
+        {
+          "file": "src/lib/review-cli.ts",
+          "kind": "function",
+          "line": 36,
+          "column": 23
+        }
+      ]
+    },
+    {
+      "note_id": "architecture.mcp",
+      "ref": {
+        "file": "servers/thinkinglabs-mcp/server.ts",
+        "symbol": "createThinkinglabsMcpServer",
+        "kind": "function",
+        "namespace": "value"
+      },
+      "kind": "function",
+      "namespaces": ["value"],
+      "line": 33,
+      "column": 17,
+      "declarations": [
+        {
+          "file": "servers/thinkinglabs-mcp/server.ts",
+          "kind": "function",
+          "line": 33,
+          "column": 17
+        }
+      ]
+    },
+    {
+      "note_id": "architecture.mcp",
+      "ref": {
+        "file": "servers/thinkinglabs-mcp/store.ts",
+        "symbol": "queryView",
+        "kind": "function",
+        "namespace": "value"
+      },
+      "kind": "function",
+      "namespaces": ["value"],
+      "line": 66,
+      "column": 17,
+      "declarations": [
+        {
+          "file": "servers/thinkinglabs-mcp/store.ts",
+          "kind": "function",
+          "line": 66,
+          "column": 17
+        }
+      ]
+    },
+    {
+      "note_id": "architecture.source-index",
+      "ref": {
+        "file": "src/index/builder.ts",
+        "symbol": "collectObjects",
+        "kind": "function",
+        "namespace": "value"
+      },
+      "kind": "function",
+      "namespaces": ["value"],
+      "line": 138,
+      "column": 17,
+      "declarations": [
+        {
+          "file": "src/index/builder.ts",
+          "kind": "function",
+          "line": 138,
+          "column": 17
+        }
+      ]
+    },
+    {
+      "note_id": "architecture.source-index",
+      "ref": {
+        "file": "src/index/builder.ts",
+        "symbol": "writeIndex",
+        "kind": "function",
+        "namespace": "value"
+      },
+      "kind": "function",
+      "namespaces": ["value"],
+      "line": 158,
+      "column": 17,
+      "declarations": [
+        {
+          "file": "src/index/builder.ts",
+          "kind": "function",
+          "line": 158,
+          "column": 17
+        }
+      ]
+    },
+    {
+      "note_id": "content.rendering",
+      "ref": {
+        "file": "src/lib/surfaces.ts",
+        "symbol": "SURFACES",
+        "kind": "const",
+        "namespace": "value"
+      },
+      "kind": "const",
+      "namespaces": ["value"],
+      "line": 231,
+      "column": 14,
+      "declarations": [
+        {
+          "file": "src/lib/surfaces.ts",
+          "kind": "const",
+          "line": 231,
+          "column": 14
+        }
+      ]
+    },
+    {
+      "note_id": "content.schemas",
+      "ref": {
+        "file": "src/lib/registry.ts",
+        "symbol": "KIND_REGISTRY",
+        "kind": "const",
+        "namespace": "value"
+      },
+      "kind": "const",
+      "namespaces": ["value"],
+      "line": 51,
+      "column": 14,
+      "declarations": [
+        {
+          "file": "src/lib/registry.ts",
+          "kind": "const",
+          "line": 51,
+          "column": 14
+        }
+      ]
+    },
+    {
+      "note_id": "content.schemas",
+      "ref": {
+        "file": "src/schemas/index.ts",
+        "symbol": "KIND_SCHEMAS",
+        "kind": "const",
+        "namespace": "value"
+      },
+      "kind": "const",
+      "namespaces": ["value"],
+      "line": 29,
+      "column": 14,
+      "declarations": [
+        {
+          "file": "src/schemas/index.ts",
+          "kind": "const",
+          "line": 29,
+          "column": 14
+        }
+      ]
+    }
+  ]
+}

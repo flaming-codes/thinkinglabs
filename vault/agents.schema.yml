@@ -1,0 +1,6 @@
+version: 1
+schemas:
+  - id: agents
+    title: Agents
+    parent: root
+    children: [harness, proposals]

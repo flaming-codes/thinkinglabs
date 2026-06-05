@@ -14,6 +14,7 @@ The important rule is simple: edit source files, then rebuild derived artifacts.
 - `scripts/` - artifact builders, curation CLIs, background-agent entrypoints, and review tools.
 - `servers/thinkinglabs-mcp/` - local stdio MCP server.
 - `servers/thinkinglabs-mcp-http/` - Streamable HTTP MCP transport over the same server factory.
+- `vault/` - semantic-layer vault for validated agent-facing repository knowledge.
 - `.harness/` - canonical agent-facing configuration for prompts, MCP settings, hooks, skills, and provider outputs. Edit `.harness/src/**`, then run `pnpm harness apply`.
 
 ## Quickstart
@@ -42,6 +43,8 @@ pnpm preview             # astro preview (local QA / Playwright only; not a prod
 pnpm artifacts           # offline brain-diff + site + feeds + llms.txt + index
 pnpm artifacts:scored    # same, but requires the active LLM provider key
 pnpm build:index         # rebuild only dist/index.sqlite
+pnpm semantic:check      # validate the semantic-layer vault
+pnpm semantic:index      # regenerate vault/HIERARCHY.md and code refs
 
 pnpm check               # vp check
 pnpm lint                # vp lint
@@ -133,6 +136,19 @@ The human site exposes listings, details, `/now`, `/about`, `/agents`, predictio
 - `thinkinglabs://...` - MCP resources for public views, detail objects, schema version, model refs, and prediction calibration
 
 The `.md` variants are derived page representations, not a second source model. Detail pages preserve the canonical markdown body after a small validated YAML envelope; listing pages come from the public kind registry; static pages are intentionally compact maintained summaries. The source schemas in `src/schemas/` remain the authority for content, while the Markdown route contracts only lock down the public envelope shape.
+
+## Semantic layer
+
+The `vault/` directory is a semantic-layer vault powered by `@madebywild/semantic-layer`. It holds validated repository operating knowledge for agents: architecture boundaries, content/schema rules, MCP behavior, proposal workflows, deployment constraints, and tooling expectations.
+
+This vault does not replace public source objects in `content/`. Use it as trusted project context before broad source exploration. Run:
+
+```sh
+pnpm semantic:check
+pnpm semantic:index
+```
+
+`pnpm semantic:index` writes `vault/HIERARCHY.md` and `vault/.semantic-layer/code-refs.json`, which agents should read before loading individual notes. `pnpm verify` includes both semantic-layer gates.
 
 The MCP server exposes the same resources through two transports:
 

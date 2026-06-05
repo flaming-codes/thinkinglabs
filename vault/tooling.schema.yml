@@ -1,0 +1,6 @@
+version: 1
+schemas:
+  - id: tooling
+    title: Tooling
+    parent: root
+    children: []

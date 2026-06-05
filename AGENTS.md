@@ -34,6 +34,8 @@ Package manager is `pnpm` (v10, see `packageManager` in `package.json`). Node >=
 - `pnpm preview` - `astro preview` against the built `dist/` (dev/Playwright use only; not a production server)
 - `pnpm build` - `astro check && astro build`, then rebuild `dist/index.sqlite` (validates every frontmatter file against its Zod schema)
 - `pnpm build:index` - rebuild the derived `dist/index.sqlite` query layer
+- `pnpm semantic:check` - validate the semantic-layer vault in `vault/`
+- `pnpm semantic:index` - regenerate `vault/HIERARCHY.md` and the code-reference sidecar
 - `pnpm artifacts` - offline artifact build: brain-diff feeds, site, `public/llms.txt`, JSON feeds, `dist/index.sqlite`
 - `pnpm artifacts:scored` - same artifact build, but requires LLM-scored brain-diff output
 - `pnpm verify` - local verification: typecheck, `vp check`, site build, structured-data check, index generation, and tests
@@ -46,6 +48,23 @@ Package manager is `pnpm` (v10, see `packageManager` in `package.json`). Node >=
 Background-agent CLIs (proposal-emitting; safe to re-run): `pnpm dormant-flip`, `pnpm review-decisions`, `pnpm resolve-predictions`, `pnpm freshness-review`, `pnpm triage-questions`. Drain the queue interactively with `pnpm review-proposals`. Other curation CLIs: `pnpm derive-claims`, `pnpm review-stale-claims`. Diff feed driver: `pnpm brain-diff` (`scripts/brain-diff.ts`).
 
 LLM-mediated CLIs require the active provider key (`OPENAI_API_KEY` by default, or `OLLAMA_API_KEY` with `LLM_PROVIDER=ollama`; see `.env.example`). Pass `--no-llm` to skip LLM calls and exit with zero proposals. `BUILD_NOW_ISO` / `FRESHNESS_NOW_ISO` freeze "now" for deterministic builds and tests.
+
+## Semantic Layer
+
+This repository uses `@madebywild/semantic-layer` for validated agent-facing repository knowledge in `vault/`.
+
+Pre task:
+
+- If `vault/HIERARCHY.md` is missing or stale, run `pnpm semantic:index`.
+- Read `vault/HIERARCHY.md` first, then open only the `vault/*.md` notes relevant to the task.
+- Follow wikilinks and `code_refs` from relevant notes before changing code.
+
+Post task:
+
+- Create, update, or delete `vault/*.md` notes and `*.schema.yml` files for durable behavior, API, architecture, operational, or agent-workflow knowledge changed by the task.
+- Keep frontmatter current, including `last_verified`, `ttl_days`, `code_refs`, wikilinks, schemas, and any configured required fields.
+- Stage durable non-assistant project signals with `semantic-layer refine stage` when they may refine the graph but should not be trusted directly.
+- Run `pnpm semantic:check` and `pnpm semantic:index` after semantic-layer changes; report exact failures if either cannot pass.
 
 ## Architecture
 
