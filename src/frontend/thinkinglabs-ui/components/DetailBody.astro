@@ -1,4 +1,7 @@
 ---
+import AgentAccess from "./AgentAccess.astro";
+import type { AgentAccessConfig } from "./AgentAccess.astro";
+
 /** One small metadata item shown above the detail body. */
 export interface DetailMetadataItem {
   label: string;
@@ -11,9 +14,11 @@ interface Props {
   metadata?: DetailMetadataItem[] | undefined;
   /** Optional tag list rendered under the metadata line. */
   tags?: string[] | undefined;
+  /** Optional clean Markdown/copy affordance for agent-readable context. */
+  agentAccess?: AgentAccessConfig | undefined;
 }
 
-const { metadata = [], tags = [] } = Astro.props;
+const { metadata = [], tags = [], agentAccess } = Astro.props;
 
 const hasMeta = Astro.slots.has("meta");
 const hasMetadata = metadata.length > 0;
@@ -50,6 +55,7 @@ const hasMetadata = metadata.length > 0;
       )
     }
     {hasMeta && <slot name="meta" />}
+    {agentAccess && <AgentAccess access={agentAccess} />}
   </header>
   <article class="detail-prose md:pl-16 lg:pl-0">
     <slot />

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { AgentContentMetadata } from "../../src/lib/agent-metadata.ts";
 import { PUBLIC_VIEWS, type PublicViewName } from "../../src/lib/registry.ts";
 
 type PublicMcpViewName = Exclude<PublicViewName, "provenance">;
@@ -43,6 +44,7 @@ export interface ViewItem {
   readonly body_md: string;
   readonly last_touched: string;
   readonly tags: ReadonlyArray<string>;
+  readonly agent_metadata?: AgentContentMetadata;
 }
 
 /** Query result envelope returned by view resources and query_view. */

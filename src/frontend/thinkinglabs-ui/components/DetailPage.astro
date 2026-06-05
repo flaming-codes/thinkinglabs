@@ -7,8 +7,9 @@ import DetailFooter from "./DetailFooter.astro";
 import SiteNav from "./SiteNav.astro";
 import type { DetailMetadataItem } from "./DetailBody.astro";
 import type { DetailLink, DetailLinkGroup } from "./DetailFooter.astro";
+import type { AgentAccessConfig } from "./AgentAccess.astro";
 
-export type { DetailMetadataItem, DetailLink, DetailLinkGroup };
+export type { AgentAccessConfig, DetailMetadataItem, DetailLink, DetailLinkGroup };
 
 interface Props {
   /** Page title; rendered in the hero overlay and as the document heading. */
@@ -23,9 +24,19 @@ interface Props {
   heroAlt?: string | undefined;
   /** Resolved link groups; the footer is omitted when empty and no `aside` slot is present. */
   linkGroups?: DetailLinkGroup[] | undefined;
+  /** Optional clean Markdown/copy affordance for agent-readable context. */
+  agentAccess?: AgentAccessConfig | undefined;
 }
 
-const { title, metadata = [], tags = [], heroImage, heroAlt, linkGroups = [] } = Astro.props;
+const {
+  title,
+  metadata = [],
+  tags = [],
+  heroImage,
+  heroAlt,
+  linkGroups = [],
+  agentAccess,
+} = Astro.props;
 
 // Forward slots only when present so child sections keep their "absent when
 // empty" behaviour - an unconditionally forwarded slot would read as present.
@@ -39,7 +50,7 @@ const hasAside = Astro.slots.has("aside");
     {hasNav ? <slot name="nav" slot="nav" /> : <SiteNav slot="nav" />}
   </DetailHero>
 
-  <DetailBody metadata={metadata} tags={tags}>
+  <DetailBody metadata={metadata} tags={tags} agentAccess={agentAccess}>
     {hasMeta && <slot name="meta" slot="meta" />}
     <slot />
   </DetailBody>

@@ -1,70 +1,73 @@
 # thinkinglabs
 
 > Personal thinking surface. Markdown source-of-truth at https://github.com/flaming-codes/thinkinglabs. Every page below renders from `content/<kind>/`.
+> Token counts use the approximate `chars/4` estimate. Detail Markdown and JSON payloads expose `agent_metadata.approx_token_count`.
 
 ## Pages
 
-- [Home](/): Site root and entry points.
-- [Now](/now): What I'm currently focused on.
-- [About](/about): About this site and the author.
-- [For agents](/agents): MCP server, llms.txt, JSON APIs, and feed surfaces.
-- [Contact](/contact): Human-readable contact surface.
-- [Calibration](/predictions/calibration): Stated confidence vs realized accuracy.
-- [Graph](/graph): Full-screen 3D rendering of the knowledge network.
+- [Home](/): Site root and entry points. (Markdown: /index.md)
+- [Now](/now): What I'm currently focused on. (Markdown: /now.md)
+- [About](/about): About this site and the author. (Markdown: /about.md)
+- [For agents](/agents): MCP server, llms.txt, JSON APIs, and feed surfaces. (Markdown: /agents.md)
+- [Contact](/contact): Human-readable contact surface. (Markdown: /contact.md)
+- [Calibration](/predictions/calibration): Stated confidence vs realized accuracy. (Markdown: /predictions/calibration.md)
+- [Graph](/graph): Full-screen 3D rendering of the knowledge network. (Markdown: /graph.md)
 
 ## Listings
 
-- [Claims](/claims): Atomic structured claims with confidence and evidence.
-- [Thoughts](/thoughts): Long-form prose, by recency.
-- [Inputs](/inputs): External material that shaped thinking.
-- [Observations](/observations): Short first-party notes about what seems to be happening.
-- [Projects](/projects): Active and dormant work, grouped by status.
-- [Predictions](/predictions): Falsifiable predictions, pending and resolved.
-- [Changed my mind](/changed-my-mind): Belief revisions, by date.
-- [Decisions](/decisions): ADR-style public decisions.
-- [Questions](/questions): Open questions I'm stuck on.
-- [Posts](/posts): Long-form evergreen posts with per-section freshness.
+- [Claims](/claims): Atomic structured claims with confidence and evidence. (Markdown: /claims.md)
+- [Thoughts](/thoughts): Long-form prose, by recency. (Markdown: /thoughts.md)
+- [Inputs](/inputs): External material that shaped thinking. (Markdown: /inputs.md)
+- [Observations](/observations): Short first-party notes about what seems to be happening. (Markdown: /observations.md)
+- [Projects](/projects): Active and dormant work, grouped by status. (Markdown: /projects.md)
+- [Predictions](/predictions): Falsifiable predictions, pending and resolved. (Markdown: /predictions.md)
+- [Changed my mind](/changed-my-mind): Belief revisions, by date. (Markdown: /changed-my-mind.md)
+- [Decisions](/decisions): ADR-style public decisions. (Markdown: /decisions.md)
+- [Questions](/questions): Open questions I'm stuck on. (Markdown: /questions.md)
+- [Posts](/posts): Long-form evergreen posts with per-section freshness. (Markdown: /posts.md)
 
 ## Detail patterns
 
-- [Claim detail](/claims/<slug>): Single claim page with confidence history.
-- [Input detail](/inputs/<slug>): Single input page.
-- [Observation detail](/observations/<slug>): Single observation page.
-- [Thought detail](/thoughts/<slug>): Single thought page.
-- [Project detail](/projects/<slug>): Single project page.
-- [Prediction detail](/predictions/<slug>): Single prediction page.
-- [Changed-my-mind detail](/changed-my-mind/<slug>): Single belief-revision page.
-- [Decision detail](/decisions/<slug>): Single decision page.
-- [Question detail](/questions/<slug>): Single question page.
-- [Post detail](/posts/<slug>): Single post page.
+- [Claim detail](/claims/<slug>): Single claim page with confidence history. (Markdown: /claims/<slug>.md)
+- [Input detail](/inputs/<slug>): Single input page. (Markdown: /inputs/<slug>.md)
+- [Observation detail](/observations/<slug>): Single observation page. (Markdown: /observations/<slug>.md)
+- [Thought detail](/thoughts/<slug>): Single thought page. (Markdown: /thoughts/<slug>.md)
+- [Project detail](/projects/<slug>): Single project page. (Markdown: /projects/<slug>.md)
+- [Prediction detail](/predictions/<slug>): Single prediction page. (Markdown: /predictions/<slug>.md)
+- [Changed-my-mind detail](/changed-my-mind/<slug>): Single belief-revision page. (Markdown: /changed-my-mind/<slug>.md)
+- [Decision detail](/decisions/<slug>): Single decision page. (Markdown: /decisions/<slug>.md)
+- [Question detail](/questions/<slug>): Single question page. (Markdown: /questions/<slug>.md)
+- [Post detail](/posts/<slug>): Single post page. (Markdown: /posts/<slug>.md)
 
 ## JSON APIs
 
-- [Claims JSON](/api/claims.json): All claims as JSON.
-- [Thoughts JSON](/api/thoughts.json): All thoughts as JSON.
-- [Inputs JSON](/api/inputs.json): All inputs as JSON.
-- [Observations JSON](/api/observations.json): All observations as JSON.
-- [Projects JSON](/api/projects.json): All projects as JSON.
-- [Predictions JSON](/api/predictions.json): All predictions as JSON.
-- [Changed-my-mind JSON](/api/changed-my-mind.json): All belief revisions as JSON.
-- [Decisions JSON](/api/decisions.json): All decisions as JSON.
-- [Questions JSON](/api/questions.json): All open questions as JSON.
-- [Posts JSON](/api/posts.json): All posts as JSON.
-- [Prediction calibration embed JSON](/api/embed/prediction-calibration-logger.json): Static payload for the local calibration embedded tool.
+- [Claims JSON](/api/claims.json): All claims as JSON. (Format: JSON)
+- [Thoughts JSON](/api/thoughts.json): All thoughts as JSON. (Format: JSON)
+- [Inputs JSON](/api/inputs.json): All inputs as JSON. (Format: JSON)
+- [Observations JSON](/api/observations.json): All observations as JSON. (Format: JSON)
+- [Projects JSON](/api/projects.json): All projects as JSON. (Format: JSON)
+- [Predictions JSON](/api/predictions.json): All predictions as JSON. (Format: JSON)
+- [Changed-my-mind JSON](/api/changed-my-mind.json): All belief revisions as JSON. (Format: JSON)
+- [Decisions JSON](/api/decisions.json): All decisions as JSON. (Format: JSON)
+- [Questions JSON](/api/questions.json): All open questions as JSON. (Format: JSON)
+- [Posts JSON](/api/posts.json): All posts as JSON. (Format: JSON)
+- [Prediction calibration embed JSON](/api/embed/prediction-calibration-logger.json): Static payload for the local calibration embedded tool. (Format: JSON)
 
 ## Data files
 
-- [Contact JSON](/contact.json): Structured contact surface.
-- [llms.txt](/llms.txt): Agent-readable surface index.
-- [Remote MCP endpoint](https://mcp.thinkinglabs.run/mcp): Streamable HTTP MCP server in stateless mode; exposes public resources and tools without cloning the repo.
+- [Contact JSON](/contact.json): Structured contact surface. (Auth: none)
+- [llms.txt](/llms.txt): Agent-readable surface index. (Auth: none)
+- [skill.md](/skill.md): Capability signaling for agents integrating with the public corpus. (Auth: none)
+- [agent-permissions.json](/agent-permissions.json): Automated-access policy, preferred entrypoints, and rate-limit guidance. (Auth: none)
+- [Remote MCP endpoint](https://mcp.thinkinglabs.run/mcp): Streamable HTTP MCP server in stateless mode; exposes public resources and tools without cloning the repo. (Auth: none)
 
 ## Feeds
 
-- [Brain-diff (Atom)](/feed/brain-diff.xml): Substantive changes across tracked content (generated locally by `pnpm artifacts:scored`, or unscored by `pnpm artifacts`).
-- [Brain-diff (JSON)](/feed/brain-diff.json): Substantive changes as JSON (generated locally by `pnpm artifacts:scored`, or unscored by `pnpm artifacts`).
-- [Brain-diff predictions resolved](/feed/brain-diff-predictions-resolved.json): Prediction resolution changes from the local brain-diff artifact run.
-- [Brain-diff claims revised](/feed/brain-diff-claims-revised.json): Claim creation, revision, and deprecation changes from the local brain-diff artifact run.
-- [Brain-diff decisions reversed](/feed/brain-diff-decisions-reversed.json): Decision reversal changes from the local brain-diff artifact run.
-- [Predictions resolved](/feed/predictions-resolved.json): JSON Feed 1.1 for predictions transitioning out of pending (regenerated every site build).
-- [Claims revised](/feed/claims-revised.json): JSON Feed 1.1 for claims with non-active status or supersedes/superseded_by links (regenerated every site build).
-- [Decisions reversed](/feed/decisions-reversed.json): JSON Feed 1.1 for decisions marked reversed/superseded or with a `reverses` link (regenerated every site build).
+- [Brain-diff (Atom)](/feed/brain-diff.xml): Substantive changes across tracked content (generated locally by `pnpm artifacts:scored`, or unscored by `pnpm artifacts`). (Auth: none)
+- [Brain-diff (JSON)](/feed/brain-diff.json): Substantive changes as JSON (generated locally by `pnpm artifacts:scored`, or unscored by `pnpm artifacts`). (Auth: none)
+- [Brain-diff predictions resolved](/feed/brain-diff-predictions-resolved.json): Prediction resolution changes from the local brain-diff artifact run. (Auth: none)
+- [Brain-diff claims revised](/feed/brain-diff-claims-revised.json): Claim creation, revision, and deprecation changes from the local brain-diff artifact run. (Auth: none)
+- [Brain-diff decisions reversed](/feed/brain-diff-decisions-reversed.json): Decision reversal changes from the local brain-diff artifact run. (Auth: none)
+- [Predictions resolved](/feed/predictions-resolved.json): JSON Feed 1.1 for predictions transitioning out of pending (regenerated every site build). (Auth: none)
+- [Claims revised](/feed/claims-revised.json): JSON Feed 1.1 for claims with non-active status or supersedes/superseded_by links (regenerated every site build). (Auth: none)
+- [Decisions reversed](/feed/decisions-reversed.json): JSON Feed 1.1 for decisions marked reversed/superseded or with a `reverses` link (regenerated every site build). (Auth: none)

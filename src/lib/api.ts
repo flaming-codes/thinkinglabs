@@ -2,6 +2,7 @@ import { getCollection } from "astro:content";
 import type { APIRoute } from "astro";
 import type { CollectionEntry, CollectionKey } from "astro:content";
 import type { Kind } from "../schemas/index.ts";
+import { agentMetadataForContent } from "./agent-metadata.ts";
 import { KIND_REGISTRY } from "./registry.ts";
 
 /** Runtime gate for public collection APIs; denies by default for non-public kinds. */
@@ -14,7 +15,20 @@ export function collectionJson<K extends CollectionKey>(kind: K): APIRoute {
   return async () => {
     if (!isPublicApiKind(kind)) return new Response(null, { status: 404 });
     const entries: ReadonlyArray<CollectionEntry<K>> = await getCollection(kind);
-    const body = entries.map((e) => ({ id: e.id, data: e.data, body: e.body ?? "" }));
+    const body = entries.map((e) => {
+      const bodyMd = e.body ?? "";
+      return {
+        id: e.id,
+        data: e.data,
+        body: bodyMd,
+        agent_metadata: agentMetadataForContent({
+          kind,
+          slug: e.id,
+          body: bodyMd,
+          frontmatter: e.data as Record<string, unknown>,
+        }),
+      };
+    });
     return new Response(JSON.stringify(body, null, 2), {
       headers: {
         /* Design-intent only: static hosting sets cache headers today; this applies again under SSR or origin pass-through. */

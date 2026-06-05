@@ -5,6 +5,7 @@ import "../frontend/thinkinglabs-ui/styles.css";
 import "../styles/view-transitions.css";
 import JsonLd from "../components/JsonLd.astro";
 import PwaHead from "../components/PwaHead.astro";
+import { markdownUrlForRoute } from "../lib/agent-metadata.ts";
 import { absoluteFeedLinks, logoUrl, metadataTitle, ogImageUrl } from "../lib/seo.ts";
 import { buildPageGraph, canonicalUrl, type StructuredData } from "../lib/structured-data.ts";
 import { SITE_NAME } from "../lib/site.ts";
@@ -21,6 +22,9 @@ interface Props {
 const { title, description, structuredData, ogType = "website", robots, allowScroll = false } = Astro.props;
 const site = Astro.site ?? new URL(Astro.url.origin);
 const canonical = canonicalUrl(Astro.url.pathname, site);
+const markdownAlternate = robots?.includes("noindex")
+  ? null
+  : new URL(markdownUrlForRoute(Astro.url.pathname), site).href;
 const image = ogImageUrl(Astro.url.pathname, site);
 const logo = logoUrl(site);
 const titleMeta = metadataTitle(title);
@@ -39,6 +43,7 @@ const jsonLd = buildPageGraph({ site, url: canonical, title: titleMeta, descript
     {description ? <meta name="description" content={description} /> : null}
     {robots ? <meta name="robots" content={robots} /> : null}
     <link rel="canonical" href={canonical} />
+    {markdownAlternate ? <link rel="alternate" type="text/markdown" href={markdownAlternate} /> : null}
     {feeds.map((feed) => <link rel="alternate" type={feed.type} title={feed.title} href={feed.href} />)}
     <meta property="og:type" content={ogType} />
     <meta property="og:site_name" content={SITE_NAME} />

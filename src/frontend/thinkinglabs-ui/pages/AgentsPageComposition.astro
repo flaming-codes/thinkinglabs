@@ -120,8 +120,9 @@ const feeds: { url: string; description: string }[] = [
       <p>
         <a class="tl-agents-link" href="/llms.txt">/llms.txt</a> is a single text file that lists
         every page, listing, detail pattern, JSON API, data file, and feed on the site, grouped
-        by section. It is regenerated at build time from the same surface inventory the top
-        navigation uses, so it never drifts.
+        by section. It also advertises Markdown siblings for page-shaped routes and the token
+        estimate convention used by machine-readable payloads. It is regenerated at build time
+        from the same surface inventory the top navigation uses, so it never drifts.
       </p>
       <p class="is-muted">
         Hand it to a model as a starting point and it will know what is here without crawling.
@@ -131,7 +132,32 @@ const feeds: { url: string; description: string }[] = [
 
   <section>
     <header class="tl-about-section-head is-compact">
-      <div class="tl-eyebrow">02 / MCP server</div>
+      <div class="tl-eyebrow">02 / agent-readable files</div>
+      <h2>
+        Capabilities,
+        <br />
+        permissions, and tokens.
+      </h2>
+    </header>
+    <div class="tl-agents-list">
+      <article class="tl-agents-row">
+        <code class="tl-agents-uri"><a href="/skill.md">/skill.md</a></code>
+        <p>Capability signaling for the public corpus, JSON APIs, feeds, and MCP tools.</p>
+      </article>
+      <article class="tl-agents-row">
+        <code class="tl-agents-uri"><a href="/agent-permissions.json">/agent-permissions.json</a></code>
+        <p>Automated-access policy with preferred entrypoints and rate-limit guidance.</p>
+      </article>
+      <article class="tl-agents-row">
+        <code class="tl-agents-uri">agent_metadata.approx_token_count</code>
+        <p>Approximate chars/4 token budget surfaced in detail Markdown envelopes and JSON APIs.</p>
+      </article>
+    </div>
+  </section>
+
+  <section>
+    <header class="tl-about-section-head is-compact">
+      <div class="tl-eyebrow">03 / MCP server</div>
       <h2>
         One server,
         <br />
@@ -222,7 +248,7 @@ const feeds: { url: string; description: string }[] = [
 
   <section>
     <header class="tl-about-section-head is-compact">
-      <div class="tl-eyebrow">03 / JSON APIs</div>
+      <div class="tl-eyebrow">04 / JSON APIs</div>
       <h2>
         One endpoint per kind,
         <br />
@@ -248,7 +274,7 @@ const feeds: { url: string; description: string }[] = [
 
   <section>
     <header class="tl-about-section-head is-compact">
-      <div class="tl-eyebrow">04 / feeds</div>
+      <div class="tl-eyebrow">05 / feeds</div>
       <h2>
         Subscribe to the
         <br />
@@ -273,7 +299,7 @@ const feeds: { url: string; description: string }[] = [
 
   <section>
     <header class="tl-about-section-head is-compact">
-      <div class="tl-eyebrow">05 / connect</div>
+      <div class="tl-eyebrow">06 / connect</div>
       <h2>
         Wire it up
         <br />

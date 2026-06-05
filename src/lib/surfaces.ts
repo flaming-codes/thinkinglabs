@@ -124,6 +124,18 @@ const TAIL_SURFACES: ReadonlyArray<Surface> = [
     section: "data",
   },
   {
+    title: "skill.md",
+    url: "/skill.md",
+    description: "Capability signaling for agents integrating with the public corpus.",
+    section: "data",
+  },
+  {
+    title: "agent-permissions.json",
+    url: "/agent-permissions.json",
+    description: "Automated-access policy, preferred entrypoints, and rate-limit guidance.",
+    section: "data",
+  },
+  {
     title: "Remote MCP endpoint",
     url: "https://mcp.thinkinglabs.run/mcp",
     description:

@@ -1,0 +1,110 @@
+---
+export interface AgentAccessConfig {
+  markdownHref: string;
+  tokenEstimate?: number | undefined;
+}
+
+interface Props {
+  access: AgentAccessConfig;
+}
+
+const { access } = Astro.props;
+---
+
+<div class="tl-agent-access" data-tl-agent-access>
+  <div class="tl-agent-access-label">Agent context</div>
+  {
+    access.tokenEstimate !== undefined && (
+      <div class="tl-agent-access-meta">~{access.tokenEstimate.toLocaleString()} tokens</div>
+    )
+  }
+  <div class="tl-agent-access-actions">
+    <a href={access.markdownHref}>Markdown</a>
+    <button type="button" data-copy-for-ai={access.markdownHref} aria-live="polite">
+      Copy for AI
+    </button>
+  </div>
+</div>
+
+<script>
+  let controller: AbortController | null = null;
+
+  const init = () => {
+    controller?.abort();
+    controller = new AbortController();
+    const { signal } = controller;
+
+    for (const button of document.querySelectorAll<HTMLButtonElement>("[data-copy-for-ai]")) {
+      button.addEventListener(
+        "click",
+        async () => {
+          const href = button.dataset.copyForAi;
+          if (!href) return;
+          const original = button.textContent ?? "Copy for AI";
+          try {
+            const response = await fetch(href);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            await navigator.clipboard.writeText(await response.text());
+            button.textContent = "Copied";
+          } catch {
+            button.textContent = "Failed";
+          } finally {
+            window.setTimeout(() => {
+              button.textContent = original;
+            }, 1800);
+          }
+        },
+        { signal },
+      );
+    }
+  };
+
+  document.addEventListener("astro:page-load", init);
+</script>
+
+<style>
+  .tl-agent-access {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    padding-top: 0.25rem;
+    color: var(--tl-muted);
+    font-size: var(--tl-type-metadata-size);
+  }
+
+  .tl-agent-access-label {
+    color: var(--tl-ink);
+    font-weight: 600;
+  }
+
+  .tl-agent-access-meta {
+    opacity: 0.7;
+  }
+
+  .tl-agent-access-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .tl-agent-access a,
+  .tl-agent-access button {
+    color: inherit;
+    font: inherit;
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+  }
+
+  .tl-agent-access button {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .tl-agent-access a:hover,
+  .tl-agent-access button:hover {
+    color: var(--tl-ink);
+  }
+</style>

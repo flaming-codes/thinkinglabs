@@ -119,6 +119,16 @@ describe("Markdown route contracts and serializers", () => {
         title: "X",
         source_path: "content/posts/x.md",
         frontmatter: { title: "X" },
+        agent_metadata: {
+          source_path: "content/posts/x.md",
+          html_url: "/posts/x",
+          markdown_url: "/posts/x.md",
+          source_url: "https://github.com/flaming-codes/thinkinglabs/blob/main/content/posts/x.md",
+          summary: "X",
+          word_count: 1,
+          approx_token_count: 1,
+          token_estimate: "chars/4",
+        },
       }),
     ).not.toThrow();
     expect(() =>
@@ -166,6 +176,17 @@ describe("Markdown route contracts and serializers", () => {
         links: { not_a_link_field: [] },
       }),
     ).toThrow();
+    expect(() =>
+      markdownDetailEnvelopeSchema.parse({
+        variant: "detail",
+        kind: "posts",
+        slug: "x",
+        url: "/posts/x",
+        title: "Missing agent metadata",
+        source_path: "content/posts/x.md",
+        frontmatter: {},
+      }),
+    ).toThrow();
   });
 
   it("preserves detail body bytes after the YAML envelope", async () => {
@@ -178,6 +199,13 @@ describe("Markdown route contracts and serializers", () => {
     expect(parsed.data["frontmatter"]).toMatchObject({
       title: postEntry.data.title,
     });
+    expect(parsed.data["agent_metadata"]).toMatchObject({
+      source_path: "content/posts/the-site-is-the-instrument.md",
+      html_url: "/posts/the-site-is-the-instrument",
+      markdown_url: "/posts/the-site-is-the-instrument.md",
+      token_estimate: "chars/4",
+    });
+    expect(parsed.data["agent_metadata"]["approx_token_count"]).toBeGreaterThan(0);
     expect(parsed.content).toBe(postEntry.body);
   });
 
@@ -315,6 +343,7 @@ describe("Markdown route endpoint", () => {
     expect(response.status).toBe(200);
     expect(response.headers.get("content-type")?.toLowerCase()).toContain("text/markdown");
     const parsed = matter(await response.text());
+    expect(response.headers.get("x-agent-token-estimate")).toMatch(/^\d+$/);
     expect(parsed.data["variant"]).toBe("detail");
     expect(parsed.content).toBe(postEntry.body);
   });

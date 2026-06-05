@@ -2,11 +2,13 @@ import { existsSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import Database from "better-sqlite3";
 import { collectObjects, type IndexedObject } from "../../src/index/builder.ts";
+import { agentMetadataForContent, summarizeMarkdown } from "../../src/lib/agent-metadata.ts";
 import { calibration, type Bucket } from "../../src/lib/calibration.ts";
 import { contactSchema, type Contact } from "../../src/schemas/contact.ts";
 import type { Prediction } from "../../src/schemas/prediction.ts";
 import {
   DETAIL_KINDS,
+  KIND_REGISTRY,
   titleFor,
   type FrontmatterPredicate,
   type PublicViewSpec,
@@ -260,33 +262,29 @@ function makeItem(
   const tags = Array.isArray(frontmatter["tags"])
     ? frontmatter["tags"].filter((t): t is string => typeof t === "string")
     : [];
+  const kindValue = asKind(kind);
+  const agentMetadata =
+    KIND_REGISTRY[kindValue].route === null
+      ? undefined
+      : agentMetadataForContent({ kind: kindValue, slug, body, frontmatter });
   return {
     id,
     kind,
     slug,
-    title: titleFor(asKind(kind), frontmatter, slug),
+    title: titleFor(kindValue, frontmatter, slug),
     url: `/${kind}/${slug}`,
-    summary: summarize(body),
+    summary: summarizeMarkdown(body),
     frontmatter,
     body_md: body,
     last_touched: lastTouched,
     tags,
+    ...(agentMetadata === undefined ? {} : { agent_metadata: agentMetadata }),
   };
 }
 
 /** Narrow a string `kind` from sqlite/source rows to the `Kind` literal union; falls back to "thoughts" on unknown values. */
 function asKind(kind: string): Kind {
   return (KINDS as ReadonlyArray<string>).includes(kind) ? (kind as Kind) : "thoughts";
-}
-
-function summarize(body: string): string {
-  const paragraph =
-    body
-      .split(/\n\s*\n/)
-      .find((p) => p.trim().length > 0)
-      ?.replace(/\s+/g, " ")
-      .trim() ?? "";
-  return paragraph.length > 240 ? `${paragraph.slice(0, 237)}...` : paragraph;
 }
 
 function haystack(item: ViewItem): string {

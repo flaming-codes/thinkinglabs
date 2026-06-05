@@ -46,6 +46,13 @@
       "type": "skill"
     },
     {
+      "id": "thinkinglabs",
+      "overrideSha256ByProvider": {},
+      "registry": "local",
+      "sourceSha256": "ee11e59aebe1baa3310227f3d0d6dd10cae870abaff9ce050a817a817916ca20",
+      "type": "skill"
+    },
+    {
       "id": "writing-content",
       "overrideSha256ByProvider": {
         "claude": "09bfcc6a14b83e2192b8673677725c84883ee9cd0c70e45c9ec09daa8f2b2847",
@@ -58,8 +65,8 @@
       "type": "skill"
     }
   ],
-  "generatedAt": "2026-06-05T10:33:47.432Z",
-  "manifestFingerprint": "08271ae81ad8da9b86a8f55bcf22ad29632c0b1c070647db7ab79dbd79bce709",
+  "generatedAt": "2026-06-05T17:23:09.663Z",
+  "manifestFingerprint": "b5d6230d510d96b57ada679cd0c44d18f6697a0c925a1d9e2e695433052953d6",
   "outputs": [
     {
       "contentSha256": "8681d43c99ae7c2ca0604d6ef3acf1051a579816a9fd55999505d05a575030ab",
@@ -75,6 +82,14 @@
         "linkedin-post"
       ],
       "path": ".claude/skills/linkedin-post/SKILL.md",
+      "provider": "claude"
+    },
+    {
+      "contentSha256": "88e9d382e5cd61336d7e7cf40e10312b6fb7fe707aa1a7e44329219399f79379",
+      "ownerEntityIds": [
+        "thinkinglabs"
+      ],
+      "path": ".claude/skills/thinkinglabs/SKILL.md",
       "provider": "claude"
     },
     {
@@ -102,6 +117,14 @@
       "provider": "codex"
     },
     {
+      "contentSha256": "88e9d382e5cd61336d7e7cf40e10312b6fb7fe707aa1a7e44329219399f79379",
+      "ownerEntityIds": [
+        "thinkinglabs"
+      ],
+      "path": ".codex/skills/thinkinglabs/SKILL.md",
+      "provider": "codex"
+    },
+    {
       "contentSha256": "48a4669a90d59b810ba270b9102c92107f880a11280bbdbf0aa12631feebddde",
       "ownerEntityIds": [
         "writing-content"
@@ -123,6 +146,14 @@
         "linkedin-post"
       ],
       "path": ".github/skills/linkedin-post/SKILL.md",
+      "provider": "copilot"
+    },
+    {
+      "contentSha256": "88e9d382e5cd61336d7e7cf40e10312b6fb7fe707aa1a7e44329219399f79379",
+      "ownerEntityIds": [
+        "thinkinglabs"
+      ],
+      "path": ".github/skills/thinkinglabs/SKILL.md",
       "provider": "copilot"
     },
     {

@@ -137,13 +137,13 @@
       },
       "kind": "function",
       "namespaces": ["value"],
-      "line": 66,
+      "line": 68,
       "column": 17,
       "declarations": [
         {
           "file": "servers/thinkinglabs-mcp/store.ts",
           "kind": "function",
-          "line": 66,
+          "line": 68,
           "column": 17
         }
       ]
@@ -158,13 +158,13 @@
       },
       "kind": "function",
       "namespaces": ["value"],
-      "line": 138,
+      "line": 145,
       "column": 17,
       "declarations": [
         {
           "file": "src/index/builder.ts",
           "kind": "function",
-          "line": 138,
+          "line": 145,
           "column": 17
         }
       ]
@@ -179,13 +179,13 @@
       },
       "kind": "function",
       "namespaces": ["value"],
-      "line": 158,
+      "line": 165,
       "column": 17,
       "declarations": [
         {
           "file": "src/index/builder.ts",
           "kind": "function",
-          "line": 158,
+          "line": 165,
           "column": 17
         }
       ]
@@ -256,6 +256,27 @@
     {
       "note_id": "content.rendering",
       "ref": {
+        "file": "src/lib/agent-metadata.ts",
+        "symbol": "agentMetadataForContent",
+        "kind": "function",
+        "namespace": "value"
+      },
+      "kind": "function",
+      "namespaces": ["value"],
+      "line": 86,
+      "column": 17,
+      "declarations": [
+        {
+          "file": "src/lib/agent-metadata.ts",
+          "kind": "function",
+          "line": 86,
+          "column": 17
+        }
+      ]
+    },
+    {
+      "note_id": "content.rendering",
+      "ref": {
         "file": "src/lib/surfaces.ts",
         "symbol": "SURFACES",
         "kind": "const",
@@ -263,13 +284,13 @@
       },
       "kind": "const",
       "namespaces": ["value"],
-      "line": 231,
+      "line": 243,
       "column": 14,
       "declarations": [
         {
           "file": "src/lib/surfaces.ts",
           "kind": "const",
-          "line": 231,
+          "line": 243,
           "column": 14
         }
       ]
