@@ -14,12 +14,16 @@ const featured = posts.find((post) => post.featured) ?? posts[0];
 const page: EntityIndexPage = {
   slug: "posts",
   eyebrow: "/posts",
-  title: "Posts.",
+  title: "Posts",
   deck: "Long-form pieces polished enough to stand alone. Fewer than thoughts, slower to publish, and easier to cite.",
   count: `${posts.length} essays`,
   stats: [
     { label: "Essays", value: String(posts.length), sub: "published here" },
-    { label: "Words", value: words.toLocaleString(), sub: "across the archive" },
+    {
+      label: "Words",
+      value: words.toLocaleString(),
+      sub: "across the archive",
+    },
     { label: "Read time", value: `${minutes}m`, sub: "estimated total" },
   ],
   sections: [
@@ -31,7 +35,11 @@ const page: EntityIndexPage = {
         title: post.title,
         href: post.href,
         summary: post.deck,
-        meta: [post.topic, `${post.minutes} min`, `${post.words.toLocaleString()} words`],
+        meta: [
+          post.topic,
+          `${post.minutes} min`,
+          `${post.words.toLocaleString()} words`,
+        ],
         value: post.featured ? "latest" : post.topic,
         valueLabel: "filed",
       })),

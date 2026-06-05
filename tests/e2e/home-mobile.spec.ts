@@ -1,30 +1,36 @@
 import { expect, test } from "@playwright/test";
 
-const cardCopies = [
-  "Long-form prose, by recency.",
-  "Atomic structured claims with confidence and evidence.",
-  "Active and dormant work, grouped by status.",
-  "Falsifiable predictions, pending and resolved.",
-  "Belief revisions, by date.",
-  "ADR-style public decisions.",
-  "Open questions I'm stuck on.",
-  "Long-form evergreen posts with per-section freshness.",
-  "External material that shaped thinking.",
+const sectionLabels = [
+  "now",
+  "thoughts",
+  "claims",
+  "predictions",
+  "decisions",
+  "observations",
+  "changed my mind",
+  "questions",
+  "projects",
+  "posts",
+  "about",
+  "contact",
 ];
 
 test.describe("mobile home page", () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
-  test("renders visible copy for every landing card", async ({ page }) => {
+  test("renders the section index with every link visible", async ({ page }) => {
     const response = await page.goto("/");
     expect(response, "navigation response").not.toBeNull();
     expect(response!.status()).toBe(200);
 
-    const cards = page.locator(".tl-gallery-card");
-    await expect(cards).toHaveCount(cardCopies.length);
+    const nav = page.locator("nav[aria-label='Site sections']");
+    await expect(nav).toBeVisible();
 
-    for (const copy of cardCopies) {
-      await expect(page.getByText(copy, { exact: false })).toBeVisible();
+    const links = nav.locator("a[href]");
+    await expect(links).toHaveCount(sectionLabels.length);
+
+    for (const label of sectionLabels) {
+      await expect(nav.getByRole("link", { name: label, exact: true })).toBeVisible();
     }
   });
 });

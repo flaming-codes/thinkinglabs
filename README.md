@@ -10,7 +10,7 @@ The important rule is simple: edit source files, then rebuild derived artifacts.
 - `src/schemas/` - per-kind Zod schemas and `KIND_SCHEMAS`, the shared schema registry.
 - `src/lib/registry.ts` - public metadata for each kind: routes, title/date fields, API exposure, MCP views, and feed participation.
 - `src/pages/` - Astro pages and one JSON endpoint per public kind.
-- `src/frontend/thinkinglabs-ui/` - Astro UI compositions, components, styles, and Storybook mock data.
+- `src/frontend/thinkinglabs-ui/` - Astro UI compositions, components, and styles.
 - `scripts/` - artifact builders, curation CLIs, background-agent entrypoints, and review tools.
 - `servers/thinkinglabs-mcp/` - local stdio MCP server.
 - `servers/thinkinglabs-mcp-http/` - Streamable HTTP MCP transport over the same server factory.
@@ -34,9 +34,10 @@ Useful commands:
 ```sh
 pnpm dev                 # Astro dev server
 pnpm build               # astro check + astro build + dist/index.sqlite
+pnpm clean               # remove build outputs only; preserves .cache/og-images
+pnpm clean:og-cache      # manually invalidate prerendered OG image cache
+pnpm clean:local         # clean build outputs and OG cache
 pnpm preview             # astro preview (local QA / Playwright only; not a prod server)
-pnpm storybook           # Storybook v10 UI review
-pnpm storybook:build     # static Storybook build
 
 pnpm artifacts           # offline brain-diff + site + feeds + llms.txt + index
 pnpm artifacts:scored    # same, but requires the active LLM provider key
@@ -54,6 +55,8 @@ pnpm mcp:thinkinglabs:http  # Streamable HTTP MCP server, default 127.0.0.1:8787
 ```
 
 `pnpm verify` is the normal local gate before publishing code changes. For content-only edits, `pnpm artifacts` is usually the useful rebuild because it refreshes the derived public artifacts as well as the site.
+
+Prerendered `/og/*.png` responses use a persistent local cache in `.cache/og-images`. `pnpm clean` intentionally preserves that cache because `pnpm build` calls `clean`; use `pnpm clean:og-cache` when you need to force OG image regeneration.
 
 ## Source model
 
@@ -140,23 +143,12 @@ pnpm mcp:thinkinglabs:http -- --repo-root /path/to/thinkinglabs
 
 The HTTP transport is stateless, uses raw `node:http`, enforces a 1 MiB body cap, includes DNS-rebinding/CORS controls, and exposes `GET /healthz` for load balancer probes. See `docs/agents/mcp-server.md` and `docs/agents/mcp-http-server.md` for the full resource and tool tables.
 
-## Frontend and Storybook
+## Frontend
 
-The production pages compose reusable Astro UI from `src/frontend/thinkinglabs-ui/`. Storybook stories live in `.storybook/stories/` and render the same UI-layer pieces used by the site.
+The production pages compose reusable Astro UI from `src/frontend/thinkinglabs-ui/`.
 
-- `src/frontend/thinkinglabs-ui/mocks/` keeps handoff-derived mock data separate from presentation.
 - `src/frontend/thinkinglabs-ui/components/` holds reusable primitives, including headers, confidence meters, status tags, and charts.
-- `src/frontend/thinkinglabs-ui/pages/` holds full-page compositions used by stories and routes.
-- `src/frontend/thinkinglabs-ui/storybook/` holds Storybook-only Astro fixtures that need scoped component CSS.
-
-Use Storybook when working on page composition, responsive typography, data display components, or route-level UI states:
-
-```sh
-pnpm storybook
-pnpm storybook:build
-```
-
-See `docs/agents/storybook.md` for setup details and Astro support caveats.
+- `src/frontend/thinkinglabs-ui/pages/` holds full-page compositions used by routes.
 
 Playwright coverage lives in `tests/e2e/` and runs through `pnpm test:e2e` or `pnpm verify:full`.
 

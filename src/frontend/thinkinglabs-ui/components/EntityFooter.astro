@@ -1,0 +1,39 @@
+---
+import DetailFooter from "./DetailFooter.astro";
+import type { DetailLinkGroup } from "./DetailFooter.astro";
+
+/** One resolved link inside an entity relation group. */
+export interface EntityRelationLink {
+  href: string;
+  title: string;
+  /** Optional trailing value (e.g. a claim confidence) shown muted after the title. */
+  value?: string;
+}
+
+/** A labelled group of related entities (e.g. "Claims", "Observations"). */
+export interface EntityRelationGroup {
+  label: string;
+  links: EntityRelationLink[];
+}
+
+interface Props {
+  /** Resolved relation groups; the footer is omitted when empty and no `aside` slot is present. */
+  relations?: EntityRelationGroup[] | undefined;
+}
+
+const { relations = [] } = Astro.props;
+
+const hasAside = Astro.slots.has("aside");
+const linkGroups: DetailLinkGroup[] = relations.map((group) => ({
+  label: group.label,
+  links: group.links.map((link) => ({
+    href: link.href,
+    label: link.title,
+    ...(link.value === undefined ? {} : { value: link.value }),
+  })),
+}));
+---
+
+<DetailFooter linkGroups={linkGroups}>
+  {hasAside && <slot name="aside" slot="aside" />}
+</DetailFooter>

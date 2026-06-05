@@ -1,0 +1,85 @@
+# CI workflow for Thinking Labs
+# Enforces the same quality gates as `pnpm verify` (fully offline, no LLM keys needed).
+# Deployment is handled by DigitalOcean App Platform, not Actions.
+
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  verify:
+    name: Verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Full history so build-time walkFileHistory (claim/thought confidence history) is complete.
+          fetch-depth: 0
+
+      # pnpm must be set up before setup-node so that the cache key is resolved correctly.
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          # Resolves to latest 22.x, satisfying the >=22.19.0 engine constraint.
+          node-version: "22"
+          cache: pnpm
+
+      # --frozen-lockfile ensures the install matches the committed lockfile exactly.
+      # Native deps (better-sqlite3, sharp, esbuild) are built automatically on ubuntu-latest
+      # via the pnpm.onlyBuiltDependencies list in package.json.
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Run the canonical local gate: clean, typecheck, vp check, build (with pre/post),
+      # structured-data check, and Vitest. This is the same as running `pnpm verify` locally.
+      - name: Run verify
+        run: pnpm verify
+
+  # E2E tests (Playwright + Chromium) are heavier and run separately so they do not
+  # block the main gate. This job is informational and can be skipped on forks or
+  # feature branches by removing the branch filter below.
+  e2e:
+    name: E2E tests (Playwright)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Only run E2E on pushes to main and on pull requests targeting main.
+    # Remove this if statement to run on every push.
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Full history so build-time walkFileHistory (claim/thought confidence history) is complete.
+          fetch-depth: 0
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright Chromium
+        run: pnpm setup:e2e
+
+      # pnpm test:e2e runs `pnpm build` internally before playwright test.
+      - name: Run E2E tests
+        run: pnpm test:e2e

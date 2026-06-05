@@ -1,5 +1,4 @@
-import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { join, relative } from "node:path";
 import { describe, expect, it } from "vite-plus/test";
 import { readThinkinglabsThemeColors } from "../src/lib/css-tokens.ts";
@@ -12,18 +11,27 @@ const SOURCE_GLOBS = [
   "src/styles",
 ] as const;
 const TOKEN_SOURCE = "src/frontend/thinkinglabs-ui/styles.css";
-const APPROVED_COLOR_SOURCES = new Set([
-  TOKEN_SOURCE,
-  "src/frontend/thinkinglabs-ui/entity-shader-presets.ts",
-]);
+const APPROVED_COLOR_SOURCES = new Set([TOKEN_SOURCE]);
+const SOURCE_EXTENSIONS = [".astro", ".css", ".ts", ".tsx"] as const;
 
-function rgFiles(): string[] {
-  return execFileSync("rg", ["--files", "-g", "*.{astro,css,ts,tsx}", ...SOURCE_GLOBS], {
-    cwd: process.cwd(),
-    encoding: "utf8",
-  })
-    .split("\n")
-    .filter(Boolean);
+/** Recursively list source files under SOURCE_GLOBS, returned as cwd-relative POSIX paths. */
+function sourceFiles(): string[] {
+  const root = process.cwd();
+  const files: string[] = [];
+  const walk = (dir: string): void => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const full = join(dir, entry.name);
+      if (entry.isDirectory()) {
+        walk(full);
+      } else if (entry.isFile() && SOURCE_EXTENSIONS.some((ext) => entry.name.endsWith(ext))) {
+        files.push(relative(root, full));
+      }
+    }
+  };
+  for (const glob of SOURCE_GLOBS) {
+    walk(join(root, glob));
+  }
+  return files;
 }
 
 function source(file: string): string {
@@ -67,7 +75,7 @@ describe("Thinkinglabs design tokens", () => {
   });
 
   it("does not reference undefined Thinkinglabs CSS variables", () => {
-    const files = rgFiles();
+    const files = sourceFiles();
     const definitions = new Set<string>();
     const references: Array<{ file: string; token: string }> = [];
 
@@ -86,7 +94,7 @@ describe("Thinkinglabs design tokens", () => {
   });
 
   it("keeps hard-coded UI colors in token or art-preset sources only", () => {
-    const offenders = rgFiles().flatMap((file) => {
+    const offenders = sourceFiles().flatMap((file) => {
       if (APPROVED_COLOR_SOURCES.has(file)) return [];
       const text = stripComments(source(file));
       const matches = [

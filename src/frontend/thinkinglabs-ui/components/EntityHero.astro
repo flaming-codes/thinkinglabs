@@ -1,0 +1,21 @@
+---
+import type { ImageMetadata } from "astro";
+import DetailHero from "./DetailHero.astro";
+import SiteNav from "./SiteNav.astro";
+
+interface Props {
+  /** Heading rendered in the hero overlay; also the default image alt. */
+  title: string;
+  /** Hero artwork; the scroll-driven nav badge reveal is timed against this image. */
+  heroImage: ImageMetadata;
+  /** Hero image alt text; defaults to the title. */
+  heroAlt?: string | undefined;
+}
+
+const { title, heroImage, heroAlt } = Astro.props;
+const hasNav = Astro.slots.has("nav");
+---
+
+<DetailHero title={title} heroImage={heroImage} heroAlt={heroAlt}>
+  {hasNav ? <slot name="nav" slot="nav" /> : <SiteNav slot="nav" />}
+</DetailHero>

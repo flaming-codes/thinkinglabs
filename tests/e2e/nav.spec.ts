@@ -1,12 +1,12 @@
 import { expect, test } from "@playwright/test";
 
-test.describe("top navigation", () => {
-  test("each top-nav link resolves to a 200 page with a heading", async ({ page }) => {
+test.describe("site index navigation", () => {
+  test("each section link resolves to a 200 page with a heading", async ({ page }) => {
     const root = await page.goto("/");
     expect(root, "navigation response").not.toBeNull();
     expect(root!.status()).toBe(200);
 
-    const links = page.locator("header[data-tl-nav] .tl-nav-rail a[href]");
+    const links = page.locator("nav[aria-label='Site sections'] a[href]");
     const count = await links.count();
     expect(count).toBeGreaterThan(0);
 
@@ -15,7 +15,7 @@ test.describe("top navigation", () => {
       allHrefs.push(await links.nth(i).getAttribute("href"));
     }
     const nonRelative = allHrefs.filter((h) => !(h && h.startsWith("/")));
-    expect(nonRelative, "every top-nav href is a site-relative path").toEqual([]);
+    expect(nonRelative, "every section href is a site-relative path").toEqual([]);
     const hrefs = allHrefs.filter((h): h is string => h !== null && h.startsWith("/"));
 
     for (const href of hrefs) {

@@ -1,5 +1,10 @@
 ---
-import AppShell from "../components/AppShell.astro";
+import { resolveEntityHero } from "../lib/entity-hero.ts";
+import EntityDetail from "../components/EntityDetail.astro";
+import type { EntityRelationGroup } from "../components/EntityDetail.astro";
+import EntityFacts from "../components/EntityFacts.astro";
+import type { EntityFact } from "../components/EntityFacts.astro";
+import EntitySection from "../components/EntitySection.astro";
 import type { InputDetail } from "../types";
 
 interface Props {
@@ -7,243 +12,89 @@ interface Props {
 }
 
 const { input } = Astro.props;
+const heroImage = resolveEntityHero("inputs", input.slug);
 
-const citationLabel =
-  input.citations.length === 1 ? "1 citation" : `${input.citations.length} citations`;
-const rereadLabel =
-  input.reread.length === 1 ? "1 re-read" : `${input.reread.length} re-reads`;
-const sourceLine = [input.by, input.year].filter((item) => item !== "—").join(" / ");
-const sourceLabel = sourceLine || input.url;
+const facts: EntityFact[] = [
+  { label: "By", value: input.by },
+  { label: "Kind", value: input.kind },
+  { label: "Year", value: input.year },
+];
+if (input.reread.length > 0) {
+  facts.push({ label: "Re-reads", value: String(input.reread.length) });
+}
+
+const relations: EntityRelationGroup[] = [];
+if (input.url) {
+  relations.push({
+    label: "Source",
+    links: [{ href: input.url, title: input.publisher !== "—" ? input.publisher : input.url }],
+  });
+}
+if (input.citations.length > 0) {
+  relations.push({
+    label: "Cited by",
+    links: input.citations.map((citation) => ({
+      href: citation.href ?? "#",
+      title: citation.title,
+      ...(citation.conf !== undefined
+        ? { value: citation.conf.toFixed(2) }
+        : citation.date
+          ? { value: citation.date }
+          : {}),
+    })),
+  });
+}
+
+const hasOneLine = input.oneLine.trim().length > 0 && input.oneLine !== input.takeaway;
+const hasMarginNotes = input.marginNotes.length > 0;
 ---
 
-<AppShell activeNav="Index">
-  <article class="tl-input-minimal" data-selected-label={input.title} data-entity="inputs">
-    <header class="tl-input-minimal-hero">
-      <h1>{input.title}</h1>
-      {sourceLabel && (
-        <p class="tl-input-minimal-source">
-          {input.url ? <a href={input.url}>{sourceLabel}</a> : sourceLabel}
-        </p>
-      )}
-    </header>
+<EntityDetail
+  title={input.title}
+  dates={[{ label: `read ${input.read}` }]}
+  heroImage={heroImage}
+  relations={relations}
+>
+  <EntityFacts slot="meta" facts={facts} />
 
-    <div class="tl-input-minimal-layout">
-      <aside class="tl-input-minimal-rail" aria-label="Input details">
-        <p>{input.slug}</p>
-        <p>read {input.read}</p>
-        <p>{citationLabel}</p>
-        {input.reread.length > 0 && <p>{rereadLabel}</p>}
-      </aside>
+  <p class="tl-takeaway">{input.takeaway}</p>
+  {hasOneLine && <p>{input.oneLine}</p>}
 
-      <main class="tl-input-minimal-main">
-        <section class="tl-input-minimal-takeaway" aria-label="Takeaway">
-          <p>{input.takeaway}</p>
-        </section>
-
-        {input.oneLine && input.oneLine !== input.takeaway && (
-          <section class="tl-input-minimal-note" aria-label="One-line summary">
-            <p>{input.oneLine}</p>
-          </section>
-        )}
-
-        {input.marginNotes.length > 0 && (
-          <section class="tl-input-minimal-list" aria-label="Margin notes">
-            <h2>Margin notes</h2>
-            <div>
-              {input.marginNotes.map((note) => (
-                <article>
-                  <span>{note.page}</span>
-                  <p>{note.text}</p>
-                </article>
-              ))}
+  {
+    hasMarginNotes && (
+      <Fragment slot="aside">
+        <EntitySection label="Margin notes">
+          {input.marginNotes.map((note) => (
+            <div class="tl-note">
+              <span class="opacity-50">{note.page}</span>
+              <span>{note.text}</span>
             </div>
-          </section>
-        )}
-
-        {input.citations.length > 0 && (
-          <section class="tl-input-minimal-list" aria-label="Citations">
-            <h2>Citations</h2>
-            <div>
-              {input.citations.map((citation) => (
-                <article>
-                  <span>{citation.kind}</span>
-                  <h3>
-                    {citation.href ? <a href={citation.href}>{citation.title}</a> : citation.title}
-                  </h3>
-                  {(citation.conf !== undefined || citation.date) && (
-                    <p>{citation.conf !== undefined ? citation.conf.toFixed(2) : citation.date}</p>
-                  )}
-                </article>
-              ))}
-            </div>
-          </section>
-        )}
-      </main>
-    </div>
-  </article>
-</AppShell>
+          ))}
+        </EntitySection>
+      </Fragment>
+    )
+  }
+</EntityDetail>
 
 <style>
-  .tl-input-minimal {
-    min-height: var(--tl-viewport-height);
-    padding: clamp(7rem, 15vh, 11rem) clamp(1.25rem, 5vw, 5rem)
-      clamp(6rem, 16vh, 12rem);
-    background: var(--tl-bg);
-    color: var(--tl-ink);
-  }
-
-  .tl-input-minimal-hero,
-  .tl-input-minimal-layout {
-    width: min(100%, 1040px);
-    margin-inline: auto;
-  }
-
-  .tl-input-minimal-hero {
-    display: grid;
-    gap: clamp(1.1rem, 3vw, 2rem);
-    min-height: clamp(24rem, 62vh, 43rem);
-    align-content: end;
-    padding-bottom: clamp(3rem, 10vh, 7rem);
-  }
-
-  .tl-input-minimal-hero h1 {
-    max-width: 16ch;
-    color: var(--tl-ink);
-    font-size: clamp(44px, 8vw, 104px);
-    font-weight: 590;
-    line-height: 0.94;
-    letter-spacing: 0;
-    overflow-wrap: anywhere;
-  }
-
-  .tl-input-minimal-source {
-    max-width: 34rem;
-    color: var(--tl-muted);
-    font-size: clamp(17px, 1.8vw, 23px);
-    line-height: 1.35;
-  }
-
-  .tl-input-minimal-layout {
-    display: grid;
-    grid-template-columns: minmax(8rem, 13rem) minmax(0, 42rem);
-    gap: clamp(3rem, 10vw, 9rem);
-    align-items: start;
-  }
-
-  .tl-input-minimal-rail {
-    position: sticky;
-    top: clamp(5rem, 12vh, 8rem);
-    display: grid;
-    gap: 1.15rem;
-    color: var(--tl-muted);
-    font-size: 13px;
-    line-height: 1.5;
-    overflow-wrap: anywhere;
-  }
-
-  .tl-input-minimal-main {
-    display: grid;
-    gap: clamp(4rem, 11vh, 8rem);
-    min-width: 0;
-  }
-
-  .tl-input-minimal-takeaway p {
-    max-width: 34rem;
-    color: var(--tl-ink);
-    font-size: clamp(24px, 3.5vw, 42px);
+  .tl-takeaway {
+    margin-block: 1.5em;
+    font-size: 1.5rem;
     font-weight: 520;
-    line-height: 1.08;
-    letter-spacing: 0;
+    line-height: 1.2;
   }
 
-  .tl-input-minimal-note {
-    max-width: 36rem;
-    color: var(--tl-prose-ink);
-    font-size: clamp(17px, 1.55vw, 20px);
-    line-height: 1.7;
-  }
-
-  .tl-input-minimal-list {
+  .tl-note {
     display: grid;
-    grid-template-columns: minmax(6rem, 8rem) minmax(0, 1fr);
-    gap: clamp(1.5rem, 4vw, 3rem);
-    align-items: start;
+    grid-template-columns: 4rem minmax(0, 1fr);
+    gap: 1rem;
+    align-items: baseline;
   }
 
-  .tl-input-minimal-list h2 {
-    color: var(--tl-muted);
-    font-size: 15px;
-    font-weight: 500;
-    line-height: 1.35;
-    letter-spacing: 0;
-  }
-
-  .tl-input-minimal-list > div {
-    display: grid;
-    gap: clamp(1.5rem, 4vh, 2.5rem);
-  }
-
-  .tl-input-minimal-list article {
-    display: grid;
-    gap: 0.55rem;
-  }
-
-  .tl-input-minimal-list span,
-  .tl-input-minimal-list article > p {
-    color: var(--tl-muted);
-    font-size: 13px;
-    line-height: 1.4;
-  }
-
-  .tl-input-minimal-list h3,
-  .tl-input-minimal-list article > p:first-child {
-    max-width: 34rem;
-    color: var(--tl-ink);
-    font-size: clamp(20px, 2.4vw, 30px);
-    font-weight: 500;
-    line-height: 1.14;
-    letter-spacing: 0;
-  }
-
-  .tl-input-minimal-list a {
-    color: inherit;
-    text-decoration: underline;
-    text-decoration-thickness: 0.08em;
-    text-underline-offset: 0.18em;
-  }
-
-  @media (max-width: 767px) {
-    .tl-input-minimal {
-      padding: 5rem 16px 4rem;
-    }
-
-    .tl-input-minimal-hero {
-      min-height: 74vh;
-      padding-bottom: 3.5rem;
-    }
-
-    .tl-input-minimal-hero h1 {
-      font-size: clamp(38px, 13vw, 58px);
-      line-height: 0.96;
-    }
-
-    .tl-input-minimal-layout {
+  @media (max-width: 640px) {
+    .tl-note {
       grid-template-columns: 1fr;
-      gap: 3.5rem;
-    }
-
-    .tl-input-minimal-rail {
-      position: static;
-      max-width: 24rem;
-    }
-
-    .tl-input-minimal-main {
-      gap: 4rem;
-    }
-
-    .tl-input-minimal-list {
-      grid-template-columns: 1fr;
-      gap: 1rem;
+      gap: 0.25rem;
     }
   }
 </style>

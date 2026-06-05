@@ -1,0 +1,61 @@
+---
+import type { ImageMetadata } from "astro";
+import { Image } from "astro:assets";
+import PageShell from "./PageShell.astro";
+import SiteNav from "./SiteNav.astro";
+
+interface Props {
+  /** Heading pinned over the hero image. */
+  title: string;
+  /** Resolves `<heroSlug>-hero.png`, falling back to the generic `hero.png`. */
+  heroSlug?: string | undefined;
+}
+
+const { title, heroSlug } = Astro.props;
+
+// Per-surface hero artwork: `<slug>-hero.png` when present, otherwise the
+// generic `hero.png`. Eager glob so Astro can resolve and optimise the image.
+const heroes = import.meta.glob<{ default: ImageMetadata }>("../../../assets/*.png", { eager: true });
+const heroImage = (
+  (heroSlug ? heroes[`../../../assets/${heroSlug}-hero.png`] : undefined) ?? heroes["../../../assets/hero.png"]
+)?.default;
+---
+
+{/*
+  Shared home/listing/now scaffold. On md+ the hero image is fixed to the left
+  half with the title pinned vertically centered, while the content column
+  scrolls in the right half. On mobile the hero collapses to a full-width banner
+  in normal flow and the content stacks full-width beneath it.
+*/}
+<PageShell class="pb-2!">
+  <SiteNav />
+
+  <div class="relative h-[55vh] w-full p-2 pointer-events-none md:fixed md:inset-0 md:h-auto md:w-auto">
+    {
+      heroImage ? (
+        <Image
+          src={heroImage}
+          alt=""
+          widths={[480, 768, 1024, 1280, 1600, 2048]}
+          sizes="(min-width: 768px) 50vw, 100vw"
+          format="webp"
+          quality={80}
+          class="h-full w-full object-cover md:w-1/2"
+          aria-hidden="true"
+        />
+      ) : null
+    }
+    <h1 class="absolute left-4 bottom-4 text-gray-50 md:bottom-auto md:top-1/2 md:-translate-y-1/2">
+      {title}
+    </h1>
+  </div>
+
+  <div class="relative flex w-full flex-col px-2 text-xs md:ml-auto md:min-h-dvh md:w-1/2 md:items-end">
+    <div class="flex max-w-xs flex-col justify-center gap-6 py-12 md:h-dvh md:py-0">
+      <slot name="deck" />
+    </div>
+    <div class="flex w-full max-w-md flex-col gap-16 self-start pb-16">
+      <slot />
+    </div>
+  </div>
+</PageShell>

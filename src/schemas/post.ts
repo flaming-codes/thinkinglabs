@@ -1,17 +1,19 @@
 import { z } from "zod";
 import { isoDate, linkArray, tagsField } from "./_base.ts";
 
-/** Long-form evergreen writing; per-section freshness lives in the body markdown, not frontmatter. */
-export const postSchema = z.object({
-  title: z.string().min(1),
-  created: isoDate,
-  updated: isoDate,
-  summary: z.string().optional(),
-  related_claims: linkArray.default([]),
-  related_thoughts: linkArray.default([]),
-  inputs: linkArray.default([]),
-  tags: tagsField,
-});
+/** Long-form evergreen writing; per-section freshness lives in the body markdown, not frontmatter, and strict keys turn a typo'd field into a build error. */
+export const postSchema = z
+  .object({
+    title: z.string().min(1),
+    created: isoDate,
+    updated: isoDate,
+    summary: z.string().optional(),
+    related_claims: linkArray.default([]),
+    related_thoughts: linkArray.default([]),
+    inputs: linkArray.default([]),
+    tags: tagsField,
+  })
+  .strict();
 
 /** Inferred frontmatter type for post entries. */
 export type Post = z.infer<typeof postSchema>;

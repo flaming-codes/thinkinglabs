@@ -12,12 +12,15 @@ const RESOLVED_PAST = "2026-01-01";
 /** Future resolve date. */
 const RESOLVED_FUTURE = "2027-01-01";
 
-/** Write a minimal prediction file; returns the path. */
+/** Write a minimal prediction file; resolved fixtures carry resolved_on/resolution_note so they satisfy the schema's resolution coupling. */
 function writePrediction(dir: string, slug: string, resolution: string, resolves: string): string {
   const path = join(dir, `${slug}.md`);
+  const resolved = resolution !== "pending";
+  const resolvedOn = resolved ? `"${resolves}"` : "null";
+  const resolutionNote = resolved ? `"Resolved as ${resolution}."` : "null";
   writeFileSync(
     path,
-    `---\nprediction: "Test prediction for ${slug}."\nmade: 2025-01-01\nresolves: ${resolves}\nconfidence: 0.7\nresolution: "${resolution}"\nresolved_on: null\nresolution_note: null\nevidence_at_time: []\ntags: []\n---\nBody.\n`,
+    `---\nprediction: "Test prediction for ${slug}."\nmade: 2025-01-01\nresolves: ${resolves}\nconfidence: 0.7\nresolution: "${resolution}"\nresolved_on: ${resolvedOn}\nresolution_note: ${resolutionNote}\nevidence_at_time: []\ntags: []\n---\nBody.\n`,
     "utf8",
   );
   return path;

@@ -9,7 +9,7 @@
         "cursor": "09bfcc6a14b83e2192b8673677725c84883ee9cd0c70e45c9ec09daa8f2b2847"
       },
       "registry": "local",
-      "sourceSha256": "2db188cc99283b3391606f22460c5b496d65b1fe19cd3ff2bc9d4ad8e3418b09",
+      "sourceSha256": "6dee73cbc56e7ef74ac51c66f8e6b22f98ed6352b2aae1dd5e68d472a6187d9c",
       "type": "prompt"
     },
     {
@@ -23,7 +23,7 @@
       "id": "codex",
       "overrideSha256ByProvider": {},
       "registry": "local",
-      "sourceSha256": "9e173afac73b166b2a8a288fc51a93a8c65afca9b6aeb56eaf708a29ad397042",
+      "sourceSha256": "842899f40ac916d4c0ee5b3ee94e77429aa022ad5d9b29ce09fac20b227218d1",
       "type": "settings"
     },
     {
@@ -58,7 +58,7 @@
       "type": "skill"
     }
   ],
-  "generatedAt": "2026-06-02T20:32:05.649Z",
+  "generatedAt": "2026-06-04T20:35:23.325Z",
   "manifestFingerprint": "08271ae81ad8da9b86a8f55bcf22ad29632c0b1c070647db7ab79dbd79bce709",
   "outputs": [
     {
@@ -86,7 +86,7 @@
       "provider": "claude"
     },
     {
-      "contentSha256": "debe6d339037c6f9668122f3d2bdaaa0369ff3d35a3d06b6a6c861c3a894e78b",
+      "contentSha256": "7c260e94f67461c7199d385c259fad1b9165371572a06d99a12e5926f9fb1168",
       "ownerEntityIds": [
         "codex"
       ],
@@ -110,7 +110,7 @@
       "provider": "codex"
     },
     {
-      "contentSha256": "2db188cc99283b3391606f22460c5b496d65b1fe19cd3ff2bc9d4ad8e3418b09",
+      "contentSha256": "6dee73cbc56e7ef74ac51c66f8e6b22f98ed6352b2aae1dd5e68d472a6187d9c",
       "ownerEntityIds": [
         "system"
       ],
@@ -142,7 +142,7 @@
       "provider": "copilot"
     },
     {
-      "contentSha256": "2db188cc99283b3391606f22460c5b496d65b1fe19cd3ff2bc9d4ad8e3418b09",
+      "contentSha256": "6dee73cbc56e7ef74ac51c66f8e6b22f98ed6352b2aae1dd5e68d472a6187d9c",
       "ownerEntityIds": [
         "system"
       ],
@@ -150,7 +150,7 @@
       "provider": "codex"
     },
     {
-      "contentSha256": "2db188cc99283b3391606f22460c5b496d65b1fe19cd3ff2bc9d4ad8e3418b09",
+      "contentSha256": "6dee73cbc56e7ef74ac51c66f8e6b22f98ed6352b2aae1dd5e68d472a6187d9c",
       "ownerEntityIds": [
         "system"
       ],

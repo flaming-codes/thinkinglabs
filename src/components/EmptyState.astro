@@ -1,8 +1,0 @@
----
-/** Single empty-state primitive; the message is the only thing that varies between kinds. */
-interface Props {
-  message?: string;
-}
-const { message = "no items yet" } = Astro.props;
----
-<p class="empty">{message}</p>

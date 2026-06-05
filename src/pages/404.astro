@@ -1,5 +1,6 @@
 ---
-import AppShell from "../frontend/thinkinglabs-ui/components/AppShell.astro";
+import heroImage from "@/assets/error.png";
+import DetailPage from "../frontend/thinkinglabs-ui/components/DetailPage.astro";
 import ThinkinglabsUiPage from "../layouts/ThinkinglabsUiPage.astro";
 ---
 
@@ -7,59 +8,19 @@ import ThinkinglabsUiPage from "../layouts/ThinkinglabsUiPage.astro";
   title="Not found — thinkinglabs"
   description="That page does not exist on thinkinglabs."
   robots="noindex"
+  allowScroll
 >
-  <AppShell activeNav="Index">
-    <section class="tl-page-head is-spacious">
-      <p class="tl-mono">404</p>
-      <h1>Not found.</h1>
-    </section>
-
-    <article class="tl-error-prose tl-prose-body">
-      <p class="tl-error-lede">This page is missing.</p>
-
-      <p>
-        The URL you followed does not match anything in the source tree. Pages here are generated
-        from a public markdown repository, so links break when files are renamed, retired, or
-        merged into something else.
-      </p>
-
-      <p class="tl-error-actions">
-        <a href="/">Back to the index</a>
-      </p>
-    </article>
-  </AppShell>
+  <DetailPage
+    title="Not found"
+    heroAlt="Page not found"
+    heroImage={heroImage}
+    metadata={[{ label: "Error 404" }]}
+  >
+    <p>
+      The URL you followed does not match anything in the source tree. Pages
+      here are generated from a public markdown repository, so links break when
+      files are renamed, retired, or merged into something else.
+    </p>
+    <p><a class="tl-token-link" href="/">Back to the index</a></p>
+  </DetailPage>
 </ThinkinglabsUiPage>
-
-<style>
-  .tl-error-prose {
-    width: var(--tl-center);
-    margin: -4vh auto 18vh;
-  }
-
-  .tl-error-lede {
-    max-width: 15ch;
-    color: var(--tl-ink);
-    font-size: var(--tl-type-display-lg);
-    font-weight: var(--tl-type-heading-weight);
-    line-height: 0.96;
-    letter-spacing: var(--tl-type-track-tight);
-  }
-
-  .tl-error-prose a {
-    color: inherit;
-    text-decoration: underline;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 4px;
-  }
-
-  .tl-error-actions {
-    margin-top: clamp(2.5rem, 6vh, 4rem);
-  }
-
-  @media (max-width: 767px) {
-    .tl-error-prose {
-      width: min(100% - 40px, var(--tl-layout-center));
-      margin-top: -2vh;
-    }
-  }
-</style>

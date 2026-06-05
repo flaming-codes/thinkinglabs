@@ -119,6 +119,14 @@ function init(): void {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setSize(width, height);
   renderer.setClearColor(graphBg, 1);
+  /** Give the canvas an accessible name, role, and keyboard reachability so assistive technology announces a labeled interactive region; node-level navigation is not implemented, so the noscript list and legend remain the text alternative pointed to via aria-describedby. */
+  renderer.domElement.tabIndex = 0;
+  renderer.domElement.setAttribute("role", "application");
+  renderer.domElement.setAttribute("aria-label", "Interactive 3D knowledge graph");
+  const fallbackDescription = root.querySelector<HTMLElement>("[data-graph-description]");
+  if (fallbackDescription?.id) {
+    renderer.domElement.setAttribute("aria-describedby", fallbackDescription.id);
+  }
   root.appendChild(renderer.domElement);
 
   const hoverLabel = root.querySelector<HTMLElement>("[data-graph-hover-label]");
@@ -250,7 +258,9 @@ function init(): void {
     renderer.domElement.style.cursor = hovered ? "pointer" : "grab";
   });
 
-  let driftEnabled = true;
+  /** Respect reduced-motion by skipping the continuous camera auto-orbit for users who opt out of motion; the scene still renders and stays drag/zoom interactive, only the unattended drift is suppressed. */
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let driftEnabled = !prefersReducedMotion;
   controls.addEventListener("start", () => {
     driftEnabled = false;
   });

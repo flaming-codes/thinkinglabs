@@ -1,5 +1,6 @@
-import { execFile, execFileSync } from "node:child_process";
+import { execFile, execFileSync, spawnSync } from "node:child_process";
 import { statSync } from "node:fs";
+import { relative } from "node:path";
 import { promisify } from "node:util";
 
 const exec = promisify(execFile);
@@ -81,6 +82,78 @@ export function resolvedLastTouchedSync(filePath: string, cwd: string): string |
   return lastTouchedSync(filePath, cwd) ?? fileMtimeISO(filePath);
 }
 
+/** ASCII record separator (0x1E) chosen to never collide with commit dates or path bytes, so one log pass parses unambiguously. */
+const LOG_RECORD_SEP = String.fromCharCode(0x1e);
+
+/** One `git log --name-only` pass building repo-relative-path -> latest commit ISO date; mirrors per-file `git log -1` without rename following. */
+function lastTouchedMap(cwd: string, scopePaths: ReadonlyArray<string>): Map<string, string> {
+  const map = new Map<string, string>();
+  if (!isInsideWorkTree(cwd)) return map;
+  let out: string;
+  try {
+    out = execFileSync(
+      "git",
+      [
+        "-c",
+        "core.quotePath=false",
+        "log",
+        "--name-only",
+        `--format=${LOG_RECORD_SEP}%cI`,
+        "--",
+        ...scopePaths,
+      ],
+      { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], maxBuffer: 1024 * 1024 * 256 },
+    );
+  } catch {
+    return map;
+  }
+  for (const record of out.split(LOG_RECORD_SEP)) {
+    const newline = record.indexOf("\n");
+    const iso = (newline === -1 ? record : record.slice(0, newline)).trim();
+    if (iso.length === 0) continue;
+    if (newline === -1) continue;
+    for (const line of record.slice(newline + 1).split("\n")) {
+      const path = line.trim();
+      if (path.length === 0) continue;
+      if (!map.has(path)) map.set(path, iso);
+    }
+  }
+  return map;
+}
+
+/** Batched sync last_touched for many files in one git process; returns git date or null per path, leaving the mtime fallback to the consumer. */
+export function lastTouchedSyncBatch(
+  filePaths: ReadonlyArray<string>,
+  cwd: string,
+): Map<string, string | null> {
+  const result = new Map<string, string | null>();
+  if (filePaths.length === 0) return result;
+  const relByAbs = new Map<string, string>();
+  for (const filePath of filePaths) {
+    relByAbs.set(filePath, relative(cwd, filePath).replaceAll("\\", "/"));
+  }
+  const scope = [...new Set(relByAbs.values())].sort();
+  const dateByRel = lastTouchedMap(cwd, scope);
+  for (const filePath of filePaths) {
+    const rel = relByAbs.get(filePath)!;
+    result.set(filePath, dateByRel.get(rel) ?? null);
+  }
+  return result;
+}
+
+/** Batched canonical last_touched for build-time callers: git date when available, otherwise filesystem mtime, in one git pass. */
+export function resolvedLastTouchedSyncBatch(
+  filePaths: ReadonlyArray<string>,
+  cwd: string,
+): Map<string, string | null> {
+  const gitDates = lastTouchedSyncBatch(filePaths, cwd);
+  const result = new Map<string, string | null>();
+  for (const filePath of filePaths) {
+    result.set(filePath, gitDates.get(filePath) ?? fileMtimeISO(filePath));
+  }
+  return result;
+}
+
 /** Run `git` with the given args from `cwd`; returns stdout and lets non-zero exits throw. */
 export function git(args: ReadonlyArray<string>, cwd: string): string {
   return execFileSync("git", args as string[], {
@@ -112,6 +185,48 @@ export interface FileHistoryEntry {
   readonly subject?: string;
 }
 
+/** Commit metadata parsed from the single `git log` pass, before blob content is attached. */
+interface CommitMeta {
+  readonly sha: string;
+  readonly isoDate: string;
+  readonly subject: string;
+}
+
+/** Resolve `<sha>:<path>` blobs for every commit in one `git cat-file --batch` process; returns content per index or null where the path was absent. */
+function batchBlobContents(
+  cwd: string,
+  commits: ReadonlyArray<CommitMeta>,
+  repoRelativePath: string,
+): ReadonlyArray<string | null> {
+  const input = `${commits.map((c) => `${c.sha}:${repoRelativePath}`).join("\n")}\n`;
+  const result = spawnSync("git", ["cat-file", "--batch"], {
+    cwd,
+    input: Buffer.from(input, "utf8"),
+    maxBuffer: 1024 * 1024 * 256,
+  });
+  if (result.status !== 0 || !result.stdout) return commits.map(() => null);
+  const stdout = result.stdout;
+  const contents: Array<string | null> = [];
+  const decoder = new TextDecoder();
+  let offset = 0;
+  while (offset < stdout.length && contents.length < commits.length) {
+    const headerEnd = stdout.indexOf(0x0a, offset);
+    if (headerEnd === -1) break;
+    const header = decoder.decode(stdout.subarray(offset, headerEnd));
+    offset = headerEnd + 1;
+    if (header.endsWith(" missing")) {
+      contents.push(null);
+      continue;
+    }
+    const size = Number.parseInt(header.slice(header.lastIndexOf(" ") + 1), 10);
+    if (!Number.isFinite(size)) break;
+    contents.push(decoder.decode(stdout.subarray(offset, offset + size)));
+    offset += size + 1;
+  }
+  while (contents.length < commits.length) contents.push(null);
+  return contents;
+}
+
 /** Walk every commit that touched `repoRelativePath`, oldest-first; returns [] on any git error so new/untracked files are silent. */
 export function walkFileHistory(
   cwd: string,
@@ -128,17 +243,24 @@ export function walkFileHistory(
     return [];
   }
   if (!log) return [];
-  const entries: FileHistoryEntry[] = [];
+  const commits: CommitMeta[] = [];
   for (const line of log.split("\n")) {
     const first = line.indexOf("\t");
     if (first === -1) continue;
     const second = line.indexOf("\t", first + 1);
     if (second === -1) continue;
-    const sha = line.slice(0, first).trim();
-    const isoDate = line.slice(first + 1, second).trim();
-    const subject = line.slice(second + 1).trim();
-    const content = showAt(cwd, sha, repoRelativePath);
-    if (content === null) continue;
+    commits.push({
+      sha: line.slice(0, first).trim(),
+      isoDate: line.slice(first + 1, second).trim(),
+      subject: line.slice(second + 1).trim(),
+    });
+  }
+  const contents = batchBlobContents(cwd, commits, repoRelativePath);
+  const entries: FileHistoryEntry[] = [];
+  for (let i = 0; i < commits.length; i++) {
+    const content = contents[i];
+    if (content === null || content === undefined) continue;
+    const { sha, isoDate, subject } = commits[i]!;
     const entry: FileHistoryEntry = subject
       ? { sha, isoDate, content, subject }
       : { sha, isoDate, content };

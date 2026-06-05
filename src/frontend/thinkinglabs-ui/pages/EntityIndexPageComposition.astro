@@ -1,5 +1,5 @@
 ---
-import AppShell from "../components/AppShell.astro";
+import HalfHeroLayout from "../components/HalfHeroLayout.astro";
 import type { EntityIndexPage } from "../types";
 
 interface Props {
@@ -7,414 +7,80 @@ interface Props {
 }
 
 const { page } = Astro.props;
-
-function rowFact(item: string): { label: string; value: string } {
-  const labelled = item.match(/^(would resolve|status|reviewed|touched|read|held|resolves|resolved|started|last|was)\s*:?\s+(.+)$/i);
-  if (labelled?.[1] && labelled[2]) return { label: labelled[1], value: labelled[2] };
-
-  if (/^(active|deprecated|superseded|settled|drafting|still thinking|standing|reversed|archived|alive|dormant)$/i.test(item)) {
-    return { label: "state", value: item };
-  }
-
-  const counted = item.match(/^([\d,.]+(?:\/\d+)?)\s+(.+)$/);
-  if (counted?.[1] && counted[2]) {
-    const label =
-      {
-        d: "days",
-        ev: "evidence",
-        min: "read",
-        opp: "opposing",
-      }[counted[2]] ?? counted[2];
-    return { label, value: counted[1] };
-  }
-
-  if (item === "open") return { label: "status", value: item };
-
-  return { label: "detail", value: item };
-}
 ---
 
-<AppShell activeNav="Index">
-  <section class="tl-entity-page" data-selected-label={page.title}>
-    <article class="tl-entity-document">
-      <div class="tl-entity-visual" data-entity={page.slug} aria-hidden="true"></div>
+<HalfHeroLayout title={page.title} heroSlug={page.slug}>
+  <Fragment slot="deck">
+    <p>{page.deck}</p>
 
-      <header class="tl-entity-head">
-        <h1>{page.title}</h1>
-        <p class="tl-entity-deck">{page.deck}</p>
-
-        <dl class="tl-entity-stats">
+    {
+      page.stats.length > 0 ? (
+        <dl class="flex flex-wrap gap-x-6 gap-y-3">
           {page.stats.map((stat) => (
-            <div>
-              <dt>{stat.label}</dt>
-              <dd>{stat.value}</dd>
-              <small>{stat.sub}</small>
+            <div class="flex flex-col gap-0.5">
+              <dt class="text-[9px] font-semibold uppercase tracking-[0.14em]">{stat.label}</dt>
+              <dd class="m-0">{stat.value}</dd>
+              <small class="text-[10px] opacity-60">{stat.sub}</small>
             </div>
           ))}
         </dl>
-      </header>
+      ) : null
+    }
+  </Fragment>
 
-      <div class="tl-entity-body">
-        {page.sections.map((section) => {
-          const rows = section.rows ?? [];
-          const hasBody = Boolean(section.body?.length);
-          return (
-            <section class="tl-entity-section">
-              <header>
-                <span>{section.label}</span>
-                <h2>{section.title}</h2>
-              </header>
+  {
+    page.sections.map((section) => {
+      const rows = section.rows ?? [];
+      const hasBody = Boolean(section.body?.length);
+      return (
+        <section class="flex flex-col gap-6">
+          <header class="flex flex-col gap-1">
+            <span class="text-[9px] font-semibold uppercase tracking-[0.14em]">{section.label}</span>
+            <h2 class="opacity-70">{section.title}</h2>
+          </header>
 
-              <div class="tl-entity-list">
-                {hasBody ? (
-                  <div class="tl-entity-section-body">
-                    {section.body?.map((paragraph) => <p>{paragraph}</p>)}
+          {hasBody ? (
+            <div class="flex flex-col gap-2 opacity-70">
+              {section.body?.map((paragraph) => <p>{paragraph}</p>)}
+            </div>
+          ) : null}
+
+          {rows.length > 0 ? (
+            <ul class="flex flex-col gap-7">
+              {rows.map((row) => (
+                <li class="flex flex-col gap-1">
+                  <div class="flex items-baseline justify-between gap-4">
+                    <span class="text-[9px] font-semibold uppercase tracking-[0.14em] opacity-40">{row.kicker}</span>
+                    {row.value ? (
+                      <span class="opacity-60">
+                        {row.value}
+                        {row.valueLabel ? ` ${row.valueLabel}` : ""}
+                      </span>
+                    ) : null}
                   </div>
-                ) : null}
-                {rows.length > 0 ? (
-                  rows.map((row) => {
-                    const facts = row.meta?.map(rowFact) ?? [];
-                    return (
-                      <article class="tl-entity-row">
-                        <div class="tl-entity-row-shell">
-                          <div class="tl-entity-row-main">
-                            <div class="tl-entity-row-kicker">{row.kicker}</div>
-                            <h3>{row.href ? <a href={row.href}>{row.title}</a> : row.title}</h3>
-                            {row.summary ? <p>{row.summary}</p> : null}
-                          </div>
-
-                          {row.value ? (
-                            <dl class="tl-entity-row-value">
-                              <dt>{row.valueLabel ?? "value"}</dt>
-                              <dd>{row.value}</dd>
-                            </dl>
-                          ) : null}
-                        </div>
-
-                        {facts.length > 0 ? (
-                          <dl class="tl-entity-row-facts">
-                            {facts.map((fact) => (
-                              <div>
-                                <dt>{fact.label}</dt>
-                                <dd>{fact.value}</dd>
-                              </div>
-                            ))}
-                          </dl>
-                        ) : null}
-                      </article>
-                    );
-                  })
-                ) : !hasBody ? (
-                  <p class="tl-entity-empty">Nothing filed here yet.</p>
-                ) : null}
-              </div>
-            </section>
-          );
-        })}
-
-        {page.footer ? <footer class="tl-entity-footer">{page.footer}</footer> : null}
-      </div>
-    </article>
-  </section>
-</AppShell>
-
-<style>
-  .tl-entity-page {
-    min-height: var(--tl-viewport-height);
-    padding:
-      clamp(5.75rem, 10vh, 8rem)
-      var(--tl-ui-right)
-      max(clamp(4rem, 9vh, 7rem), var(--tl-safe-bottom))
-      var(--tl-ui-left);
-    background: var(--tl-bg);
-    color: var(--tl-ink);
+                  <h3 class="m-0">
+                    {row.href ? (
+                      <a href={row.href} class="no-underline">
+                        {row.title}
+                      </a>
+                    ) : (
+                      row.title
+                    )}
+                  </h3>
+                  {row.summary ? <p class="opacity-70">{row.summary}</p> : null}
+                  {row.meta?.length ? (
+                    <p class="text-[9px] font-semibold uppercase tracking-[0.14em] opacity-40">{row.meta.join(" · ")}</p>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          ) : !hasBody ? (
+            <p class="opacity-50">Nothing filed here yet.</p>
+          ) : null}
+        </section>
+      );
+    })
   }
 
-  .tl-entity-document {
-    display: grid;
-    gap: clamp(1.25rem, 3.2vw, 2.5rem);
-    align-items: start;
-    width: min(100%, 920px);
-    margin: 0 auto;
-  }
-
-  .tl-entity-visual {
-    position: relative;
-    overflow: hidden;
-    width: 100%;
-    min-height: clamp(19rem, 45vh, 34rem);
-    background: var(--tl-entity-gradient-luster), var(--tl-entity-gradient);
-    background-blend-mode: var(--tl-entity-gradient-blend);
-  }
-
-  .tl-entity-visual::before {
-    position: absolute;
-    inset: -18%;
-    background: var(--tl-entity-gradient-luster), var(--tl-entity-gradient);
-    background-blend-mode: var(--tl-entity-gradient-blend);
-    content: "";
-    transform: rotate(-4deg) scale(1.08);
-    transform-origin: var(--tl-gradient-origin, 50% 50%);
-    animation: tl-entity-gradient-drift var(--tl-gradient-duration, 28s) ease-in-out infinite
-      alternate;
-  }
-
-  @keyframes tl-entity-gradient-drift {
-    0% {
-      transform: rotate(-4deg) scale(1.08) translate3d(-0.25%, -0.2%, 0);
-    }
-
-    50% {
-      transform: rotate(-1.6deg) scale(1.095) translate3d(0.25%, 0.35%, 0);
-    }
-
-    100% {
-      transform: rotate(-6deg) scale(1.09) translate3d(0.35%, -0.15%, 0);
-    }
-  }
-
-
-  .tl-entity-head {
-    display: grid;
-    gap: 12px;
-    max-width: 38rem;
-    padding-top: clamp(1.75rem, 4vw, 3rem);
-  }
-
-  .tl-entity-head h1 {
-    font-size: clamp(20px, 2.1vw, 29px);
-    font-weight: 560;
-    line-height: 1.08;
-    letter-spacing: -0.018em;
-  }
-
-  .tl-entity-deck,
-  .tl-entity-row-main p,
-  .tl-entity-footer {
-    color: var(--tl-muted);
-    font-size: 12px;
-    line-height: 1.7;
-  }
-
-  .tl-entity-stats {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.65rem 1.35rem;
-    align-items: start;
-    margin: 0;
-    padding-top: clamp(1.25rem, 4vh, 2.5rem);
-  }
-
-  .tl-entity-stats div {
-    display: grid;
-    gap: 0.3rem;
-    min-width: min(100%, 7.5rem);
-  }
-
-  .tl-entity-stats dt,
-  .tl-entity-section header span,
-  .tl-entity-row-kicker,
-  .tl-entity-row-value dt,
-  .tl-entity-row-facts dt {
-    color: var(--tl-muted);
-    font-size: 9px;
-    font-weight: 620;
-    line-height: 1.1;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-  }
-
-  .tl-entity-stats dd {
-    margin: 0;
-    font-size: 13px;
-    font-weight: 560;
-    line-height: 1.1;
-    letter-spacing: 0;
-  }
-
-  .tl-entity-stats small {
-    color: var(--tl-subtle);
-    font-size: 10px;
-    font-weight: 500;
-    line-height: 1.35;
-    letter-spacing: 0;
-    text-transform: none;
-  }
-
-  .tl-entity-body {
-    display: grid;
-    gap: clamp(4rem, 11vh, 7.5rem);
-    width: min(100%, 760px);
-    padding-top: clamp(4.5rem, 13vh, 8rem);
-  }
-
-  .tl-entity-section {
-    display: grid;
-    gap: clamp(1.6rem, 5vw, 3rem);
-  }
-
-  .tl-entity-section header {
-    display: grid;
-    gap: 0.55rem;
-    max-width: 20rem;
-    padding: 0;
-  }
-
-  .tl-entity-section h2 {
-    color: var(--tl-prose-soft);
-    font-size: 12px;
-    font-weight: 520;
-    line-height: 1.35;
-    letter-spacing: 0;
-  }
-
-  .tl-entity-list {
-    display: grid;
-    gap: clamp(2.35rem, 6vh, 4.25rem);
-    max-width: 42rem;
-  }
-
-  .tl-entity-row {
-    display: grid;
-    gap: clamp(0.65rem, 1.4vw, 0.95rem);
-  }
-
-  .tl-entity-row-shell {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) max-content;
-    gap: clamp(1rem, 4vw, 3rem);
-    align-items: start;
-  }
-
-  .tl-entity-row-main h3 {
-    max-width: 38rem;
-    font-size: clamp(13px, 1.25vw, 16px);
-    font-weight: 540;
-    line-height: 1.35;
-    letter-spacing: 0;
-  }
-
-  .tl-entity-row-main h3 a {
-    color: inherit;
-    text-decoration: none;
-  }
-
-  .tl-entity-row-main h3 a:hover {
-    color: var(--tl-muted);
-  }
-
-  .tl-entity-row-main p {
-    max-width: 56ch;
-    margin-top: 7px;
-  }
-
-  .tl-entity-section-body {
-    display: grid;
-    gap: 0.75rem;
-    max-width: 56ch;
-  }
-
-  .tl-entity-section-body p {
-    color: var(--tl-muted);
-    font-size: 12px;
-    line-height: 1.7;
-  }
-
-  .tl-entity-row-value,
-  .tl-entity-row-facts {
-    margin: 0;
-  }
-
-  .tl-entity-row-value {
-    display: grid;
-    gap: 0.35rem;
-    min-width: 4.5rem;
-    text-align: right;
-  }
-
-  .tl-entity-row-value dd {
-    margin: 0;
-    color: var(--tl-ink);
-    font-size: clamp(13px, 1.2vw, 16px);
-    font-weight: 620;
-    line-height: 1;
-    letter-spacing: 0;
-  }
-
-  .tl-entity-row-facts {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.7rem 1rem;
-    align-items: start;
-    max-width: 36rem;
-  }
-
-  .tl-entity-row-facts div {
-    display: grid;
-    gap: 0.25rem;
-    min-width: 3.8rem;
-  }
-
-  .tl-entity-row-facts dd {
-    margin: 0;
-    color: var(--tl-muted);
-    font-size: 10px;
-    font-weight: 520;
-    line-height: 1.25;
-    letter-spacing: 0;
-  }
-
-  .tl-entity-empty {
-    color: var(--tl-subtle);
-    font-size: 12px;
-    line-height: 1.7;
-  }
-
-  .tl-entity-footer {
-    max-width: 42rem;
-    margin-top: clamp(0.5rem, 2vw, 1.5rem);
-  }
-
-  @media (max-width: 767px) {
-    .tl-entity-page {
-      padding: 5rem 14px 3rem;
-    }
-
-    .tl-entity-visual {
-      min-height: 18rem;
-    }
-
-    .tl-entity-stats {
-      gap: 0.8rem 1.15rem;
-    }
-
-    .tl-entity-body {
-      width: 100%;
-      gap: 3.5rem;
-      padding-top: 4rem;
-    }
-
-    .tl-entity-row {
-      gap: 0.65rem;
-    }
-
-    .tl-entity-row-shell {
-      grid-template-columns: 1fr;
-      gap: 0.8rem;
-    }
-
-    .tl-entity-row-value {
-      display: flex;
-      gap: 0.55rem;
-      align-items: baseline;
-      min-width: 0;
-      text-align: left;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .tl-entity-visual::before {
-      animation: none;
-    }
-  }
-</style>
+  {page.footer ? <footer class="opacity-60">{page.footer}</footer> : null}
+</HalfHeroLayout>

@@ -29,6 +29,7 @@ const site = Astro.site ?? new URL(Astro.url.origin);
   description={entry.data.claim}
   structuredData={claimStructuredData(entry, Astro.url, site)}
   ogType="article"
+  allowScroll
 >
   <ClaimDetailPageComposition claim={claim} />
 </ThinkinglabsUiPage>

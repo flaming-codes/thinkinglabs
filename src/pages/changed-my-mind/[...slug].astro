@@ -28,6 +28,7 @@ const site = Astro.site ?? new URL(Astro.url.origin);
   description={`${entry.data.used_to_believe} → ${entry.data.now_believe}`}
   structuredData={changedMyMindStructuredData(entry, Astro.url, site)}
   ogType="article"
+  allowScroll
 >
   <ChangedMyMindDetailPageComposition flip={flip}>
     <Content />

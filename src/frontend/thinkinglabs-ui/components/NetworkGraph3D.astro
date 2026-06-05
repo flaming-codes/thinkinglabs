@@ -40,7 +40,20 @@ const groupedKinds = Object.keys(grouped).sort();
 
 <div class="tl-graph-wrap" data-network-graph-root>
   <script id="network-graph-data" type="application/json" is:inline set:html={payloadJson} />
-  <div class="tl-graph-hover-label" data-graph-hover-label aria-hidden="true"></div>
+  <p
+    id="tl-graph-description"
+    class="tl-graph-sr-only"
+    data-graph-description
+  >
+    Interactive 3D rendering of the knowledge network. Drag to rotate, scroll to
+    zoom, and select a node to open it.
+  </p>
+  <div
+    class="tl-graph-hover-label"
+    data-graph-hover-label
+    role="status"
+    aria-live="polite"
+  ></div>
   <aside class="tl-graph-legend" aria-label="Node legend">
     <ul>
       {groupedKinds.map((k) => (
@@ -85,6 +98,21 @@ const groupedKinds = Object.keys(grouped).sort();
 
   .tl-graph-wrap :global(canvas) {
     display: block;
+  }
+
+  /* Visually hidden description for assistive technology; referenced by the
+     canvas via aria-describedby. */
+  .tl-graph-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
   }
 
   .tl-graph-hover-label {

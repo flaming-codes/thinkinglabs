@@ -1,0 +1,20 @@
+---
+/** An eyebrow-labelled block for the EntityDetail `aside` slot (history, citations, footnotes, ...). */
+interface Props {
+  label: string;
+  /** Optional muted note shown opposite the label (e.g. "3 linked entries"). */
+  note?: string;
+}
+
+const { label, note } = Astro.props;
+---
+
+<section class="flex flex-col gap-3">
+  <header class="flex items-baseline justify-between gap-4">
+    <h2 class="m-0 text-sm font-normal opacity-50">{label}</h2>
+    {note && <span class="text-xs opacity-40">{note}</span>}
+  </header>
+  <div class="entity-section-body flex flex-col gap-4 text-sm opacity-80">
+    <slot />
+  </div>
+</section>

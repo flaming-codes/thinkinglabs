@@ -62,20 +62,22 @@ function writePrediction(
   slug: string,
   fields: { resolution?: string; confidence?: number; resolved_on?: string | null; made?: string },
 ): void {
+  const resolution = fields.resolution ?? "pending";
   const resolvedOn =
     fields.resolved_on === undefined
       ? "null"
       : fields.resolved_on === null
         ? "null"
         : `"${fields.resolved_on}"`;
+  const resolutionNote = resolution === "pending" ? "null" : `"Resolved as ${resolution}."`;
   const lines = [
     `prediction: "Prediction ${slug}."`,
     `made: "${fields.made ?? "2026-01-01"}"`,
     'resolves: "2026-02-01"',
     `confidence: ${fields.confidence ?? 0.5}`,
-    `resolution: "${fields.resolution ?? "pending"}"`,
+    `resolution: "${resolution}"`,
     `resolved_on: ${resolvedOn}`,
-    "resolution_note: null",
+    `resolution_note: ${resolutionNote}`,
     "evidence_at_time: []",
     "tags: []",
   ];

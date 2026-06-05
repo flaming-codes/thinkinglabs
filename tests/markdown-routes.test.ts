@@ -127,7 +127,7 @@ describe("Markdown route contracts and serializers", () => {
         kind: "posts",
         url: "/posts",
         title: "Posts",
-        description: "Posts.",
+        description: "Posts",
         count: 1,
       }),
     ).not.toThrow();
@@ -175,7 +175,9 @@ describe("Markdown route contracts and serializers", () => {
 
     expect(parsed.data["variant"]).toBe("detail");
     expect(parsed.data["kind"]).toBe("posts");
-    expect(parsed.data["frontmatter"]).toMatchObject({ title: postEntry.data.title });
+    expect(parsed.data["frontmatter"]).toMatchObject({
+      title: postEntry.data.title,
+    });
     expect(parsed.content).toBe(postEntry.body);
   });
 
@@ -349,8 +351,12 @@ describe("Markdown route endpoint", () => {
 
   it("returns 404 for invalid and non-public Markdown routes", async () => {
     const route = await import("../src/pages/[...slug].md.ts");
-    const missing = await route.GET({ params: { slug: "does-not-exist" } } as never);
-    const provenance = await route.GET({ params: { slug: "provenance/secret" } } as never);
+    const missing = await route.GET({
+      params: { slug: "does-not-exist" },
+    } as never);
+    const provenance = await route.GET({
+      params: { slug: "provenance/secret" },
+    } as never);
 
     expect(missing.status).toBe(404);
     expect(provenance.status).toBe(404);

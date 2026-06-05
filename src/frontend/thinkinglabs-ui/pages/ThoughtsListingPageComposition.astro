@@ -9,12 +9,14 @@ interface Props {
 const { thoughts } = Astro.props;
 const words = thoughts.reduce((sum, thought) => sum + thought.words, 0);
 const backlinks = thoughts.reduce((sum, thought) => sum + thought.backlinks, 0);
-const settled = thoughts.filter((thought) => thought.state === "settled").length;
+const settled = thoughts.filter(
+  (thought) => thought.state === "settled",
+).length;
 
 const page: EntityIndexPage = {
   slug: "thoughts",
   eyebrow: "/thoughts",
-  title: "Thoughts.",
+  title: "Thoughts",
   deck: "Draft prose and working arguments. Some entries are finished, some are still warm, and some are preserved because the unfinished shape is useful.",
   count: `${thoughts.length} entries`,
   stats: [
@@ -31,13 +33,19 @@ const page: EntityIndexPage = {
         title: thought.title,
         href: thought.href,
         summary: thought.excerpt,
-        meta: [`${thought.state.replace("-", " ")}`, `touched ${thought.touched}`, `${thought.minutes} min`, `${thought.backlinks} backlinks`],
+        meta: [
+          `${thought.state.replace("-", " ")}`,
+          `touched ${thought.touched}`,
+          `${thought.minutes} min`,
+          `${thought.backlinks} backlinks`,
+        ],
         value: thought.words.toLocaleString(),
         valueLabel: "words",
       })),
     },
   ],
-  footer: "Most thoughts are wrong somewhere. The useful part is making the wrongness visible.",
+  footer:
+    "Most thoughts are wrong somewhere. The useful part is making the wrongness visible.",
 };
 ---
 

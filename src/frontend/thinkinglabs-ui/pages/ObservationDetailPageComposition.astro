@@ -1,5 +1,8 @@
 ---
-import AppShell from "../components/AppShell.astro";
+import { resolveEntityHero } from "../lib/entity-hero.ts";
+import EntityDetail from "../components/EntityDetail.astro";
+import type { EntityRelationGroup } from "../components/EntityDetail.astro";
+import EntityFacts from "../components/EntityFacts.astro";
 import type { ObservationDetail } from "../types";
 
 interface Props {
@@ -7,209 +10,59 @@ interface Props {
 }
 
 const { observation } = Astro.props;
+const heroImage = resolveEntityHero("observations", observation.slug);
+
+const relations: EntityRelationGroup[] =
+  observation.related.length > 0
+    ? [
+        {
+          label: "Related",
+          links: observation.related.map((rel) => ({
+            href: rel.href ?? "#",
+            title: rel.title,
+            ...(rel.value !== undefined ? { value: rel.value } : {}),
+          })),
+        },
+      ]
+    : [];
 ---
 
-<AppShell activeNav="Index">
-  <article class="tl-observation-detail" data-selected-label={observation.observation} data-entity="observations">
-    <header class="tl-observation-head">
-      <p class="tl-mono">Observation / {observation.observed}</p>
-      <h1>{observation.observation}</h1>
-      <div class="tl-observation-meta">
-        <span>{observation.source}</span>
-        <span>{observation.slug}</span>
-      </div>
-    </header>
+<EntityDetail
+  title={observation.observation}
+  dates={[{ label: `observed ${observation.observed}` }]}
+  tags={observation.tags}
+  heroImage={heroImage}
+  relations={relations}
+>
+  <EntityFacts slot="meta" facts={[{ label: "Source", value: observation.source }]} />
 
-    <main class="tl-observation-main">
-      <section class="tl-observation-context" aria-label="Context">
-        <span class="tl-eyebrow">Context</span>
-        <p>{observation.context}</p>
-      </section>
+  <div class="tl-lede">
+    <p class="tl-eyebrow">Context</p>
+    <p class="tl-lede-text">{observation.context}</p>
+  </div>
 
-      {observation.paragraphs.length > 0 ? (
-        <section class="tl-observation-body">
-          {observation.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
-        </section>
-      ) : null}
-
-      {observation.related.length > 0 ? (
-        <section class="tl-observation-related" aria-label="Related entries">
-          <header class="tl-split-header is-tight">
-            <div class="tl-eyebrow">Related</div>
-            <div class="tl-mono">{observation.related.length} links</div>
-          </header>
-          <div>
-            {observation.related.map((relation) => (
-              <article>
-                <span>{relation.kind}</span>
-                <h2>{relation.href ? <a href={relation.href}>{relation.title}</a> : relation.title}</h2>
-                {relation.value ? <p>{relation.value}</p> : null}
-              </article>
-            ))}
-          </div>
-        </section>
-      ) : null}
-
-      {observation.tags.length > 0 ? (
-        <section class="tl-observation-tags">
-          {observation.tags.map((tag) => <span>#{tag}</span>)}
-        </section>
-      ) : null}
-    </main>
-  </article>
-</AppShell>
+  {observation.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+</EntityDetail>
 
 <style>
-  .tl-observation-detail {
-    min-height: var(--tl-viewport-height);
-    padding: clamp(8.5rem, 18vh, 14rem) 20px clamp(6rem, 14vh, 10rem);
-    background: var(--tl-bg);
-    color: var(--tl-ink);
-  }
-
-  .tl-observation-head,
-  .tl-observation-main {
-    width: min(100%, 920px);
-    margin-inline: auto;
-  }
-
-  .tl-observation-head {
-    display: grid;
-    gap: clamp(1.15rem, 2.8vw, 2rem);
-    min-height: clamp(25rem, 62vh, 42rem);
-    align-content: end;
-    padding-bottom: clamp(3rem, 9vh, 6rem);
-  }
-
-  .tl-observation-head > .tl-mono {
-    color: var(--tl-muted);
-  }
-
-  .tl-observation-head h1 {
-    max-width: 20ch;
-    font-size: clamp(34px, 5.2vw, 72px);
-    font-weight: 590;
-    line-height: 1.02;
-    letter-spacing: 0;
-    overflow-wrap: anywhere;
-  }
-
-  .tl-observation-meta,
-  .tl-observation-tags {
+  .tl-lede {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.65rem 1rem;
-    color: var(--tl-muted);
-    font-size: 13px;
-    line-height: 1.45;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-block: 1.5em;
   }
 
-  .tl-observation-main {
-    display: grid;
-    gap: clamp(3.5rem, 9vh, 6.5rem);
-    padding-top: clamp(2rem, 5vh, 3.5rem);
+  .tl-eyebrow {
+    margin: 0;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    opacity: 0.5;
   }
 
-  .tl-observation-context {
-    display: grid;
-    grid-template-columns: minmax(7rem, 0.24fr) minmax(0, 1fr);
-    gap: clamp(1.25rem, 4vw, 3rem);
-    align-items: start;
-  }
-
-  .tl-observation-context p {
-    max-width: 40rem;
-    color: var(--tl-ink);
-    font-size: clamp(21px, 2.5vw, 34px);
-    font-weight: 520;
-    line-height: 1.18;
-    letter-spacing: 0;
-  }
-
-  .tl-observation-body {
-    display: grid;
-    grid-template-columns: minmax(7rem, 0.24fr) minmax(0, 1fr);
-    gap: clamp(1.25rem, 4vw, 3rem);
-    color: var(--tl-prose-ink);
-    font-size: 17px;
-    line-height: 1.75;
-  }
-
-  .tl-observation-body p {
-    grid-column: 2;
-    max-width: 32rem;
-    margin: 0 0 1.1rem;
-  }
-
-  .tl-observation-related {
-    display: grid;
-    gap: 1.25rem;
-  }
-
-  .tl-observation-related > div {
-    display: grid;
-  }
-
-  .tl-observation-related article {
-    display: grid;
-    grid-template-columns: minmax(7rem, 0.2fr) minmax(0, 1fr) minmax(3rem, auto);
-    gap: 1rem;
-    align-items: baseline;
-    padding: 1.25rem 0;
-  }
-
-  .tl-observation-related span,
-  .tl-observation-related p {
-    color: var(--tl-muted);
-    font-size: 12px;
+  .tl-lede-text {
+    margin: 0;
+    font-size: 1.15rem;
     line-height: 1.4;
-  }
-
-  .tl-observation-related h2 {
-    color: var(--tl-ink);
-    font-size: clamp(18px, 2vw, 26px);
-    font-weight: 540;
-    line-height: 1.16;
-    letter-spacing: 0;
-  }
-
-  .tl-observation-related a {
-    color: inherit;
-    text-decoration: underline;
-    text-decoration-thickness: 0.08em;
-    text-underline-offset: 0.18em;
-  }
-
-  .tl-observation-tags span {
-    color: var(--tl-muted);
-  }
-
-  @media (max-width: 720px) {
-    .tl-observation-detail {
-      padding: 7rem 16px 5rem;
-    }
-
-    .tl-observation-head {
-      min-height: 72vh;
-      padding-bottom: 3.5rem;
-    }
-
-    .tl-observation-context {
-      grid-template-columns: 1fr;
-      gap: 0.9rem;
-    }
-
-    .tl-observation-body {
-      grid-template-columns: 1fr;
-    }
-
-    .tl-observation-body p {
-      grid-column: 1;
-    }
-
-    .tl-observation-related article {
-      grid-template-columns: 1fr;
-      gap: 0.45rem;
-    }
   }
 </style>

@@ -1,0 +1,266 @@
+---
+import BrandLogo from "./BrandLogo.astro";
+
+/** One top-level navigation entry. */
+export interface SiteNavLink {
+  href: string;
+  label: string;
+}
+
+interface Props {
+  /** Navigation entries; defaults to the full site nav. */
+  links?: readonly SiteNavLink[] | undefined;
+  /** Disable the scroll-timeline badge fill on pages without a hero timeline. */
+  revealBadge?: boolean | undefined;
+}
+
+// Top-level site navigation. Kept as data so the markup stays a single mapped
+// list rather than a repeated block of anchors.
+const DEFAULT_LINKS: readonly SiteNavLink[] = [
+  { href: "/", label: "index" },
+  { href: "/thoughts", label: "thoughts" },
+  { href: "/claims", label: "claims" },
+  { href: "/predictions", label: "predictions" },
+  { href: "/decisions", label: "decisions" },
+  { href: "/observations", label: "observations" },
+  { href: "/changed-my-mind", label: "changed my mind" },
+  { href: "/about", label: "about" },
+  { href: "/privacy", label: "privacy" },
+  { href: "/contact", label: "contact" },
+];
+
+const { links = DEFAULT_LINKS, revealBadge = true } = Astro.props;
+---
+
+{/*
+  The badge is `fixed`, but it must live as a descendant of the hero frame so
+  the scroll-driven reveal can read the `--tl-hero` view-timeline that DetailHero
+  exposes via `timeline-scope`. The reveal CSS keyed to that timeline ships here,
+  with the badge it animates.
+*/}
+<aside
+  class="tl-nav-badge fixed rounded-full overflow-hidden aspect-square top-2 left-2 lg:left-auto lg:right-0 lg:top-0 z-20"
+  data-reveal-badge={revealBadge ? "true" : "false"}
+>
+  <input id="tl-nav" type="checkbox" class="tl-nav-toggle peer sr-only" data-tl-nav-checkbox />
+  <label
+    for="tl-nav"
+    class="block cursor-pointer origin-top-right lg:scale-75"
+    aria-label="Open navigation"
+    data-tl-nav-open-trigger
+  >
+    <BrandLogo class="tl-nav-logo" ariaLabel="thinkinglabs" />
+  </label>
+
+  <div
+    class="tl-nav-panel invisible fixed inset-0 z-50 flex flex-col p-2 opacity-0 transition-opacity duration-200 ease-out peer-checked:visible peer-checked:opacity-100"
+    data-tl-nav-panel
+  >
+    <div class="flex flex-col gap-10 lg:items-end">
+      <label
+        for="tl-nav"
+        class="flex cursor-pointer items-center gap-2"
+        aria-label="Close navigation"
+      >
+        <BrandLogo />
+        <span class="text-sm tracking-tight">thinkinglabs</span>
+      </label>
+
+      <nav>
+        <ul class="flex list-none flex-col gap-1 p-0 lg:items-end lg:text-right">
+          {
+            links.map((link) => (
+              <li>
+                <a
+                  class="text-sm no-underline transition-opacity hover:opacity-50"
+                  href={link.href}
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+    </div>
+  </div>
+</aside>
+
+<script>
+  // Bring the CSS checkbox-toggle nav up to keyboard parity with SiteHeader:
+  // Escape closes, focus is trapped within the open panel, and focus returns to
+  // the trigger on close. The checkbox stays the single source of truth for the
+  // open/closed visual state (CSS peer-checked); this script only layers focus
+  // management on top of it. Mirrors SiteHeader's AbortController +
+  // astro:page-load lifecycle so it survives view transitions cleanly.
+  let controller: AbortController | null = null;
+
+  const init = () => {
+    controller?.abort();
+    controller = new AbortController();
+    const { signal } = controller;
+
+    const checkbox = document.querySelector<HTMLInputElement>("[data-tl-nav-checkbox]");
+    const openTrigger = document.querySelector<HTMLElement>("[data-tl-nav-open-trigger]");
+    const panel = document.querySelector<HTMLElement>("[data-tl-nav-panel]");
+    if (!checkbox || !openTrigger || !panel) return;
+
+    const FOCUSABLE =
+      'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+    const focusable = (): HTMLElement[] =>
+      Array.from(panel.querySelectorAll<HTMLElement>(FOCUSABLE));
+
+    const close = (returnFocus: boolean) => {
+      if (!checkbox.checked) return;
+      checkbox.checked = false;
+      if (returnFocus) openTrigger.focus({ preventScroll: true });
+    };
+
+    // When the panel opens, move focus inside it so the keyboard user is not
+    // left behind the trigger; when it closes via the trigger label, hand focus
+    // back to the trigger.
+    checkbox.addEventListener(
+      "change",
+      () => {
+        if (checkbox.checked) {
+          const first = focusable()[0];
+          first?.focus({ preventScroll: true });
+        } else {
+          openTrigger.focus({ preventScroll: true });
+        }
+      },
+      { signal }
+    );
+
+    document.addEventListener(
+      "keydown",
+      (event) => {
+        if (!checkbox.checked) return;
+        if (event.key === "Escape") {
+          event.preventDefault();
+          close(true);
+          return;
+        }
+        if (event.key !== "Tab") return;
+        const items = focusable();
+        if (items.length === 0) return;
+        const first = items[0]!;
+        const last = items[items.length - 1]!;
+        const active = document.activeElement as HTMLElement | null;
+        // Trap Tab within the open panel so focus cannot escape behind the
+        // now-invisible page content.
+        if (event.shiftKey) {
+          if (active === first || !panel.contains(active)) {
+            event.preventDefault();
+            last.focus({ preventScroll: true });
+          }
+        } else if (active === last || !panel.contains(active)) {
+          event.preventDefault();
+          first.focus({ preventScroll: true });
+        }
+      },
+      { signal }
+    );
+  };
+
+  document.addEventListener("astro:page-load", init);
+</script>
+
+<style>
+  /* The nav badge fills to a solid disc once the hero has scrolled out of
+     view, so the logo stays legible against the page background. Both the
+     disc and the logo are theme-aware: the disc fades to the page
+     background (--tl-bg) and the logo settles on the ink color (--tl-ink),
+     so it reads as a black logo on a white disc on light and a white logo
+     on a black disc on dark - never a black logo on a white disc on dark.
+
+     On mobile/tablet the badge sits over the hero, so the logo starts white
+     (legible on the photo) and animates to the ink color as the disc
+     fills. On desktop (lg+) the badge moves top-right, off the hero and
+     onto the page background, so the logo is the ink colour throughout.
+
+     Driven entirely by a scroll-driven view-timeline (no JS): the timeline
+     is declared on the hero image and exposed to this fixed badge via
+     timeline-scope on DetailHero's shared frame. Chromium-only today;
+     @supports keeps the badge transparent as a graceful fallback in
+     Safari/Firefox. */
+  .tl-nav-badge {
+    background-color: transparent;
+  }
+
+  /* The toggle checkbox is sr-only, so keyboard focus is otherwise invisible.
+     Surface a focus ring on the adjacent label when the checkbox is focused. */
+  .tl-nav-toggle:focus-visible + label {
+    outline: 2px solid var(--tl-focus);
+    outline-offset: 4px;
+    border-radius: var(--tl-radius-sm);
+  }
+
+  .tl-nav-badge[data-reveal-badge="false"] {
+    background-color: transparent !important;
+    animation: none !important;
+  }
+
+  /* The open menu fills the viewport with the page background and ink so it
+     reads correctly in both themes (was hard-coded white/black). Links and the
+     brand logo inherit this ink. */
+  .tl-nav-panel {
+    background-color: var(--tl-bg);
+    color: var(--tl-ink);
+  }
+
+  .tl-nav-badge :global(.tl-nav-logo) {
+    color: var(--tl-media-ink);
+  }
+
+  @keyframes tl-nav-badge-reveal {
+    from {
+      background-color: transparent;
+    }
+    to {
+      background-color: var(--tl-bg);
+    }
+  }
+
+  @keyframes tl-nav-logo-reveal {
+    from {
+      color: var(--tl-media-ink);
+    }
+    to {
+      color: var(--tl-ink);
+    }
+  }
+
+  @supports (animation-timeline: view()) {
+    .tl-nav-badge[data-reveal-badge="true"] :global(.tl-nav-logo) {
+      animation: tl-nav-logo-reveal linear both;
+      animation-timeline: --tl-hero;
+      animation-range: exit;
+    }
+
+    /* Only fill the badge to a solid disc on desktop, where it sits top-right
+       on the page background. On smaller and tablet screens the badge sits in
+       the top-left corner over the hero, so it stays the bare SVG with no
+       background - otherwise the reveal paints a stray disc on pages that have
+       no `--tl-hero` timeline (e.g. the index), since an inactive timeline
+       resolves the `both` fill to the filled end state. */
+    @media (min-width: 64rem) {
+      .tl-nav-badge[data-reveal-badge="true"] {
+        animation: tl-nav-badge-reveal linear both;
+        animation-timeline: --tl-hero;
+        animation-range: exit;
+      }
+    }
+  }
+
+  /* Desktop: badge lives top-right on the page background, not over the
+     hero, so the logo uses the theme ink color throughout (black on light,
+     white on dark) and the white-start reveal is dropped. */
+  @media (min-width: 64rem) {
+    .tl-nav-badge :global(.tl-nav-logo) {
+      color: var(--tl-ink);
+      animation: none;
+    }
+  }
+</style>

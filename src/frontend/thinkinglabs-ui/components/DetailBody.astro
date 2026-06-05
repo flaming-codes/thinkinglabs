@@ -1,0 +1,69 @@
+---
+/** One small metadata item shown above the detail body. */
+export interface DetailMetadataItem {
+  label: string;
+  /** ISO value for the `<time datetime>` attribute; omit when only a formatted label is available. */
+  iso?: string;
+}
+
+interface Props {
+  /** Header metadata entries, joined with "·". Empty/omitted hides the line. */
+  metadata?: DetailMetadataItem[] | undefined;
+  /** Optional tag list rendered under the metadata line. */
+  tags?: string[] | undefined;
+}
+
+const { metadata = [], tags = [] } = Astro.props;
+
+const hasMeta = Astro.slots.has("meta");
+const hasMetadata = metadata.length > 0;
+---
+
+{/*
+  Two-column reading row: a left meta column (metadata, tags, `meta` slot) and
+  the prose `article`. On narrow screens the columns stack; on lg+ they sit in a
+  right-aligned 3/4 measure shared with DetailFooter.
+*/}
+<section
+  class="px-2 flex flex-col gap-4 md:pr-8 lg:max-w-3/4 lg:flex-row lg:justify-end lg:pr-2 lg:gap-16"
+>
+  <header class="flex flex-col gap-3">
+    {
+      hasMetadata && (
+        <p class="flex flex-wrap gap-x-1 text-sm opacity-70">
+          {metadata.map((item, index) => (
+            <>
+              {index > 0 && <span aria-hidden="true">·</span>}
+              {item.iso ? <time datetime={item.iso}>{item.label}</time> : <span>{item.label}</span>}
+            </>
+          ))}
+        </p>
+      )
+    }
+    {
+      tags.length > 0 && (
+        <ul class="flex flex-wrap gap-x-1 list-none p-0">
+          {tags.map((tag) => (
+            <li class="text-sm opacity-50">#{tag}</li>
+          ))}
+        </ul>
+      )
+    }
+    {hasMeta && <slot name="meta" />}
+  </header>
+  <article class="detail-prose md:pl-16 lg:pl-0">
+    <slot />
+  </article>
+</section>
+
+<style>
+  .detail-prose {
+    max-width: 65ch;
+  }
+
+  /* <Content /> markup is not Tailwind-aware during migration, so space
+     paragraphs with plain scoped CSS reaching into the rendered markdown. */
+  .detail-prose :global(p) {
+    margin-block: 1.5em;
+  }
+</style>

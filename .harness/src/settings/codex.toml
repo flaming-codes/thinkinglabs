@@ -5,7 +5,7 @@ sandbox_mode = "danger-full-access"
 inherit = "all"
 
 [shell_environment_policy.set]
-PATH = "/Users/tom/Code/thinkinglabs/node_modules/.bin:/Users/tom/.nvm/versions/node/v23.3.0/bin:/Users/tom/Library/pnpm:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+PATH = "/Users/tom/Github/thinkinglabs/node_modules/.bin:/Users/tom/.nvm/versions/node/v24.15.0/bin:/Users/tom/Library/pnpm:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 
 [[actions]]
 name = "Run Site"

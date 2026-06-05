@@ -1,0 +1,27 @@
+---
+/**
+ * Base document column. The outermost container every page/detail view sits in,
+ * setting the shared font, vertical rhythm, and trailing padding. Kept free of
+ * any entity- or hero-specific concerns so listings, index, and detail layouts
+ * can all compose against the same shell.
+ */
+interface Props {
+  /** Extra classes appended to the wrapper (escape hatch for one-off layouts). */
+  class?: string | undefined;
+}
+
+const { class: className } = Astro.props;
+---
+
+<main id="main-content" tabindex="-1" class:list={["font-sans flex flex-col gap-y-2 pb-2", className]}>
+  <slot />
+</main>
+
+<style>
+  /* The main landmark is a skip-link target (tabindex="-1"); suppress the
+     programmatic-focus outline so jumping to it does not paint a ring. */
+  main:focus,
+  main:focus-visible {
+    outline: none;
+  }
+</style>

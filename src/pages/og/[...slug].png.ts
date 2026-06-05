@@ -1,13 +1,21 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { Resvg } from "@resvg/resvg-js";
 import { getCollection } from "astro:content";
 import type { APIRoute, GetStaticPaths } from "astro";
 import satori from "satori";
+import sharp from "sharp";
 import { readThinkinglabsCssToken } from "../../lib/css-tokens.ts";
+import {
+  createOgImageCacheEntry,
+  readOgImageCache,
+  writeOgImageCache,
+} from "../../lib/og-image-cache.ts";
 import { KIND_REGISTRY, LISTING_KINDS, titleFor } from "../../lib/registry.ts";
 import type { Kind } from "../../schemas/index.ts";
 
-/** Static social-card PNGs: one of ten "soft multi-wash" layouts per kind, with accent palettes sampled from each kind's conic-gradient stops. Title is dominant; wordmark is secondary; detail pages add a kind eyebrow (listings and static pages omit it). */
+/** Static social-card PNGs. Detail pages mirror the page's above-the-fold: black background, a thin gap to the edges, the shared hero photo at 3/4 width, and the title set center-left over it (no wordmark or eyebrow). Listings and static pages keep the per-kind "soft multi-wash" orb layouts with a secondary wordmark. */
 export const prerender = true;
 
 interface OgImageProps {
@@ -15,12 +23,15 @@ interface OgImageProps {
   readonly kindLabel?: string | undefined;
   readonly layout: Layout;
   readonly palette: OrbPalette;
+  /** On-disk hero source for detail cards; resolved per-entity, falls back to the shared hero. */
+  readonly heroSource?: string | undefined;
 }
 
 interface StaticImage {
   readonly path: string;
   readonly title: string;
   readonly kindKey: EntityKindKey;
+  readonly heroSource?: string | undefined;
 }
 
 type EntityKindKey = Exclude<Kind, "provenance">;
@@ -73,6 +84,51 @@ type SatoriNode = SatoriElement | string;
 
 const OG_IMAGE_WIDTH = 1200;
 const OG_IMAGE_HEIGHT = 628;
+const OG_ROUTE_SOURCE = join(process.cwd(), "src/pages/og/[...slug].png.ts");
+
+/** Detail-card hero geometry, mirroring the page above-the-fold: a thin gap to the edges and the hero photo at 3/4 width. */
+const HERO_PAD = 16;
+const HERO_W = Math.round((OG_IMAGE_WIDTH - HERO_PAD * 2) * 0.75);
+const HERO_H = OG_IMAGE_HEIGHT - HERO_PAD * 2;
+const HERO_SOURCE = "src/assets/hero.png";
+
+/** Per-entity hero artwork mirrors the route shape on disk: `src/assets/<folder>/<slug>.<ext>`. */
+const HERO_EXTENSIONS = ["png", "jpg", "jpeg", "webp"] as const;
+
+/** Resolve a detail card's on-disk hero by route folder + slug, falling back to the shared hero when no per-entity asset exists. */
+function resolveHeroSource(folder: string, slug: string): string {
+  for (const ext of HERO_EXTENSIONS) {
+    const candidate = `src/assets/${folder}/${slug}.${ext}`;
+    if (existsSync(candidate)) return candidate;
+  }
+  return HERO_SOURCE;
+}
+
+/** Resolve the listing/static hero to the same `<slug>-hero` asset convention used by HalfHeroLayout. */
+function resolveListingHeroSource(slug: string): string {
+  for (const ext of HERO_EXTENSIONS) {
+    const candidate = `src/assets/${slug}-hero.${ext}`;
+    if (existsSync(candidate)) return candidate;
+  }
+  return HERO_SOURCE;
+}
+
+/** Cache the resized data URI per source path - detail cards may share the fallback or carry their own hero. */
+const heroDataUris = new Map<string, Promise<string>>();
+
+/** Resize a hero to the card's image box and inline it as a data URI (Satori cannot read from the filesystem). */
+function loadHeroDataUri(source: string): Promise<string> {
+  let cached = heroDataUris.get(source);
+  if (!cached) {
+    cached = sharp(source)
+      .resize(HERO_W, HERO_H, { fit: "cover" })
+      .jpeg({ quality: 82 })
+      .toBuffer()
+      .then((buffer) => `data:image/jpeg;base64,${buffer.toString("base64")}`);
+    heroDataUris.set(source, cached);
+  }
+  return cached;
+}
 
 const OG_THEME = {
   light: {
@@ -244,9 +300,19 @@ const LAYOUTS: Record<Layout, LayoutSpec> = {
 };
 
 const STATIC_IMAGES: ReadonlyArray<StaticImage> = [
-  { path: "/", title: "personal thinking surface", kindKey: "thoughts" },
-  { path: "/now", title: "Now", kindKey: "projects" },
-  { path: "/about", title: "About", kindKey: "posts" },
+  {
+    path: "/",
+    title: "personal thinking surface",
+    kindKey: "thoughts",
+    heroSource: "src/assets/index.png",
+  },
+  { path: "/now", title: "Now", kindKey: "projects", heroSource: resolveListingHeroSource("now") },
+  {
+    path: "/about",
+    title: "About",
+    kindKey: "posts",
+    heroSource: "src/assets/about/portrait-light.webp",
+  },
   { path: "/agents", title: "For agents", kindKey: "inputs" },
   { path: "/contact", title: "Contact", kindKey: "questions" },
   { path: "/brain-diff", title: "Brain-diff", kindKey: "changed-my-mind" },
@@ -262,19 +328,21 @@ interface OgRoute {
     readonly kindLabel?: string;
     readonly layout: Layout;
     readonly palette: OrbPalette;
+    readonly heroSource?: string | undefined;
   };
 }
 
 /** Build one PNG route for every public HTML page and content detail page. */
 export const getStaticPaths: GetStaticPaths = async () => {
   const paths: OgRoute[] = [];
-  STATIC_IMAGES.forEach(({ path, title, kindKey }) =>
+  STATIC_IMAGES.forEach(({ path, title, kindKey, heroSource }) =>
     paths.push({
       params: { slug: pathToOgSlug(path) },
       props: {
         title,
         layout: KIND_LAYOUTS[kindKey],
         palette: KIND_ORB_PALETTES[kindKey],
+        heroSource,
       },
     }),
   );
@@ -285,12 +353,14 @@ export const getStaticPaths: GetStaticPaths = async () => {
     if (!route) continue;
     const layout = KIND_LAYOUTS[kind];
     const palette = KIND_ORB_PALETTES[kind];
+    const folder = route.replace(/^\//, "");
     paths.push({
       params: { slug: pathToOgSlug(route) },
       props: {
         title: KIND_REGISTRY[kind].listingTitle,
         layout,
         palette,
+        heroSource: resolveListingHeroSource(folder),
       },
     });
 
@@ -304,6 +374,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
           kindLabel: KIND_SINGULAR[kind],
           layout,
           palette,
+          heroSource: resolveHeroSource(folder, entry.id),
         },
       });
     }
@@ -313,42 +384,84 @@ export const getStaticPaths: GetStaticPaths = async () => {
 };
 
 /** Render the Satori SVG and convert it to PNG with ReSVG for social crawlers. */
-export const GET: APIRoute = async ({ props }) => {
+export const GET: APIRoute = async ({ params, props }) => {
   const image = props as OgImageProps;
+  const cacheEntry = await createOgImageCacheEntry({
+    routeSlug: params.slug ?? "index",
+    props: image,
+    renderInputs: {
+      width: OG_IMAGE_WIDTH,
+      height: OG_IMAGE_HEIGHT,
+      heroPad: HERO_PAD,
+      heroWidth: HERO_W,
+      heroHeight: HERO_H,
+      heroSource: HERO_SOURCE,
+      heroExtensions: HERO_EXTENSIONS,
+      heroResize: { fit: "cover", format: "jpeg", quality: 82 },
+      theme: OG_THEME,
+      layouts: LAYOUTS,
+    },
+    sourceFilePaths: [OG_ROUTE_SOURCE],
+    fontFilePaths: [fontPath(400), fontPath(500), fontPath(600)],
+    heroAssetPath: image.heroSource,
+  });
+  const cached = await readOgImageCache(cacheEntry);
+  if (cached) {
+    return new Response(toExactArrayBuffer(cached), {
+      headers: ogResponseHeaders(),
+    });
+  }
+
   const [regular, medium, semibold] = await Promise.all([
-    loadFont("geist", 400),
-    loadFont("geist", 500),
-    loadFont("geist", 600),
+    loadFont("golos-text", 400),
+    loadFont("golos-text", 500),
+    loadFont("golos-text", 600),
   ]);
-  const svg = await satori(renderImage(image) as Parameters<typeof satori>[0], {
+  /* Any route carrying a resolved hero source renders the photo card; the rest keep the orb layout. */
+  const hero = image.heroSource ? await loadHeroDataUri(image.heroSource) : null;
+  const svg = await satori(renderImage(image, hero) as Parameters<typeof satori>[0], {
     width: OG_IMAGE_WIDTH,
     height: OG_IMAGE_HEIGHT,
     fonts: [
-      { name: "Geist", data: regular, weight: 400, style: "normal" },
-      { name: "Geist", data: medium, weight: 500, style: "normal" },
-      { name: "Geist", data: semibold, weight: 600, style: "normal" },
+      { name: "Golos Text", data: regular, weight: 400, style: "normal" },
+      { name: "Golos Text", data: medium, weight: 500, style: "normal" },
+      { name: "Golos Text", data: semibold, weight: 600, style: "normal" },
     ],
   });
   const png = new Resvg(svg).render().asPng();
-  return new Response(new Uint8Array(png).buffer, {
-    headers: {
-      "cache-control": "public, max-age=31536000, immutable",
-      "content-type": "image/png",
-    },
+  await writeOgImageCache(cacheEntry, png);
+  return new Response(toExactArrayBuffer(png), {
+    headers: ogResponseHeaders(),
   });
 };
 
-async function loadFont(family: "geist", weight: 400 | 500 | 600): Promise<ArrayBuffer> {
+async function loadFont(family: "golos-text", weight: 400 | 500 | 600): Promise<ArrayBuffer> {
   const key = `${family}-${weight}`;
   let cached = fontCache.get(key);
   if (!cached) {
-    const filename = `node_modules/@fontsource/geist/files/geist-latin-${weight}-normal.woff`;
-    cached = readFile(filename).then((buffer) =>
+    cached = readFile(fontPath(weight)).then((buffer) =>
       buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength),
     );
     fontCache.set(key, cached);
   }
   return cached;
+}
+
+function fontPath(weight: 400 | 500 | 600): string {
+  return `node_modules/@fontsource/golos-text/files/golos-text-latin-${weight}-normal.woff`;
+}
+
+function ogResponseHeaders(): HeadersInit {
+  return {
+    "cache-control": "public, max-age=31536000, immutable",
+    "content-type": "image/png",
+  };
+}
+
+function toExactArrayBuffer(bytes: Uint8Array): ArrayBuffer {
+  const exact = new Uint8Array(bytes.byteLength);
+  exact.set(bytes);
+  return exact.buffer;
 }
 
 function isEntityKindKey(kind: Kind): kind is EntityKindKey {
@@ -382,8 +495,66 @@ async function getKindCollection(kind: Kind) {
   }
 }
 
+/** Detail-page card mirroring the page above-the-fold: black field, thin gap to edges, hero photo at 3/4 width, title set center-left over it. No wordmark or eyebrow. */
+function renderDetailImage(image: OgImageProps, hero: string): SatoriElement {
+  const theme = OG_THEME.dark;
+  return node("div", {
+    style: {
+      display: "flex",
+      width: "100%",
+      height: "100%",
+      padding: HERO_PAD,
+      background: theme.bg,
+      fontFamily: "Golos Text",
+    },
+    children: [
+      node("div", {
+        style: { position: "relative", display: "flex", width: "100%", height: "100%" },
+        children: [
+          node("img", {
+            src: hero,
+            width: HERO_W,
+            height: HERO_H,
+            style: { width: HERO_W, height: HERO_H, objectFit: "cover" },
+          }),
+          node("div", {
+            style: {
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: HERO_W,
+              height: HERO_H,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "flex-start",
+              paddingLeft: 28,
+              paddingRight: 40,
+            },
+            children: [
+              node("div", {
+                style: {
+                  display: "flex",
+                  fontSize: 54,
+                  lineHeight: 1.07,
+                  fontWeight: 500,
+                  letterSpacing: -1,
+                  color: theme.ink,
+                  maxWidth: HERO_W - 68,
+                },
+                children: [truncateLine(image.title, 140)],
+              }),
+            ],
+          }),
+        ],
+      }),
+    ],
+  });
+}
+
 /** Full-bleed root with positioned soft orbs plus a content block holding (optional kind eyebrow, title, wordmark); alignment is driven by the kind-assigned LayoutSpec. */
-function renderImage(image: OgImageProps): SatoriElement {
+function renderImage(image: OgImageProps, hero: string | null): SatoriElement {
+  if (hero) return renderDetailImage(image, hero);
   const spec = LAYOUTS[image.layout];
   const theme = spec.inverted ? OG_THEME.dark : OG_THEME.light;
   const titleFontSize = spec.titleFontSize ?? 64;
@@ -410,7 +581,7 @@ function renderImage(image: OgImageProps): SatoriElement {
       overflow: "hidden",
       background: theme.bg,
       color: theme.ink,
-      fontFamily: "Geist",
+      fontFamily: "Golos Text",
     },
     children: [
       ...orbNodes,

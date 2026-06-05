@@ -1,6 +1,7 @@
 ---
-import AppShell from "../components/AppShell.astro";
-import EntityConicGradient from "../components/EntityConicGradient.astro";
+import { resolveEntityHero } from "../lib/entity-hero.ts";
+import EntityDetail from "../components/EntityDetail.astro";
+import type { EntityRelationGroup } from "../components/EntityDetail.astro";
 import type { ChangedMyMindDetail } from "../types";
 
 interface Props {
@@ -8,222 +9,73 @@ interface Props {
 }
 
 const { flip } = Astro.props;
+const heroImage = resolveEntityHero("changed-my-mind", flip.slug);
+
+const relations: EntityRelationGroup[] =
+  flip.supersededClaims.length > 0
+    ? [
+        {
+          label: "Superseded claims",
+          links: flip.supersededClaims.map((claim) => ({
+            href: claim.href ?? "#",
+            title: claim.title,
+            ...(claim.value !== undefined ? { value: claim.value } : {}),
+          })),
+        },
+      ]
+    : [];
 ---
 
-<AppShell activeNav="Index">
-  <article class="tl-flip-detail" data-selected-label={flip.title} data-entity="changed-my-mind">
-    <header class="tl-flip-head">
-      <EntityConicGradient class="tl-flip-art" entity="changed-my-mind">
-        <span>Before</span>
-        <span>After</span>
-      </EntityConicGradient>
-      <div class="tl-flip-title">
-        <p class="tl-mono">Belief revision</p>
-        <h1>{flip.title}</h1>
-        <p class="tl-flip-date">{flip.date}</p>
-      </div>
-    </header>
+<EntityDetail
+  title={flip.title}
+  dates={[{ label: flip.date }]}
+  tags={flip.tags}
+  heroImage={heroImage}
+  relations={relations}
+>
+  <div class="tl-triptych">
+    <div class="tl-lede">
+      <p class="tl-eyebrow">Used to believe</p>
+      <p class="tl-lede-text">{flip.usedToBelieve}</p>
+    </div>
+    <div class="tl-lede">
+      <p class="tl-eyebrow">What changed</p>
+      <p class="tl-lede-text">{flip.whatChanged}</p>
+    </div>
+    <div class="tl-lede">
+      <p class="tl-eyebrow">Now believe</p>
+      <p class="tl-lede-text">{flip.nowBelieve}</p>
+    </div>
+  </div>
 
-    <section class="tl-flip-triptych">
-      <article>
-        <span class="tl-eyebrow">Used to believe</span>
-        <p>{flip.usedToBelieve}</p>
-      </article>
-      <article>
-        <span class="tl-eyebrow">What changed</span>
-        <p>{flip.whatChanged}</p>
-      </article>
-      <article>
-        <span class="tl-eyebrow">Now believe</span>
-        <p>{flip.nowBelieve}</p>
-      </article>
-    </section>
-
-    <section class="tl-flip-body">
-      <slot />
-    </section>
-
-    {flip.supersededClaims.length > 0 ? (
-      <section class="tl-flip-claims">
-        <header class="tl-split-header is-tight">
-          <div class="tl-eyebrow">Superseded claims</div>
-          <div class="tl-mono">{flip.supersededClaims.length} linked entries</div>
-        </header>
-        <div>
-          {flip.supersededClaims.map((claim) => (
-            <article class="tl-flip-claim-row">
-              <span class="tl-mono">{claim.kind}</span>
-              <h3>{claim.href ? <a href={claim.href}>{claim.title}</a> : claim.title}</h3>
-              <span class="tl-mono is-right">{claim.value ?? ""}</span>
-            </article>
-          ))}
-        </div>
-      </section>
-    ) : null}
-
-    {flip.tags.length > 0 ? (
-      <section class="tl-flip-tags">
-        {flip.tags.map((tag) => <span>#{tag}</span>)}
-      </section>
-    ) : null}
-  </article>
-</AppShell>
+  <slot />
+</EntityDetail>
 
 <style>
-  .tl-flip-detail {
-    padding: clamp(7rem, 13vh, 10rem) 20px clamp(7rem, 16vh, 12rem);
-    background: var(--tl-bg);
-    color: var(--tl-ink);
+  .tl-triptych {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-block: 1.5em;
   }
 
-  .tl-flip-head,
-  .tl-flip-triptych,
-  .tl-flip-body,
-  .tl-flip-claims,
-  .tl-flip-tags {
-    width: min(100%, 980px);
-    margin-inline: auto;
+  .tl-lede {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
   }
 
-  .tl-flip-head {
-    display: grid;
-    grid-template-columns: minmax(16rem, 0.82fr) minmax(0, 1fr);
-    gap: clamp(2rem, 6vw, 5rem);
-    align-items: end;
-    min-height: clamp(23rem, 58vh, 38rem);
-  }
-
-  :global(.tl-flip-art) {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    min-height: clamp(17rem, 46vh, 31rem);
-    overflow: hidden;
-    background: var(--tl-media-bg);
-  }
-
-  :global(.tl-flip-art .tl-conic-content > span) {
-    display: grid;
-    align-items: end;
-    padding: 18px;
-    color: var(--tl-media-ink);
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.24em;
+  .tl-eyebrow {
+    margin: 0;
+    font-size: 0.75rem;
     text-transform: uppercase;
-    mix-blend-mode: difference;
+    letter-spacing: 0.08em;
+    opacity: 0.5;
   }
 
-  :global(.tl-flip-art .tl-conic-content > span:first-child) {
-    border-right: 1px solid var(--tl-media-line);
-  }
-
-  .tl-flip-title {
-    display: grid;
-    gap: 18px;
-    padding-bottom: clamp(1rem, 4vh, 2rem);
-  }
-
-  .tl-flip-title h1 {
-    max-width: 15ch;
-    font-size: clamp(40px, 6.4vw, 84px);
-    font-weight: 650;
-    line-height: 0.92;
-    letter-spacing: -0.05em;
-    text-transform: uppercase;
-  }
-
-  .tl-flip-date {
-    color: var(--tl-muted);
-    font-size: 16px;
+  .tl-lede-text {
+    margin: 0;
+    font-size: 1.15rem;
     line-height: 1.4;
   }
-
-  .tl-flip-triptych {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 1px;
-    margin-top: clamp(3rem, 8vh, 5rem);
-    background: var(--tl-line);
-  }
-
-  .tl-flip-triptych article {
-    display: grid;
-    gap: 16px;
-    min-height: 17rem;
-    padding: clamp(1.25rem, 3vw, 2rem);
-    background: var(--tl-bg);
-  }
-
-  .tl-flip-triptych p {
-    align-self: end;
-    font-size: clamp(21px, 2.7vw, 34px);
-    font-weight: 590;
-    line-height: 1.08;
-    letter-spacing: -0.03em;
-  }
-
-  .tl-flip-triptych article:nth-child(2) {
-    background: var(--tl-code-bg);
-  }
-
-  .tl-flip-body {
-    padding: clamp(3rem, 9vh, 5.5rem) 0;
-    color: var(--tl-prose-ink);
-    font-size: 17px;
-    line-height: 1.75;
-  }
-
-  .tl-flip-body :global(p) {
-    max-width: 43rem;
-    margin: 0 0 1.1rem;
-  }
-
-  .tl-flip-claim-row {
-    display: grid;
-    grid-template-columns: 66px minmax(0, 1fr) auto;
-    gap: 22px;
-    align-items: baseline;
-    padding: 26px 0;
-    border-bottom: 1px solid var(--tl-line);
-  }
-
-  .tl-flip-claim-row h3 {
-    font-size: clamp(22px, 2.8vw, 35px);
-    font-weight: 600;
-    line-height: 1.05;
-    letter-spacing: -0.03em;
-  }
-
-  .tl-flip-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 14px 18px;
-    padding-top: clamp(3rem, 8vh, 5rem);
-    color: var(--tl-muted);
-    font-size: 13px;
-  }
-
-  @media (max-width: 860px) {
-    .tl-flip-head,
-    .tl-flip-triptych {
-      grid-template-columns: 1fr;
-    }
-
-    :global(.tl-flip-art),
-    .tl-flip-triptych article {
-      min-height: 14rem;
-    }
-  }
-
-  @media (max-width: 767px) {
-    .tl-flip-detail {
-      padding: 5rem 16px 3rem;
-    }
-
-    .tl-flip-claim-row {
-      grid-template-columns: 1fr;
-      gap: 10px;
-    }
-  }
-
 </style>

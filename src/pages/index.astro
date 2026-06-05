@@ -1,53 +1,82 @@
 ---
-import { getCollection } from "astro:content";
-import HomePageComposition from "../frontend/thinkinglabs-ui/pages/HomePageComposition.astro";
+import { Picture } from "astro:assets";
+import homeHeroImage from "../assets/index.png";
 import ThinkinglabsUiPage from "../layouts/ThinkinglabsUiPage.astro";
-import { mapHomeKinds } from "../lib/thinkinglabs-ui.ts";
+import PageShell from "../frontend/thinkinglabs-ui/components/PageShell.astro";
+import SiteNav from "../frontend/thinkinglabs-ui/components/SiteNav.astro";
 
-const [
-  claims,
-  thoughts,
-  inputs,
-  observations,
-  projects,
-  predictions,
-  changedMyMind,
-  decisions,
-  questions,
-  posts,
-] =
-  await Promise.all([
-    getCollection("claims"),
-    getCollection("thoughts"),
-    getCollection("inputs"),
-    getCollection("observations"),
-    getCollection("projects"),
-    getCollection("predictions"),
-    getCollection("changed-my-mind"),
-    getCollection("decisions"),
-    getCollection("questions"),
-    getCollection("posts"),
-  ]);
-
-const counts = {
-  claims: claims.length,
-  thoughts: thoughts.length,
-  inputs: inputs.length,
-  observations: observations.length,
-  projects: projects.length,
-  predictions: predictions.length,
-  "changed-my-mind": changedMyMind.length,
-  decisions: decisions.length,
-  questions: questions.length,
-  posts: posts.length,
-};
-
-const kinds = mapHomeKinds(counts);
+// Links to the entity index pages, surfaced in the scrollable right column.
+const ENTITY_INDEXES = [
+  { href: "/now", label: "now" },
+  { href: "/thoughts", label: "thoughts" },
+  { href: "/claims", label: "claims" },
+  { href: "/predictions", label: "predictions" },
+  { href: "/decisions", label: "decisions" },
+  { href: "/observations", label: "observations" },
+  { href: "/changed-my-mind", label: "changed my mind" },
+  { href: "/questions", label: "questions" },
+  { href: "/projects", label: "projects" },
+  { href: "/posts", label: "posts" },
+  { href: "/about", label: "about" },
+  { href: "/contact", label: "contact" },
+] as const;
 ---
 
 <ThinkinglabsUiPage
   title="thinkinglabs"
   description="Personal thinking surface and structured public operating layer."
+  allowScroll
 >
-  <HomePageComposition kinds={kinds} />
+  <PageShell class="pb-0!">
+    <SiteNav />
+
+    {
+      /*
+      Fixed hero: the image and the title stay pinned to the viewport while the
+      link column scrolls past. On desktop (md+) the image is the left half and
+      the column sits on the image-free right half. On mobile the image is
+      full-bleed and the column overlays it, so the column carries a bottom
+      scrim and white ink for legibility over the photo. pointer-events-none
+      lets clicks reach the column underneath.
+    */
+    }
+    <div class="fixed inset-0 p-2 pointer-events-none">
+      <Picture
+        src={homeHeroImage}
+        formats={["avif", "webp"]}
+        alt="Screenshot of thinkinglabs home page"
+        widths={[480, 768, 1024, 1280, 1600, 2048, 2752]}
+        sizes="(min-width: 768px) 50vw, 100vw"
+        quality={80}
+        priority
+        class="h-full w-full object-cover md:w-1/2"
+      />
+      <h1
+        class="absolute left-4 top-14 text-white md:top-1/2 md:-translate-y-1/2"
+      >
+        thinkinglabs
+      </h1>
+    </div>
+
+    <div
+      class="relative ml-auto flex h-dvh w-full flex-col justify-end p-2 text-xs text-white md:w-1/2 md:bg-none md:text-inherit"
+    >
+      <p
+        class="absolute right-2 top-1/2 hidden max-w-xs -translate-y-1/2 opacity-60 md:block"
+      >
+        Personal thinking surface and structured public operating layer.
+      </p>
+      <nav aria-label="Site sections">
+        <ul>
+          {
+            ENTITY_INDEXES.map((entry) => (
+              <li>
+                <a href={entry.href}>{entry.label}</a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+    </div>
+  </PageShell>
 </ThinkinglabsUiPage>

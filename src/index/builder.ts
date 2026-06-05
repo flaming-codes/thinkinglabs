@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, rmSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import Database from "better-sqlite3";
-import { resolvedLastTouchedSync } from "../lib/git.ts";
+import { resolvedLastTouchedSyncBatch } from "../lib/git.ts";
 import { formatFrontmatterParseError } from "../lib/frontmatter-errors.ts";
 import { parseFrontmatterStrict } from "../lib/frontmatter-parse.ts";
 import { walkMarkdownFiles } from "../lib/markdown-walk.ts";
@@ -69,10 +69,8 @@ function deriveSlug(filePath: string, kindRoot: string): string {
 }
 
 /** Canonical history with mtime fallback so seeds and uncommitted fixtures still index. */
-function lastTouched(absPath: string, repoRoot: string): string {
-  return (
-    resolvedLastTouchedSync(absPath, repoRoot) ?? new Date(statSync(absPath).mtimeMs).toISOString()
-  );
+function lastTouched(absPath: string, resolved: string | null | undefined): string {
+  return resolved ?? new Date(statSync(absPath).mtimeMs).toISOString();
 }
 
 /** Edge `to_id` reduced to a bare slug; the edge `kind` already encodes the destination type so prefix is redundant. */
@@ -81,7 +79,13 @@ function normalizeLinkTarget(raw: string): string {
 }
 
 /** Read + validate a single file; throws with `<kind>/<slug>` and the Zod issue list on schema violations. */
-function readObject(kind: Kind, kindRoot: string, file: string, repoRoot: string): IndexedObject {
+function readObject(
+  kind: Kind,
+  kindRoot: string,
+  file: string,
+  repoRoot: string,
+  lastTouchedISO: string | null | undefined,
+): IndexedObject {
   const slug = deriveSlug(file, kindRoot);
   const raw = readFileSync(file, "utf8");
   let parsed: ReturnType<typeof parseFrontmatterStrict>;
@@ -124,7 +128,7 @@ function readObject(kind: Kind, kindRoot: string, file: string, repoRoot: string
     slug,
     frontmatter_json: JSON.stringify(data),
     body_md: parsed.content,
-    last_touched: lastTouched(file, repoRoot),
+    last_touched: lastTouched(file, lastTouchedISO),
     tags,
     links,
   };
@@ -132,12 +136,20 @@ function readObject(kind: Kind, kindRoot: string, file: string, repoRoot: string
 
 /** Walks `content/`, validates everything, returns objects sorted by id so downstream inserts are deterministic. */
 export function collectObjects(contentRoot: string, repoRoot: string): IndexedObject[] {
-  const out: IndexedObject[] = [];
+  const discovered: Array<{ kind: Kind; kindRoot: string; file: string }> = [];
   for (const kind of KINDS) {
     const kindRoot = join(contentRoot, kind);
     for (const file of walkMarkdownFiles(kindRoot)) {
-      out.push(readObject(kind, kindRoot, file, repoRoot));
+      discovered.push({ kind, kindRoot, file });
     }
+  }
+  const lastTouchedByFile = resolvedLastTouchedSyncBatch(
+    discovered.map((d) => d.file),
+    repoRoot,
+  );
+  const out: IndexedObject[] = [];
+  for (const { kind, kindRoot, file } of discovered) {
+    out.push(readObject(kind, kindRoot, file, repoRoot, lastTouchedByFile.get(file)));
   }
   return out.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
 }

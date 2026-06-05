@@ -29,6 +29,7 @@ const site = Astro.site ?? new URL(Astro.url.origin);
   description={entry.data.prediction}
   structuredData={predictionStructuredData(entry, Astro.url, site)}
   ogType="article"
+  allowScroll
 >
   <PredictionDetailPageComposition prediction={prediction}>
     <Content />

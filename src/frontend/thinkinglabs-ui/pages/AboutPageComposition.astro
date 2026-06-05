@@ -1,6 +1,9 @@
 ---
-import AppShell from "../components/AppShell.astro";
-import ScrollArrows from "../components/ScrollArrows.astro";
+import { Image, getImage } from "astro:assets";
+import portraitDark from "../../../assets/about/portrait-dark.jpg";
+import portraitLight from "../../../assets/about/portrait-light.webp";
+import PageShell from "../components/PageShell.astro";
+import SiteNav from "../components/SiteNav.astro";
 import type { AboutKind } from "../types";
 
 interface Props {
@@ -8,44 +11,76 @@ interface Props {
 }
 
 const { kinds } = Astro.props;
+const portraitWidths = [512, 768, 1024, 1536, 2048];
+const portraitSizes = "(min-width: 768px) 50vw, 100vw";
+const [portraitDarkAvif, portraitDarkWebp, portraitLightAvif, portraitLightWebp] =
+  await Promise.all([
+    getImage({ src: portraitDark, format: "avif", widths: portraitWidths, sizes: portraitSizes, quality: 82 }),
+    getImage({ src: portraitDark, format: "webp", widths: portraitWidths, sizes: portraitSizes, quality: 82 }),
+    getImage({ src: portraitLight, format: "avif", widths: portraitWidths, sizes: portraitSizes, quality: 82 }),
+    getImage({ src: portraitLight, format: "webp", widths: portraitWidths, sizes: portraitSizes, quality: 82 }),
+  ]);
 ---
 
-<AppShell activeNav="About" hideSelectedHud>
-  <article class="tl-about-page">
-    <header class="tl-about-hero">
-      <h1>About.</h1>
-      <p class="tl-about-lede">
+<PageShell>
+  <SiteNav revealBadge={false} />
+
+  <article
+    class="flex w-full flex-col gap-16 px-2 pt-2 pb-24 text-sm leading-[var(--tl-type-line-body)] text-[color:var(--tl-ink)] md:ml-auto md:w-1/2 md:pb-32 [&_a:hover]:opacity-70 [&_a]:text-inherit [&_a]:no-underline [&_h1]:m-0 [&_h2]:m-0 [&_h2]:max-w-[18ch] [&_h2]:text-inherit [&_h2]:leading-inherit [&_h2]:font-[var(--tl-type-heading-weight-strong)] [&_h2]:tracking-[0] [&_p]:m-0 [&_ul]:m-0 [&_ul]:list-none [&_ul]:p-0"
+  >
+    <figure class="m-0 w-full" aria-label="Portrait">
+      <picture>
+        <source
+          media="(prefers-color-scheme: dark)"
+          type="image/avif"
+          srcset={portraitDarkAvif.srcSet.attribute}
+          sizes={portraitSizes}
+        />
+        <source
+          media="(prefers-color-scheme: dark)"
+          type="image/webp"
+          srcset={portraitDarkWebp.srcSet.attribute}
+          sizes={portraitSizes}
+        />
+        <source
+          media="(prefers-color-scheme: light)"
+          type="image/avif"
+          srcset={portraitLightAvif.srcSet.attribute}
+          sizes={portraitSizes}
+        />
+        <source
+          media="(prefers-color-scheme: light)"
+          type="image/webp"
+          srcset={portraitLightWebp.srcSet.attribute}
+          sizes={portraitSizes}
+        />
+        <Image
+          src={portraitLight}
+          alt="Tom smiling in warm side light."
+          widths={portraitWidths}
+          sizes={portraitSizes}
+          quality={82}
+          priority
+          class="h-auto w-full"
+        />
+      </picture>
+    </figure>
+
+    <header class="flex max-w-xs flex-col gap-3 md:fixed md:top-1/2 md:left-2 md:w-[calc(50%-1rem)] md:-translate-y-1/2">
+      <h1
+        class="text-[var(--tl-type-display-md)] leading-[var(--tl-type-line-tight)] font-[var(--tl-type-heading-weight-strong)] tracking-[0] md:text-inherit md:leading-inherit md:font-inherit"
+      >
+        About
+      </h1>
+      <p class="md:max-w-xs md:opacity-60">
         I'm Tom Schönmann. thinkinglabs is my public working surface: a markdown repository
         turned into a website, feed system, index, and agent-readable map of my work.
       </p>
     </header>
 
-    <figure class="tl-about-portrait" aria-label="Portrait">
-      <picture>
-        <source
-          srcset="/images/about-portrait-dark.jpg"
-          media="(prefers-color-scheme: dark)"
-          type="image/jpeg"
-        />
-        <source
-          srcset="/images/about-portrait-light.webp"
-          media="(prefers-color-scheme: light)"
-          type="image/webp"
-        />
-        <img
-          src="/images/about-portrait-light.webp"
-          alt="Tom smiling in warm side light."
-          width="2048"
-          height="2048"
-          loading="eager"
-          decoding="async"
-        />
-      </picture>
-    </figure>
-
-    <section class="tl-about-section tl-about-intro" aria-labelledby="about-what-title">
-      <div class="tl-about-copy">
-        <h2 id="about-what-title">A desk left in public.</h2>
+    <section class="flex max-w-xs flex-col gap-4" aria-labelledby="about-what-title">
+      <h2 id="about-what-title">A desk left in public</h2>
+      <div class="flex flex-col gap-3 opacity-70">
         <p>
           It is not a portfolio and not quite a blog. It holds rough thoughts, stricter claims,
           predictions, project notes, decisions, questions, and the outside inputs that changed
@@ -59,9 +94,9 @@ const { kinds } = Astro.props;
       </div>
     </section>
 
-    <section class="tl-about-section" aria-labelledby="about-system-title">
-      <div class="tl-about-copy">
-        <h2 id="about-system-title">The repository is the durable object.</h2>
+    <section class="flex max-w-xs flex-col gap-4" aria-labelledby="about-system-title">
+      <h2 id="about-system-title">The repository is the durable object</h2>
+      <div class="flex flex-col gap-3 opacity-70">
         <p>
           The web UI, JSON feeds, SQLite index, MCP surfaces, and Markdown URL variants are
           derived views over the same source. {
@@ -78,49 +113,31 @@ const { kinds } = Astro.props;
       </div>
     </section>
 
-    <section class="tl-about-inventory" aria-labelledby="about-inventory-title">
-      <div class="tl-about-inventory-head">
-        <h2 id="about-inventory-title">The public shape of the repository.</h2>
-        <p>
+    <section class="flex max-w-xs flex-col gap-6" aria-labelledby="about-inventory-title">
+      <header class="flex flex-col gap-4">
+        <h2 id="about-inventory-title">The public shape of the repository</h2>
+        <p class="opacity-70">
           Each entry type has a job. Some are loose enough to catch a thought before it
           disappears; others are strict enough to make drift visible.
         </p>
-      </div>
+      </header>
 
-      <div class="tl-about-kind-grid" data-tl-about-kind-rail>
+      <ul class="flex flex-col gap-1">
         {
           kinds.map((kind) => (
-            <a
-              class="tl-about-kind"
-              href={kind.href}
-              data-entity={kind.slug}
-              aria-label={`${kind.name}: ${kind.gloss}`}
-            >
-              <span class="tl-about-kind-visual" aria-hidden="true"></span>
-              <span class="tl-about-kind-meta">
-                <span class="tl-about-kind-count">
-                  {kind.count} {kind.count === 1 ? "entry" : "entries"}
-                </span>
-                <span class="tl-about-kind-title">{kind.name}</span>
-                <span class="tl-about-kind-gloss">{kind.gloss}</span>
-              </span>
-            </a>
+            <li>
+              <a class="text-sm leading-[var(--tl-type-line-body)]" href={kind.href} aria-label={`${kind.name}: ${kind.gloss}`}>
+                {kind.name}
+              </a>
+            </li>
           ))
         }
-      </div>
-      <ScrollArrows
-        target="[data-tl-about-kind-rail]"
-        items=".tl-about-kind"
-        label="Repository structure"
-        variant="header"
-        rowOnly
-        wheel={false}
-      />
+      </ul>
     </section>
 
-    <section class="tl-about-section" aria-labelledby="about-reading-title">
-      <div class="tl-about-copy">
-        <h2 id="about-reading-title">Incomplete is part of the contract.</h2>
+    <section class="flex max-w-xs flex-col gap-4" aria-labelledby="about-reading-title">
+      <h2 id="about-reading-title">Incomplete is part of the contract</h2>
+      <div class="flex flex-col gap-3 opacity-70">
         <p>
           A claim can be revised. A prediction can resolve badly. A project can go dormant. The
           useful thing is not that every object is polished, but that the system leaves enough
@@ -134,9 +151,9 @@ const { kinds } = Astro.props;
       </div>
     </section>
 
-    <section class="tl-about-section" aria-labelledby="about-work-title">
-      <div class="tl-about-copy">
-        <h2 id="about-work-title">AI systems, made legible.</h2>
+    <section class="flex max-w-xs flex-col gap-4" aria-labelledby="about-work-title">
+      <h2 id="about-work-title">AI systems, made legible</h2>
+      <div class="flex flex-col gap-3 opacity-70">
         <p>
           I work for <a href="https://wild.as">wild.as</a>. Reach out at
           <a href="mailto:tom@wild.as">tom@wild.as</a> or
@@ -154,374 +171,10 @@ const { kinds } = Astro.props;
       </div>
     </section>
 
-    <section class="tl-about-colophon" aria-label="Colophon">
-      <p>
-        Built with Astro, markdown content collections, deterministic feeds, a derived SQLite
-        index, and a small MCP server for agent access. The typography and navigation are meant to
-        make the repository feel like a working surface rather than a publication schedule.
-      </p>
-    </section>
+    <footer class="max-w-xs opacity-60">
+      Built with Astro, markdown content collections, deterministic feeds, a derived SQLite
+      index, and a small MCP server for agent access. The typography and navigation are meant to
+      make the repository feel like a working surface rather than a publication schedule.
+    </footer>
   </article>
-</AppShell>
-
-<style>
-  .tl-about-page {
-    display: grid;
-    gap: 9rem;
-    width: min(100%, var(--tl-layout-page));
-    margin-inline: auto;
-    padding: 10rem var(--tl-space-11) 12rem;
-    color: var(--tl-ink);
-  }
-
-  .tl-about-hero {
-    display: grid;
-    gap: 2rem;
-    max-width: 58rem;
-  }
-
-  .tl-about-hero h1,
-  .tl-about-copy h2,
-  .tl-about-inventory-head h2 {
-    margin: 0;
-    color: var(--tl-ink);
-    font-weight: var(--tl-type-heading-weight-strong);
-    letter-spacing: 0;
-  }
-
-  .tl-about-hero h1 {
-    font-size: 56px;
-    line-height: var(--tl-type-line-tight);
-  }
-
-  .tl-about-lede {
-    max-width: 44rem;
-    margin: 0;
-    color: var(--tl-prose-ink);
-    font-size: var(--tl-type-body-lg);
-    font-weight: 420;
-    line-height: 1.62;
-    letter-spacing: 0;
-  }
-
-  .tl-about-portrait {
-    width: min(100%, 64rem);
-    margin: 0;
-  }
-
-  .tl-about-portrait img {
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    height: auto;
-    object-fit: cover;
-  }
-
-  .tl-about-section {
-    display: grid;
-    gap: 1.75rem;
-    align-items: start;
-    max-width: 48rem;
-  }
-
-  .tl-about-intro {
-    margin-top: 1rem;
-  }
-
-  .tl-about-copy {
-    display: grid;
-    gap: 2rem;
-    max-width: 48rem;
-  }
-
-  .tl-about-copy h2,
-  .tl-about-inventory-head h2 {
-    max-width: 16ch;
-    font-size: 30px;
-    line-height: 1.08;
-  }
-
-  .tl-about-copy p,
-  .tl-about-inventory-head p,
-  .tl-about-colophon p {
-    margin: 0;
-    color: var(--tl-prose-ink);
-    font-size: var(--tl-type-body-lg);
-    font-weight: 420;
-    line-height: 1.72;
-    letter-spacing: 0;
-  }
-
-  .tl-about-copy code {
-    color: var(--tl-ink);
-    font-family: var(--tl-font);
-    font-size: 0.94em;
-    font-weight: 560;
-  }
-
-  .tl-about-copy a,
-  .tl-about-kind,
-  .tl-about-colophon a {
-    color: var(--tl-ink);
-    text-decoration: none;
-  }
-
-  .tl-about-copy a:hover {
-    color: var(--tl-muted);
-  }
-
-  .tl-about-page .tl-about-kind:hover {
-    opacity: 1;
-  }
-
-  .tl-about-inventory {
-    display: grid;
-    gap: 4.5rem;
-    width: 100vw;
-    min-width: 0;
-    margin-inline: calc((100% - 100vw) / 2);
-  }
-
-  .tl-about-inventory-head {
-    display: grid;
-    gap: 1.75rem;
-    width: min(var(--tl-layout-page), calc(100vw - 48px));
-    max-width: 48rem;
-    margin-inline: max(24px, calc((100vw - 74rem) / 2 + 24px)) auto;
-  }
-
-  .tl-about-kind-grid {
-    display: flex;
-    align-items: start;
-    gap: var(--tl-space-gallery-gap);
-    width: 100%;
-    overflow-x: auto;
-    overflow-y: hidden;
-    overscroll-behavior-x: contain;
-    scroll-padding-inline: 0;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .tl-about-kind-grid::-webkit-scrollbar {
-    width: 0;
-    height: 0;
-  }
-
-  .tl-about-kind {
-    --card-aspect: 1 / 1;
-    --card-width: 16rem;
-    --card-half-width: clamp(8rem, 9vw, 12.5rem);
-    --tl-card-shadow: var(--tl-gallery-shadow);
-    --tl-card-hover-shadow: var(--tl-gallery-hover-shadow);
-    display: grid;
-    flex: 0 0 auto;
-    width: clamp(var(--card-width), 18vw, calc(var(--card-width) + 9rem));
-    gap: 1.15rem;
-    align-content: start;
-    scroll-snap-align: center;
-  }
-
-  .tl-about-kind:nth-child(7n+1) {
-    --card-width: 16rem;
-    --card-half-width: clamp(8rem, 9vw, 12.5rem);
-    --card-aspect: 3 / 4;
-  }
-
-  .tl-about-kind:nth-child(7n+2) {
-    --card-width: 22rem;
-    --card-half-width: clamp(11rem, 9vw, 15.5rem);
-    --card-aspect: 4 / 3;
-  }
-
-  .tl-about-kind:nth-child(7n+3) {
-    --card-width: 16rem;
-    --card-half-width: clamp(8rem, 9vw, 12.5rem);
-    --card-aspect: 3 / 4;
-  }
-
-  .tl-about-kind:nth-child(7n+4) {
-    --card-width: 17.5rem;
-    --card-half-width: clamp(8.75rem, 9vw, 13.25rem);
-    --card-aspect: 1 / 1;
-  }
-
-  .tl-about-kind:nth-child(7n+5) {
-    --card-width: 22rem;
-    --card-half-width: clamp(11rem, 9vw, 15.5rem);
-    --card-aspect: 4 / 3;
-  }
-
-  .tl-about-kind:nth-child(7n+6) {
-    --card-width: 16rem;
-    --card-half-width: clamp(8rem, 9vw, 12.5rem);
-    --card-aspect: 3 / 4;
-  }
-
-  .tl-about-kind:nth-child(7n+7) {
-    --card-width: 17.5rem;
-    --card-half-width: clamp(8.75rem, 9vw, 13.25rem);
-    --card-aspect: 1 / 1;
-  }
-
-  .tl-about-kind:first-child {
-    margin-inline-start: calc(50vw - var(--card-half-width));
-  }
-
-  .tl-about-kind:last-child {
-    margin-inline-end: calc(50vw - var(--card-half-width));
-  }
-
-  .tl-about-kind-visual {
-    position: relative;
-    display: block;
-    overflow: hidden;
-    aspect-ratio: var(--card-aspect);
-    background: var(--tl-entity-gradient-luster), var(--tl-entity-gradient, var(--tl-soft));
-    background-blend-mode: var(--tl-entity-gradient-blend);
-    box-shadow: var(--tl-card-shadow);
-  }
-
-  .tl-about-kind-visual::before {
-    position: absolute;
-    inset: -18%;
-    background: var(--tl-entity-gradient-luster), var(--tl-entity-gradient, var(--tl-soft));
-    background-blend-mode: var(--tl-entity-gradient-blend);
-    content: "";
-    transform: rotate(-4deg) scale(1.08);
-    transform-origin: var(--tl-gradient-origin, 50% 50%);
-    animation: tl-entity-tile-drift var(--tl-gradient-duration, 28s) ease-in-out infinite
-      alternate;
-  }
-
-  .tl-about-kind:focus-visible {
-    outline: none;
-  }
-
-  .tl-about-kind:focus-visible .tl-about-kind-visual {
-    outline: 2px solid var(--tl-focus);
-    outline-offset: 4px;
-  }
-
-  .tl-about-kind-meta {
-    display: grid;
-    gap: 0.8rem;
-  }
-
-  .tl-about-kind-count {
-    color: var(--tl-subtle);
-    font-size: var(--tl-type-mono-xs);
-    font-weight: 620;
-    line-height: 1;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-
-  .tl-about-kind-title {
-    color: var(--tl-ink);
-    font-size: 20px;
-    font-weight: var(--tl-type-heading-weight-strong);
-    line-height: 1.05;
-    letter-spacing: 0;
-  }
-
-  .tl-about-kind-gloss {
-    color: var(--tl-muted);
-    font-size: var(--tl-type-body-md);
-    font-weight: 420;
-    line-height: 1.55;
-  }
-
-  .tl-about-colophon {
-    display: grid;
-    gap: 1.5rem;
-    max-width: 42rem;
-    margin-top: 2rem;
-  }
-
-  .tl-about-colophon p:last-child {
-    color: var(--tl-muted);
-    font-size: 17px;
-  }
-
-  .tl-about-inventory :global(.tl-scroll-arrows) {
-    justify-self: center;
-    margin-top: -2rem;
-  }
-
-  @media (max-width: 900px) {
-    .tl-about-page {
-      gap: 7rem;
-      padding-top: 8rem;
-    }
-
-    .tl-about-hero h1 {
-      font-size: 48px;
-    }
-
-    .tl-about-lede {
-      font-size: 18px;
-    }
-
-    .tl-about-section {
-      grid-template-columns: 1fr;
-      gap: 2rem;
-    }
-
-    .tl-about-kind-grid {
-      gap: 6rem;
-    }
-
-    .tl-about-kind {
-      width: min(72vw, var(--card-width-mobile, 18rem));
-    }
-  }
-
-  @media (max-width: 620px) {
-    .tl-about-page {
-      gap: 5.5rem;
-      padding: 7rem var(--tl-space-8) 8rem;
-    }
-
-    .tl-about-hero {
-      gap: 1.6rem;
-    }
-
-    .tl-about-hero h1 {
-      font-size: 40px;
-    }
-
-    .tl-about-lede {
-      font-size: 17px;
-      line-height: 1.58;
-    }
-
-    .tl-about-copy h2,
-    .tl-about-inventory-head h2 {
-      font-size: 24px;
-    }
-
-    .tl-about-copy p,
-    .tl-about-inventory-head p {
-      font-size: 17px;
-    }
-
-    .tl-about-kind-grid {
-      gap: 5rem;
-    }
-
-    .tl-about-kind {
-      width: min(78vw, var(--card-width-mobile, 15rem));
-    }
-
-    .tl-about-kind:nth-child(3n+2) {
-      --card-width-mobile: 20rem;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .tl-about-kind-visual::before {
-      animation: none;
-    }
-  }
-</style>
+</PageShell>

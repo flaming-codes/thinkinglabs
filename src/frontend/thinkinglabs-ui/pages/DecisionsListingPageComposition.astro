@@ -24,13 +24,17 @@ const row = (decision: DecisionRow) => ({
 const page: EntityIndexPage = {
   slug: "decisions",
   eyebrow: "/decisions",
-  title: "Decisions.",
+  title: "Decisions",
   deck: "Choices, rejected alternatives, and the question that would make a decision worth revisiting. Reversals stay on file.",
   count: `${view.total} decisions`,
   stats: view.stats,
   sections: [
     { label: "Active", title: "In force.", rows: view.active.map(row) },
-    { label: "Reversed", title: "Changed later.", rows: view.reversed.map(row) },
+    {
+      label: "Reversed",
+      title: "Changed later.",
+      rows: view.reversed.map(row),
+    },
     { label: "Archived", title: "Retired.", rows: view.archived.map(row) },
   ],
 };

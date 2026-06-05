@@ -4,9 +4,10 @@ import type { DiffDay, DiffEntry } from "../types";
 
 interface Props {
   days: DiffDay[];
+  build?: string | null;
 }
 
-const { days } = Astro.props;
+const { days, build = null } = Astro.props;
 
 function deltaLabel(entry: DiffEntry): string {
   if (entry.outcome) {
@@ -82,7 +83,7 @@ function deltaTone(entry: DiffEntry): "up" | "down" | "neutral" {
 
   <footer class="tl-quote-foot is-inline">
     <span>/feed/brain-diff.xml · /feed/brain-diff.json</span>
-    <span>last build 2026-05-03 14:22 UTC</span>
+    {build && <span>last build {build}</span>}
   </footer>
 </AppShell>
 
