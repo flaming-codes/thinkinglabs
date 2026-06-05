@@ -13,9 +13,9 @@ tags: [agents, harness]
 
 # Agent Harness source of truth
 
-Prompts, skills, MCP configuration, provider settings, hooks, and generated
-agent instructions are managed through `.harness/src/**`. Do not hand-edit
-generated provider outputs for those concerns.
+Prompts, skills, MCP configuration, subagents, agent settings, lifecycle hooks,
+and generated provider instructions are managed through `.harness/src/**`. Do
+not hand-edit generated provider outputs for those concerns.
 
 After changing Harness source, run `pnpm harness apply` before finishing and
 include the generated output changes in the same review.

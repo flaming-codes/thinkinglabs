@@ -4,6 +4,48 @@
     {
       "note_id": "agents.proposals",
       "ref": {
+        "file": "scripts/review-proposals.ts",
+        "symbol": "runProposalsReview",
+        "kind": "function",
+        "namespace": "value"
+      },
+      "kind": "function",
+      "namespaces": ["value"],
+      "line": 145,
+      "column": 23,
+      "declarations": [
+        {
+          "file": "scripts/review-proposals.ts",
+          "kind": "function",
+          "line": 145,
+          "column": 23
+        }
+      ]
+    },
+    {
+      "note_id": "agents.proposals",
+      "ref": {
+        "file": "src/lib/agent-registry.ts",
+        "symbol": "AGENT_REGISTRY",
+        "kind": "const",
+        "namespace": "value"
+      },
+      "kind": "const",
+      "namespaces": ["value"],
+      "line": 29,
+      "column": 14,
+      "declarations": [
+        {
+          "file": "src/lib/agent-registry.ts",
+          "kind": "const",
+          "line": 29,
+          "column": 14
+        }
+      ]
+    },
+    {
+      "note_id": "agents.proposals",
+      "ref": {
         "file": "src/lib/proposal-dispatch.ts",
         "symbol": "registerHandler",
         "kind": "function",
@@ -18,6 +60,27 @@
           "file": "src/lib/proposal-dispatch.ts",
           "kind": "function",
           "line": 27,
+          "column": 17
+        }
+      ]
+    },
+    {
+      "note_id": "agents.proposals",
+      "ref": {
+        "file": "src/lib/proposal-queue.ts",
+        "symbol": "proposalId",
+        "kind": "function",
+        "namespace": "value"
+      },
+      "kind": "function",
+      "namespaces": ["value"],
+      "line": 217,
+      "column": 17,
+      "declarations": [
+        {
+          "file": "src/lib/proposal-queue.ts",
+          "kind": "function",
+          "line": 217,
           "column": 17
         }
       ]
@@ -124,6 +187,69 @@
           "kind": "function",
           "line": 158,
           "column": 17
+        }
+      ]
+    },
+    {
+      "note_id": "content.hero-images",
+      "ref": {
+        "file": "src/frontend/thinkinglabs-ui/lib/entity-hero.ts",
+        "symbol": "resolveEntityHero",
+        "kind": "function",
+        "namespace": "value"
+      },
+      "kind": "function",
+      "namespaces": ["value"],
+      "line": 34,
+      "column": 17,
+      "declarations": [
+        {
+          "file": "src/frontend/thinkinglabs-ui/lib/entity-hero.ts",
+          "kind": "function",
+          "line": 34,
+          "column": 17
+        }
+      ]
+    },
+    {
+      "note_id": "content.hero-images",
+      "ref": {
+        "file": "src/lib/hero-assets.ts",
+        "symbol": "resolveHeroSource",
+        "kind": "function",
+        "namespace": "value"
+      },
+      "kind": "function",
+      "namespaces": ["value"],
+      "line": 45,
+      "column": 17,
+      "declarations": [
+        {
+          "file": "src/lib/hero-assets.ts",
+          "kind": "function",
+          "line": 45,
+          "column": 17
+        }
+      ]
+    },
+    {
+      "note_id": "content.hero-images",
+      "ref": {
+        "file": "src/pages/og/[...slug].png.ts",
+        "symbol": "getStaticPaths",
+        "kind": "const",
+        "namespace": "value"
+      },
+      "kind": "const",
+      "namespaces": ["value"],
+      "line": 334,
+      "column": 14,
+      "declarations": [
+        {
+          "file": "src/pages/og/[...slug].png.ts",
+          "kind": "const",
+          "line": 334,
+          "column": 14
         }
       ]
     },

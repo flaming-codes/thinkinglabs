@@ -13,8 +13,17 @@ tags: [tooling, validation]
 
 # Tooling
 
-The project uses Vite+ through `vp` and package scripts. `pnpm verify` is the
-normal local gate for code changes, and now includes semantic-layer validation.
+The project uses Node `>=22.19.0`, pnpm `10.33.2`, and Vite+ through the global
+`vp` CLI. Run `vp install` after pulling remote changes.
 
-Use `pnpm semantic:check` to validate the trusted vault and `pnpm semantic:index`
-to regenerate its agent-facing hierarchy and code-reference sidecar.
+`pnpm verify` is the normal local gate for code changes: it cleans, typechecks,
+runs `vp check`, runs `pnpm semantic:check`, regenerates `vault/HIERARCHY.md`
+and `vault/.semantic-layer/code-refs.json` via `pnpm semantic:index`, builds,
+checks structured data, and runs Vitest. For read-only tasks, prefer
+`pnpm semantic:check` because `pnpm semantic:index` writes generated vault
+artifacts.
+
+The mandatory individual gates remain `pnpm format`, `pnpm lint`,
+`pnpm typecheck`, and `pnpm test`; Harness-source changes also require
+`pnpm harness apply`. Tooling claims are grounded in `package.json`,
+`vite.config.js`, and `semantic-layer.config.yml`.

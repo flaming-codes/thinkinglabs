@@ -12,6 +12,7 @@ Agents: read this file first, then load notes by id.
   - **architecture.mcp** - MCP architecture. The stdio and HTTP transports share one MCP server factory and store.
   - **architecture.source-index** - Source and index split. Content markdown is canonical and dist/index.sqlite is derived for agents.
 - **content** - Content model. Schema-driven public objects rendered into site, API, feed, and MCP surfaces.
+  - **content.hero-images** - Entity hero images. Convention-based local assets for content detail heroes and OG detail cards.
   - **content.rendering** - Rendering surfaces. Astro pages and machine-readable surfaces render from typed content collections.
   - **content.schemas** - Schema registry. KIND_SCHEMAS and KIND_REGISTRY are the two core content registries.
 - **deployment** - Deployment model. Static site deployment is separate from the optional MCP HTTP runtime.

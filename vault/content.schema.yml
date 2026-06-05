@@ -3,4 +3,4 @@ schemas:
   - id: content
     title: Content
     parent: root
-    children: [schemas, rendering]
+    children: [schemas, rendering, hero-images]

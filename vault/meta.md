@@ -19,3 +19,8 @@ and workflow facts that agents should trust before reading broad source.
 
 The generated index is rooted at [[root#thinking-labs-semantic-layer]] and should
 be refreshed with `pnpm semantic:index` after vault edits.
+
+`semantic-layer.config.yml` requires the extra frontmatter field `layer`, writes
+code references to `vault/.semantic-layer/code-refs.json`, and stages refinement
+candidates under `vault/.semantic-layer/refinements`. After vault changes, run
+both `pnpm semantic:check` and `pnpm semantic:index`.

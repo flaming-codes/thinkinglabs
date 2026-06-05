@@ -26,5 +26,8 @@ tags: [content, schemas, registry]
 public routing, listing labels, title/date fields, API exposure, and MCP
 visibility. Both registries are exhaustively typed against `Kind`.
 
-When adding or changing a kind, update both registries and all downstream
-surfaces that rely on them.
+When adding a kind, update `src/schemas/<kind>.ts`, register it in
+`KIND_SCHEMAS`, add the `KIND_REGISTRY` entry, declare the Astro collection in
+`src/content.config.ts`, add listing and detail routes, add
+`src/pages/api/<kind>.json.ts`, and update any public surfaces that should
+expose it.

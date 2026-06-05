@@ -29,3 +29,12 @@ transport.
 
 The MCP store prefers `dist/index.sqlite` and falls back to validated markdown
 through the index builder when the derived index is absent.
+
+MCP resources and `query_view` targets are derived from public views and
+`KIND_REGISTRY`, but `provenance` is explicitly excluded from runtime MCP views
+and detail resources. Keep the server public-only unless the auth contract
+changes.
+
+Most MCP tools are read-only or handoff-only: `contact.send` never sends mail.
+`question.submit` is the exception; it writes structured reader answers to
+`submissions/questions/<slug>/`, not to `content/` or `dist/index.sqlite`.

@@ -19,4 +19,5 @@ routes, APIs, and agent surfaces aligned.
 
 Load [[content.schemas]] before changing schemas or registry behavior. Load
 [[content.rendering]] before changing Astro rendering or generated public
-surfaces.
+surfaces. Load [[content.hero-images]] before changing entity detail hero or OG
+image behavior.

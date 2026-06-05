@@ -29,3 +29,6 @@ The index builder walks every content kind, parses strict frontmatter, validates
 with `KIND_SCHEMAS`, derives links and tags, and writes deterministic SQLite.
 Do not add code paths that mutate the index without going through source
 markdown.
+
+The rendered Astro site reads validated source content through Astro
+collections and registries. It must not read `dist/index.sqlite` at render time.

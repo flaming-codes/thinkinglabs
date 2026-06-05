@@ -13,9 +13,10 @@ tags: [architecture]
 
 # Architecture map
 
-Thinking Labs is source-tree first. Public content lives in `content/`, schemas
-validate the markdown frontmatter, Astro renders the static site, and the
-agent-facing SQLite index is rebuilt from the same source.
+Thinking Labs is source-tree first. Canonical content objects live in `content/`;
+schemas validate markdown frontmatter, registries control public exposure, Astro
+renders the static site, and the agent-facing SQLite index is rebuilt from the
+same source.
 
 Load [[architecture.source-index]] before changing source/index behavior.
 Load [[architecture.mcp]] before changing the MCP server or agent query
