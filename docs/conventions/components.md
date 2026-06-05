@@ -28,6 +28,8 @@ All visual UI components live here. The key building blocks are:
 
 Page compositions live in `src/frontend/thinkinglabs-ui/pages/` (named `*PageComposition.astro`). These are the assembled page layouts that `src/pages/**/*.astro` route files delegate to.
 
+Entity detail hero images are resolved outside frontmatter by local asset convention: place `src/assets/<kind>/<slug>.<ext>` next to the content route shape. Supported extensions are `avif`, `webp`, `png`, `jpg`, and `jpeg`, with earlier formats taking precedence. Detail pages and OG images share this convention and fall back to `src/assets/hero.png`.
+
 ## Rules
 
 - Components must stay thin and kind-agnostic. Per-kind logic (for example, grouping projects by status, splitting predictions into pending vs resolved) lives in the page file or a `src/lib/<kind>.ts` helper, never in a component.
