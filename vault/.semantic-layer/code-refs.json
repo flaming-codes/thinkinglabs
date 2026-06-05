@@ -256,6 +256,27 @@
     {
       "note_id": "content.rendering",
       "ref": {
+        "file": "src/frontend/thinkinglabs-ui/lib/page-lifecycle.ts",
+        "symbol": "onPageReady",
+        "kind": "function",
+        "namespace": "value"
+      },
+      "kind": "function",
+      "namespaces": ["value"],
+      "line": 4,
+      "column": 17,
+      "declarations": [
+        {
+          "file": "src/frontend/thinkinglabs-ui/lib/page-lifecycle.ts",
+          "kind": "function",
+          "line": 4,
+          "column": 17
+        }
+      ]
+    },
+    {
+      "note_id": "content.rendering",
+      "ref": {
         "file": "src/lib/agent-metadata.ts",
         "symbol": "agentMetadataForContent",
         "kind": "function",

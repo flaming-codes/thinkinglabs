@@ -34,6 +34,7 @@ const { target, items, label, variant = "page", rowOnly = false, wheel = true } 
 </div>
 
 <script>
+  import { onPageReady } from "../lib/page-lifecycle";
   import { bindHorizontalWheelScroll } from "../lib/horizontal-wheel-scroll";
 
   let controller: AbortController | null = null;
@@ -104,7 +105,7 @@ const { target, items, label, variant = "page", rowOnly = false, wheel = true } 
       .forEach((root) => initScrollControls(root, signal));
   };
 
-  document.addEventListener("astro:page-load", init);
+  onPageReady(init);
 </script>
 
 <style>

@@ -113,6 +113,8 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
 </header>
 
 <script>
+  import { onPageReady } from "../lib/page-lifecycle";
+
   let controller: AbortController | null = null;
 
   const init = () => {
@@ -284,7 +286,7 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, "/");
     );
   };
 
-  document.addEventListener("astro:page-load", init);
+  onPageReady(init);
 </script>
 
 <style>

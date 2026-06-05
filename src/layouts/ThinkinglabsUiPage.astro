@@ -1,6 +1,5 @@
 ---
 import { Font } from "astro:assets";
-import { ClientRouter } from "astro:transitions";
 import "../frontend/thinkinglabs-ui/styles.css";
 import "../styles/view-transitions.css";
 import JsonLd from "../components/JsonLd.astro";
@@ -62,7 +61,6 @@ const jsonLd = buildPageGraph({ site, url: canonical, title: titleMeta, descript
     <meta name="twitter:image:alt" content={imageAlt} />
     <Font cssVariable="--font-golos-text" preload />
     <JsonLd data={jsonLd} />
-    <ClientRouter />
   </head>
   <body data-tl-allow-scroll={allowScroll ? "true" : undefined}>
     <a href="#main-content" class="tl-skip-link">Skip to main content</a>

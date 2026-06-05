@@ -27,6 +27,8 @@ const { access } = Astro.props;
 </div>
 
 <script>
+  import { onPageReady } from "../lib/page-lifecycle";
+
   let controller: AbortController | null = null;
 
   const init = () => {
@@ -59,7 +61,7 @@ const { access } = Astro.props;
     }
   };
 
-  document.addEventListener("astro:page-load", init);
+  onPageReady(init);
 </script>
 
 <style>

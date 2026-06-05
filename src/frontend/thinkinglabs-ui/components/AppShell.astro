@@ -31,6 +31,8 @@ const showSelectedHud = activeNav !== "Index" && !hideSelectedHud;
 <SiteFooter />
 
 <script>
+  import { onPageReady } from "../lib/page-lifecycle";
+
   let controller: AbortController | null = null;
 
   const init = () => {
@@ -78,7 +80,7 @@ const showSelectedHud = activeNav !== "Index" && !hideSelectedHud;
     updateSelected();
   };
 
-  document.addEventListener("astro:page-load", init);
+  onPageReady(init);
 </script>
 
 <style>

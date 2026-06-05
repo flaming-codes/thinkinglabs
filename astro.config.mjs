@@ -24,11 +24,8 @@ export default defineConfig({
     },
   ],
   build: {
-    // ClientRouter swaps destination <head> styles into the current document.
-    // With CSP hashes, inline component styles from the destination route are
-    // blocked because the initial document did not whitelist them. Keep route
-    // CSS in external files so same-origin stylesheet links survive client
-    // navigation under CSP.
+    // Keep route CSS external so Astro's hash-based CSP can allow page styles
+    // without per-route inline style hashes.
     inlineStylesheets: "never",
   },
   integrations: [],

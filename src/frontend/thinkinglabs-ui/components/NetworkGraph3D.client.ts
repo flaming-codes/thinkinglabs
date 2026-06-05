@@ -16,6 +16,7 @@ import {
   WebGLRenderer,
 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { onBeforePageSwap, onPageReady } from "../lib/page-lifecycle";
 
 /** Per-node payload the Astro page injects via JSON; coordinates are baked at build time. */
 interface PayloadNode {
@@ -323,8 +324,8 @@ function computeExtents(nodes: ReadonlyArray<PayloadNode>): { radius: number } {
   return { radius: Math.sqrt(maxSq) };
 }
 
-document.addEventListener("astro:page-load", init);
-document.addEventListener("astro:before-swap", () => {
+onPageReady(init);
+onBeforePageSwap(() => {
   disposeCurrent?.();
   disposeCurrent = null;
 });
