@@ -12,6 +12,11 @@ import {
   readOgImageCache,
   writeOgImageCache,
 } from "../../lib/og-image-cache.ts";
+import {
+  FALLBACK_HERO_SOURCE,
+  HERO_ASSET_EXTENSIONS,
+  resolveHeroSource as resolveLocalHeroSource,
+} from "../../lib/hero-assets.ts";
 import { KIND_REGISTRY, LISTING_KINDS, titleFor } from "../../lib/registry.ts";
 import type { Kind } from "../../schemas/index.ts";
 
@@ -85,32 +90,25 @@ type SatoriNode = SatoriElement | string;
 const OG_IMAGE_WIDTH = 1200;
 const OG_IMAGE_HEIGHT = 628;
 const OG_ROUTE_SOURCE = join(process.cwd(), "src/pages/og/[...slug].png.ts");
+const HERO_ASSETS_SOURCE = join(process.cwd(), "src/lib/hero-assets.ts");
 
 /** Detail-card hero geometry, mirroring the page above-the-fold: a thin gap to the edges and the hero photo at 3/4 width. */
 const HERO_PAD = 16;
 const HERO_W = Math.round((OG_IMAGE_WIDTH - HERO_PAD * 2) * 0.75);
 const HERO_H = OG_IMAGE_HEIGHT - HERO_PAD * 2;
-const HERO_SOURCE = "src/assets/hero.png";
-
-/** Per-entity hero artwork mirrors the route shape on disk: `src/assets/<folder>/<slug>.<ext>`. */
-const HERO_EXTENSIONS = ["png", "jpg", "jpeg", "webp"] as const;
 
 /** Resolve a detail card's on-disk hero by route folder + slug, falling back to the shared hero when no per-entity asset exists. */
 function resolveHeroSource(folder: string, slug: string): string {
-  for (const ext of HERO_EXTENSIONS) {
-    const candidate = `src/assets/${folder}/${slug}.${ext}`;
-    if (existsSync(candidate)) return candidate;
-  }
-  return HERO_SOURCE;
+  return resolveLocalHeroSource({ folder, slug, exists: existsSync });
 }
 
 /** Resolve the listing/static hero to the same `<slug>-hero` asset convention used by HalfHeroLayout. */
 function resolveListingHeroSource(slug: string): string {
-  for (const ext of HERO_EXTENSIONS) {
+  for (const ext of HERO_ASSET_EXTENSIONS) {
     const candidate = `src/assets/${slug}-hero.${ext}`;
     if (existsSync(candidate)) return candidate;
   }
-  return HERO_SOURCE;
+  return FALLBACK_HERO_SOURCE;
 }
 
 /** Cache the resized data URI per source path - detail cards may share the fallback or carry their own hero. */
@@ -395,13 +393,13 @@ export const GET: APIRoute = async ({ params, props }) => {
       heroPad: HERO_PAD,
       heroWidth: HERO_W,
       heroHeight: HERO_H,
-      heroSource: HERO_SOURCE,
-      heroExtensions: HERO_EXTENSIONS,
+      heroSource: FALLBACK_HERO_SOURCE,
+      heroExtensions: HERO_ASSET_EXTENSIONS,
       heroResize: { fit: "cover", format: "jpeg", quality: 82 },
       theme: OG_THEME,
       layouts: LAYOUTS,
     },
-    sourceFilePaths: [OG_ROUTE_SOURCE],
+    sourceFilePaths: [OG_ROUTE_SOURCE, HERO_ASSETS_SOURCE],
     fontFilePaths: [fontPath(400), fontPath(500), fontPath(600)],
     heroAssetPath: image.heroSource,
   });

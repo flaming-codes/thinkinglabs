@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
-test.describe("client-routed detail pages", () => {
-  test("load destination component styles under CSP", async ({ page }) => {
+test.describe("detail pages", () => {
+  test("load component styles under CSP", async ({ page }) => {
     const cspViolations: string[] = [];
     page.on("console", (message) => {
       const text = message.text();

@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, rmSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import Database from "better-sqlite3";
+import { estimateTokenCount, wordCount } from "../lib/agent-metadata.ts";
 import { resolvedLastTouchedSyncBatch } from "../lib/git.ts";
 import { formatFrontmatterParseError } from "../lib/frontmatter-errors.ts";
 import { parseFrontmatterStrict } from "../lib/frontmatter-parse.ts";
@@ -17,6 +18,8 @@ export interface IndexedObject {
   frontmatter_json: string;
   body_md: string;
   last_touched: string;
+  word_count: number;
+  approx_token_count: number;
   tags: ReadonlyArray<string>;
   links: ReadonlyArray<{ to_id: string; kind: string }>;
 }
@@ -30,6 +33,8 @@ CREATE TABLE objects (
   frontmatter_json TEXT NOT NULL,
   body_md TEXT NOT NULL,
   last_touched TEXT NOT NULL,
+  word_count INTEGER NOT NULL,
+  approx_token_count INTEGER NOT NULL,
   UNIQUE(kind, slug)
 );
 CREATE INDEX objects_kind_idx ON objects(kind);
@@ -129,6 +134,8 @@ function readObject(
     frontmatter_json: JSON.stringify(data),
     body_md: parsed.content,
     last_touched: lastTouched(file, lastTouchedISO),
+    word_count: wordCount([JSON.stringify(data), parsed.content].join("\n\n")),
+    approx_token_count: estimateTokenCount([JSON.stringify(data), parsed.content].join("\n\n")),
     tags,
     links,
   };
@@ -163,7 +170,7 @@ export function writeIndex(objects: ReadonlyArray<IndexedObject>, outFile: strin
   db.exec(SCHEMA_SQL);
 
   const insertObject = db.prepare(
-    "INSERT INTO objects (id, kind, slug, frontmatter_json, body_md, last_touched) VALUES (?, ?, ?, ?, ?, ?)",
+    "INSERT INTO objects (id, kind, slug, frontmatter_json, body_md, last_touched, word_count, approx_token_count) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
   );
   const insertLink = db.prepare(
     "INSERT OR IGNORE INTO links (from_id, to_id, kind) VALUES (?, ?, ?)",
@@ -175,7 +182,16 @@ export function writeIndex(objects: ReadonlyArray<IndexedObject>, outFile: strin
 
   const tx = db.transaction((rows: ReadonlyArray<IndexedObject>) => {
     for (const o of rows) {
-      insertObject.run(o.id, o.kind, o.slug, o.frontmatter_json, o.body_md, o.last_touched);
+      insertObject.run(
+        o.id,
+        o.kind,
+        o.slug,
+        o.frontmatter_json,
+        o.body_md,
+        o.last_touched,
+        o.word_count,
+        o.approx_token_count,
+      );
     }
     for (const o of rows) {
       const sortedLinks = [...o.links].sort((a, b) =>

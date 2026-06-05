@@ -43,6 +43,12 @@ function writeProject(dir: string, slug: string, daysAgo: number): string {
   return path;
 }
 
+/** Close injected review streams so Vitest fork workers have no live stream handles to terminate. */
+function closeReviewIo(input: PassThrough, output: PassThrough): void {
+  input.destroy();
+  output.destroy();
+}
+
 describe("dormant-flip + review-proposals round-trip (integration)", () => {
   it("dormant-flip against empty content tree exits 0 and prints scanned 0", () => {
     const root = mkdtempSync(join(tmpdir(), "rp-int-empty-"));
@@ -93,9 +99,14 @@ describe("dormant-flip + review-proposals round-trip (integration)", () => {
           const input = new PassThrough();
           const output = new PassThrough();
 
-          const reviewPromise = runProposalsReview({ io: { input, output } });
-          input.push("a");
-          const summary = await reviewPromise;
+          let summary: Awaited<ReturnType<typeof runProposalsReview>>;
+          try {
+            const reviewPromise = runProposalsReview({ io: { input, output } });
+            input.end("a");
+            summary = await reviewPromise;
+          } finally {
+            closeReviewIo(input, output);
+          }
 
           expect(summary.accepted).toBe(1);
           expect(summary.queueSize).toBe(0);
@@ -197,8 +208,13 @@ describe("dormant-flip + review-proposals round-trip (integration)", () => {
         });
 
         const reviewPromise = runProposalsReview({ cwd: root, io: { input, output } });
-        input.push("a");
-        const summary = await reviewPromise;
+        let summary: Awaited<ReturnType<typeof runProposalsReview>>;
+        try {
+          input.end("a");
+          summary = await reviewPromise;
+        } finally {
+          closeReviewIo(input, output);
+        }
 
         expect(summary.accepted).toBe(1);
         expect(summary.queueSize).toBe(0);
@@ -242,9 +258,13 @@ describe("dormant-flip + review-proposals round-trip (integration)", () => {
 
         const input = new PassThrough();
         const output = new PassThrough();
-        const reviewPromise = runProposalsReview({ cwd: root, io: { input, output } });
-        input.push("a");
-        await expect(reviewPromise).rejects.toThrow(/already in applying phase/);
+        try {
+          const reviewPromise = runProposalsReview({ cwd: root, io: { input, output } });
+          input.end("a");
+          await expect(reviewPromise).rejects.toThrow(/already in applying phase/);
+        } finally {
+          closeReviewIo(input, output);
+        }
         expect(readQueue(root)).toHaveLength(1);
       } finally {
         rmSync(root, { recursive: true, force: true });

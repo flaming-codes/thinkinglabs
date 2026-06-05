@@ -87,12 +87,14 @@ const { links = DEFAULT_LINKS, revealBadge = true } = Astro.props;
 </aside>
 
 <script>
+  import { onPageReady } from "../lib/page-lifecycle";
+
   // Bring the CSS checkbox-toggle nav up to keyboard parity with SiteHeader:
   // Escape closes, focus is trapped within the open panel, and focus returns to
   // the trigger on close. The checkbox stays the single source of truth for the
   // open/closed visual state (CSS peer-checked); this script only layers focus
   // management on top of it. Mirrors SiteHeader's AbortController +
-  // astro:page-load lifecycle so it survives view transitions cleanly.
+  // shared page lifecycle so it survives normal page loads and router swaps.
   let controller: AbortController | null = null;
 
   const init = () => {
@@ -164,7 +166,7 @@ const { links = DEFAULT_LINKS, revealBadge = true } = Astro.props;
     );
   };
 
-  document.addEventListener("astro:page-load", init);
+  onPageReady(init);
 </script>
 
 <style>

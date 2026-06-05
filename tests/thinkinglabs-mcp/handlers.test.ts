@@ -110,11 +110,18 @@ describe("thinkinglabs-mcp handlers", () => {
     const data = result.structuredContent as {
       source: string;
       count: number;
-      items: Array<{ title: string }>;
+      items: Array<{
+        title: string;
+        agent_metadata?: { markdown_url: string; approx_token_count: number };
+      }>;
     };
     expect(data.source).toBe("source");
     expect(data.count).toBe(1);
     expect(data.items[0]?.title).toBe("MCP Notes");
+    expect(data.items[0]?.agent_metadata).toMatchObject({
+      markdown_url: "/thoughts/mcp-notes.md",
+    });
+    expect(data.items[0]?.agent_metadata?.approx_token_count).toBeGreaterThan(0);
   }, 15_000);
 
   it("queries sqlite-backed public views when the index exists", () => {
@@ -124,7 +131,10 @@ describe("thinkinglabs-mcp handlers", () => {
     const data = result.structuredContent as {
       source: string;
       count: number;
-      items: Array<{ slug: string }>;
+      items: Array<{
+        slug: string;
+        agent_metadata?: { markdown_url: string; approx_token_count: number };
+      }>;
     };
     expect(data.source).toBe("sqlite");
     expect(data.items.map((item) => item.slug).sort()).toEqual([
@@ -132,6 +142,10 @@ describe("thinkinglabs-mcp handlers", () => {
       "mcp-notes",
       "mcp-question",
     ]);
+    for (const item of data.items) {
+      expect(item.agent_metadata?.markdown_url).toMatch(/\.md$/);
+      expect(item.agent_metadata?.approx_token_count).toBeGreaterThan(0);
+    }
   }, 15_000);
 
   it("rejects provenance as a query_view target", () => {

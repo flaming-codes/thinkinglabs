@@ -2,8 +2,16 @@ import matter from "gray-matter";
 import { z } from "zod";
 import { getCollection } from "astro:content";
 import type { Kind } from "../schemas/index.ts";
+import {
+  agentMetadataForContent,
+  contentSourcePath,
+  estimateTokenCount,
+  markdownUrlForRoute,
+} from "./agent-metadata.ts";
 import { detailHref, formatDate } from "./entity-routes.ts";
 import { KIND_REGISTRY, titleFor, type KindRegistryEntry } from "./registry.ts";
+
+export { markdownUrlForRoute } from "./agent-metadata.ts";
 
 const jsonValueSchema: z.ZodType<JsonValue> = z.lazy(() =>
   z.union([
@@ -88,8 +96,20 @@ const detailLinksSchema = z
     }
   });
 
-/** Contract for detail-page Markdown YAML envelopes. */
-export const markdownDetailEnvelopeSchema = z
+const agentMetadataSchema = z
+  .object({
+    source_path: z.string().min(1),
+    html_url: z.string().min(1),
+    markdown_url: z.string().min(1),
+    source_url: z.string().min(1),
+    summary: z.string(),
+    word_count: z.number().int().nonnegative(),
+    approx_token_count: z.number().int().nonnegative(),
+    token_estimate: z.literal("chars/4"),
+  })
+  .strict();
+
+const markdownDetailEnvelopeBaseSchema = z
   .object({
     variant: z.literal("detail"),
     kind: publicMarkdownKindSchema,
@@ -99,6 +119,13 @@ export const markdownDetailEnvelopeSchema = z
     source_path: z.string().min(1),
     frontmatter: jsonObjectSchema,
     links: detailLinksSchema.optional(),
+  })
+  .strict();
+
+/** Contract for detail-page Markdown YAML envelopes. */
+export const markdownDetailEnvelopeSchema = markdownDetailEnvelopeBaseSchema
+  .extend({
+    agent_metadata: agentMetadataSchema,
   })
   .strict();
 
@@ -327,12 +354,6 @@ const LINK_FIELD_TARGETS: Readonly<
 
 let markdownRouteRecordsPromise: Promise<MarkdownRouteRecord[]> | null = null;
 
-/** Convert a canonical public HTML route into its Markdown sibling URL. */
-export function markdownUrlForRoute(route: string): string {
-  if (route === "/") return "/index.md";
-  return `${route.replace(/\/$/, "")}.md`;
-}
-
 /** Enumerate Astro static paths for every public Markdown URL variant. */
 export async function getMarkdownStaticPaths(): Promise<Array<{ params: { slug: string } }>> {
   const records = await getCachedMarkdownRouteRecords();
@@ -348,6 +369,7 @@ export async function markdownResponseForSlug(slug: string | undefined): Promise
   return new Response(record.markdown, {
     headers: {
       "content-type": "text/markdown; charset=utf-8",
+      "x-agent-token-estimate": String(estimateTokenCount(record.markdown)),
     },
   });
 }
@@ -379,21 +401,32 @@ export function renderDetailMarkdown(args: {
   const route = detailHref(args.kind, args.entry.id);
   const frontmatter = toJsonObject(args.entry.data);
   const links = resolveLinks(args.kind, args.entry, args.lookup ?? new Map());
-  const envelopeInput: Omit<MarkdownDetailEnvelope, "links"> & {
-    readonly links?: MarkdownDetailEnvelope["links"];
-  } = {
+  const body = args.entry.body ?? "";
+  const envelopeInput: z.infer<typeof markdownDetailEnvelopeBaseSchema> = {
     variant: "detail",
     kind: args.kind,
     slug: args.entry.id,
     url: route,
     title: titleFor(args.kind, args.entry.data, args.entry.id),
-    source_path: `content/${args.kind}/${args.entry.id}.md`,
+    source_path: contentSourcePath(args.kind, args.entry.id),
     frontmatter,
   };
-  const envelope = markdownDetailEnvelopeSchema.parse(
-    links ? { ...envelopeInput, links } : envelopeInput,
-  );
-  return stringifyMarkdown(envelope, args.entry.body ?? "");
+  const baseEnvelope = markdownDetailEnvelopeBaseSchema.parse({
+    ...envelopeInput,
+    ...(links ? { links } : {}),
+  });
+  const draft = stringifyBaseDetailMarkdown(baseEnvelope, body);
+  const envelope = markdownDetailEnvelopeSchema.parse({
+    ...baseEnvelope,
+    agent_metadata: agentMetadataForContent({
+      kind: args.kind,
+      slug: args.entry.id,
+      body,
+      frontmatter,
+      markdown: draft,
+    }),
+  });
+  return stringifyMarkdown(envelope, body);
 }
 
 /** Serialize one public collection listing as a Markdown document. */
@@ -476,6 +509,14 @@ function stringifyMarkdown(envelope: MarkdownEnvelope, body: string): string {
   return envelopeMarkdown.replace(/\n\n$/, "\n") + body;
 }
 
+function stringifyBaseDetailMarkdown(
+  envelope: z.infer<typeof markdownDetailEnvelopeBaseSchema>,
+  body: string,
+): string {
+  const envelopeMarkdown = matter.stringify("", markdownDetailEnvelopeBaseSchema.parse(envelope));
+  return envelopeMarkdown.replace(/\n\n$/, "\n") + body;
+}
+
 function ensureTrailingNewline(body: string): string {
   return body.endsWith("\n") ? body : `${body}\n`;
 }
@@ -487,6 +528,9 @@ function listingItem(kind: PublicMarkdownKind, entry: MarkdownEntry): string {
   const title = titleFor(kind, data, entry.id);
   const route = detailHref(kind, entry.id);
   const parts = [`[HTML](${route})`, `[Markdown](${markdownUrlForRoute(route)})`];
+  parts.push(
+    `~${estimateTokenCount([JSON.stringify(data), entry.body ?? ""].join("\n\n"))} tokens`,
+  );
   const dateValue = data[spec.dateField];
   if (typeof dateValue === "string") parts.push(formatDate(dateValue));
   if (runtimeSpec.statusField) {

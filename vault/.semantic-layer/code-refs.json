@@ -1,0 +1,362 @@
+{
+  "schema_version": 1,
+  "refs": [
+    {
+      "note_id": "agents.proposals",
+      "ref": {
+        "file": "scripts/review-proposals.ts",
+        "symbol": "runProposalsReview",
+        "kind": "function",
+        "namespace": "value"
+      },
+      "kind": "function",
+      "namespaces": ["value"],
+      "line": 145,
+      "column": 23,
+      "declarations": [
+        {
+          "file": "scripts/review-proposals.ts",
+          "kind": "function",
+          "line": 145,
+          "column": 23
+        }
+      ]
+    },
+    {
+      "note_id": "agents.proposals",
+      "ref": {
+        "file": "src/lib/agent-registry.ts",
+        "symbol": "AGENT_REGISTRY",
+        "kind": "const",
+        "namespace": "value"
+      },
+      "kind": "const",
+      "namespaces": ["value"],
+      "line": 29,
+      "column": 14,
+      "declarations": [
+        {
+          "file": "src/lib/agent-registry.ts",
+          "kind": "const",
+          "line": 29,
+          "column": 14
+        }
+      ]
+    },
+    {
+      "note_id": "agents.proposals",
+      "ref": {
+        "file": "src/lib/proposal-dispatch.ts",
+        "symbol": "registerHandler",
+        "kind": "function",
+        "namespace": "value"
+      },
+      "kind": "function",
+      "namespaces": ["value"],
+      "line": 27,
+      "column": 17,
+      "declarations": [
+        {
+          "file": "src/lib/proposal-dispatch.ts",
+          "kind": "function",
+          "line": 27,
+          "column": 17
+        }
+      ]
+    },
+    {
+      "note_id": "agents.proposals",
+      "ref": {
+        "file": "src/lib/proposal-queue.ts",
+        "symbol": "proposalId",
+        "kind": "function",
+        "namespace": "value"
+      },
+      "kind": "function",
+      "namespaces": ["value"],
+      "line": 217,
+      "column": 17,
+      "declarations": [
+        {
+          "file": "src/lib/proposal-queue.ts",
+          "kind": "function",
+          "line": 217,
+          "column": 17
+        }
+      ]
+    },
+    {
+      "note_id": "agents.proposals",
+      "ref": {
+        "file": "src/lib/review-cli.ts",
+        "symbol": "runReview",
+        "kind": "function",
+        "namespace": "value"
+      },
+      "kind": "function",
+      "namespaces": ["value"],
+      "line": 36,
+      "column": 23,
+      "declarations": [
+        {
+          "file": "src/lib/review-cli.ts",
+          "kind": "function",
+          "line": 36,
+          "column": 23
+        }
+      ]
+    },
+    {
+      "note_id": "architecture.mcp",
+      "ref": {
+        "file": "servers/thinkinglabs-mcp/server.ts",
+        "symbol": "createThinkinglabsMcpServer",
+        "kind": "function",
+        "namespace": "value"
+      },
+      "kind": "function",
+      "namespaces": ["value"],
+      "line": 33,
+      "column": 17,
+      "declarations": [
+        {
+          "file": "servers/thinkinglabs-mcp/server.ts",
+          "kind": "function",
+          "line": 33,
+          "column": 17
+        }
+      ]
+    },
+    {
+      "note_id": "architecture.mcp",
+      "ref": {
+        "file": "servers/thinkinglabs-mcp/store.ts",
+        "symbol": "queryView",
+        "kind": "function",
+        "namespace": "value"
+      },
+      "kind": "function",
+      "namespaces": ["value"],
+      "line": 68,
+      "column": 17,
+      "declarations": [
+        {
+          "file": "servers/thinkinglabs-mcp/store.ts",
+          "kind": "function",
+          "line": 68,
+          "column": 17
+        }
+      ]
+    },
+    {
+      "note_id": "architecture.source-index",
+      "ref": {
+        "file": "src/index/builder.ts",
+        "symbol": "collectObjects",
+        "kind": "function",
+        "namespace": "value"
+      },
+      "kind": "function",
+      "namespaces": ["value"],
+      "line": 145,
+      "column": 17,
+      "declarations": [
+        {
+          "file": "src/index/builder.ts",
+          "kind": "function",
+          "line": 145,
+          "column": 17
+        }
+      ]
+    },
+    {
+      "note_id": "architecture.source-index",
+      "ref": {
+        "file": "src/index/builder.ts",
+        "symbol": "writeIndex",
+        "kind": "function",
+        "namespace": "value"
+      },
+      "kind": "function",
+      "namespaces": ["value"],
+      "line": 165,
+      "column": 17,
+      "declarations": [
+        {
+          "file": "src/index/builder.ts",
+          "kind": "function",
+          "line": 165,
+          "column": 17
+        }
+      ]
+    },
+    {
+      "note_id": "content.hero-images",
+      "ref": {
+        "file": "src/frontend/thinkinglabs-ui/lib/entity-hero.ts",
+        "symbol": "resolveEntityHero",
+        "kind": "function",
+        "namespace": "value"
+      },
+      "kind": "function",
+      "namespaces": ["value"],
+      "line": 34,
+      "column": 17,
+      "declarations": [
+        {
+          "file": "src/frontend/thinkinglabs-ui/lib/entity-hero.ts",
+          "kind": "function",
+          "line": 34,
+          "column": 17
+        }
+      ]
+    },
+    {
+      "note_id": "content.hero-images",
+      "ref": {
+        "file": "src/lib/hero-assets.ts",
+        "symbol": "resolveHeroSource",
+        "kind": "function",
+        "namespace": "value"
+      },
+      "kind": "function",
+      "namespaces": ["value"],
+      "line": 45,
+      "column": 17,
+      "declarations": [
+        {
+          "file": "src/lib/hero-assets.ts",
+          "kind": "function",
+          "line": 45,
+          "column": 17
+        }
+      ]
+    },
+    {
+      "note_id": "content.hero-images",
+      "ref": {
+        "file": "src/pages/og/[...slug].png.ts",
+        "symbol": "getStaticPaths",
+        "kind": "const",
+        "namespace": "value"
+      },
+      "kind": "const",
+      "namespaces": ["value"],
+      "line": 334,
+      "column": 14,
+      "declarations": [
+        {
+          "file": "src/pages/og/[...slug].png.ts",
+          "kind": "const",
+          "line": 334,
+          "column": 14
+        }
+      ]
+    },
+    {
+      "note_id": "content.rendering",
+      "ref": {
+        "file": "src/frontend/thinkinglabs-ui/lib/page-lifecycle.ts",
+        "symbol": "onPageReady",
+        "kind": "function",
+        "namespace": "value"
+      },
+      "kind": "function",
+      "namespaces": ["value"],
+      "line": 4,
+      "column": 17,
+      "declarations": [
+        {
+          "file": "src/frontend/thinkinglabs-ui/lib/page-lifecycle.ts",
+          "kind": "function",
+          "line": 4,
+          "column": 17
+        }
+      ]
+    },
+    {
+      "note_id": "content.rendering",
+      "ref": {
+        "file": "src/lib/agent-metadata.ts",
+        "symbol": "agentMetadataForContent",
+        "kind": "function",
+        "namespace": "value"
+      },
+      "kind": "function",
+      "namespaces": ["value"],
+      "line": 86,
+      "column": 17,
+      "declarations": [
+        {
+          "file": "src/lib/agent-metadata.ts",
+          "kind": "function",
+          "line": 86,
+          "column": 17
+        }
+      ]
+    },
+    {
+      "note_id": "content.rendering",
+      "ref": {
+        "file": "src/lib/surfaces.ts",
+        "symbol": "SURFACES",
+        "kind": "const",
+        "namespace": "value"
+      },
+      "kind": "const",
+      "namespaces": ["value"],
+      "line": 243,
+      "column": 14,
+      "declarations": [
+        {
+          "file": "src/lib/surfaces.ts",
+          "kind": "const",
+          "line": 243,
+          "column": 14
+        }
+      ]
+    },
+    {
+      "note_id": "content.schemas",
+      "ref": {
+        "file": "src/lib/registry.ts",
+        "symbol": "KIND_REGISTRY",
+        "kind": "const",
+        "namespace": "value"
+      },
+      "kind": "const",
+      "namespaces": ["value"],
+      "line": 51,
+      "column": 14,
+      "declarations": [
+        {
+          "file": "src/lib/registry.ts",
+          "kind": "const",
+          "line": 51,
+          "column": 14
+        }
+      ]
+    },
+    {
+      "note_id": "content.schemas",
+      "ref": {
+        "file": "src/schemas/index.ts",
+        "symbol": "KIND_SCHEMAS",
+        "kind": "const",
+        "namespace": "value"
+      },
+      "kind": "const",
+      "namespaces": ["value"],
+      "line": 29,
+      "column": 14,
+      "declarations": [
+        {
+          "file": "src/schemas/index.ts",
+          "kind": "const",
+          "line": 29,
+          "column": 14
+        }
+      ]
+    }
+  ]
+}

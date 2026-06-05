@@ -1,0 +1,6 @@
+version: 1
+schemas:
+  - id: content
+    title: Content
+    parent: root
+    children: [schemas, rendering, hero-images]

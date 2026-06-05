@@ -41,6 +41,13 @@
     },
     {
       "enabled": true,
+      "id": "thinkinglabs",
+      "registry": "local",
+      "sourcePath": ".harness/src/skills/thinkinglabs/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "enabled": true,
       "id": "claude",
       "registry": "local",
       "sourcePath": ".harness/src/settings/claude.json",

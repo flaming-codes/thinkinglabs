@@ -106,6 +106,8 @@ const { calibration } = Astro.props;
 </AppShell>
 
 <script>
+  import { onPageReady } from "../lib/page-lifecycle";
+
   const storageKey = "me.embed.prediction-calibration-logger.v1";
   let controller: AbortController | null = null;
 
@@ -157,7 +159,7 @@ const { calibration } = Astro.props;
     }
   };
 
-  document.addEventListener("astro:page-load", init);
+  onPageReady(init);
 </script>
 
 <style>

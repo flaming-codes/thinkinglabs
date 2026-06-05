@@ -63,6 +63,9 @@ importers:
       '@madebywild/agent-harness-framework':
         specifier: ^1.10.1
         version: 1.10.1(@types/react@19.2.15)
+      '@madebywild/semantic-layer':
+        specifier: 0.3.0
+        version: 0.3.0
       '@playwright/test':
         specifier: ^1.60.0
         version: 1.60.0
@@ -755,6 +758,11 @@ packages:
 
   '@madebywild/agent-harness-tui@1.10.1':
     resolution: {integrity: sha512-gqxloj+/TkroC+pvquFKFW35S/O8sv6KzfKptueq1q/s2rYQLz/im4Yl1VsYbuVFxX0fMY/tTJ+cVzlGVQJntQ==}
+
+  '@madebywild/semantic-layer@0.3.0':
+    resolution: {integrity: sha512-puA4+l32Iq8nzrZq9hliDE/H2meqmFpXCEGlR/BxUFQUu9Je/WJTjHF1DrVQPVhppx1rRGxN35kCupyr3ze35Q==}
+    engines: {node: '>=20'}
+    hasBin: true
 
   '@modelcontextprotocol/sdk@1.29.0':
     resolution: {integrity: sha512-zo37mZA9hJWpULgkRpowewez1y6ML5GsXJPY8FI0tBBCd77HEvza4jDqRKOXgHNn867PVGCyTdzqpz0izu5ZjQ==}
@@ -4314,6 +4322,13 @@ snapshots:
       - bufferutil
       - react-devtools-core
       - utf-8-validate
+
+  '@madebywild/semantic-layer@0.3.0':
+    dependencies:
+      gray-matter: 4.0.3
+      typescript: 6.0.3
+      yaml: 2.9.0
+      zod: 4.4.3
 
   '@modelcontextprotocol/sdk@1.29.0(zod@4.4.3)':
     dependencies:

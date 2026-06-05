@@ -44,11 +44,20 @@ describe("collectionJson — populated kind", () => {
     const ct = response.headers.get("content-type") ?? "";
     expect(ct.toLowerCase().startsWith("application/json")).toBe(true);
 
-    const body = (await response.json()) as Array<{ id: string; data: unknown; body: string }>;
+    const body = (await response.json()) as Array<{
+      id: string;
+      data: unknown;
+      body: string;
+      agent_metadata: { markdown_url: string; approx_token_count: number };
+    }>;
     expect(Array.isArray(body)).toBe(true);
     expect(body.length).toBe(2);
     expect(body[0]).toMatchObject({ id: "alpha", body: "Body A" });
     expect(body[0]?.data).toMatchObject({ title: "Alpha" });
+    expect(body[0]?.agent_metadata).toMatchObject({
+      markdown_url: "/predictions/alpha.md",
+    });
+    expect(body[0]?.agent_metadata.approx_token_count).toBeGreaterThan(0);
     expect(body[1]).toMatchObject({ id: "beta", body: "Body B" });
   });
 });
