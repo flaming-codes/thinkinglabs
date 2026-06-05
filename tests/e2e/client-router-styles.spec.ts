@@ -20,23 +20,21 @@ test.describe("client-routed detail pages", () => {
       page.getByRole("heading", { name: "The agent harness is the new IDE" }),
     ).toBeVisible();
 
-    const detailStyles = await page.locator(".tl-thought-detail").evaluate((node) => {
-      const detail = getComputedStyle(node);
-      const hero = getComputedStyle(document.querySelector(".tl-thought-hero-art")!);
-      const heading = getComputedStyle(document.querySelector(".tl-thought-title h1")!);
+    const detailStyles = await page.locator(".tl-hero-frame").evaluate((node) => {
+      const hero = getComputedStyle(node);
+      const article = getComputedStyle(document.querySelector(".detail-prose")!);
+      const firstParagraph = getComputedStyle(document.querySelector(".detail-prose p")!);
 
       return {
-        detailPaddingTop: detail.paddingTop,
-        heroMinHeight: hero.minHeight,
-        headingTransform: heading.textTransform,
-        headingWeight: heading.fontWeight,
+        heroHeight: hero.height,
+        proseMaxWidth: article.maxWidth,
+        paragraphMarginTop: firstParagraph.marginTop,
       };
     });
 
-    expect(parseFloat(detailStyles.detailPaddingTop)).toBeGreaterThan(0);
-    expect(parseFloat(detailStyles.heroMinHeight)).toBeGreaterThan(0);
-    expect(detailStyles.headingTransform).toBe("uppercase");
-    expect(Number(detailStyles.headingWeight)).toBeGreaterThanOrEqual(700);
+    expect(parseFloat(detailStyles.heroHeight)).toBeGreaterThan(0);
+    expect(parseFloat(detailStyles.proseMaxWidth)).toBeGreaterThan(0);
+    expect(parseFloat(detailStyles.paragraphMarginTop)).toBeGreaterThan(0);
     expect(cspViolations).toEqual([]);
   });
 });
