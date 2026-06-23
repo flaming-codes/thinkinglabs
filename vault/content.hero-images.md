@@ -5,7 +5,7 @@ desc: Convention-based local assets for content detail heroes and OG detail card
 status: active
 owner: Tom Wild
 audience: [agents, engineering]
-last_verified: 2026-06-05
+last_verified: 2026-06-23
 ttl_days: 180
 layer: content
 code_refs:
@@ -35,3 +35,7 @@ precedence order. Missing per-entity assets fall back to `src/assets/hero.<ext>`
 using the same extension precedence.
 The rendered detail page and generated OG detail image share the same convention
 and extension order.
+
+Generated OG detail cards keep the hero-photo composition but set the title in a
+large responsive type scale over a dark left-side wash so social thumbnails stay
+legible for modestly long titles.

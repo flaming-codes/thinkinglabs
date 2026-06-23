@@ -242,13 +242,13 @@
       },
       "kind": "const",
       "namespaces": ["value"],
-      "line": 334,
+      "line": 349,
       "column": 14,
       "declarations": [
         {
           "file": "src/pages/og/[...slug].png.ts",
           "kind": "const",
-          "line": 334,
+          "line": 349,
           "column": 14
         }
       ]

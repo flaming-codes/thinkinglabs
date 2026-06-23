@@ -96,6 +96,24 @@ const HERO_ASSETS_SOURCE = join(process.cwd(), "src/lib/hero-assets.ts");
 const HERO_PAD = 16;
 const HERO_W = Math.round((OG_IMAGE_WIDTH - HERO_PAD * 2) * 0.75);
 const HERO_H = OG_IMAGE_HEIGHT - HERO_PAD * 2;
+const DETAIL_TITLE_MAX_CHARS = 140;
+const DETAIL_TITLE_MAX_WIDTH = HERO_W - 96;
+
+interface DetailTitleType {
+  readonly fontSize: number;
+  readonly lineHeight: number;
+}
+
+const DETAIL_TITLE_TYPE_SCALE: ReadonlyArray<DetailTitleType & { readonly maxLength: number }> = [
+  { maxLength: 38, fontSize: 96, lineHeight: 0.98 },
+  { maxLength: 64, fontSize: 84, lineHeight: 1 },
+  { maxLength: 92, fontSize: 72, lineHeight: 1.02 },
+  { maxLength: 118, fontSize: 64, lineHeight: 1.04 },
+];
+const DETAIL_TITLE_FALLBACK_TYPE: DetailTitleType = {
+  fontSize: 58,
+  lineHeight: 1.05,
+};
 
 /** Resolve a detail card's on-disk hero by route folder + slug, falling back to the shared hero when no per-entity asset exists. */
 function resolveHeroSource(folder: string, slug: string): string {
@@ -198,7 +216,14 @@ const LAYOUTS: Record<Layout, LayoutSpec> = {
   "quiet-bl": {
     orbs: [
       { w: 620, h: 620, top: -200, left: -80, paletteIndex: 0, opacity: 0.7 },
-      { w: 540, h: 540, top: -120, right: -120, paletteIndex: 1, opacity: 0.78 },
+      {
+        w: 540,
+        h: 540,
+        top: -120,
+        right: -120,
+        paletteIndex: 1,
+        opacity: 0.78,
+      },
       { w: 380, h: 380, top: 220, right: 360, paletteIndex: 2, opacity: 0.55 },
     ],
     hAlign: "flex-start",
@@ -208,25 +233,67 @@ const LAYOUTS: Record<Layout, LayoutSpec> = {
     orbs: [
       { w: 720, h: 480, top: -260, left: -120, paletteIndex: 0, opacity: 0.78 },
       { w: 620, h: 420, top: -240, left: 380, paletteIndex: 1, opacity: 0.72 },
-      { w: 560, h: 380, top: -260, right: -100, paletteIndex: 2, opacity: 0.78 },
+      {
+        w: 560,
+        h: 380,
+        top: -260,
+        right: -100,
+        paletteIndex: 2,
+        opacity: 0.78,
+      },
     ],
     hAlign: "flex-start",
     vAlign: "flex-end",
   },
   "bottom-edge": {
     orbs: [
-      { w: 720, h: 480, bottom: -260, left: -120, paletteIndex: 0, opacity: 0.78 },
-      { w: 620, h: 420, bottom: -240, left: 380, paletteIndex: 1, opacity: 0.7 },
-      { w: 560, h: 380, bottom: -260, right: -100, paletteIndex: 2, opacity: 0.78 },
+      {
+        w: 720,
+        h: 480,
+        bottom: -260,
+        left: -120,
+        paletteIndex: 0,
+        opacity: 0.78,
+      },
+      {
+        w: 620,
+        h: 420,
+        bottom: -240,
+        left: 380,
+        paletteIndex: 1,
+        opacity: 0.7,
+      },
+      {
+        w: 560,
+        h: 380,
+        bottom: -260,
+        right: -100,
+        paletteIndex: 2,
+        opacity: 0.78,
+      },
     ],
     hAlign: "flex-start",
     vAlign: "flex-start",
   },
   side: {
     orbs: [
-      { w: 640, h: 640, top: -160, right: -180, paletteIndex: 0, opacity: 0.78 },
+      {
+        w: 640,
+        h: 640,
+        top: -160,
+        right: -180,
+        paletteIndex: 0,
+        opacity: 0.78,
+      },
       { w: 460, h: 460, top: 220, right: -60, paletteIndex: 1, opacity: 0.7 },
-      { w: 360, h: 360, bottom: -160, right: 200, paletteIndex: 2, opacity: 0.6 },
+      {
+        w: 360,
+        h: 360,
+        bottom: -160,
+        right: 200,
+        paletteIndex: 2,
+        opacity: 0.6,
+      },
     ],
     hAlign: "flex-start",
     vAlign: "flex-end",
@@ -236,7 +303,14 @@ const LAYOUTS: Record<Layout, LayoutSpec> = {
     orbs: [
       { w: 700, h: 700, top: -160, left: -140, paletteIndex: 0, opacity: 0.85 },
       { w: 580, h: 580, top: 80, right: -180, paletteIndex: 1, opacity: 0.78 },
-      { w: 440, h: 440, bottom: -200, left: 380, paletteIndex: 2, opacity: 0.7 },
+      {
+        w: 440,
+        h: 440,
+        bottom: -200,
+        left: 380,
+        paletteIndex: 2,
+        opacity: 0.7,
+      },
     ],
     hAlign: "flex-start",
     vAlign: "flex-end",
@@ -244,9 +318,23 @@ const LAYOUTS: Record<Layout, LayoutSpec> = {
   },
   "two-line": {
     orbs: [
-      { w: 660, h: 660, top: -200, right: -160, paletteIndex: 0, opacity: 0.78 },
+      {
+        w: 660,
+        h: 660,
+        top: -200,
+        right: -160,
+        paletteIndex: 0,
+        opacity: 0.78,
+      },
       { w: 480, h: 480, top: 100, left: -140, paletteIndex: 1, opacity: 0.72 },
-      { w: 380, h: 380, bottom: -180, right: 260, paletteIndex: 2, opacity: 0.55 },
+      {
+        w: 380,
+        h: 380,
+        bottom: -180,
+        right: 260,
+        paletteIndex: 2,
+        opacity: 0.55,
+      },
     ],
     hAlign: "flex-start",
     vAlign: "flex-end",
@@ -257,7 +345,14 @@ const LAYOUTS: Record<Layout, LayoutSpec> = {
     orbs: [
       { w: 640, h: 640, top: -160, left: -180, paletteIndex: 0, opacity: 0.78 },
       { w: 460, h: 460, top: 220, left: -60, paletteIndex: 1, opacity: 0.7 },
-      { w: 360, h: 360, bottom: -160, left: 200, paletteIndex: 2, opacity: 0.6 },
+      {
+        w: 360,
+        h: 360,
+        bottom: -160,
+        left: 200,
+        paletteIndex: 2,
+        opacity: 0.6,
+      },
     ],
     hAlign: "flex-end",
     vAlign: "flex-end",
@@ -277,9 +372,30 @@ const LAYOUTS: Record<Layout, LayoutSpec> = {
   },
   "bottom-right-bloom": {
     orbs: [
-      { w: 720, h: 720, bottom: -220, right: -200, paletteIndex: 0, opacity: 0.85 },
-      { w: 460, h: 460, bottom: -60, right: 160, paletteIndex: 1, opacity: 0.7 },
-      { w: 380, h: 380, bottom: 180, right: -80, paletteIndex: 2, opacity: 0.55 },
+      {
+        w: 720,
+        h: 720,
+        bottom: -220,
+        right: -200,
+        paletteIndex: 0,
+        opacity: 0.85,
+      },
+      {
+        w: 460,
+        h: 460,
+        bottom: -60,
+        right: 160,
+        paletteIndex: 1,
+        opacity: 0.7,
+      },
+      {
+        w: 380,
+        h: 380,
+        bottom: 180,
+        right: -80,
+        paletteIndex: 2,
+        opacity: 0.55,
+      },
     ],
     hAlign: "flex-start",
     vAlign: "flex-start",
@@ -289,7 +405,14 @@ const LAYOUTS: Record<Layout, LayoutSpec> = {
     orbs: [
       { w: 560, h: 560, top: -160, left: -160, paletteIndex: 0, opacity: 0.7 },
       { w: 480, h: 480, top: 140, left: 400, paletteIndex: 1, opacity: 0.65 },
-      { w: 620, h: 620, bottom: -200, right: -160, paletteIndex: 2, opacity: 0.78 },
+      {
+        w: 620,
+        h: 620,
+        bottom: -200,
+        right: -160,
+        paletteIndex: 2,
+        opacity: 0.78,
+      },
     ],
     hAlign: "flex-start",
     vAlign: "flex-end",
@@ -304,7 +427,12 @@ const STATIC_IMAGES: ReadonlyArray<StaticImage> = [
     kindKey: "thoughts",
     heroSource: "src/assets/index.webp",
   },
-  { path: "/now", title: "Now", kindKey: "projects", heroSource: resolveListingHeroSource("now") },
+  {
+    path: "/now",
+    title: "Now",
+    kindKey: "projects",
+    heroSource: resolveListingHeroSource("now"),
+  },
   {
     path: "/about",
     title: "About",
@@ -314,7 +442,11 @@ const STATIC_IMAGES: ReadonlyArray<StaticImage> = [
   { path: "/agents", title: "For agents", kindKey: "inputs" },
   { path: "/contact", title: "Contact", kindKey: "questions" },
   { path: "/brain-diff", title: "Brain-diff", kindKey: "changed-my-mind" },
-  { path: "/predictions/calibration", title: "Calibration", kindKey: "predictions" },
+  {
+    path: "/predictions/calibration",
+    title: "Calibration",
+    kindKey: "predictions",
+  },
 ];
 
 const fontCache = new Map<string, Promise<ArrayBuffer>>();
@@ -493,9 +625,10 @@ async function getKindCollection(kind: Kind) {
   }
 }
 
-/** Detail-page card mirroring the page above-the-fold: black field, thin gap to edges, hero photo at 3/4 width, title set center-left over it. No wordmark or eyebrow. */
+/** Detail-page card mirroring the page above-the-fold: black field, thin gap to edges, hero photo at 3/4 width, title set large over it. No wordmark or eyebrow. */
 function renderDetailImage(image: OgImageProps, hero: string): SatoriElement {
   const theme = OG_THEME.dark;
+  const titleType = detailTitleType(image.title);
   return node("div", {
     style: {
       display: "flex",
@@ -507,13 +640,30 @@ function renderDetailImage(image: OgImageProps, hero: string): SatoriElement {
     },
     children: [
       node("div", {
-        style: { position: "relative", display: "flex", width: "100%", height: "100%" },
+        style: {
+          position: "relative",
+          display: "flex",
+          width: "100%",
+          height: "100%",
+        },
         children: [
           node("img", {
             src: hero,
             width: HERO_W,
             height: HERO_H,
             style: { width: HERO_W, height: HERO_H, objectFit: "cover" },
+          }),
+          node("div", {
+            style: {
+              display: "flex",
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: HERO_W,
+              height: HERO_H,
+              backgroundImage: `linear-gradient(90deg, ${theme.bg}e6 0%, ${theme.bg}bf 42%, ${theme.bg}40 78%, ${theme.bg}00 100%)`,
+            },
+            children: [],
           }),
           node("div", {
             style: {
@@ -526,21 +676,21 @@ function renderDetailImage(image: OgImageProps, hero: string): SatoriElement {
               flexDirection: "column",
               justifyContent: "center",
               alignItems: "flex-start",
-              paddingLeft: 28,
-              paddingRight: 40,
+              paddingLeft: 40,
+              paddingRight: 56,
             },
             children: [
               node("div", {
                 style: {
                   display: "flex",
-                  fontSize: 54,
-                  lineHeight: 1.07,
+                  fontSize: titleType.fontSize,
+                  lineHeight: titleType.lineHeight,
                   fontWeight: 500,
-                  letterSpacing: -1,
+                  letterSpacing: 0,
                   color: theme.ink,
-                  maxWidth: HERO_W - 68,
+                  maxWidth: DETAIL_TITLE_MAX_WIDTH,
                 },
-                children: [truncateLine(image.title, 140)],
+                children: [truncateLine(image.title, DETAIL_TITLE_MAX_CHARS)],
               }),
             ],
           }),
@@ -548,6 +698,13 @@ function renderDetailImage(image: OgImageProps, hero: string): SatoriElement {
       }),
     ],
   });
+}
+
+function detailTitleType(title: string): DetailTitleType {
+  const length = normalizeTitle(title).length;
+  return (
+    DETAIL_TITLE_TYPE_SCALE.find((type) => length <= type.maxLength) ?? DETAIL_TITLE_FALLBACK_TYPE
+  );
 }
 
 /** Full-bleed root with positioned soft orbs plus a content block holding (optional kind eyebrow, title, wordmark); alignment is driven by the kind-assigned LayoutSpec. */
@@ -700,12 +857,16 @@ function pathToOgSlug(path: string): string {
 }
 
 function truncateLine(value: string, maxChars: number): string {
-  const normalized = value.replace(/\s+/g, " ").trim();
+  const normalized = normalizeTitle(value);
   if (normalized.length <= maxChars) return normalized;
   return `${normalized
     .slice(0, maxChars - 3)
     .trimEnd()
     .replace(/[.,;:!?]$/, "")}...`;
+}
+
+function normalizeTitle(value: string): string {
+  return value.replace(/\s+/g, " ").trim();
 }
 
 /** Append an `00` alpha byte to a 6-digit hex so Satori interprets it as fully transparent. Avoids `rgba(...)` in source text, which the design-tokens lint catches as a hard-coded color. */
