@@ -1,7 +1,7 @@
 ---
 title: "OpenAI may want the social layer for humans and agents"
 created: 2026-06-19
-updated: 2026-06-19
+updated: 2026-06-23
 tags:
   - openai
   - agents
@@ -18,7 +18,7 @@ inputs:
 observations: []
 ---
 
-The profile signal is small, but it has the right texture. A Codex user can now appear as a named, pictured, handle-like identity with visible activity, streaks, lifetime usage, and plugin preferences. By itself that could be nothing more than ordinary product maturation. Lots of software grows profile pages once usage becomes social, competitive, administrative, or shareable.
+The profile signal is modest, but its texture is suggestive. A Codex user can now be rendered as a recognizable identity: named, pictured, handle-like, and accompanied by traces of activity, streaks, cumulative usage, and even plugin preferences. In isolation, this might amount to little more than the ordinary sediment of product maturity; many tools eventually accrete profile pages once their use becomes social, competitive, administrative, or shareable.
 
 The larger question is whether this is one tile in a much bigger floor. OpenAI has strong incentives to become the operating layer for human-agent interaction: the place where a person's intent, memory, permissions, subscriptions, apps, agents, purchases, collaborators, and work history are coordinated. Apple made the iPhone and App Store into a distribution and identity surface for mobile software. OpenAI could try to do something adjacent for agents: not only provide the intelligence, but own the layer where humans, personal agents, workplace agents, third-party apps, merchants, and other agents become legible to one another.
 
