@@ -67,7 +67,11 @@ describe("runResolvePredictions — pure function", () => {
     const { runResolvePredictions } = await import("../../src/lib/agents/resolve-predictions.ts");
     const { readQueue } = await import("../../src/lib/proposal-queue.ts");
     writePrediction(join(root, "content", "predictions"), "test-pred", "pending", RESOLVED_PAST);
-    const summary = await runResolvePredictions({ cwd: root, nowISO: NOW_ISO, skipLLM: false });
+    const summary = await runResolvePredictions({
+      cwd: root,
+      nowISO: NOW_ISO,
+      skipLLM: false,
+    });
     expect(summary.scanned).toBe(1);
     expect(summary.proposed).toBe(1);
     expect(summary.deduped).toBe(0);
@@ -87,7 +91,11 @@ describe("runResolvePredictions — pure function", () => {
       "pending",
       RESOLVED_FUTURE,
     );
-    const summary = await runResolvePredictions({ cwd: root, nowISO: NOW_ISO, skipLLM: false });
+    const summary = await runResolvePredictions({
+      cwd: root,
+      nowISO: NOW_ISO,
+      skipLLM: false,
+    });
     expect(summary.scanned).toBe(0);
     expect(summary.proposed).toBe(0);
     expect(readQueue()).toHaveLength(0);
@@ -98,7 +106,11 @@ describe("runResolvePredictions — pure function", () => {
     const { runResolvePredictions } = await import("../../src/lib/agents/resolve-predictions.ts");
     const { readQueue } = await import("../../src/lib/proposal-queue.ts");
     writePrediction(join(root, "content", "predictions"), "resolved-pred", "true", RESOLVED_PAST);
-    const summary = await runResolvePredictions({ cwd: root, nowISO: NOW_ISO, skipLLM: false });
+    const summary = await runResolvePredictions({
+      cwd: root,
+      nowISO: NOW_ISO,
+      skipLLM: false,
+    });
     expect(summary.scanned).toBe(0);
     expect(summary.proposed).toBe(0);
     expect(readQueue()).toHaveLength(0);
@@ -109,7 +121,11 @@ describe("runResolvePredictions — pure function", () => {
     const { runResolvePredictions } = await import("../../src/lib/agents/resolve-predictions.ts");
     const { readQueue } = await import("../../src/lib/proposal-queue.ts");
     writePrediction(join(root, "content", "predictions"), "ambig-pred", "ambiguous", RESOLVED_PAST);
-    const summary = await runResolvePredictions({ cwd: root, nowISO: NOW_ISO, skipLLM: false });
+    const summary = await runResolvePredictions({
+      cwd: root,
+      nowISO: NOW_ISO,
+      skipLLM: false,
+    });
     expect(summary.scanned).toBe(0);
     expect(summary.proposed).toBe(0);
     expect(readQueue()).toHaveLength(0);
@@ -120,7 +136,11 @@ describe("runResolvePredictions — pure function", () => {
     const { readQueue } = await import("../../src/lib/proposal-queue.ts");
     writePrediction(join(root, "content", "predictions"), "skip-a", "pending", RESOLVED_PAST);
     writePrediction(join(root, "content", "predictions"), "skip-b", "pending", RESOLVED_PAST);
-    const summary = await runResolvePredictions({ cwd: root, nowISO: NOW_ISO, skipLLM: true });
+    const summary = await runResolvePredictions({
+      cwd: root,
+      nowISO: NOW_ISO,
+      skipLLM: true,
+    });
     expect(summary.proposed).toBe(0);
     expect(summary.skippedDueToLLM).toBe(2);
     expect(readQueue()).toHaveLength(0);
@@ -132,7 +152,11 @@ describe("runResolvePredictions — pure function", () => {
     const { readQueue } = await import("../../src/lib/proposal-queue.ts");
     writePrediction(join(root, "content", "predictions"), "dup-pred", "pending", RESOLVED_PAST);
     await runResolvePredictions({ cwd: root, nowISO: NOW_ISO, skipLLM: false });
-    const second = await runResolvePredictions({ cwd: root, nowISO: NOW_ISO, skipLLM: false });
+    const second = await runResolvePredictions({
+      cwd: root,
+      nowISO: NOW_ISO,
+      skipLLM: false,
+    });
     expect(second.proposed).toBe(0);
     expect(second.deduped).toBe(1);
     expect(readQueue()).toHaveLength(1);

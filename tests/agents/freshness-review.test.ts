@@ -73,7 +73,11 @@ describe("runFreshnessReview — pure function", () => {
     const { runFreshnessReview } = await import("../../src/lib/agents/freshness-review.ts");
     const { readQueue } = await import("../../src/lib/proposal-queue.ts");
     writePostWithRedSection(join(root, "content", "posts"), "old-post");
-    const summary = await runFreshnessReview({ cwd: root, nowISO: NOW_ISO, skipLLM: false });
+    const summary = await runFreshnessReview({
+      cwd: root,
+      nowISO: NOW_ISO,
+      skipLLM: false,
+    });
     expect(summary.scanned).toBe(1);
     expect(summary.flagged).toBe(1);
     expect(summary.proposed).toBe(1);
@@ -88,7 +92,11 @@ describe("runFreshnessReview — pure function", () => {
     const { runFreshnessReview } = await import("../../src/lib/agents/freshness-review.ts");
     const { readQueue } = await import("../../src/lib/proposal-queue.ts");
     writePostWithGreenSection(join(root, "content", "posts"), "fresh-post");
-    const summary = await runFreshnessReview({ cwd: root, nowISO: NOW_ISO, skipLLM: false });
+    const summary = await runFreshnessReview({
+      cwd: root,
+      nowISO: NOW_ISO,
+      skipLLM: false,
+    });
     expect(summary.scanned).toBe(1);
     expect(summary.flagged).toBe(0);
     expect(summary.proposed).toBe(0);
@@ -100,7 +108,11 @@ describe("runFreshnessReview — pure function", () => {
     const { runFreshnessReview } = await import("../../src/lib/agents/freshness-review.ts");
     const { readQueue } = await import("../../src/lib/proposal-queue.ts");
     writePostNoStamps(join(root, "content", "posts"), "no-stamps-post");
-    const summary = await runFreshnessReview({ cwd: root, nowISO: NOW_ISO, skipLLM: false });
+    const summary = await runFreshnessReview({
+      cwd: root,
+      nowISO: NOW_ISO,
+      skipLLM: false,
+    });
     expect(summary.scanned).toBe(1);
     expect(summary.flagged).toBe(0);
     expect(summary.proposed).toBe(0);
@@ -111,7 +123,11 @@ describe("runFreshnessReview — pure function", () => {
     const { runFreshnessReview } = await import("../../src/lib/agents/freshness-review.ts");
     const { readQueue } = await import("../../src/lib/proposal-queue.ts");
     writePostWithRedSection(join(root, "content", "posts"), "skip-post");
-    const summary = await runFreshnessReview({ cwd: root, nowISO: NOW_ISO, skipLLM: true });
+    const summary = await runFreshnessReview({
+      cwd: root,
+      nowISO: NOW_ISO,
+      skipLLM: true,
+    });
     expect(summary.proposed).toBe(0);
     expect(summary.flagged).toBe(1);
     expect(summary.skippedDueToLLM).toBe(1);
@@ -124,7 +140,11 @@ describe("runFreshnessReview — pure function", () => {
     const { readQueue } = await import("../../src/lib/proposal-queue.ts");
     writePostWithRedSection(join(root, "content", "posts"), "dup-post");
     await runFreshnessReview({ cwd: root, nowISO: NOW_ISO, skipLLM: false });
-    const second = await runFreshnessReview({ cwd: root, nowISO: NOW_ISO, skipLLM: false });
+    const second = await runFreshnessReview({
+      cwd: root,
+      nowISO: NOW_ISO,
+      skipLLM: false,
+    });
     expect(second.proposed).toBe(0);
     expect(second.deduped).toBe(1);
     expect(readQueue()).toHaveLength(1);
