@@ -11,20 +11,22 @@ interface Props {
 const { access } = Astro.props;
 ---
 
-<div class="tl-agent-access" data-tl-agent-access>
-  <div class="tl-agent-access-label">Agent context</div>
-  {
-    access.tokenEstimate !== undefined && (
-      <div class="tl-agent-access-meta">~{access.tokenEstimate.toLocaleString()} tokens</div>
-    )
-  }
-  <div class="tl-agent-access-actions">
-    <a href={access.markdownHref}>Markdown</a>
-    <button type="button" data-copy-for-ai={access.markdownHref} aria-live="polite">
-      Copy for AI
-    </button>
+<dl class="tl-agent-access" data-tl-agent-access>
+  <div class="tl-agent-access-row">
+    <dt>Agent context</dt>
+    <dd>
+      <a href={access.markdownHref}>Markdown</a>
+      <button type="button" data-copy-for-ai={access.markdownHref} aria-live="polite">
+        Copy for AI
+      </button>
+      {
+        access.tokenEstimate !== undefined && (
+          <span class="tl-agent-access-meta">~{access.tokenEstimate.toLocaleString()} tokens</span>
+        )
+      }
+    </dd>
   </div>
-</div>
+</dl>
 
 <script>
   import { onPageReady } from "../lib/page-lifecycle";
@@ -68,34 +70,42 @@ const { access } = Astro.props;
   .tl-agent-access {
     display: flex;
     flex-direction: column;
-    gap: 0.45rem;
-    padding-top: 0.25rem;
+    gap: 0.4rem;
+    margin: 0;
+    padding-top: 0.05rem;
     color: var(--tl-muted);
-    font-size: var(--tl-type-metadata-size);
+    font-size: var(--tl-type-caption);
+    line-height: 1.35;
   }
 
-  .tl-agent-access-label {
-    color: var(--tl-ink);
-    font-weight: 600;
+  .tl-agent-access-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.45rem;
+    align-items: baseline;
+  }
+
+  .tl-agent-access dt {
+    color: color-mix(in srgb, var(--tl-muted) 78%, transparent);
+  }
+
+  .tl-agent-access dd {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.45rem;
+    margin: 0;
+    color: color-mix(in srgb, var(--tl-ink) 68%, transparent);
   }
 
   .tl-agent-access-meta {
-    opacity: 0.7;
-  }
-
-  .tl-agent-access-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    align-items: center;
+    color: color-mix(in srgb, var(--tl-muted) 65%, transparent);
   }
 
   .tl-agent-access a,
   .tl-agent-access button {
     color: inherit;
     font: inherit;
-    text-decoration: underline;
-    text-underline-offset: 0.18em;
+    text-decoration: none;
   }
 
   .tl-agent-access button {
@@ -107,6 +117,6 @@ const { access } = Astro.props;
 
   .tl-agent-access a:hover,
   .tl-agent-access button:hover {
-    color: var(--tl-ink);
+    color: color-mix(in srgb, var(--tl-ink) 90%, transparent);
   }
 </style>

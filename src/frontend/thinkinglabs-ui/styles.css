@@ -800,6 +800,32 @@ a {
   text-decoration-color: var(--tl-ink);
 }
 
+.tl-detail-meta {
+  color: var(--tl-muted);
+  font-size: var(--tl-type-caption);
+  line-height: 1.35;
+}
+
+.tl-detail-meta dl {
+  margin: 0;
+}
+
+.tl-detail-meta dt {
+  color: color-mix(in srgb, var(--tl-muted) 78%, transparent);
+}
+
+.tl-detail-meta dd {
+  margin: 0;
+  color: color-mix(in srgb, var(--tl-ink) 68%, transparent);
+}
+
+.tl-detail-meta a,
+.tl-detail-meta button {
+  color: inherit;
+  font: inherit;
+  text-decoration: none;
+}
+
 .tl-token-code,
 .tl-token-prose code {
   padding: 0.08em 0.35em;

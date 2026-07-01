@@ -22,6 +22,39 @@ const { metadata = [], tags = [], agentAccess } = Astro.props;
 
 const hasMeta = Astro.slots.has("meta");
 const hasMetadata = metadata.length > 0;
+
+function metadataTuple(item: DetailMetadataItem, index: number): DetailMetadataItem & {
+  readonly heading: string;
+  readonly value: string;
+} {
+  const formatDate = (value: string): string => {
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+    if (!match) return value;
+    const year = Number(match[1]);
+    const month = Number(match[2]);
+    const day = Number(match[3]);
+    return new Intl.DateTimeFormat("en", {
+      dateStyle: "long",
+      timeZone: "UTC",
+    }).format(new Date(Date.UTC(year, month - 1, day)));
+  };
+
+  const match = /^(updated|asked|observed|read|made|resolves|started)\s+(.+)$/i.exec(item.label);
+  if (match) {
+    return {
+      ...item,
+      heading: `${match[1]?.slice(0, 1).toUpperCase()}${match[1]?.slice(1).toLowerCase()}`,
+      value: formatDate(match[2] ?? item.label),
+    };
+  }
+  return {
+    ...item,
+    heading: index === 0 ? "" : "Updated",
+    value: formatDate(item.label),
+  };
+}
+
+const metadataRows = metadata.map(metadataTuple);
 ---
 
 {/*
@@ -32,24 +65,26 @@ const hasMetadata = metadata.length > 0;
 <section
   class="px-2 flex flex-col gap-4 md:pr-8 lg:max-w-3/4 lg:flex-row lg:justify-end lg:pr-2 lg:gap-16"
 >
-  <header class="flex flex-col gap-3">
+  <header class="tl-detail-meta">
     {
       hasMetadata && (
-        <p class="flex flex-wrap gap-x-1 text-sm opacity-70">
-          {metadata.map((item, index) => (
-            <>
-              {index > 0 && <span aria-hidden="true">·</span>}
-              {item.iso ? <time datetime={item.iso}>{item.label}</time> : <span>{item.label}</span>}
-            </>
+        <dl class="tl-detail-metadata-list">
+          {metadataRows.map((item) => (
+            <div class="tl-detail-metadata-row">
+              {item.heading && <dt>{item.heading}</dt>}
+              <dd>
+                {item.iso ? <time datetime={item.iso}>{item.value}</time> : <span>{item.value}</span>}
+              </dd>
+            </div>
           ))}
-        </p>
+        </dl>
       )
     }
     {
       tags.length > 0 && (
-        <ul class="flex flex-wrap gap-x-1 list-none p-0">
+        <ul class="tl-detail-tags">
           {tags.map((tag) => (
-            <li class="text-sm opacity-50">#{tag}</li>
+            <li>{tag}</li>
           ))}
         </ul>
       )
@@ -65,6 +100,52 @@ const hasMetadata = metadata.length > 0;
 <style>
   .detail-prose {
     max-width: 65ch;
+  }
+
+  .tl-detail-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    color: var(--tl-muted);
+    font-size: var(--tl-type-caption);
+    line-height: 1.35;
+  }
+
+  .tl-detail-metadata-list,
+  .tl-detail-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.45rem;
+    margin: 0;
+    padding: 0;
+  }
+
+  .tl-detail-metadata-list {
+    flex-direction: column;
+  }
+
+  .tl-detail-metadata-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.45rem;
+    align-items: baseline;
+  }
+
+  .tl-detail-metadata-row dt {
+    color: color-mix(in srgb, var(--tl-muted) 78%, transparent);
+  }
+
+  .tl-detail-metadata-row dd {
+    margin: 0;
+    color: color-mix(in srgb, var(--tl-ink) 68%, transparent);
+  }
+
+  .tl-detail-tags {
+    list-style: none;
+  }
+
+  .tl-detail-tags li {
+    color: color-mix(in srgb, var(--tl-muted) 80%, transparent);
   }
 
   /* <Content /> markup is not Tailwind-aware during migration, so space

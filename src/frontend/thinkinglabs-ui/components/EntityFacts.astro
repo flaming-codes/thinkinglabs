@@ -17,16 +17,48 @@ const visible = facts.filter((fact) => fact.value.trim().length > 0);
 
 {
   visible.length > 0 && (
-    <dl class="flex flex-col gap-2 text-sm">
+    <dl class="tl-entity-facts">
       {visible.map((fact) => (
-        <div class="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-          <dt class="opacity-50">{fact.label}</dt>
-          <dd class="m-0 opacity-70">
+        <div class="tl-entity-fact">
+          <dt>{fact.label}</dt>
+          <dd>
             <span>{fact.value}</span>
-            {fact.sub && <span class="opacity-50"> {fact.sub}</span>}
+            {fact.sub && <span class="tl-entity-fact-sub"> {fact.sub}</span>}
           </dd>
         </div>
       ))}
     </dl>
   )
 }
+
+<style>
+  .tl-entity-facts {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin: 0;
+    color: var(--tl-muted);
+    font-size: var(--tl-type-caption);
+    line-height: 1.35;
+  }
+
+  .tl-entity-fact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.45rem;
+    align-items: baseline;
+  }
+
+  .tl-entity-fact dt {
+    color: color-mix(in srgb, var(--tl-muted) 78%, transparent);
+  }
+
+  .tl-entity-fact dd {
+    margin: 0;
+    color: color-mix(in srgb, var(--tl-ink) 68%, transparent);
+  }
+
+  .tl-entity-fact-sub {
+    color: color-mix(in srgb, var(--tl-muted) 65%, transparent);
+  }
+</style>
