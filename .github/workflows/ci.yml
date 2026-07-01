@@ -17,6 +17,8 @@ jobs:
     name: Verify
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout
@@ -38,7 +40,7 @@ jobs:
 
       # --frozen-lockfile ensures the install matches the committed lockfile exactly.
       # Native deps (better-sqlite3, sharp, esbuild) are built automatically on ubuntu-latest
-      # via the pnpm.onlyBuiltDependencies list in package.json.
+      # via the allowlist in pnpm-workspace.yaml.
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
@@ -54,6 +56,8 @@ jobs:
     name: E2E tests (Playwright)
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      contents: read
     # Only run E2E on pushes to main and on pull requests targeting main.
     # Remove this if statement to run on every push.
     if: github.event_name == 'push' || github.event_name == 'pull_request'
