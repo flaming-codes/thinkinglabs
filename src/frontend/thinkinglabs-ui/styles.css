@@ -800,6 +800,23 @@ a {
   text-decoration-color: var(--tl-ink);
 }
 
+.tl-hover-link {
+  transition: opacity 160ms ease;
+}
+
+.tl-hover-link:hover,
+.tl-hover-link:focus-visible {
+  opacity: var(--tl-hover-link-opacity, 0.7);
+}
+
+.tl-hover-link.is-soft {
+  --tl-hover-link-opacity: 0.55;
+}
+
+.tl-hover-link.is-bright {
+  --tl-hover-link-opacity: 1;
+}
+
 .tl-detail-meta {
   color: var(--tl-muted);
   font-size: var(--tl-type-caption);

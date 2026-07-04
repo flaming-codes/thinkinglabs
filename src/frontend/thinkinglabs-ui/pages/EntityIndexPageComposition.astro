@@ -48,29 +48,46 @@ const { page } = Astro.props;
           {rows.length > 0 ? (
             <ul class="flex flex-col gap-7">
               {rows.map((row) => (
-                <li class="flex flex-col gap-1">
-                  <div class="flex items-baseline justify-between gap-4">
-                    <span class="text-[9px] font-semibold uppercase tracking-[0.14em] opacity-40">{row.kicker}</span>
-                    {row.value ? (
-                      <span class="opacity-60">
-                        {row.value}
-                        {row.valueLabel ? ` ${row.valueLabel}` : ""}
-                      </span>
-                    ) : null}
-                  </div>
-                  <h3 class="m-0">
-                    {row.href ? (
-                      <a href={row.href} class="no-underline">
+                <li>
+                  {row.href ? (
+                    <a href={row.href} class="tl-hover-link block no-underline">
+                      <div class="flex flex-col gap-1">
+                        <div class="flex items-baseline justify-between gap-4">
+                          <span class="text-[9px] font-semibold uppercase tracking-[0.14em] opacity-40">{row.kicker}</span>
+                          {row.value ? (
+                            <span class="opacity-60">
+                              {row.value}
+                              {row.valueLabel ? ` ${row.valueLabel}` : ""}
+                            </span>
+                          ) : null}
+                        </div>
+                        <h3 class="m-0">{row.title}</h3>
+                        {row.summary ? <p class="opacity-70">{row.summary}</p> : null}
+                        {row.meta?.length ? (
+                          <p class="text-[9px] font-semibold uppercase tracking-[0.14em] opacity-40">{row.meta.join(" · ")}</p>
+                        ) : null}
+                      </div>
+                    </a>
+                  ) : (
+                    <div class="flex flex-col gap-1">
+                      <div class="flex items-baseline justify-between gap-4">
+                        <span class="text-[9px] font-semibold uppercase tracking-[0.14em] opacity-40">{row.kicker}</span>
+                        {row.value ? (
+                          <span class="opacity-60">
+                            {row.value}
+                            {row.valueLabel ? ` ${row.valueLabel}` : ""}
+                          </span>
+                        ) : null}
+                      </div>
+                      <h3 class="m-0">
                         {row.title}
-                      </a>
-                    ) : (
-                      row.title
-                    )}
-                  </h3>
-                  {row.summary ? <p class="opacity-70">{row.summary}</p> : null}
-                  {row.meta?.length ? (
-                    <p class="text-[9px] font-semibold uppercase tracking-[0.14em] opacity-40">{row.meta.join(" · ")}</p>
-                  ) : null}
+                      </h3>
+                      {row.summary ? <p class="opacity-70">{row.summary}</p> : null}
+                      {row.meta?.length ? (
+                        <p class="text-[9px] font-semibold uppercase tracking-[0.14em] opacity-40">{row.meta.join(" · ")}</p>
+                      ) : null}
+                    </div>
+                  )}
                 </li>
               ))}
             </ul>

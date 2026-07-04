@@ -29,7 +29,7 @@ const hasFooter = hasLinkGroups || hasAside;
    evidence, ...). Shares DetailBody's right-aligned 3/4 measure on lg+. */}
 {
   hasFooter && (
-    <footer class="px-2 flex flex-col md:pr-8 lg:max-w-3/4 lg:flex-row lg:justify-end lg:pr-2 lg:gap-16">
+    <footer class="px-2 flex flex-col pb-28 md:pr-8 lg:max-w-3/4 lg:flex-row lg:justify-end lg:gap-28 lg:pr-2 lg:pb-36">
       <div class="detail-links flex w-full flex-col gap-10 pt-6 md:pl-16 lg:max-w-prose lg:pl-0">
         {hasLinkGroups && (
           <dl class="flex w-full flex-col gap-6">
@@ -39,7 +39,7 @@ const hasFooter = hasLinkGroups || hasAside;
                 {group.links.map((link) => (
                   <dd class="m-0">
                     <a
-                      class="text-sm no-underline opacity-80 transition-opacity hover:opacity-100"
+                      class="tl-hover-link is-bright text-sm no-underline opacity-80"
                       href={link.href}
                     >
                       {link.label}

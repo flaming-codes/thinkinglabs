@@ -1,11 +1,7 @@
 ---
 import BrandLogo from "./BrandLogo.astro";
-
-/** One top-level navigation entry. */
-export interface SiteNavLink {
-  href: string;
-  label: string;
-}
+import { PRIMARY_SITE_LINKS } from "../lib/site-links";
+import type { SiteNavLink } from "../lib/site-links";
 
 interface Props {
   /** Navigation entries; defaults to the full site nav. */
@@ -14,22 +10,7 @@ interface Props {
   revealBadge?: boolean | undefined;
 }
 
-// Top-level site navigation. Kept as data so the markup stays a single mapped
-// list rather than a repeated block of anchors.
-const DEFAULT_LINKS: readonly SiteNavLink[] = [
-  { href: "/", label: "index" },
-  { href: "/thoughts", label: "thoughts" },
-  { href: "/claims", label: "claims" },
-  { href: "/predictions", label: "predictions" },
-  { href: "/decisions", label: "decisions" },
-  { href: "/observations", label: "observations" },
-  { href: "/changed-my-mind", label: "changed my mind" },
-  { href: "/about", label: "about" },
-  { href: "/privacy", label: "privacy" },
-  { href: "/contact", label: "contact" },
-];
-
-const { links = DEFAULT_LINKS, revealBadge = true } = Astro.props;
+const { links = PRIMARY_SITE_LINKS, revealBadge = true } = Astro.props;
 ---
 
 {/*
@@ -59,11 +40,13 @@ const { links = DEFAULT_LINKS, revealBadge = true } = Astro.props;
     <div class="flex flex-col gap-10 lg:items-end">
       <label
         for="tl-nav"
-        class="flex cursor-pointer items-center gap-2"
+        class="tl-nav-close-button"
+        tabindex="0"
         aria-label="Close navigation"
+        data-tl-nav-close-trigger
       >
-        <BrandLogo />
-        <span class="text-sm tracking-tight">thinkinglabs</span>
+        <span>Close</span>
+        <span class="tl-nav-close-mark" aria-hidden="true"></span>
       </label>
 
       <nav>
@@ -72,7 +55,7 @@ const { links = DEFAULT_LINKS, revealBadge = true } = Astro.props;
             links.map((link) => (
               <li>
                 <a
-                  class="text-sm no-underline transition-opacity hover:opacity-50"
+                  class="tl-hover-link is-soft text-sm no-underline"
                   href={link.href}
                 >
                   {link.label}
@@ -104,6 +87,7 @@ const { links = DEFAULT_LINKS, revealBadge = true } = Astro.props;
 
     const checkbox = document.querySelector<HTMLInputElement>("[data-tl-nav-checkbox]");
     const openTrigger = document.querySelector<HTMLElement>("[data-tl-nav-open-trigger]");
+    const closeTrigger = document.querySelector<HTMLElement>("[data-tl-nav-close-trigger]");
     const panel = document.querySelector<HTMLElement>("[data-tl-nav-panel]");
     if (!checkbox || !openTrigger || !panel) return;
 
@@ -139,6 +123,11 @@ const { links = DEFAULT_LINKS, revealBadge = true } = Astro.props;
       "keydown",
       (event) => {
         if (!checkbox.checked) return;
+        if ((event.key === "Enter" || event.key === " ") && event.target === closeTrigger) {
+          event.preventDefault();
+          close(true);
+          return;
+        }
         if (event.key === "Escape") {
           event.preventDefault();
           close(true);
@@ -210,6 +199,60 @@ const { links = DEFAULT_LINKS, revealBadge = true } = Astro.props;
   .tl-nav-panel {
     background-color: var(--tl-bg);
     color: var(--tl-ink);
+  }
+
+  .tl-nav-close-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    align-self: flex-start;
+    min-height: 2rem;
+    cursor: pointer;
+    color: var(--tl-ink);
+    font-size: var(--tl-type-caption);
+    letter-spacing: 0;
+  }
+
+  .tl-nav-close-button:hover,
+  .tl-nav-close-button:focus-visible {
+    opacity: 0.65;
+  }
+
+  .tl-nav-close-button:focus-visible {
+    outline: 2px solid var(--tl-focus);
+    outline-offset: 4px;
+    border-radius: var(--tl-radius-sm);
+  }
+
+  .tl-nav-close-mark {
+    position: relative;
+    width: 0.75rem;
+    height: 0.75rem;
+  }
+
+  .tl-nav-close-mark::before,
+  .tl-nav-close-mark::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: currentColor;
+  }
+
+  .tl-nav-close-mark::before {
+    transform: rotate(45deg);
+  }
+
+  .tl-nav-close-mark::after {
+    transform: rotate(-45deg);
+  }
+
+  @media (min-width: 1024px) {
+    .tl-nav-close-button {
+      align-self: flex-end;
+    }
   }
 
   .tl-nav-badge :global(.tl-nav-logo) {

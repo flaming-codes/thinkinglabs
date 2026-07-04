@@ -4,22 +4,7 @@ import homeHeroImage from "../assets/index.webp";
 import ThinkinglabsUiPage from "../layouts/ThinkinglabsUiPage.astro";
 import PageShell from "../frontend/thinkinglabs-ui/components/PageShell.astro";
 import SiteNav from "../frontend/thinkinglabs-ui/components/SiteNav.astro";
-
-// Links to the entity index pages, surfaced in the scrollable right column.
-const ENTITY_INDEXES = [
-  { href: "/now", label: "now" },
-  { href: "/thoughts", label: "thoughts" },
-  { href: "/claims", label: "claims" },
-  { href: "/predictions", label: "predictions" },
-  { href: "/decisions", label: "decisions" },
-  { href: "/observations", label: "observations" },
-  { href: "/changed-my-mind", label: "changed my mind" },
-  { href: "/questions", label: "questions" },
-  { href: "/projects", label: "projects" },
-  { href: "/posts", label: "posts" },
-  { href: "/about", label: "about" },
-  { href: "/contact", label: "contact" },
-] as const;
+import { PRIMARY_SITE_LINKS } from "../frontend/thinkinglabs-ui/lib/site-links";
 ---
 
 <ThinkinglabsUiPage
@@ -69,9 +54,11 @@ const ENTITY_INDEXES = [
       <nav aria-label="Site sections">
         <ul>
           {
-            ENTITY_INDEXES.map((entry) => (
+            PRIMARY_SITE_LINKS.map((entry) => (
               <li>
-                <a href={entry.href}>{entry.label}</a>
+                <a class="tl-hover-link is-soft" href={entry.href}>
+                  {entry.label}
+                </a>
               </li>
             ))
           }
