@@ -139,7 +139,7 @@ export function predictionCalibration(repoRoot: string): PredictionCalibrationRe
 }
 
 function readResolvedPredictionsSqlite(indexFile: string): ViewItem[] {
-  const db = new Database(indexFile, { readonly: true, fileMustExist: true });
+  const db = Database(indexFile, { readonly: true, fileMustExist: true });
   try {
     const rows = db
       .prepare(
@@ -165,7 +165,7 @@ function clampLimit(limit: number | undefined): number {
 }
 
 function querySqlite(indexFile: string, args: QueryViewArgs, limit: number): ViewResult {
-  const db = new Database(indexFile, { readonly: true, fileMustExist: true });
+  const db = Database(indexFile, { readonly: true, fileMustExist: true });
   try {
     const kinds = viewKinds(args.view);
     const placeholders = kinds.map(() => "?").join(", ");
@@ -189,7 +189,7 @@ function querySource(repoRoot: string, args: QueryViewArgs, limit: number): View
 }
 
 function queryObjectSqlite(indexFile: string, kind: string, slug: string): ViewItem | null {
-  const db = new Database(indexFile, { readonly: true, fileMustExist: true });
+  const db = Database(indexFile, { readonly: true, fileMustExist: true });
   try {
     const row = db
       .prepare(

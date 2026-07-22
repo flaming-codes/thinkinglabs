@@ -164,7 +164,7 @@ export function collectObjects(contentRoot: string, repoRoot: string): IndexedOb
 /** Build the index in memory then serialize to disk so the output bytes only depend on insert order, not pager state. */
 export function writeIndex(objects: ReadonlyArray<IndexedObject>, outFile: string): void {
   if (existsSync(outFile)) rmSync(outFile);
-  const db = new Database(":memory:");
+  const db = Database(":memory:");
   db.pragma("journal_mode = MEMORY");
   db.pragma("synchronous = OFF");
   db.exec(SCHEMA_SQL);

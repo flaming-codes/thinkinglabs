@@ -176,3 +176,7 @@ playwright-report/
 # Timestamped local brain-diff feed artifacts
 public/feed/brain-diff*.json
 public/feed/brain-diff*.xml
+
+# Semantic Layer derived vector DB
+vault/.semantic-layer/*.lbug*
+

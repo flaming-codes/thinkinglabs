@@ -73,7 +73,7 @@ describe("index builder", () => {
       );
       const out = join(root, "dist.sqlite");
       writeIndex(collectObjects(content, root), out);
-      const db = new Database(out, { readonly: true, fileMustExist: true });
+      const db = Database(out, { readonly: true, fileMustExist: true });
       try {
         const row = db
           .prepare("SELECT word_count, approx_token_count FROM objects WHERE id = ?")

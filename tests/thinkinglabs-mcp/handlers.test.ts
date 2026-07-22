@@ -252,7 +252,7 @@ describe("thinkinglabs-mcp handlers", () => {
 
   it("reads per-slug objects beyond the paged listing window", () => {
     mkdirSync(join(root, "dist"), { recursive: true });
-    const db = new Database(join(root, "dist", "index.sqlite"));
+    const db = Database(join(root, "dist", "index.sqlite"));
     db.exec(
       "CREATE TABLE objects (id TEXT PRIMARY KEY, kind TEXT NOT NULL, slug TEXT NOT NULL, frontmatter_json TEXT NOT NULL, body_md TEXT NOT NULL, last_touched TEXT NOT NULL)",
     );
