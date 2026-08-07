@@ -5,7 +5,7 @@ desc: Astro pages and machine-readable surfaces render from typed content collec
 status: active
 owner: Tom Wild
 audience: [agents, engineering]
-last_verified: 2026-06-05
+last_verified: 2026-07-31
 ttl_days: 180
 layer: content
 code_refs:
@@ -45,3 +45,9 @@ support does not support the client router runtime. Browser scripts that need
 setup should compose through `onPageReady(...)` so they run on normal MPA page
 loads and remain compatible with Astro lifecycle events if a router is ever
 introduced behind a matching CSP strategy.
+
+The noindex `/cv` route is a purpose-built, three-chapter editorial composition.
+Its opening borrows the landing page's half-screen image/counter-column grammar;
+the Trajectory and Practice chapters use the About page's fixed-title and narrow
+reading-column rhythm. Each screen chapter becomes one A4 page in print, and the
+print action removes site navigation and screen controls.

@@ -116,6 +116,13 @@
   --tl-kind-color-provenance: #c7c7c7;
   --tl-site-gradient-about: #f3f5f7;
   --tl-site-gradient-privacy: #d8dce1;
+  --tl-cv-paper: #ffffff;
+  --tl-cv-ink: #07090d;
+  --tl-cv-ink-70: rgba(7, 9, 13, 0.7);
+  --tl-cv-ink-68: rgba(7, 9, 13, 0.68);
+  --tl-cv-ink-58: rgba(7, 9, 13, 0.58);
+  --tl-cv-ink-48: rgba(7, 9, 13, 0.48);
+  --tl-cv-ink-24: rgba(7, 9, 13, 0.24);
   --tl-shadow: var(--tl-shadow-soft);
   --tl-gallery-hover-shadow: var(--tl-shadow-gallery-hover);
   --tl-gallery-shadow: var(--tl-shadow-gallery);
