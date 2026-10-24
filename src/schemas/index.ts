@@ -20,7 +20,7 @@ export type { Kind } from "./kinds.ts";
 export type LinkFieldMap = Readonly<Record<string, string>>;
 
 /** Per-kind bundle keeps schema and edge-type metadata adjacent so the index builder is fully kind-parameterized. */
-export interface KindSpec<S extends z.ZodTypeAny = z.ZodTypeAny> {
+export interface KindSpec<S extends z.ZodType = z.ZodType> {
   readonly schema: S;
   readonly linkFields: LinkFieldMap;
 }

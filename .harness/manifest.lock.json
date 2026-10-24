@@ -10,7 +10,7 @@
       },
       "registry": "local",
       "sourceSha256": "5f93308020eb7fedce839446886439fe96c3973d48c0018a5278e329f03f2166",
-      "type": "prompt"
+      "type": "prompt_section"
     },
     {
       "id": "claude",
@@ -65,8 +65,8 @@
       "type": "skill"
     }
   ],
-  "generatedAt": "2026-06-05T20:09:15.977Z",
-  "manifestFingerprint": "b5d6230d510d96b57ada679cd0c44d18f6697a0c925a1d9e2e695433052953d6",
+  "generatedAt": "2026-10-24T19:24:57.841Z",
+  "manifestFingerprint": "04c014699692101e9f88d473149042f2290215d39f83006147374cb533509f26",
   "outputs": [
     {
       "contentSha256": "8681d43c99ae7c2ca0604d6ef3acf1051a579816a9fd55999505d05a575030ab",

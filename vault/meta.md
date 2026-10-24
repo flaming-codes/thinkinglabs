@@ -17,7 +17,7 @@ The semantic layer holds durable repository context. Keep it small, validated,
 and directly useful for future tasks. Use it for architecture, operational, API,
 and workflow facts that agents should trust before reading broad source.
 
-The generated index is rooted at [[root#thinking-labs-semantic-layer]] and should
+The generated index is rooted at [[root#Thinking Labs semantic layer]] and should
 be refreshed with `pnpm semantic:index` after vault edits.
 
 `semantic-layer.config.yml` requires the extra frontmatter field `layer`, writes

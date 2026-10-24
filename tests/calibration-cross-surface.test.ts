@@ -90,12 +90,10 @@ describe("calibration cross-surface parity", () => {
   it("predictionCalibration over real fixture files yields identical buckets to calibration()", () => {
     const resolved = FIXTURES.filter(
       (f) => f.resolution === "true" || f.resolution === "false" || f.resolution === "ambiguous",
-    ).map(
-      (f): Pick<Prediction, "confidence" | "resolution"> => ({
-        confidence: f.confidence,
-        resolution: f.resolution as "true" | "false" | "ambiguous",
-      }),
-    );
+    ).map((f): Pick<Prediction, "confidence" | "resolution"> => ({
+      confidence: f.confidence,
+      resolution: f.resolution as "true" | "false" | "ambiguous",
+    }));
     const webBuckets = calibration(resolved);
     const mcp = predictionCalibration(root);
 

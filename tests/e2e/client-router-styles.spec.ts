@@ -19,6 +19,7 @@ test.describe("detail pages", () => {
     await expect(
       page.getByRole("heading", { name: "The agent harness is the new IDE" }),
     ).toBeVisible();
+    await expect(page.locator(".detail-prose")).not.toHaveCSS("max-width", "none");
 
     const detailStyles = await page.locator(".tl-hero-frame").evaluate((node) => {
       const hero = getComputedStyle(node);

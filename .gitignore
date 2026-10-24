@@ -182,3 +182,4 @@ public/feed/brain-diff*.xml
 
 # Semantic Layer derived vector DB
 vault/.semantic-layer/*.lbug*
+vault/.semantic-layer/*.sqlite*

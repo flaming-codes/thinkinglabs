@@ -2,7 +2,7 @@ import { defineConfig } from "vite-plus";
 
 export default defineConfig({
   fmt: {
-    ignorePatterns: [".claude/settings.json", ".harness/manifest.lock.json"],
+    ignorePatterns: [".claude/settings.json", ".codex/config.toml", ".harness/manifest.lock.json"],
   },
   test: {
     globalSetup: ["./tests/global-setup.ts"],

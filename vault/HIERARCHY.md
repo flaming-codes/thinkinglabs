@@ -4,18 +4,21 @@
 
 Agents: read this file first, then load notes by id.
 
-- **root** - Thinking Labs semantic layer. Entry point for validated agent-facing repository knowledge.
-- **agents** - Agent workflows. Agent-facing configuration, curation workflows, and query surfaces.
-  - **agents.harness** - Agent Harness source of truth. Agent-facing configuration changes must start in .harness/src and be applied.
-  - **agents.proposals** - Proposal confirmation workflows. Background agents enqueue proposals and review-proposals applies accepted mutations.
-- **architecture** - Architecture map. High-level system architecture for the source-backed thinking surface.
-  - **architecture.mcp** - MCP architecture. The stdio and HTTP transports share one MCP server factory and store.
-  - **architecture.source-index** - Source and index split. Content markdown is canonical and dist/index.sqlite is derived for agents.
-- **content** - Content model. Schema-driven public objects rendered into site, API, feed, and MCP surfaces.
-  - **content.hero-images** - Entity hero images. Convention-based local assets for content detail heroes and OG detail cards.
-  - **content.rendering** - Rendering surfaces. Astro pages and machine-readable surfaces render from typed content collections.
-  - **content.schemas** - Schema registry. KIND_SCHEMAS and KIND_REGISTRY are the two core content registries.
-- **deployment** - Deployment model. Static site deployment is separate from the optional MCP HTTP runtime.
-- **meta** - Semantic layer metadata. Operating rules for maintaining the semantic-layer vault.
-  - **meta.agent-conventions** - Agent conventions. How agents should read and maintain the semantic layer.
-- **tooling** - Tooling. Vite+, pnpm, and validation commands used in this repository.
+Sizes are rough token estimates (chars/4). For large notes, prefer
+`semantic-layer search "<query>" --json` to load only the matching section.
+
+- **root** - Thinking Labs semantic layer. Entry point for validated agent-facing repository knowledge. (~98 tok)
+- **agents** - Agent workflows. Agent-facing configuration, curation workflows, and query surfaces. (~91 tok)
+  - **agents.harness** - Agent Harness source of truth. Agent-facing configuration changes must start in .harness/src and be applied. (~97 tok)
+  - **agents.proposals** - Proposal confirmation workflows. Background agents enqueue proposals and review-proposals applies accepted mutations. (~259 tok)
+- **architecture** - Architecture map. High-level system architecture for the source-backed thinking surface. (~109 tok)
+  - **architecture.mcp** - MCP architecture. The stdio and HTTP transports share one MCP server factory and store. (~218 tok)
+  - **architecture.source-index** - Source and index split. Content markdown is canonical and dist/index.sqlite is derived for agents. (~155 tok)
+- **content** - Content model. Schema-driven public objects rendered into site, API, feed, and MCP surfaces. (~117 tok)
+  - **content.hero-images** - Entity hero images. Convention-based local assets for content detail heroes and OG detail cards. (~177 tok)
+  - **content.rendering** - Rendering surfaces. Astro pages and machine-readable surfaces render from typed content collections. (~377 tok)
+  - **content.schemas** - Schema registry. KIND_SCHEMAS and KIND_REGISTRY are the two core content registries. (~133 tok)
+- **deployment** - Deployment model. Static site deployment is separate from the optional MCP HTTP runtime. (~191 tok)
+- **meta** - Semantic layer metadata. Operating rules for maintaining the semantic-layer vault. (~175 tok)
+  - **meta.agent-conventions** - Agent conventions. How agents should read and maintain the semantic layer. (~135 tok)
+- **tooling** - Tooling. Vite+, pnpm, and validation commands used in this repository. (~255 tok)

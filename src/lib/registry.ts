@@ -28,7 +28,7 @@ export interface KindMcpSpec {
 }
 
 /** Per-kind registry entry; the single fact-source the site, MCP server, and CLIs read from. */
-export interface KindRegistryEntry<S extends z.ZodTypeAny = z.ZodTypeAny> {
+export interface KindRegistryEntry<S extends z.ZodType = z.ZodType> {
   readonly schema: S;
   readonly linkFields: LinkFieldMap;
   readonly route: string | null;
