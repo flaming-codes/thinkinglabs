@@ -53,6 +53,7 @@ const KIND_COLOR_TOKENS: Record<string, string> = {
   questions: "--tl-kind-color-questions",
   posts: "--tl-kind-color-posts",
   inputs: "--tl-kind-color-inputs",
+  observations: "--tl-kind-color-observations",
   provenance: "--tl-kind-color-provenance",
 };
 

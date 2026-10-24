@@ -8,6 +8,7 @@ import {
   buildClaimLookup,
   buildTitleLookup,
   mapObservationDetail,
+  predictionEvidenceBacklinks,
 } from "../../lib/thinkinglabs-ui.ts";
 import { observationStructuredData } from "../../lib/structured-data.ts";
 
@@ -16,14 +17,25 @@ export const getStaticPaths = (async () => {
 }) satisfies GetStaticPaths;
 
 const { entry } = Astro.props as InferGetStaticPropsType<typeof getStaticPaths>;
-const [claims, thoughts, projects] = await Promise.all([
+const [claims, thoughts, projects, predictions] = await Promise.all([
   getCollection("claims"),
   getCollection("thoughts"),
   getCollection("projects"),
+  getCollection("predictions"),
 ]);
 const lookups = buildTitleLookup({ claims, thoughts, projects });
 const claimLookup = buildClaimLookup(claims);
-const observation = mapObservationDetail({ entry, lookups, claimLookup });
+const predictionEvidence = predictionEvidenceBacklinks({
+  predictions,
+  targetKind: "observations",
+  targetSlug: entry.id,
+});
+const observation = mapObservationDetail({
+  entry,
+  lookups,
+  claimLookup,
+  predictionEvidence,
+});
 const site = Astro.site ?? new URL(Astro.url.origin);
 ---
 

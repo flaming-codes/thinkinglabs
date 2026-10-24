@@ -42,7 +42,7 @@ export const AGENT_REGISTRY = {
     handlerModule: "../src/lib/agents/review-decisions.ts",
     cliPath: "scripts/review-decisions.ts",
     stateFiles: [".review-decisions-rejections.json"],
-    schedule: "daily 03:30",
+    schedule: "daily 03:05",
     usesLLM: false,
   },
   "resolve-predictions": {
@@ -51,7 +51,7 @@ export const AGENT_REGISTRY = {
     handlerModule: "../src/lib/agents/resolve-predictions.ts",
     cliPath: "scripts/resolve-predictions.ts",
     stateFiles: [".resolve-predictions-rejections.json"],
-    schedule: "daily 04:00",
+    schedule: "daily 03:10",
     usesLLM: true,
   },
   "freshness-review": {
@@ -60,7 +60,7 @@ export const AGENT_REGISTRY = {
     handlerModule: "../src/lib/agents/freshness-review.ts",
     cliPath: "scripts/freshness-review.ts",
     stateFiles: [],
-    schedule: "weekly Mon 04:30",
+    schedule: "weekly Sun 03:15",
     usesLLM: true,
   },
   "triage-questions": {
@@ -69,7 +69,7 @@ export const AGENT_REGISTRY = {
     handlerModule: "../src/lib/agents/triage-questions.ts",
     cliPath: "scripts/triage-questions.ts",
     stateFiles: [".triage-questions-rejections.json"],
-    schedule: "daily 05:00",
+    schedule: "every 30m",
     usesLLM: true,
   },
 } as const satisfies Record<ProposalSource, AgentSpec>;

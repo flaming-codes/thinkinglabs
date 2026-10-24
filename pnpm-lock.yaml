@@ -13,7 +13,7 @@ overrides:
 
 patchedDependencies:
   astro@7.4.2:
-    hash: 08b61acd6fe5adea6d316d7dfdb593b39e69836d36c3518f48d5a83c2de7dbfc
+    hash: aa9c6ebcdd82007b91a2af686df04058dff0b14350384f8547a1efcf61bf36af
     path: patches/astro@7.4.2.patch
 
 importers:
@@ -37,7 +37,7 @@ importers:
         version: 7.0.153(zod@4.6.7)
       astro:
         specifier: ^7.4.2
-        version: 7.4.2(patch_hash=08b61acd6fe5adea6d316d7dfdb593b39e69836d36c3518f48d5a83c2de7dbfc)(@astrojs/markdown-remark@7.3.4)(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.47.1)(tsx@4.23.15)(yaml@2.9.1)
+        version: 7.4.2(patch_hash=aa9c6ebcdd82007b91a2af686df04058dff0b14350384f8547a1efcf61bf36af)(@astrojs/markdown-remark@7.3.4)(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.47.1)(tsx@4.23.15)(yaml@2.9.1)
       better-sqlite3:
         specifier: ^13.0.3
         version: 13.0.3
@@ -5930,7 +5930,7 @@ snapshots:
 
   astring@1.9.0: {}
 
-  astro@7.4.2(patch_hash=08b61acd6fe5adea6d316d7dfdb593b39e69836d36c3518f48d5a83c2de7dbfc)(@astrojs/markdown-remark@7.3.4)(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.47.1)(tsx@4.23.15)(yaml@2.9.1):
+  astro@7.4.2(patch_hash=aa9c6ebcdd82007b91a2af686df04058dff0b14350384f8547a1efcf61bf36af)(@astrojs/markdown-remark@7.3.4)(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.47.1)(tsx@4.23.15)(yaml@2.9.1):
     dependencies:
       '@astrojs/compiler-rs': 0.5.2
       '@astrojs/internal-helpers': 0.13.0

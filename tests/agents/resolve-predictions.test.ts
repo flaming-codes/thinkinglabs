@@ -172,4 +172,52 @@ describe("runResolvePredictions — pure function", () => {
     await runResolvePredictions({ cwd: root, nowISO: NOW_ISO, skipLLM: false });
     expect(readQueue()[0]?.id).toBe(firstId);
   });
+
+  it("includes inputs and observations recorded after resolves date up to nowISO", async () => {
+    const runToolCallMock = vi.fn().mockResolvedValue({
+      data: {
+        resolution: "true",
+        resolution_note: "Resolved with post-deadline evidence.",
+        reasoning: "Evidence logged after resolves date confirms it.",
+      },
+      model: { provider: "openai", model: "gpt-test", tier: "balanced" },
+    });
+    vi.doMock("../../src/lib/llm.ts", () => ({
+      runToolCall: runToolCallMock,
+    }));
+
+    const { runResolvePredictions } = await import("../../src/lib/agents/resolve-predictions.ts");
+    const { readQueue } = await import("../../src/lib/proposal-queue.ts");
+    mkdirSync(join(root, "content", "observations"), { recursive: true });
+
+    writePrediction(join(root, "content", "predictions"), "overdue-pred", "pending", RESOLVED_PAST);
+    writeFileSync(
+      join(root, "content", "inputs", "late-input.md"),
+      `---\ntitle: Late Input\nsource: "https://example.com"\nconsumed: 2026-03-15\ntags: []\n---\nInput logged after resolves_by.\n`,
+      "utf8",
+    );
+    writeFileSync(
+      join(root, "content", "observations", "late-obs.md"),
+      `---\nobservation: "Late observation"\nobserved: 2026-04-10\ntags: []\n---\nObservation logged after resolves_by.\n`,
+      "utf8",
+    );
+
+    const summary = await runResolvePredictions({
+      cwd: root,
+      nowISO: NOW_ISO,
+      skipLLM: false,
+    });
+    expect(summary.proposed).toBe(1);
+    expect(runToolCallMock).toHaveBeenCalledTimes(1);
+    const callArg = runToolCallMock.mock.calls[0]?.[0] as { userPrompt: string };
+    expect(callArg.userPrompt).toContain("input/late-input");
+    expect(callArg.userPrompt).toContain("observation/late-obs");
+
+    const queue = readQueue();
+    expect(queue[0]?.provenance?.source_objects).toEqual([
+      { id: "predictions/overdue-pred" },
+      { id: "observations/late-obs" },
+      { id: "inputs/late-input" },
+    ]);
+  });
 });

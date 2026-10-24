@@ -99,12 +99,15 @@ export function classify(file: FileDiff): EntryType {
       const reverses = file.newFrontmatter?.["reverses"];
       if (Array.isArray(reverses) && reverses.length > 0) return "decision-reversed";
     }
-    if (
-      file.status === "M" &&
-      file.newFrontmatter?.["status"] === "reversed" &&
-      file.oldFrontmatter?.["status"] !== "reversed"
-    ) {
-      return "decision-reversed";
+    if (file.status === "M") {
+      const beforeStatus = file.oldFrontmatter?.["status"];
+      const afterStatus = file.newFrontmatter?.["status"];
+      if (
+        (afterStatus === "reversed" || afterStatus === "superseded") &&
+        beforeStatus !== afterStatus
+      ) {
+        return "decision-reversed";
+      }
     }
   }
   if (p.startsWith("predictions/") && file.status === "M") {
@@ -277,7 +280,7 @@ export function formatAtom(
   opts: { siteUrl?: string } = {},
 ): string {
   const site = opts.siteUrl ?? env().SITE_URL;
-  const updated = entries[0]?.isoDate ?? buildNowISO();
+  const updated = entries.at(-1)?.isoDate ?? buildNowISO();
   const head = [
     `<?xml version="1.0" encoding="utf-8"?>`,
     `<feed xmlns="http://www.w3.org/2005/Atom">`,

@@ -140,6 +140,7 @@ function collectThoughtPaths(args: Args, state: DerivationState): string[] {
 /** Merges evidence and opposing from a proposal into an existing claim file. */
 async function mergeIntoExistingClaim(
   claimPath: string,
+  thoughtSlug: string,
   proposal: ClaimProposal,
   nowISO: string,
   dryRun: boolean,
@@ -149,6 +150,13 @@ async function mergeIntoExistingClaim(
     return;
   }
   await patchFrontmatter(claimPath, (data) => {
+    const derivedFrom: string[] = Array.isArray(data["derived_from"])
+      ? (data["derived_from"] as string[])
+      : [];
+    const thoughtRef = `thoughts/${thoughtSlug}`;
+    if (!derivedFrom.includes(thoughtRef) && !derivedFrom.includes(thoughtSlug)) {
+      derivedFrom.push(thoughtRef);
+    }
     const ev: Array<{ url?: string; note?: string }> = Array.isArray(data["evidence"])
       ? (data["evidence"] as Array<{ url?: string; note?: string }>)
       : [];
@@ -157,6 +165,7 @@ async function mergeIntoExistingClaim(
     for (const o of proposal.opposing) {
       if (!opp.includes(o)) opp.push(o);
     }
+    data["derived_from"] = derivedFrom;
     data["evidence"] = ev;
     data["opposing"] = opp;
     data["last_reviewed"] = nowISO.slice(0, 10);
@@ -336,7 +345,7 @@ async function main(): Promise<void> {
           }
           const claimPath = join(CLAIMS_DIR, `${targetSlug}.md`);
           if (targetSlug && existsSync(claimPath)) {
-            await mergeIntoExistingClaim(claimPath, payload, nowISO, args.dryRun);
+            await mergeIntoExistingClaim(claimPath, slug, payload, nowISO, args.dryRun);
             if (!args.dryRun) {
               await addClaimBacklink(thoughtPath, targetSlug);
               writeDerivationProvenance(payload, targetSlug, "merged");

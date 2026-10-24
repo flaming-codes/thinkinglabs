@@ -69,6 +69,19 @@ describe("classify", () => {
     ).toBe("decision-reversed");
   });
 
+  it("decision reversed via status flip to superseded", () => {
+    expect(
+      classify(
+        fd({
+          path: "content/decisions/foo.md",
+          status: "M",
+          oldFrontmatter: { status: "standing" },
+          newFrontmatter: { status: "superseded" },
+        }),
+      ),
+    ).toBe("decision-reversed");
+  });
+
   it("decision reversed via new file with reverses", () => {
     expect(
       classify(
@@ -190,6 +203,32 @@ describe("formatters", () => {
       if (previous === undefined) delete process.env["BUILD_NOW_ISO"];
       else process.env["BUILD_NOW_ISO"] = previous;
     }
+  });
+
+  it("formatAtom uses the newest entry isoDate for feed-level updated when entries are chronological", () => {
+    const entries: FeedEntry[] = [
+      {
+        sha: "111",
+        isoDate: "2026-04-01T00:00:00Z",
+        path: "claims/older.md",
+        type: "new-claim",
+        title: "claims/older",
+        score: null,
+        summary: null,
+      },
+      {
+        sha: "222",
+        isoDate: "2026-04-30T12:34:56Z",
+        path: "claims/newer.md",
+        type: "claim-revised",
+        title: "claims/newer",
+        score: null,
+        summary: null,
+      },
+    ];
+    const xml = formatAtom(entries, { siteUrl: "https://example.com" });
+    const feedUpdated = /<feed[\s\S]*?<updated>([^<]+)<\/updated>/.exec(xml)?.[1];
+    expect(feedUpdated).toBe("2026-04-30T12:34:56Z");
   });
 });
 

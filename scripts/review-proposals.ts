@@ -1,6 +1,7 @@
 #!/usr/bin/env tsx
 import type { Readable, Writable } from "node:stream";
 import { AGENT_REGISTRY, PROPOSAL_SOURCES } from "../src/lib/agent-registry.ts";
+import { nowISO } from "../src/lib/clock.ts";
 import { runReview, type ReviewActionDef, type ReviewProposal } from "../src/lib/review-cli.ts";
 import { readQueue, removeFromQueue, type QueuedProposal } from "../src/lib/proposal-queue.ts";
 import { getHandler, allHandlers } from "../src/lib/proposal-dispatch.ts";
@@ -14,9 +15,13 @@ import {
   markProposalProvenanceWritten,
 } from "../src/lib/proposal-review-state.ts";
 
+let agentHandlersLoaded = false;
+
 /** Side-effect import of every agent module so each `registerHandler` call runs at startup; derived from the registry. */
 async function loadAgentHandlers(): Promise<void> {
+  if (agentHandlersLoaded && allHandlers().length > 0) return;
   await Promise.all(Object.values(AGENT_REGISTRY).map((spec) => import(spec.handlerModule)));
+  agentHandlersLoaded = true;
 }
 
 /** CLI args shape. */
@@ -106,7 +111,7 @@ function writeQueuedProvenance(
     ...proposal.provenance,
     cwd,
     title: `AI provenance for ${proposal.title}`,
-    accepted_at: new Date().toISOString(),
+    accepted_at: nowISO(),
     outcome,
   });
 }
@@ -149,6 +154,7 @@ export async function runProposalsReview(args: {
   cwd?: string;
   io?: { input?: Readable; output?: Writable };
 }): Promise<ReviewRunSummary> {
+  await loadAgentHandlers();
   const limit = args.limit ?? 25;
   const filter = args.filter ?? [];
   const dryRun = args.dryRun ?? false;

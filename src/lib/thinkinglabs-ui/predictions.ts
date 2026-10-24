@@ -6,6 +6,7 @@ import type {
   PredictionsView,
 } from "../../frontend/thinkinglabs-ui/types.ts";
 import { calibration } from "../calibration.ts";
+import { nowISO } from "../clock.ts";
 import { detailHref, formatDate } from "../entity-routes.ts";
 import {
   kindLabel,
@@ -144,7 +145,7 @@ export function mapPredictionDetail(args: {
   tags: readonly string[];
   evidence: { label: string; href?: string }[];
 } {
-  const { entry, lookups = {}, now = new Date() } = args;
+  const { entry, lookups = {}, now = new Date(nowISO()) } = args;
   const data = entry.data;
   const dayMs = 1000 * 60 * 60 * 24;
   const nowMs = now.getTime();
@@ -182,7 +183,7 @@ export function mapPredictionsView(args: {
   entries: ReadonlyArray<CollectionEntry<"predictions">>;
   now?: Date;
 }): PredictionsView {
-  const now = args.now ?? new Date();
+  const now = args.now ?? new Date(nowISO());
 
   const open: PredictionRow[] = [];
   const resolved: PredictionRow[] = [];

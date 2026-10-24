@@ -1,5 +1,5 @@
 diff --git a/dist/assets/fonts/infra/cached-font-fetcher.js b/dist/assets/fonts/infra/cached-font-fetcher.js
-index 1c1e69f0e52654066e1df078ce6d2306f94674af..f8009d9c2d6ce8b74db522cd0d396fdf9dce97b7 100644
+index 1c1e69f0e52654066e1df078ce6d2306f94674af..a19977b20509143d31a3bc5688b5b3b60a0e6022 100644
 --- a/dist/assets/fonts/infra/cached-font-fetcher.js
 +++ b/dist/assets/fonts/infra/cached-font-fetcher.js
 @@ -1,4 +1,5 @@
@@ -8,21 +8,72 @@ index 1c1e69f0e52654066e1df078ce6d2306f94674af..f8009d9c2d6ce8b74db522cd0d396fdf
  import { AstroError, AstroErrorData } from "../../../core/errors/index.js";
  export class CachedFontFetcher {
  	#storage;
-@@ -21,8 +22,9 @@ export class CachedFontFetcher {
+@@ -21,10 +22,11 @@ export class CachedFontFetcher {
  	async fetch({ id, url, init }) {
  		return await this.#cache(this.#storage, id, async () => {
  			try {
 -				if (isAbsolute(url)) {
 -					return await this.#readFile(url);
-+				const filePath = url.startsWith("file://") ? fileURLToPath(url) : url;
-+				if (isAbsolute(filePath)) {
-+					return await this.#readFile(filePath);
++				const resolvedUrl = url.startsWith("file://") ? fileURLToPath(url) : url;
++				if (isAbsolute(resolvedUrl)) {
++					return await this.#readFile(resolvedUrl);
  				}
- 				const response = await this.#fetch(url, init ?? undefined);
+-				const response = await this.#fetch(url, init ?? undefined);
++				const response = await this.#fetch(resolvedUrl, init ?? undefined);
  				if (!response.ok) {
-diff --git a/src/core/README.md b/src/core/README.md
-deleted file mode 100644
-index f396c01c557b5c1193a5f8d0c17f8727f2ee9350..0000000000000000000000000000000000000000
-diff --git a/src/types/README.md b/src/types/README.md
-deleted file mode 100644
-index 10331210628e88a9cd869cadcceabc5009d73747..0000000000000000000000000000000000000000
+ 					throw new Error(`Response was not successful, received status code ${response.status}`);
+ 				}
+diff --git a/dist/assets/fonts/infra/fs-font-file-content-resolver.js b/dist/assets/fonts/infra/fs-font-file-content-resolver.js
+index 48c312cfd5f57402f774b5b2619f3d46f805f031..758bba2dcc8457528afce98944588197986bcd50 100644
+--- a/dist/assets/fonts/infra/fs-font-file-content-resolver.js
++++ b/dist/assets/fonts/infra/fs-font-file-content-resolver.js
+@@ -1,4 +1,5 @@
+ import { isAbsolute } from "node:path";
++import { fileURLToPath } from "node:url";
+ import { AstroError, AstroErrorData } from "../../../core/errors/index.js";
+ export class FsFontFileContentResolver {
+ 	#readFileSync;
+@@ -6,16 +7,17 @@ export class FsFontFileContentResolver {
+ 		this.#readFileSync = readFileSync;
+ 	}
+ 	resolve(url) {
+-		if (!isAbsolute(url)) {
++		const resolvedUrl = url.startsWith("file://") ? fileURLToPath(url) : url;
++		if (!isAbsolute(resolvedUrl)) {
+ 			// HTTP URLs are enough
+-			return url;
++			return resolvedUrl;
+ 		}
+ 		try {
+ 			// We only use the file content for the id generation to ensure
+ 			// deterministic output filenames regardless of the project's location
+ 			// on disk. The absolute path is excluded so that the same font file
+ 			// produces the same hash across different checkout directories.
+-			return this.#readFileSync(url);
++			return this.#readFileSync(resolvedUrl);
+ 		} catch (cause) {
+ 			throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause });
+ 		}
+diff --git a/dist/assets/fonts/providers/index.js b/dist/assets/fonts/providers/index.js
+index b04b29d4a75a4db76a929f4ca181aa91c5a69eb4..0bee58a8617b3e0c5ff46823d8a38abfbf2e0ea6 100644
+--- a/dist/assets/fonts/providers/index.js
++++ b/dist/assets/fonts/providers/index.js
+@@ -149,7 +149,17 @@ function npm(options) {
+ 			})(context);
+ 		},
+ 		async resolveFont({ familyName, ...rest }) {
+-			return await initializedProvider?.resolveFont(familyName, rest);
++			const res = await initializedProvider?.resolveFont(familyName, rest);
++			if (res?.fonts) {
++				for (const font of res.fonts) {
++					for (const source of font.src) {
++						if ("url" in source && source.url.startsWith("file://")) {
++							source.url = fileURLToPath(source.url);
++						}
++					}
++				}
++			}
++			return res;
+ 		},
+ 		async listFonts() {
+ 			return await initializedProvider?.listFonts?.();

@@ -53,7 +53,7 @@ const heroImage = (heroSlug ? heroes.get(`${heroSlug}-hero`)?.image : undefined)
   in normal flow and the content stacks full-width beneath it.
 */}
 <PageShell class="pb-2!">
-  <SiteNav />
+  <SiteNav revealBadge={false} />
 
   <div class="relative h-[55vh] w-full p-2 pointer-events-none md:fixed md:inset-0 md:h-auto md:w-auto">
     {

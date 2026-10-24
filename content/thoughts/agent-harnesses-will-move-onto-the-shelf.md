@@ -10,6 +10,8 @@ claims: []
 inputs:
   - anthropic-claude-managed-agents
   - openai-workspace-agents-chatgpt
+observations:
+  - observations/github-scaling-pressure-from-agent-generated-repos
 ---
 
 The next useful abstraction for agents is not another chat box. It is the shelf.

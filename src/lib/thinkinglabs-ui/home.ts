@@ -1,5 +1,6 @@
 import type { CollectionEntry } from "astro:content";
 import type { AboutKind, KindSummary, NowData } from "../../frontend/thinkinglabs-ui/types.ts";
+import { nowISO } from "../clock.ts";
 import { detailHref, formatDate, listingHref } from "../entity-routes.ts";
 import { KIND_REGISTRY, LISTING_KINDS } from "../registry.ts";
 import { type CountByKind, safeDate } from "./ref-lookups.ts";
@@ -12,10 +13,10 @@ function seasonLabel(now: Date): string {
   return `${month} ${year} — ${season}`;
 }
 
-function pulseFromDate(iso: string): number {
+function pulseFromDate(iso: string, now: Date): number {
   const parsed = Date.parse(iso);
   if (Number.isNaN(parsed)) return 0.5;
-  const days = Math.max(0, (Date.now() - parsed) / (1000 * 60 * 60 * 24));
+  const days = Math.max(0, (now.getTime() - parsed) / (1000 * 60 * 60 * 24));
   const normalized = 1 - Math.min(days, 365) / 365;
   return Number(Math.max(0.2, Math.min(0.95, normalized)).toFixed(2));
 }
@@ -54,7 +55,7 @@ export function mapNowData(args: {
   const sortedInputs = [...args.inputs].sort(
     (a, b) => safeDate(b.data.consumed) - safeDate(a.data.consumed),
   );
-  const now = args.now ?? new Date();
+  const now = args.now ?? new Date(nowISO());
   const firstQuestion = activeProjects.find((project) => project.data.current_question)?.data
     .current_question;
 
@@ -70,7 +71,7 @@ export function mapNowData(args: {
       kind: "project",
       currentQ: project.data.current_question ?? "No current question logged yet.",
       since: formatDate(project.data.started),
-      pulse: pulseFromDate(project.data.last_touched ?? project.data.started),
+      pulse: pulseFromDate(project.data.last_touched ?? project.data.started, now),
       href: detailHref("projects", project.id),
     })),
     reading: sortedInputs.slice(0, 5).map((input) => {

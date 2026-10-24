@@ -187,4 +187,47 @@ describe("detectStaleClaims — pure logic", () => {
       expect(flag.reasons).not.toContain("deprecation-candidate");
     }
   });
+
+  it("skips deprecated and superseded claims even when past threshold or with newer related objects", async () => {
+    const runToolCallMock = vi.fn().mockResolvedValue({
+      data: {
+        shifted: true,
+        contradicts: true,
+        reasoning: "Contradicted by newer thought.",
+      },
+      model: { provider: "openai", model: "gpt-test", tier: "balanced" },
+    });
+    vi.doMock("../src/lib/llm.ts", () => ({
+      runToolCall: runToolCallMock,
+    }));
+
+    const { detectStaleClaims } = await import("../src/lib/review-stale-claims.ts");
+    writeClaimFile(claimsDir, "deprecated-claim", "2025-01-01", {
+      status: "deprecated",
+      tags: ["ai"],
+    });
+    writeClaimFile(claimsDir, "superseded-claim", "2025-01-01", {
+      status: "superseded",
+      superseded_by: ["claims/active-claim"],
+      tags: ["ai"],
+    });
+    const thoughtsDir = join(contentRoot, "thoughts");
+    mkdirSync(thoughtsDir, { recursive: true });
+    writeFileSync(
+      join(thoughtsDir, "new-thought.md"),
+      '---\ntitle: New\ncreated: "2026-04-01"\nupdated: "2026-04-01"\ntags:\n  - ai\n---\nNew content.\n',
+      "utf8",
+    );
+
+    const flags = await detectStaleClaims({
+      cwd: root,
+      contentRoot,
+      nowISO: "2026-04-30T00:00:00.000Z",
+      thresholdDays: 90,
+      skipLLM: false,
+    });
+    expect(flags).toEqual([]);
+    expect(runToolCallMock).not.toHaveBeenCalled();
+    vi.doUnmock("../src/lib/llm.ts");
+  });
 });

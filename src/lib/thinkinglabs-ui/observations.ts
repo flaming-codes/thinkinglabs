@@ -2,7 +2,7 @@ import type { CollectionEntry } from "astro:content";
 import type {
   DetailRelation,
   IndexStat,
-  ObservationDetail,
+  ObservationDetail as BaseObservationDetail,
   ObservationRow,
   ObservationsView,
 } from "../../frontend/thinkinglabs-ui/types.ts";
@@ -15,6 +15,21 @@ import {
   safeDate,
   type TitleLookup,
 } from "./ref-lookups.ts";
+
+/** Backlink entry for a prediction that cites an observation in its evidence array. */
+export type ObservationPredictionBacklink = {
+  kind: string;
+  title: string;
+  href?: string;
+  conf?: number;
+  date?: string;
+};
+
+/** Extended observation detail view model including optional prediction evidence backlinks. */
+export type ObservationDetail = BaseObservationDetail & {
+  predictionEvidence?: ObservationPredictionBacklink[];
+  referencedByPredictions?: ObservationPredictionBacklink[];
+};
 
 /** Build the observations index view from short first-party world notes. */
 export function mapObservationsView(args: {
@@ -57,8 +72,11 @@ export function mapObservationDetail(args: {
   entry: CollectionEntry<"observations">;
   lookups?: TitleLookup;
   claimLookup?: ClaimLookup;
+  predictionEvidence?: ReadonlyArray<ObservationPredictionBacklink>;
+  referencedByPredictions?: ReadonlyArray<ObservationPredictionBacklink>;
 }): ObservationDetail {
   const { entry, lookups = {}, claimLookup = new Map() } = args;
+  const predictionBacklinks = [...(args.predictionEvidence ?? args.referencedByPredictions ?? [])];
   const related: DetailRelation[] = [
     ...entry.data.related_claims.map((ref) => {
       const relation = detailRelation(ref, "claims", lookups);
@@ -77,6 +95,8 @@ export function mapObservationDetail(args: {
     context: entry.data.context ?? "No context logged.",
     paragraphs: markdownParagraphs(entry.body ?? ""),
     related,
+    predictionEvidence: predictionBacklinks,
+    referencedByPredictions: predictionBacklinks,
     tags: entry.data.tags,
   };
 }

@@ -83,15 +83,24 @@ describe("post-section-restamp handler", () => {
     expect(content).toContain("title: fm-preserve-post");
   });
 
-  it("deprecate: prepends a deprecated callout to the section", async () => {
+  it("deprecate: prepends a deprecated callout to the section and restamps last_verified", async () => {
     const { getHandler } = await import("../../src/lib/proposal-dispatch.ts");
-    await import("../../src/lib/agents/freshness-review.ts");
+    const { runFreshnessReview } = await import("../../src/lib/agents/freshness-review.ts");
     const target = writePost(postsDir, "deprecate-post");
     const proposal = makeProposal(target, "deprecate");
     const handler = getHandler("post-section-restamp");
     await handler.apply(proposal, { cwd: root });
     const content = readFileSync(target, "utf8");
     expect(content).toContain("Deprecated");
+    expect(content).not.toContain('last_verified="2025-12-31"');
+    expect(content).toMatch(/last_verified="\d{4}-\d{2}-\d{2}"/);
+
+    const rerun = await runFreshnessReview({
+      cwd: root,
+      nowISO: "2026-04-30T00:00:00.000Z",
+      skipLLM: true,
+    });
+    expect(rerun.flagged).toBe(0);
   });
 
   it("revise: opens $EDITOR (EDITOR=cat) and returns summary", async () => {
@@ -145,5 +154,34 @@ describe("post-section-restamp handler", () => {
     const noTarget = { ...proposal, target: null };
     const handler = getHandler("post-section-restamp");
     await expect(handler.apply(noTarget, { cwd: root })).rejects.toThrow("missing target path");
+  });
+
+  it("proposal-review-state uses nowISO() for default timestamps", async () => {
+    let mockNow = "2026-04-30T12:34:56.000Z";
+    vi.doMock("../../src/lib/clock.ts", () => ({
+      nowISO: () => mockNow,
+    }));
+    const {
+      beginProposalReview,
+      getProposalReviewEntry,
+      markProposalApplied,
+      markProposalProvenanceWritten,
+      markProposalFinalized,
+    } = await import("../../src/lib/proposal-review-state.ts");
+
+    beginProposalReview("prop-1", "accepted", root);
+    expect(getProposalReviewEntry("prop-1", root)?.updatedAt).toBe("2026-04-30T12:34:56.000Z");
+
+    mockNow = "2026-04-30T12:35:00.000Z";
+    markProposalApplied("prop-1", "accepted", root);
+    expect(getProposalReviewEntry("prop-1", root)?.updatedAt).toBe("2026-04-30T12:35:00.000Z");
+
+    mockNow = "2026-04-30T12:36:00.000Z";
+    markProposalProvenanceWritten("prop-1", "accepted", root);
+    expect(getProposalReviewEntry("prop-1", root)?.updatedAt).toBe("2026-04-30T12:36:00.000Z");
+
+    mockNow = "2026-04-30T12:37:00.000Z";
+    markProposalFinalized("prop-1", "accepted", root);
+    expect(getProposalReviewEntry("prop-1", root)?.updatedAt).toBe("2026-04-30T12:37:00.000Z");
   });
 });

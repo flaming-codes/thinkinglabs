@@ -83,7 +83,7 @@ function extractSectionBody(markdown: string, headingText: string): string {
       .replace(/^#{1,6}\s+/, "")
       .trim();
     if (start === -1) {
-      if (text === headingText) {
+      if (text === headingText || text.replace(/[`*_~]/g, "") === headingText) {
         depth = m[1]!.length;
         start = i;
       }
@@ -175,8 +175,12 @@ export async function runFreshnessReview(args: {
     const stamps = parseSectionStamps(post.body);
 
     for (const stamp of stamps) {
-      const { state, daysAgo } = freshnessState(stamp.lastVerifiedISO, nowISO);
-      if (state !== "red" && daysAgo < thresholdDays) continue;
+      const { daysAgo } = freshnessState(stamp.lastVerifiedISO, nowISO);
+      if (daysAgo < thresholdDays) continue;
+
+      const sectionBody = extractSectionBody(post.body, stamp.headingText);
+      const bodyAfterHeading = sectionBody.split("\n").slice(1).join("\n").trimStart();
+      if (bodyAfterHeading.startsWith("_Deprecated ")) continue;
 
       flagged++;
 
@@ -185,7 +189,6 @@ export async function runFreshnessReview(args: {
         continue;
       }
 
-      const sectionBody = extractSectionBody(post.body, stamp.headingText);
       const brainDiff = recentBrainDiffSince(cwd, stamp.lastVerifiedISO);
 
       const draftResult = await runToolCall({
@@ -286,13 +289,15 @@ const handler = {
       if (!result.ok) throw new Error(`post-section-restamp revise: ${result.reason}`);
       const reread = matter(readFileSync(proposal.target, "utf8"));
       const stamps = parseSectionStamps(reread.content);
-      if (!stamps.find((s) => s.anchor === proposal.payload.sectionAnchor)) {
+      const stamp = stamps.find((s) => s.anchor === proposal.payload.sectionAnchor);
+      if (!stamp || stamp.lastVerifiedISO === proposal.payload.lastVerifiedISO) {
         restampSectionVerified(proposal.target, proposal.payload.sectionHeading, now);
       }
       return `edited and restamped ${proposal.target}#${proposal.payload.sectionAnchor}`;
     }
 
     deprecateSectionCallout(proposal.target, proposal.payload.sectionHeading);
+    restampSectionVerified(proposal.target, proposal.payload.sectionHeading, now);
     return `${proposal.target}#${proposal.payload.sectionAnchor} → deprecated`;
   },
   async edit(

@@ -5,7 +5,7 @@ desc: Astro pages and machine-readable surfaces render from typed content collec
 status: active
 owner: Tom Wild
 audience: [agents, engineering]
-last_verified: 2026-07-31
+last_verified: 2026-10-24
 ttl_days: 180
 layer: content
 code_refs:

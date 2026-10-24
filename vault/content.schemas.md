@@ -5,7 +5,7 @@ desc: KIND_SCHEMAS and KIND_REGISTRY are the two core content registries.
 status: active
 owner: Tom Wild
 audience: [agents, engineering]
-last_verified: 2026-06-05
+last_verified: 2026-10-24
 ttl_days: 180
 layer: content
 code_refs:

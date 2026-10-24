@@ -220,6 +220,31 @@ describe("startMcpHttpServer", () => {
     const h = await start({ allowedHosts: ["127.0.0.1"] });
     const res = await fetch(`${origin(h)}/healthz`);
     expect(res.status).toBe(200);
+    const mcpRes = await fetch(`${origin(h)}/mcp`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        accept: "application/json, text/event-stream",
+      },
+      body: initializeBody(),
+    });
+    expect(mcpRes.status).toBe(200);
+    await mcpRes.body?.cancel();
+  });
+
+  it("returns 403 on POST /mcp when Origin is not in the allowlist", async () => {
+    const h = await start({ allowedOrigins: ["https://app.example.com"] });
+    const res = await fetch(`${origin(h)}/mcp`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        accept: "application/json, text/event-stream",
+        origin: "https://evil.example.com",
+      },
+      body: initializeBody(),
+    });
+    expect(res.status).toBe(403);
+    expect((await res.json()) as { error: string }).toEqual({ error: "forbidden" });
   });
 
   it("reflects an allowed Origin and sets Vary when an origin allowlist is configured", async () => {

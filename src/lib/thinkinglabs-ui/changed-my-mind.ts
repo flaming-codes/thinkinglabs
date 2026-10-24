@@ -5,6 +5,7 @@ import type {
   FlipSummary,
   IndexStat,
 } from "../../frontend/thinkinglabs-ui/types.ts";
+import { nowISO } from "../clock.ts";
 import { detailHref, formatDate } from "../entity-routes.ts";
 import { stripKindPrefix, stripMdExt } from "../refs.ts";
 import {
@@ -32,7 +33,9 @@ function heldLabel(months: number): string {
 export function mapChangedMyMindView(args: {
   entries: ReadonlyArray<CollectionEntry<"changed-my-mind">>;
   claims?: ReadonlyArray<CollectionEntry<"claims">>;
+  now?: Date;
 }): ChangedMyMindView {
+  const now = args.now ?? new Date(nowISO());
   const claimLookup = new Map(
     (args.claims ?? []).map((claim) => [claim.id, claim.data.confidence]),
   );
@@ -48,7 +51,7 @@ export function mapChangedMyMindView(args: {
           supersededIds.length
         : 0.3;
     const confThen = Math.min(0.95, confNow + 0.35);
-    const months = monthsBetween(entry.data.date, new Date());
+    const months = monthsBetween(entry.data.date, now);
     return {
       slug: entry.id,
       title: entry.data.title,

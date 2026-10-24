@@ -5,7 +5,7 @@ desc: Background agents enqueue proposals and review-proposals applies accepted 
 status: active
 owner: Tom Wild
 audience: [agents, engineering]
-last_verified: 2026-06-05
+last_verified: 2026-10-24
 ttl_days: 180
 layer: agents
 code_refs:

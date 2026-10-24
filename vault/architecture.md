@@ -5,7 +5,7 @@ desc: High-level system architecture for the source-backed thinking surface.
 status: active
 owner: Tom Wild
 audience: [agents, engineering]
-last_verified: 2026-06-05
+last_verified: 2026-10-24
 ttl_days: 180
 layer: architecture
 tags: [architecture]

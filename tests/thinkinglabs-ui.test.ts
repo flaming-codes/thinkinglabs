@@ -4,9 +4,12 @@ import {
   buildTitleLookup,
   inputCitationBacklinks,
   inputCitationCounts,
+  mapClaimDetail,
+  mapObservationDetail,
   mapPredictionDetail,
   predictionEvidenceBacklinks,
 } from "../src/lib/thinkinglabs-ui.ts";
+import { buildSections } from "../src/lib/thinkinglabs-ui/post-sections.ts";
 
 type RelationshipCollection =
   | "thoughts"
@@ -206,5 +209,122 @@ describe("thinkinglabs UI relationship mappers", () => {
         posts: [post],
       }).get(input.id),
     ).toBe(4);
+  });
+
+  it("extracts id, lastVerified, and freshnessState from pandoc section headings in buildSections", () => {
+    const body = [
+      '## Title {#my-id last_verified="2026-04-01"}',
+      "",
+      "Fresh section content.",
+      "",
+      '## Aging Section {#aging-id last_verified="2026-02-15"}',
+      "",
+      "Aging section content.",
+      "",
+      '## Stale Section {#stale-id last_verified="2025-11-01"}',
+      "",
+      "Stale section content.",
+    ].join("\n");
+
+    const sections = buildSections(body, "2026-04-10");
+
+    expect(sections).toHaveLength(3);
+    expect(sections[0]).toMatchObject({
+      number: "01",
+      title: "Title",
+      id: "my-id",
+      lastVerified: "2026-04-01",
+      freshnessState: "fresh",
+    });
+    expect(sections[1]).toMatchObject({
+      number: "02",
+      title: "Aging Section",
+      id: "aging-id",
+      lastVerified: "2026-02-15",
+      freshnessState: "aging",
+    });
+    expect(sections[2]).toMatchObject({
+      number: "03",
+      title: "Stale Section",
+      id: "stale-id",
+      lastVerified: "2025-11-01",
+      freshnessState: "stale",
+    });
+  });
+
+  it("resolves inputs/<slug> and observations/<slug> titles in mapClaimDetail via buildTitleLookup", () => {
+    const multiSourceClaim = entry("claims", "multi-source-claim", {
+      claim: "Claims can derive from thoughts, inputs, and observations.",
+      confidence: 0.75,
+      evidence: [],
+      opposing: [],
+      derived_from: [
+        "agent-harnesses-will-move-onto-the-shelf",
+        "inputs/openai-workspace-agents-chatgpt",
+        "observations/agent-work-is-supervisory",
+      ],
+      last_reviewed: "2026-05-14",
+      status: "active",
+      supersedes: [],
+      superseded_by: [],
+      tags: ["agents"],
+    });
+
+    const lookups = buildTitleLookup({
+      thoughts: [thought],
+      inputs: [input],
+      observations: [observation],
+    });
+
+    const detail = mapClaimDetail({
+      entry: multiSourceClaim,
+      history: [],
+      lookups,
+    });
+
+    expect(detail.evidence).toEqual([
+      {
+        kind: "thought",
+        title: "Agent harnesses will move onto the shelf",
+        id: "thoughts/agent-harnesses-will-move-onto-the-shelf",
+        href: "/thoughts/agent-harnesses-will-move-onto-the-shelf",
+      },
+      {
+        kind: "input",
+        title: "Introducing workspace agents in ChatGPT",
+        id: "inputs/openai-workspace-agents-chatgpt",
+        href: "/inputs/openai-workspace-agents-chatgpt",
+      },
+      {
+        kind: "observation",
+        title: "Agent work is becoming supervisory.",
+        id: "observations/agent-work-is-supervisory",
+        href: "/observations/agent-work-is-supervisory",
+      },
+    ]);
+  });
+
+  it("includes prediction evidence backlinks in mapObservationDetail when provided", () => {
+    const predictionBacklinks = predictionEvidenceBacklinks({
+      predictions: [prediction],
+      targetKind: "observations",
+      targetSlug: observation.id,
+    });
+
+    const detail = mapObservationDetail({
+      entry: observation,
+      predictionEvidence: predictionBacklinks,
+    });
+
+    expect(detail.predictionEvidence).toEqual([
+      {
+        kind: "prediction",
+        title: "Agent marketplaces will succeed app stores.",
+        href: "/predictions/agent-marketplaces-succeed-app-stores",
+        conf: 0.57,
+        date: "2026-05-14",
+      },
+    ]);
+    expect(detail.referencedByPredictions).toEqual(detail.predictionEvidence);
   });
 });

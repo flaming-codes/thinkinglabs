@@ -63,13 +63,12 @@ function refCandidateIds(ref: string, fallbackKinds: readonly Kind[]): string[] 
 /** Pick a sensible fallback kind for an unprefixed link ref; mirrors the per-field semantics from each kind's Zod schema. */
 function fallbackKindFor(sourceKind: Kind, fieldName: string): Kind {
   if (sourceKind === "claims" && fieldName === "derived_from") return "thoughts";
-  if (sourceKind === "thoughts" && fieldName === "inputs") return "inputs";
-  if (sourceKind === "thoughts" && fieldName === "observations") return "observations";
+  if (fieldName === "inputs") return "inputs";
+  if (fieldName === "observations") return "observations";
   if (sourceKind === "predictions" && fieldName === "evidence_at_time") return "thoughts";
   if (fieldName === "related_claims" || fieldName === "supersedes" || fieldName === "superseded_by")
     return "claims";
   if (fieldName === "related_thoughts") return "thoughts";
-  if (fieldName === "related_observations") return "observations";
   if (fieldName === "related_projects") return "projects";
   if (fieldName === "reverses") return "decisions";
   if (fieldName === "superseded_claims") return "claims";

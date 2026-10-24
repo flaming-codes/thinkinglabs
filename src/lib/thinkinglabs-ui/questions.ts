@@ -5,6 +5,7 @@ import type {
   QuestionRow,
   QuestionsView,
 } from "../../frontend/thinkinglabs-ui/types.ts";
+import { nowISO } from "../clock.ts";
 import { detailHref, formatDate } from "../entity-routes.ts";
 import {
   type ClaimLookup,
@@ -27,7 +28,7 @@ export function mapQuestionsView(args: {
   entries: ReadonlyArray<CollectionEntry<"questions">>;
   now?: Date;
 }): QuestionsView {
-  const now = args.now ?? new Date();
+  const now = args.now ?? new Date(nowISO());
   const open = [...args.entries]
     .filter((entry) => entry.data.status !== "closed")
     .sort((a, b) => safeDate(b.data.asked) - safeDate(a.data.asked));

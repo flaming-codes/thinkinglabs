@@ -154,12 +154,15 @@ export async function detectStaleClaims(
       obj.data["observed"];
     if (typeof fm === "string") return fm;
     if (fm instanceof Date) return fm.toISOString();
-    return lastTouched(obj.path);
+    return lastTouched(obj.path, cwd);
   }
 
   const flags: StaleFlag[] = [];
 
   for (const claim of claims) {
+    const status = typeof claim.data["status"] === "string" ? claim.data["status"] : "active";
+    if (status === "deprecated" || status === "superseded") continue;
+
     const lastReviewedRaw = claim.data["last_reviewed"];
     if (!lastReviewedRaw) continue;
     const lastReviewedISO =
@@ -168,7 +171,6 @@ export async function detectStaleClaims(
 
     const claimTags = tagsOf(claim.data);
     const derivedFrom = linksOf(claim.data, "derived_from");
-    const status = typeof claim.data["status"] === "string" ? claim.data["status"] : "active";
 
     /** Collect related newer objects: share a tag OR appear in derived_from. */
     const candidates: Array<{

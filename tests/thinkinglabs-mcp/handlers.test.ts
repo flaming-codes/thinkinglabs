@@ -90,6 +90,18 @@ beforeEach(() => {
     "Parked.",
   );
   writeMd(
+    "posts",
+    "mcp-post",
+    'title: "MCP Post"\ncreated: "2026-04-01"\nupdated: "2026-04-02"\nsummary: "Post summary."\ntags: ["mcp"]\ninputs: []\n',
+    "Post body.",
+  );
+  writeMd(
+    "changed-my-mind",
+    "mcp-shift",
+    'title: "Shifted on MCP"\ndate: "2026-04-02"\nused_to_believe: "Before view."\nnow_believe: "After view."\nwhat_changed: "New evidence."\nsuperseded_claims: []\ntags: ["mcp"]\n',
+    "Shift body.",
+  );
+  writeMd(
     "provenance",
     "mcp-provenance-event",
     'title: "AI provenance for MCP tests"\nevent_type: "content_derivation"\nprocess_id: "derive-claims"\nactor:\n  kind: llm\n  model:\n    provider: openai\n    model: gpt-5.4\n    tier: balanced\nstarted_at: "2026-04-02T00:00:00.000Z"\naccepted_at: "2026-04-02T00:00:10.000Z"\nsource_objects:\n  - id: thoughts/mcp-notes\ntarget_objects:\n  - id: claims/mcp-claim\noutcome: accepted\ntags: ["ai", "provenance"]\n',
@@ -183,14 +195,38 @@ describe("thinkinglabs-mcp handlers", () => {
     expect(data.to).toBe("tom@example.com");
   });
 
+  it("falls back to non-empty summary for bodyless claims and inputs", () => {
+    writeMd(
+      "claims",
+      "bodyless-claim",
+      'claim: "Bodyless claim still has a summary."\nconfidence: 0.8\nlast_reviewed: "2026-04-02"\ntags: ["mcp"]\nevidence: []\nopposing: []\nderived_from: []\nstatus: active\nsupersedes: []\nsuperseded_by: []\n',
+      "",
+    );
+    const item = getObject(root, "claims", "bodyless-claim");
+    expect(item?.summary).toBe("Bodyless claim still has a summary.");
+  });
+
   it("returns brain-diff subscription feeds without requiring git history", () => {
     const result = handleSubscribeBrainDiff(
       { repoRoot: root },
       { since: "HEAD~1", include_recent: false, site_url: "https://example.com" },
     );
-    const data = result.structuredContent as { subscribed: boolean; feeds: { json: string } };
+    const data = result.structuredContent as {
+      subscribed: boolean;
+      feeds: Record<string, string>;
+    };
     expect(data.subscribed).toBe(true);
-    expect(data.feeds.json).toBe("https://example.com/feed/brain-diff.json");
+    expect(data.feeds).toEqual({
+      atom: "https://example.com/feed/brain-diff.xml",
+      json: "https://example.com/feed/brain-diff.json",
+      claims_revised: "https://example.com/feed/claims-revised.json",
+      decisions_reversed: "https://example.com/feed/decisions-reversed.json",
+      predictions_resolved: "https://example.com/feed/predictions-resolved.json",
+      brain_diff_claims_revised: "https://example.com/feed/brain-diff-claims-revised.json",
+      brain_diff_decisions_reversed: "https://example.com/feed/brain-diff-decisions-reversed.json",
+      brain_diff_predictions_resolved:
+        "https://example.com/feed/brain-diff-predictions-resolved.json",
+    });
   });
 
   it("writes structured question submissions for triage", () => {
@@ -326,6 +362,8 @@ describe("thinkinglabs-mcp handlers", () => {
           "thinkinglabs://predictions/mcp-prediction",
           "thinkinglabs://observations/mcp-observation",
           "thinkinglabs://questions/mcp-question",
+          "thinkinglabs://posts/mcp-post",
+          "thinkinglabs://changed-my-mind/mcp-shift",
         ].sort(),
       );
       expect(templates.resourceTemplates.map((template) => template.uriTemplate).sort()).toEqual(

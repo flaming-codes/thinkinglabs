@@ -6,6 +6,7 @@ import EntityFacts from "../components/EntityFacts.astro";
 import type { EntityFact } from "../components/EntityFacts.astro";
 import EntitySection from "../components/EntitySection.astro";
 import FigureChartPlate from "../components/FigureChartPlate.astro";
+import type { PostSection } from "../../../lib/thinkinglabs-ui/post-sections.ts";
 import type { PostDetail } from "../types";
 
 interface Props {
@@ -13,6 +14,7 @@ interface Props {
 }
 
 const { post } = Astro.props;
+const sections: PostSection[] = post.sections;
 const heroImage = resolveEntityHero("posts", post.slug);
 const hasEpigraph = post.epigraph.text.trim().length > 0 && post.epigraph.text !== post.deck;
 const hasFootnotes = post.footnotes.length > 0;
@@ -60,9 +62,25 @@ const relations: EntityRelationGroup[] =
   <p class="tl-deck">{post.deck}</p>
 
   {
-    post.sections.map((section) => (
+    sections.map((section) => (
       <section class="tl-section">
-        {section.title && <h2 class="tl-section-title">{section.title}</h2>}
+        {section.title && (
+          <h2 class="tl-section-title post-detail__section-heading" id={section.id}>
+            {section.title}
+            {section.lastVerified && section.freshnessState && (
+              <>
+                {" "}
+                <span
+                  class={`freshness-pill freshness-pill--${section.freshnessState}`}
+                  data-last-verified={section.lastVerified}
+                  title={`Section last verified ${section.lastVerified}`}
+                >
+                  verified {section.lastVerified}
+                </span>
+              </>
+            )}
+          </h2>
+        )}
         {section.blocks.map((block) => {
           if (block.type === "p") return <p set:html={block.html} />;
           if (block.type === "pull") return <blockquote class="tl-pull" set:html={block.html} />;

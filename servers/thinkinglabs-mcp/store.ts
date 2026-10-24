@@ -85,6 +85,19 @@ export function getObject(repoRoot: string, kind: string, slug: string): ViewIte
   return object ? objectToItem(object) : null;
 }
 
+/** List detail items for any MCP detail kind (including kinds without a standalone public list view). */
+export function listDetailItems(repoRoot: string, kind: string, limit = 50): ViewItem[] {
+  assertObjectKind(kind);
+  const root = resolveRepoRoot(repoRoot);
+  const indexFile = join(root, "dist", "index.sqlite");
+  const max = clampLimit(limit);
+  const items = existsSync(indexFile)
+    ? loadObjectsByKindSqlite(indexFile, kind)
+    : loadObjectsByKindSource(root, kind);
+  items.sort((a, b) => b.last_touched.localeCompare(a.last_touched) || a.id.localeCompare(b.id));
+  return items.slice(0, max);
+}
+
 /** MCP-shaped calibration response: resolved count plus per-bucket counts and rates. */
 export interface PredictionCalibrationResult {
   readonly resolved: number;
@@ -202,6 +215,26 @@ function queryObjectSqlite(indexFile: string, kind: string, slug: string): ViewI
   }
 }
 
+function loadObjectsByKindSqlite(indexFile: string, kind: string): ViewItem[] {
+  const db = Database(indexFile, { readonly: true, fileMustExist: true });
+  try {
+    const rows = db
+      .prepare(
+        "SELECT id, kind, slug, frontmatter_json, body_md, last_touched FROM objects WHERE kind = ? ORDER BY last_touched DESC, id ASC",
+      )
+      .all(kind) as ObjectRow[];
+    return rows.map(rowToItem);
+  } finally {
+    db.close();
+  }
+}
+
+function loadObjectsByKindSource(repoRoot: string, kind: string): ViewItem[] {
+  return collectObjects(join(repoRoot, "content"), repoRoot)
+    .filter((o) => o.kind === kind)
+    .map(objectToItem);
+}
+
 function finalizeRows(
   args: QueryViewArgs,
   source: "sqlite" | "source",
@@ -222,7 +255,9 @@ function finalizeRows(
 }
 
 /** Set of object kinds the MCP detail resource exposes; derived from the registry. */
-const DETAIL_KIND_SET: ReadonlySet<string> = new Set(DETAIL_KINDS);
+const DETAIL_KIND_SET: ReadonlySet<string> = new Set(
+  DETAIL_KINDS.filter((kind) => kind !== "provenance"),
+);
 
 function assertObjectKind(kind: string): void {
   if (DETAIL_KIND_SET.has(kind)) return;
@@ -263,17 +298,19 @@ function makeItem(
     ? frontmatter["tags"].filter((t): t is string => typeof t === "string")
     : [];
   const kindValue = asKind(kind);
+  const title = titleFor(kindValue, frontmatter, slug);
   const agentMetadata =
     KIND_REGISTRY[kindValue].route === null
       ? undefined
       : agentMetadataForContent({ kind: kindValue, slug, body, frontmatter });
+  const summary = summarizeMarkdown(body) || agentMetadata?.summary || title;
   return {
     id,
     kind,
     slug,
-    title: titleFor(kindValue, frontmatter, slug),
+    title,
     url: `/${kind}/${slug}`,
-    summary: summarizeMarkdown(body),
+    summary,
     frontmatter,
     body_md: body,
     last_touched: lastTouched,

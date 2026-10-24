@@ -35,9 +35,7 @@ export interface ProposeClaimsArgs {
 const proposalItemSchema = z.object({
   claim: z.string().min(1),
   confidence: z.number().min(0).max(1),
-  evidence: z
-    .array(z.object({ url: z.string().optional(), note: z.string().optional() }))
-    .default([]),
+  evidence: z.array(z.object({ url: z.url().optional(), note: z.string().optional() })).default([]),
   opposing: z.array(z.string()).default([]),
   reasoning: z.string().default(""),
   suggestedSlug: z.string().min(1),

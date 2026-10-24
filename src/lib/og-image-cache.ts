@@ -34,7 +34,7 @@ export async function createOgImageCacheEntry(
   const heroAssetHash = options.heroAssetPath ? await hashFile(options.heroAssetPath) : null;
   const routeId = digest(options.routeSlug).slice(0, 16);
   const cacheKey = digest({
-    version: 1,
+    version: 2,
     routeSlug: options.routeSlug,
     props: options.props,
     renderInputs: options.renderInputs,

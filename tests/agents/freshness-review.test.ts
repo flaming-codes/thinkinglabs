@@ -179,4 +179,52 @@ describe("runFreshnessReview — pure function", () => {
     expect(summary.flagged).toBe(1);
     expect(readQueue()).toHaveLength(1);
   });
+
+  it("extracts full heading text when heading contains inline code or emphasis", async () => {
+    mockRunToolCall(vi);
+    const { runFreshnessReview } = await import("../../src/lib/agents/freshness-review.ts");
+    const { parseSectionStamps } = await import("../../src/lib/section-stamps.ts");
+    const { readQueue } = await import("../../src/lib/proposal-queue.ts");
+    const body =
+      '---\ntitle: inline-post\ncreated: 2025-01-01\nupdated: 2025-01-01\ntags: []\nrelated_claims: []\nrelated_thoughts: []\n---\n\n## Using `foo` and *bar* {#inline-sec last_verified="2025-12-31"}\n\nBody text.\n';
+    writeFileSync(join(root, "content", "posts", "inline-post.md"), body, "utf8");
+
+    const stamps = parseSectionStamps(body);
+    expect(stamps).toHaveLength(1);
+    expect(stamps[0]?.headingText).toBe("Using foo and bar");
+    expect(stamps[0]?.anchor).toBe("inline-sec");
+
+    const summary = await runFreshnessReview({
+      cwd: root,
+      nowISO: NOW_ISO,
+      skipLLM: false,
+    });
+    expect(summary.flagged).toBe(1);
+    expect(summary.proposed).toBe(1);
+    const queue = readQueue();
+    expect(queue).toHaveLength(1);
+    expect((queue[0]?.payload as { sectionHeading?: string } | undefined)?.sectionHeading).toBe(
+      "Using foo and bar",
+    );
+  });
+
+  it("skips sections whose body already starts with a _Deprecated callout", async () => {
+    mockRunToolCall(vi);
+    const { runFreshnessReview } = await import("../../src/lib/agents/freshness-review.ts");
+    const { readQueue } = await import("../../src/lib/proposal-queue.ts");
+    writeFileSync(
+      join(root, "content", "posts", "already-deprecated.md"),
+      `---\ntitle: already-deprecated\ncreated: 2025-01-01\nupdated: 2025-01-01\ntags: []\nrelated_claims: []\nrelated_thoughts: []\n---\n\n## Old Section {#old last_verified="2025-12-31"}\n\n_Deprecated 2026-01-15._\n\nThis content is old.\n`,
+      "utf8",
+    );
+    const summary = await runFreshnessReview({
+      cwd: root,
+      nowISO: NOW_ISO,
+      skipLLM: false,
+    });
+    expect(summary.scanned).toBe(1);
+    expect(summary.flagged).toBe(0);
+    expect(summary.proposed).toBe(0);
+    expect(readQueue()).toHaveLength(0);
+  });
 });

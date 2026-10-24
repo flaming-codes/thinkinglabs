@@ -5,7 +5,7 @@ desc: Convention-based local assets for content detail heroes and OG detail card
 status: active
 owner: Tom Wild
 audience: [agents, engineering]
-last_verified: 2026-06-23
+last_verified: 2026-10-24
 ttl_days: 180
 layer: content
 code_refs:

@@ -140,13 +140,16 @@ export async function runResolvePredictions(args: {
       if (rejectedSnapshot === currentModified) continue;
     }
 
+    const resolves = new Date(resolvesISO).getTime();
+    const windowEnd = Math.max(resolves, Date.parse(nowISO));
+
     const windowInputs = inputs
       .filter((i) => {
         const inputData = i.data as Record<string, unknown>;
         const consumedISO = rawToISO(inputData["consumed"]);
         if (!consumedISO) return false;
-        const t = new Date(consumedISO).getTime();
-        return t >= new Date(madeISO).getTime() && t <= new Date(resolvesISO).getTime();
+        const d = new Date(consumedISO).getTime();
+        return d >= new Date(madeISO).getTime() && d <= windowEnd;
       })
       .sort((a, b) => {
         const aISO = rawToISO((a.data as Record<string, unknown>)["consumed"]);
@@ -160,8 +163,8 @@ export async function runResolvePredictions(args: {
         const observationData = observation.data as Record<string, unknown>;
         const observedISO = rawToISO(observationData["observed"]);
         if (!observedISO) return false;
-        const t = new Date(observedISO).getTime();
-        return t >= new Date(madeISO).getTime() && t <= new Date(resolvesISO).getTime();
+        const d = new Date(observedISO).getTime();
+        return d >= new Date(madeISO).getTime() && d <= windowEnd;
       })
       .sort((a, b) => {
         const aISO = rawToISO((a.data as Record<string, unknown>)["observed"]);

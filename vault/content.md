@@ -5,7 +5,7 @@ desc: Schema-driven public objects rendered into site, API, feed, and MCP surfac
 status: active
 owner: Tom Wild
 audience: [agents, engineering]
-last_verified: 2026-06-05
+last_verified: 2026-10-24
 ttl_days: 180
 layer: content
 tags: [content, schemas]

@@ -5,7 +5,7 @@ desc: The stdio and HTTP transports share one MCP server factory and store.
 status: active
 owner: Tom Wild
 audience: [agents, engineering]
-last_verified: 2026-06-05
+last_verified: 2026-10-24
 ttl_days: 180
 layer: architecture
 code_refs:

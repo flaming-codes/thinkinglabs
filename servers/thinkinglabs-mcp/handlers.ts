@@ -1,5 +1,10 @@
 import { z } from "zod";
-import { buildEntries, applyGenericGate, walkCommits } from "../../src/lib/brain-diff.ts";
+import {
+  brainDiffSpecializedFeedFilename,
+  buildEntries,
+  applyGenericGate,
+  walkCommits,
+} from "../../src/lib/brain-diff.ts";
 import { env } from "../../src/lib/env.ts";
 import type { Contact } from "../../src/schemas/contact.ts";
 import { existsSync, mkdirSync } from "node:fs";
@@ -135,6 +140,9 @@ export function handleSubscribeBrainDiff(
     claims_revised: `${args.site_url}/feed/claims-revised.json`,
     decisions_reversed: `${args.site_url}/feed/decisions-reversed.json`,
     predictions_resolved: `${args.site_url}/feed/predictions-resolved.json`,
+    brain_diff_claims_revised: `${args.site_url}/feed/${brainDiffSpecializedFeedFilename("claims-revised")}`,
+    brain_diff_decisions_reversed: `${args.site_url}/feed/${brainDiffSpecializedFeedFilename("decisions-reversed")}`,
+    brain_diff_predictions_resolved: `${args.site_url}/feed/${brainDiffSpecializedFeedFilename("predictions-resolved")}`,
   };
   if (!args.include_recent) return jsonToolResult({ subscribed: true, feeds });
   try {

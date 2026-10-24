@@ -6,7 +6,7 @@ The important rule is simple: edit source files, then rebuild derived artifacts.
 
 ## What lives here
 
-- `content/` - canonical public objects: thoughts, claims, projects, predictions, decisions, questions, posts, inputs, changed-my-mind entries, and AI provenance events.
+- `content/` - canonical public objects: thoughts, claims, projects, predictions, decisions, questions, posts, inputs, observations, changed-my-mind entries, and AI provenance events.
 - `src/schemas/` - per-kind Zod schemas and `KIND_SCHEMAS`, the shared schema registry.
 - `src/lib/registry.ts` - public metadata for each kind: routes, title/date fields, API exposure, MCP views, and feed participation.
 - `src/pages/` - Astro pages and one JSON endpoint per public kind.
@@ -44,13 +44,13 @@ pnpm artifacts           # offline brain-diff + site + feeds + llms.txt + index
 pnpm artifacts:scored    # same, but requires the active LLM provider key
 pnpm build:index         # rebuild only dist/index.sqlite
 pnpm semantic:check      # validate the semantic-layer vault
-pnpm semantic:index      # regenerate vault/HIERARCHY.md and code refs
+pnpm semantic:index      # regenerate vault/HIERARCHY.md, code refs, and vault/.semantic-layer/vault.sqlite
 
 pnpm check               # vp check
 pnpm lint                # vp lint
 pnpm format              # vp fmt
 pnpm test                # vp test run
-pnpm verify              # clean, typecheck, check, build, structured-data, tests
+pnpm verify              # clean, typecheck, vp check, site build, structured-data check, index generation, semantic:check, semantic:index, and tests
 pnpm verify:full         # verify + Playwright e2e
 
 pnpm mcp:thinkinglabs       # local stdio MCP server
@@ -82,6 +82,7 @@ The current public kinds are:
 - `questions` - open questions and later answer triage
 - `posts` - longer evergreen writing with per-section freshness
 - `inputs` - external material that shaped thinking
+- `observations` - concrete observations and signals from practice
 
 `provenance` is source-backed and schema-validated, but it is not a normal public listing.
 
@@ -152,7 +153,7 @@ pnpm semantic:check
 pnpm semantic:index
 ```
 
-`pnpm semantic:index` writes `vault/HIERARCHY.md` and `vault/.semantic-layer/code-refs.json`, which agents should read before loading individual notes. `pnpm verify` includes both semantic-layer gates.
+`pnpm semantic:index` writes `vault/HIERARCHY.md`, `vault/.semantic-layer/code-refs.json`, and `vault/.semantic-layer/vault.sqlite`, which agents should read before loading individual notes. `pnpm verify` includes both semantic-layer gates.
 
 The MCP server exposes the same resources through two transports:
 

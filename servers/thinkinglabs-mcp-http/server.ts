@@ -153,6 +153,15 @@ async function handle(
     return;
   }
 
+  if (ctx.allowedOrigins.length > 0) {
+    const origin = headerString(req, "origin");
+    if (origin && !ctx.allowedOrigins.includes(origin)) {
+      res.writeHead(403, { "content-type": "application/json" });
+      res.end(JSON.stringify({ error: "forbidden" }));
+      return;
+    }
+  }
+
   const rateKey = clientKey(req, ctx.trustForwardedFor);
   if (!ctx.bucket.consume(rateKey)) {
     res.setHeader("retry-after", "1");
@@ -171,9 +180,6 @@ async function handle(
   /** Omit `sessionIdGenerator` to enable stateless mode and satisfy exact optional types. */
   const transport = new StreamableHTTPServerTransport({
     enableJsonResponse: true,
-    enableDnsRebindingProtection: ctx.allowedHosts.length > 0 || ctx.allowedOrigins.length > 0,
-    allowedHosts: ctx.allowedHosts as string[],
-    allowedOrigins: ctx.allowedOrigins as string[],
   });
   const server = createThinkinglabsMcpServer({ repoRoot: ctx.repoRoot });
 

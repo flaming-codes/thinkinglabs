@@ -5,7 +5,7 @@ desc: How agents should read and maintain the semantic layer.
 status: active
 owner: Tom Wild
 audience: [agents]
-last_verified: 2026-06-05
+last_verified: 2026-10-24
 ttl_days: 365
 layer: meta
 tags: [meta, agents, workflow]

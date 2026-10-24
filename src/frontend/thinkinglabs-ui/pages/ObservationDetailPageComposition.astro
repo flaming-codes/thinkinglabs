@@ -3,7 +3,7 @@ import { resolveEntityHero } from "../lib/entity-hero.ts";
 import EntityDetail from "../components/EntityDetail.astro";
 import type { EntityRelationGroup } from "../components/EntityDetail.astro";
 import EntityFacts from "../components/EntityFacts.astro";
-import type { ObservationDetail } from "../types";
+import type { ObservationDetail } from "../../../lib/thinkinglabs-ui/observations.ts";
 
 interface Props {
   observation: ObservationDetail;
@@ -11,9 +11,11 @@ interface Props {
 
 const { observation } = Astro.props;
 const heroImage = resolveEntityHero("observations", observation.slug);
+const predictionBacklinks =
+  observation.predictionEvidence ?? observation.referencedByPredictions ?? [];
 
-const relations: EntityRelationGroup[] =
-  observation.related.length > 0
+const relations: EntityRelationGroup[] = [
+  ...(observation.related.length > 0
     ? [
         {
           label: "Related",
@@ -24,7 +26,20 @@ const relations: EntityRelationGroup[] =
           })),
         },
       ]
-    : [];
+    : []),
+  ...(predictionBacklinks.length > 0
+    ? [
+        {
+          label: "Referenced in predictions",
+          links: predictionBacklinks.map((pred) => ({
+            href: pred.href ?? "#",
+            title: pred.title,
+            ...(pred.conf !== undefined ? { value: pred.conf.toFixed(2) } : {}),
+          })),
+        },
+      ]
+    : []),
+];
 ---
 
 <EntityDetail

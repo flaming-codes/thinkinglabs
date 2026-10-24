@@ -8,6 +8,8 @@ tags:
   - development
 claims: []
 inputs: []
+observations:
+  - observations/agent-work-is-becoming-supervisory
 ---
 
 The agent harness is the new IDE.

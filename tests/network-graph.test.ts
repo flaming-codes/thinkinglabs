@@ -113,6 +113,26 @@ describe("buildNetworkGraph", () => {
     expect(edges).toEqual([{ from: "projects/p1", to: "claims/c1", label: "related_claims" }]);
   });
 
+  it("resolves prefix-less posts.inputs refs to inputs/<slug>", () => {
+    const entries = {
+      inputs: [entry("i1", { title: "i1", consumed: "2026-01-01", tags: [] })],
+      posts: [
+        entry("post1", {
+          title: "post1",
+          published: "2026-01-02",
+          updated: "2026-01-02",
+          related_thoughts: [],
+          related_claims: [],
+          inputs: ["i1"],
+          tags: [],
+        }),
+      ],
+    } as unknown as EntriesByKind;
+
+    const { edges } = buildNetworkGraph(entries);
+    expect(edges).toEqual([{ from: "posts/post1", to: "inputs/i1", label: "derived_from" }]);
+  });
+
   it("emits prediction evidence edges to thoughts, inputs, and observations", () => {
     const entries = {
       thoughts: [entry("t1", { title: "t1", claims: [], inputs: [] })],

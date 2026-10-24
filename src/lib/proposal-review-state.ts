@@ -1,5 +1,6 @@
 import { join, resolve } from "node:path";
 import { z } from "zod";
+import { nowISO } from "./clock.ts";
 import { readJsonState, writeJsonState } from "./json-state.ts";
 
 /** Persisted phases for one reviewed proposal so crash-adjacent reruns can avoid replaying effects. */
@@ -66,6 +67,7 @@ export function beginProposalReview(
   id: string,
   outcome: ProposalReviewOutcome,
   cwd?: string,
+  now = nowISO(),
 ): void {
   const entries = { ...readProposalReviewState(cwd) };
   const existing = entries[id];
@@ -86,7 +88,7 @@ export function beginProposalReview(
     outcome,
     phase: "applying",
     provenanceWritten: false,
-    updatedAt: new Date().toISOString(),
+    updatedAt: now,
   };
   writeProposalReviewState(cwd, entries);
 }
@@ -96,6 +98,7 @@ export function markProposalApplied(
   id: string,
   outcome: ProposalReviewOutcome,
   cwd?: string,
+  now = nowISO(),
 ): void {
   const entries = { ...readProposalReviewState(cwd) };
   const existing = entries[id];
@@ -108,7 +111,7 @@ export function markProposalApplied(
     );
   }
   if (existing.phase === "finalized") return;
-  entries[id] = { ...existing, phase: "applied", updatedAt: new Date().toISOString() };
+  entries[id] = { ...existing, phase: "applied", updatedAt: now };
   writeProposalReviewState(cwd, entries);
 }
 
@@ -117,6 +120,7 @@ export function markProposalProvenanceWritten(
   id: string,
   outcome: ProposalReviewOutcome,
   cwd?: string,
+  now = nowISO(),
 ): void {
   const entries = { ...readProposalReviewState(cwd) };
   const existing = entries[id];
@@ -129,7 +133,7 @@ export function markProposalProvenanceWritten(
     );
   }
   if (existing.provenanceWritten) return;
-  entries[id] = { ...existing, provenanceWritten: true, updatedAt: new Date().toISOString() };
+  entries[id] = { ...existing, provenanceWritten: true, updatedAt: now };
   writeProposalReviewState(cwd, entries);
 }
 
@@ -138,6 +142,7 @@ export function markProposalFinalized(
   id: string,
   outcome: ProposalReviewOutcome,
   cwd?: string,
+  now = nowISO(),
 ): void {
   const entries = { ...readProposalReviewState(cwd) };
   const existing = entries[id];
@@ -150,6 +155,6 @@ export function markProposalFinalized(
     );
   }
   if (existing.phase === "finalized") return;
-  entries[id] = { ...existing, phase: "finalized", updatedAt: new Date().toISOString() };
+  entries[id] = { ...existing, phase: "finalized", updatedAt: now };
   writeProposalReviewState(cwd, entries);
 }

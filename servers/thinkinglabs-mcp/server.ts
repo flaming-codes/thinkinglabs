@@ -11,8 +11,8 @@ import {
   queryViewInputSchema,
   subscribeBrainDiffInputSchema,
 } from "./handlers.ts";
-import { getObject, predictionCalibration, queryView } from "./store.ts";
-import { MCP_PUBLIC_VIEWS, publicViewSchema, type PublicView } from "./types.ts";
+import { getObject, listDetailItems, predictionCalibration, queryView } from "./store.ts";
+import { MCP_PUBLIC_VIEWS, type PublicView } from "./types.ts";
 import { currentModelRefs } from "../../src/lib/llm.ts";
 import { DETAIL_KINDS as registryDetailKinds } from "../../src/lib/registry.ts";
 
@@ -171,18 +171,14 @@ function registerDetailResource(
     `${kind}-detail`,
     new ResourceTemplate(`thinkinglabs://${kind}/{slug}`, {
       list: () => {
-        const viewParse = publicViewSchema.safeParse(kind);
-        if (!viewParse.success) return { resources: [] };
         try {
           return {
-            resources: queryView(repoRoot, { view: viewParse.data, limit: 50 }).items.map(
-              (item) => ({
-                uri: `thinkinglabs://${kind}/${item.slug}`,
-                name: item.id,
-                title: item.title,
-                mimeType: "application/json",
-              }),
-            ),
+            resources: listDetailItems(repoRoot, kind, 50).map((item) => ({
+              uri: `thinkinglabs://${kind}/${item.slug}`,
+              name: item.id,
+              title: item.title,
+              mimeType: "application/json",
+            })),
           };
         } catch {
           return { resources: [] };

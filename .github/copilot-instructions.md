@@ -39,10 +39,10 @@ Package manager is `pnpm` (v10, see `packageManager` in `package.json`). Node >=
 - `pnpm build` - `astro check && astro build`, then rebuild `dist/index.sqlite` (validates every frontmatter file against its Zod schema)
 - `pnpm build:index` - rebuild the derived `dist/index.sqlite` query layer
 - `pnpm semantic:check` - validate the semantic-layer vault in `vault/`
-- `pnpm semantic:index` - regenerate `vault/HIERARCHY.md` and the code-reference sidecar
+- `pnpm semantic:index` - regenerate `vault/HIERARCHY.md`, the code-reference sidecar, and `vault/.semantic-layer/vault.sqlite`
 - `pnpm artifacts` - offline artifact build: brain-diff feeds, site, `public/llms.txt`, JSON feeds, `dist/index.sqlite`
 - `pnpm artifacts:scored` - same artifact build, but requires LLM-scored brain-diff output
-- `pnpm verify` - local verification: typecheck, `vp check`, site build, structured-data check, index generation, and tests
+- `pnpm verify` - local verification: typecheck, `vp check`, site build, structured-data check, index generation, `semantic:check`, `semantic:index`, and tests
 - `pnpm typecheck` / `pnpm check` / `pnpm lint` / `pnpm format` - `astro check`, `vp check`, `vp lint`, `vp fmt`
 - `pnpm test` - `vp test run` (Vitest under Vite+); single test: `pnpm test -- path/to/file.test.ts -t "test name"`
 - `pnpm setup:e2e` / `pnpm test:e2e` - install Chromium / build and run Playwright
@@ -92,9 +92,9 @@ A malformed frontmatter file fails `astro build` and the index builder with a pa
 
 Five M5 background agents (`dormant-flip`, `review-decisions`, `resolve-predictions`, `freshness-review`, `triage-questions`) live in `src/lib/agents/<agent>.ts` with CLIs in `scripts/<agent>.ts`. They never write to `content/`; they enqueue typed `QueuedProposal` objects into `.proposal-queue.json`. `proposalId(...)` is a deterministic SHA-256, so re-runs over unchanged content dedupe naturally. Per-agent rejection memory is `.<agent>-rejections.json` (gitignored).
 
-`scripts/review-proposals.ts` imports each agent module (triggering `registerHandler` calls in `src/lib/proposal-dispatch.ts`), drains the queue interactively via `runReview`, and applies accepted mutations through each handler's `apply` / `edit`. Agent CLIs are schedulable (launchd, see `scripts/launchd/`); `review-proposals` blocks on TTY and must never be scheduled. `freshness-review` deliberately has a no-op `reject` hook - staleness is continuous, not event-driven, so "reject" means "not now", not "never".
+`scripts/review-proposals.ts` dynamically imports each agent handler module listed in `AGENT_REGISTRY` (`src/lib/agent-registry.ts`, triggering `registerHandler` calls in `src/lib/proposal-dispatch.ts`), drains the queue interactively via `runReview`, and applies accepted mutations through each handler's `apply` / `edit`. Agent CLIs are schedulable (launchd, see `scripts/launchd/`); `review-proposals` blocks on TTY and must never be scheduled. `freshness-review` deliberately has a no-op `reject` hook - staleness is continuous, not event-driven, so "reject" means "not now", not "never".
 
-To add a new agent: module in `src/lib/agents/`, CLI in `scripts/`, `pnpm` script, `import "../src/lib/agents/<agent>.ts"` in `scripts/review-proposals.ts`, optionally a launchd plist. See `docs/agents/proposal-pipeline.md`.
+To add a new agent: module in `src/lib/agents/`, CLI in `scripts/`, `pnpm` script, entry in `AGENT_REGISTRY` in `src/lib/agent-registry.ts` (and `ProposalSource` / `ProposalType` in `src/lib/proposal-queue.ts`), optionally a launchd plist. See `docs/agents/proposal-pipeline.md`.
 
 ### Shared CLI primitives (ADR-008)
 

@@ -13,7 +13,7 @@ Five background agents landed in M5: `dormant-flip`, `review-decisions`, `resolv
 
 Agents emit typed `QueuedProposal` objects into `.proposal-queue.json` at the repo root; they never touch `content/` directly. `proposalId(source, type, target, payload)` computes a deterministic SHA-256 key: agents re-running over unchanged content produce the same ids and deduplicate naturally. `enqueue` is idempotent on duplicate ids.
 
-`ProposalHandler` implementations register at module-import time via `registerHandler` in `src/lib/proposal-dispatch.ts`, keyed by `ProposalType`. The unified `scripts/review-proposals.ts` CLI imports all five agent modules (triggering handler registration), drains the queue interactively using `runReview` (ADR-008), and applies accepted mutations via each handler's `apply` or `edit` method. `review-proposals` blocks on TTY input and must never be scheduled. The agent CLIs (`scripts/<agent>.ts`) are the schedulable surface; `review-proposals` is their human-driven complement — the two halves of the pattern.
+`ProposalHandler` implementations register at module-import time via `registerHandler` in `src/lib/proposal-dispatch.ts`, keyed by `ProposalType`. The unified `scripts/review-proposals.ts` CLI dynamically imports all agent modules listed in `AGENT_REGISTRY` (`src/lib/agent-registry.ts`, triggering handler registration), drains the queue interactively using `runReview` (ADR-008), and applies accepted mutations via each handler's `apply` or `edit` method. `review-proposals` blocks on TTY input and must never be scheduled. The agent CLIs (`scripts/<agent>.ts`) are the schedulable surface; `review-proposals` is their human-driven complement — the two halves of the pattern.
 
 Per-agent rejection memory lives in `.<agent>-rejections.json` files at the repo root, all gitignored. The optional `reject` hook records a snapshot of the relevant identity field so the same proposal is not re-enqueued unless the underlying content changes. `freshness-review` is the exception: its reject hook is a no-op. Staleness is continuous rather than event-driven; rejection memory would suppress accurate flags, so "reject" deliberately means "not now", not "never".
 
@@ -23,7 +23,7 @@ Per-agent rejection memory lives in `.<agent>-rejections.json` files at the repo
 
 ## Consequences
 
-Every agent scan is idempotent and non-destructive. The queue accumulates until the human runs `review-proposals`; pending proposals survive restarts. Adding a new agent requires a module in `src/lib/agents/`, a CLI in `scripts/`, a `pnpm` script, an import in `scripts/review-proposals.ts`, and optionally a launchd plist — no changes to the queue, dispatch, or review-cli primitives.
+Every agent scan is idempotent and non-destructive. The queue accumulates until the human runs `review-proposals`; pending proposals survive restarts. Adding a new agent requires a module in `src/lib/agents/`, a CLI in `scripts/`, a `pnpm` script, an entry in `AGENT_REGISTRY` (`src/lib/agent-registry.ts`), and optionally a launchd plist — no changes to the queue, dispatch, or review-cli primitives.
 
 ## Caveats
 

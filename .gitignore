@@ -141,6 +141,7 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+.vite-hooks/
 
 # Astro
 .astro/
@@ -161,6 +162,7 @@ vite.config.ts.timestamp-*
 
 # Proposal queue (M5)
 .proposal-queue.json
+.review-proposals-state.json
 .dormant-flip-rejections.json
 .resolve-predictions-rejections.json
 .review-decisions-rejections.json
@@ -181,5 +183,5 @@ public/feed/brain-diff*.json
 public/feed/brain-diff*.xml
 
 # Semantic Layer derived vector DB
-vault/.semantic-layer/*.lbug*
 vault/.semantic-layer/*.sqlite*
+vault/.semantic-layer/index.lock

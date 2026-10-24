@@ -81,6 +81,7 @@ export const KIND_REGISTRY = {
     detailDescription: "Single claim page with confidence history.",
     apiTitle: "Claims JSON",
     apiDescription: "All claims as JSON.",
+    feeds: ["claims-revised"],
   },
   projects: {
     schema: KIND_SCHEMAS.projects.schema,
