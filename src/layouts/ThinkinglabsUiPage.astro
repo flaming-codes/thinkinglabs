@@ -69,6 +69,23 @@ const jsonLd = buildPageGraph({ site, url: canonical, title: titleMeta, descript
   <body data-tl-allow-scroll={allowScroll ? "true" : undefined}>
     <a href="#main-content" class="tl-skip-link">Skip to main content</a>
     <slot />
+    <div
+      hidden
+      aria-hidden="true"
+      style="display:none"
+      set:html={`
+      <form toolname="search_content" tooldescription="Searches public claims and thoughts on thinkinglabs.run by keyword, concept, or tag." action="/api/search" method="get">
+        <input type="search" name="query" toolparamdescription="Search keyword, topic, or question to find in public knowledge" required />
+      </form>
+      <form toolname="get_page_markdown" tooldescription="Fetches the clean Markdown variant of a given page on thinkinglabs.run with frontmatter and token estimates." action="/api/markdown" method="get">
+        <input type="text" name="path" toolparamdescription="Page route to fetch markdown for, e.g. '/', '/about', '/now', '/agents', or '/claims/xyz'" required />
+      </form>
+      <form toolname="precheck_contact_inquiry" tooldescription="Preflights an inbound message against the author's published contact policy, routing rules, and fastest-no criteria." action="/contact.json" method="post">
+        <input type="text" name="subject" toolparamdescription="Subject or summary of the proposed inquiry" required />
+        <textarea name="message" toolparamdescription="Full proposed inquiry message body" required></textarea>
+      </form>
+      `}
+    />
     <script>
       import "../frontend/thinkinglabs-ui/lib/webmcp.ts";
     </script>

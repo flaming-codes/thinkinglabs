@@ -21,6 +21,7 @@
     "preview": "astro preview",
     "setup:e2e": "playwright install chromium",
     "test:e2e": "pnpm build && playwright test",
+    "pwa:screenshots": "node scripts/pwa-screenshots.mjs",
     "brain-diff": "tsx scripts/brain-diff.ts",
     "brain-diff:offline": "pnpm brain-diff --no-llm",
     "brain-diff:scored": "pnpm check:llm-key && pnpm brain-diff",

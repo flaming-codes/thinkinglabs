@@ -284,13 +284,13 @@
       },
       "kind": "function",
       "namespaces": ["value"],
-      "line": 203,
+      "line": 272,
       "column": 17,
       "declarations": [
         {
           "file": "src/frontend/thinkinglabs-ui/lib/webmcp.ts",
           "kind": "function",
-          "line": 203,
+          "line": 272,
           "column": 17
         }
       ]

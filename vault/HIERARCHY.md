@@ -16,7 +16,7 @@ Sizes are rough token estimates (chars/4). For large notes, prefer
   - **architecture.source-index** - Source and index split. Content markdown is canonical and dist/index.sqlite is derived for agents. (~155 tok)
 - **content** - Content model. Schema-driven public objects rendered into site, API, feed, and MCP surfaces. (~117 tok)
   - **content.hero-images** - Entity hero images. Convention-based local assets for content detail heroes and OG detail cards. (~177 tok)
-  - **content.rendering** - Rendering surfaces. Astro pages and machine-readable surfaces render from typed content collections. (~500 tok)
+  - **content.rendering** - Rendering surfaces. Astro pages and machine-readable surfaces render from typed content collections. (~537 tok)
   - **content.schemas** - Schema registry. KIND_SCHEMAS and KIND_REGISTRY are the two core content registries. (~133 tok)
 - **deployment** - Deployment model. Static site deployment is separate from the optional MCP HTTP runtime. (~191 tok)
 - **meta** - Semantic layer metadata. Operating rules for maintaining the semantic-layer vault. (~197 tok)

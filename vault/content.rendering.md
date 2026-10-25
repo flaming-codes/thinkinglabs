@@ -48,11 +48,12 @@ shared helper and the `.md` route convention. The single-file `/llms-full.txt`
 corpus provides a unified Markdown ingestion surface generated from content.
 
 Browser agents in Chromium can discover client-side tools natively via WebMCP
-(`document.modelContext.registerTool`), exposing content search, markdown extraction,
+imperative registration (`document.modelContext` and `navigator.modelContext`)
+and declarative `<form toolname="...">` elements, exposing content search, markdown extraction,
 and contact preflighting with zero overhead on non-supporting runtimes.
 
 Offline PWA support is provided through `/offline`, precached shell assets in `sw.js`,
-and installable app manifest shortcuts.
+installable app manifest shortcuts, and automated screenshot recreation via `pnpm pwa:screenshots`.
 
 The static site keeps Astro's hash-based CSP enabled and keeps route CSS
 external with `build.inlineStylesheets: "never"`. Do not add

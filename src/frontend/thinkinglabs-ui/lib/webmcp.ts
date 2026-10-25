@@ -4,9 +4,10 @@ let activeController: AbortController | null = null;
 
 interface ToolRegistrationDef {
   name: string;
+  title: string;
   description: string;
   inputSchema: Record<string, unknown>;
-  execute: (input: any) => Promise<unknown> | unknown;
+  execute: (input: any, options?: { signal?: AbortSignal }) => Promise<unknown> | unknown;
   annotations?: {
     readOnlyHint?: boolean;
     consequentialHint?: boolean;
@@ -17,6 +18,7 @@ interface ToolRegistrationDef {
 const TOOLS: ToolRegistrationDef[] = [
   {
     name: "search_content",
+    title: "Search Content",
     description:
       "Searches public claims and thoughts on thinkinglabs.run by keyword, concept, or tag.",
     inputSchema: {
@@ -95,6 +97,7 @@ const TOOLS: ToolRegistrationDef[] = [
   },
   {
     name: "get_page_markdown",
+    title: "Get Page Markdown",
     description:
       "Fetches the clean Markdown variant of a given page on thinkinglabs.run with frontmatter and token estimates.",
     inputSchema: {
@@ -140,6 +143,7 @@ const TOOLS: ToolRegistrationDef[] = [
   },
   {
     name: "precheck_contact_inquiry",
+    title: "Precheck Contact Inquiry",
     description:
       "Preflights an inbound message against the author's published contact policy, routing rules, and fastest-no criteria.",
     inputSchema: {
@@ -199,33 +203,166 @@ const TOOLS: ToolRegistrationDef[] = [
   },
 ];
 
+/** Lightweight fallback implementation of the WebMCP ModelContext interface. */
+export class ModelContextPolyfill extends EventTarget {
+  readonly polyfilled = true;
+  private readonly _tools = new Map<string, any>();
+
+  async registerTool(tool: any, options?: { signal?: AbortSignal }): Promise<void> {
+    if (!tool || typeof tool.name !== "string") return;
+    this._tools.set(tool.name, {
+      ...tool,
+      window: typeof window !== "undefined" ? window : undefined,
+      origin: typeof location !== "undefined" ? location.origin : "",
+    });
+
+    if (options?.signal) {
+      options.signal.addEventListener(
+        "abort",
+        () => {
+          this._tools.delete(tool.name);
+          this.dispatchEvent(new Event("toolchange"));
+        },
+        { once: true },
+      );
+    }
+
+    this.dispatchEvent(new Event("toolchange"));
+  }
+
+  async getTools(): Promise<any[]> {
+    return Array.from(this._tools.values());
+  }
+
+  async tools(): Promise<any[]> {
+    return this.getTools();
+  }
+
+  async executeTool(
+    toolOrName: any,
+    inputObject: any = {},
+    options?: { signal?: AbortSignal },
+  ): Promise<string> {
+    const name = typeof toolOrName === "string" ? toolOrName : toolOrName?.name;
+    const tool = this._tools.get(name);
+    if (!tool) throw new Error(`Tool "${name}" not found`);
+
+    const eventInit = { toolName: name };
+    if (typeof (globalThis as any).ToolActivatedEvent === "function") {
+      this.dispatchEvent(new (globalThis as any).ToolActivatedEvent("toolactivated", eventInit));
+    } else {
+      this.dispatchEvent(new CustomEvent("toolactivated", { detail: eventInit }));
+    }
+
+    try {
+      const result = await tool.execute(inputObject, { signal: options?.signal });
+      return typeof result === "string" ? result : JSON.stringify(result);
+    } catch (err) {
+      if (typeof (globalThis as any).ToolCancelEvent === "function") {
+        this.dispatchEvent(new (globalThis as any).ToolCancelEvent("toolcancel", eventInit));
+      } else {
+        this.dispatchEvent(new CustomEvent("toolcancel", { detail: eventInit }));
+      }
+      throw err;
+    }
+  }
+}
+
 /** Initializes browser-native WebMCP tool registrations on supporting browsers. */
 export function initWebMcp(): void {
-  if (typeof document === "undefined") return;
+  if (typeof window === "undefined" && typeof document === "undefined") return;
 
-  const doc = document as any;
-  if (!doc.modelContext || typeof doc.modelContext.registerTool !== "function") {
-    return;
+  const doc = typeof document !== "undefined" ? (document as any) : null;
+  const nav = typeof navigator !== "undefined" ? (navigator as any) : null;
+
+  const nativeDoc = doc?.modelContext && typeof doc.modelContext.registerTool === "function";
+  const nativeNav = nav?.modelContext && typeof nav.modelContext.registerTool === "function";
+
+  if (!nativeDoc && !nativeNav) {
+    const polyfill = new ModelContextPolyfill();
+    if (doc) {
+      try {
+        doc.modelContext = polyfill;
+      } catch {}
+    }
+    if (nav) {
+      try {
+        nav.modelContext = polyfill;
+      } catch {
+        try {
+          Object.defineProperty(nav, "modelContext", {
+            value: polyfill,
+            configurable: true,
+            writable: true,
+          });
+        } catch {}
+      }
+    }
+  } else {
+    //! Cross-link so callers querying document or navigator both find the active context
+    if (nativeDoc && !nativeNav && nav) {
+      try {
+        Object.defineProperty(nav, "modelContext", {
+          value: doc.modelContext,
+          configurable: true,
+          writable: true,
+        });
+      } catch {}
+    } else if (nativeNav && !nativeDoc && doc) {
+      try {
+        doc.modelContext = nav.modelContext;
+      } catch {}
+    }
   }
+
+  const contexts = new Set<any>();
+  if (doc?.modelContext && typeof doc.modelContext.registerTool === "function") {
+    contexts.add(doc.modelContext);
+  }
+  if (nav?.modelContext && typeof nav.modelContext.registerTool === "function") {
+    contexts.add(nav.modelContext);
+  }
+
+  if (contexts.size === 0) return;
 
   activeController?.abort();
   activeController = new AbortController();
   const { signal } = activeController;
 
-  for (const tool of TOOLS) {
-    try {
-      doc.modelContext.registerTool(
-        {
-          name: tool.name,
-          description: tool.description,
-          inputSchema: tool.inputSchema,
-          execute: tool.execute,
-          annotations: tool.annotations,
-        },
-        { signal },
-      );
-    } catch {
-      //! Graceful fallback if tool is already registered or flags are restricted.
+  for (const ctx of contexts) {
+    for (const tool of TOOLS) {
+      try {
+        const res = ctx.registerTool(
+          {
+            name: tool.name,
+            title: tool.title,
+            description: tool.description,
+            inputSchema: tool.inputSchema,
+            execute: tool.execute,
+            annotations: tool.annotations,
+          },
+          { signal },
+        );
+        if (res && typeof res.catch === "function") {
+          res.catch(() => {});
+        }
+      } catch {
+        try {
+          const res = ctx.registerTool({
+            name: tool.name,
+            title: tool.title,
+            description: tool.description,
+            inputSchema: tool.inputSchema,
+            execute: tool.execute,
+            annotations: tool.annotations,
+          });
+          if (res && typeof res.catch === "function") {
+            res.catch(() => {});
+          }
+        } catch {
+          //! Graceful fallback if tool is already registered or flags are restricted.
+        }
+      }
     }
   }
 }
