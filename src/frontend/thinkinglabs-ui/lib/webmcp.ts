@@ -315,53 +315,49 @@ export function initWebMcp(): void {
     }
   }
 
-  const contexts = new Set<any>();
-  if (doc?.modelContext && typeof doc.modelContext.registerTool === "function") {
-    contexts.add(doc.modelContext);
-  }
-  if (nav?.modelContext && typeof nav.modelContext.registerTool === "function") {
-    contexts.add(nav.modelContext);
-  }
+  const primaryContext =
+    doc?.modelContext && typeof doc.modelContext.registerTool === "function"
+      ? doc.modelContext
+      : nav?.modelContext && typeof nav.modelContext.registerTool === "function"
+        ? nav.modelContext
+        : null;
 
-  if (contexts.size === 0) return;
+  if (!primaryContext) return;
 
   activeController?.abort();
   activeController = new AbortController();
   const { signal } = activeController;
 
-  for (const ctx of contexts) {
-    for (const tool of TOOLS) {
+  for (const tool of TOOLS) {
+    const toolDef = {
+      name: tool.name,
+      title: tool.title,
+      description: tool.description,
+      inputSchema: tool.inputSchema,
+      execute: tool.execute,
+      annotations: tool.annotations,
+    };
+
+    try {
+      const res = primaryContext.registerTool(toolDef, { signal });
+      if (res && typeof res.catch === "function") {
+        res.catch(async () => {
+          //! Fallback without signal if the engine rejected options
+          try {
+            await primaryContext.registerTool(toolDef);
+          } catch {
+            //! Graceful fallback if tool is already registered or flags are restricted.
+          }
+        });
+      }
+    } catch {
       try {
-        const res = ctx.registerTool(
-          {
-            name: tool.name,
-            title: tool.title,
-            description: tool.description,
-            inputSchema: tool.inputSchema,
-            execute: tool.execute,
-            annotations: tool.annotations,
-          },
-          { signal },
-        );
+        const res = primaryContext.registerTool(toolDef);
         if (res && typeof res.catch === "function") {
           res.catch(() => {});
         }
       } catch {
-        try {
-          const res = ctx.registerTool({
-            name: tool.name,
-            title: tool.title,
-            description: tool.description,
-            inputSchema: tool.inputSchema,
-            execute: tool.execute,
-            annotations: tool.annotations,
-          });
-          if (res && typeof res.catch === "function") {
-            res.catch(() => {});
-          }
-        } catch {
-          //! Graceful fallback if tool is already registered or flags are restricted.
-        }
+        //! Graceful fallback if tool is already registered or flags are restricted.
       }
     }
   }
