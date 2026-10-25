@@ -8,32 +8,153 @@ const { class: className, ariaLabel } = Astro.props;
 ---
 
 <span
-  class:list={[className, "tl-wordmark"]}
+  class:list={[className, "tl-wordmark", "tl-brand-emblem"]}
   role={ariaLabel ? "img" : undefined}
   aria-label={ariaLabel}
   aria-hidden={ariaLabel ? undefined : "true"}
+  data-tl-brand-logo
+  data-motion="pulse-calibrated"
 >
   <svg viewBox="0 0 512 512" focusable="false" aria-hidden="true">
     <g fill="none" stroke-linecap="round" stroke-linejoin="round">
       <path
-        d="M144 144c64-56 176-48 224 16 40 56 24 144-40 192-64 40-176 40-216-24-40-56-24-136 32-184Z"
-        stroke-width="21"
+        class="tl-hdm-hull"
+        d="M 116 168 A 140 140 0 0 1 396 168 V 344 A 140 140 0 0 1 116 344 Z"
+        stroke-width="14"
       />
-      <path
-        d="M184 184c40-32 112-32 144 8 40 40 16 96-24 120-40 32-112 32-144-8-32-40-16-88 24-120Z"
-        stroke-width="18"
-      />
-      <path
-        d="M224 232c24-16 56-16 72 8 16 16 8 48-16 64-24 8-56 8-72-8-16-24-8-48 16-64Z"
-        stroke-width="16"
-      />
+
+      <g class="tl-hdm-core">
+        <path
+          class="tl-hdm-rib tl-hdm-rib-1"
+          d="M 164 168 A 92 92 0 0 1 348 168"
+          stroke-width="14"
+        />
+        <path
+          class="tl-hdm-rib tl-hdm-rib-2"
+          d="M 164 202 A 92 62 0 0 1 348 202"
+          stroke-width="14"
+        />
+        <path
+          class="tl-hdm-rib tl-hdm-rib-3"
+          d="M 164 231 A 92 30 0 0 1 348 231"
+          stroke-width="14"
+        />
+        <path
+          class="tl-hdm-rib tl-hdm-rib-4 tl-hdm-equator"
+          d="M 164 256 H 348"
+          stroke-width="14"
+        />
+        <path
+          class="tl-hdm-rib tl-hdm-rib-5"
+          d="M 164 281 A 92 30 0 0 0 348 281"
+          stroke-width="14"
+        />
+        <path
+          class="tl-hdm-rib tl-hdm-rib-6"
+          d="M 164 310 A 92 62 0 0 0 348 310"
+          stroke-width="14"
+        />
+        <path
+          class="tl-hdm-rib tl-hdm-rib-7"
+          d="M 164 344 A 92 92 0 0 0 348 344"
+          stroke-width="14"
+        />
+      </g>
     </g>
-    <circle cx="256" cy="272" r="19" />
   </svg>
 </span>
 
+<script>
+  import { onPageReady } from "../lib/page-lifecycle";
+
+  const STORAGE_KEY = "tl-brand-motion-idx";
+  const MOTIONS = [
+    "pulse-calibrated",
+    "pulse-horizon-out",
+    "pulse-surge",
+    "pulse-converge-in",
+    "pulse-subtle",
+    "pulse-echo",
+    "pulse-ion-scan",
+    "pulse-filament-flare",
+  ] as const;
+
+  const getSavedIndex = (): number => {
+    try {
+      const raw = sessionStorage.getItem(STORAGE_KEY);
+      if (raw !== null) {
+        const val = Number.parseInt(raw, 10);
+        if (!Number.isNaN(val) && val >= 0 && val < MOTIONS.length) {
+          return val;
+        }
+      }
+    } catch {
+      // Ignore sessionStorage access errors in restricted contexts
+    }
+    return 0;
+  };
+
+  const saveIndex = (idx: number): void => {
+    try {
+      sessionStorage.setItem(STORAGE_KEY, String(idx));
+    } catch {
+      // Ignore
+    }
+  };
+
+  let controller: AbortController | null = null;
+
+  const initBrandHoverCycle = () => {
+    controller?.abort();
+    controller = new AbortController();
+    const { signal } = controller;
+
+    const logos = document.querySelectorAll<HTMLElement>("[data-tl-brand-logo]");
+    if (logos.length === 0) return;
+
+    let currentIndex = getSavedIndex();
+
+    const updateAllLogos = (idx: number) => {
+      const motion = MOTIONS[idx] ?? "pulse-calibrated";
+      logos.forEach((el) => {
+        el.setAttribute("data-motion", motion);
+      });
+    };
+
+    updateAllLogos(currentIndex);
+
+    // Attach hover listener to each logo and its interactive container (link / label)
+    logos.forEach((logo) => {
+      const trigger = logo.closest("a, label") ?? logo;
+
+      trigger.addEventListener(
+        "pointerenter",
+        () => {
+          logo.classList.add("is-hovered");
+        },
+        { signal },
+      );
+
+      trigger.addEventListener(
+        "pointerleave",
+        () => {
+          logo.classList.remove("is-hovered");
+          // Advance to the next variation in the cycle for the subsequent hover
+          currentIndex = (currentIndex + 1) % MOTIONS.length;
+          saveIndex(currentIndex);
+          updateAllLogos(currentIndex);
+        },
+        { signal },
+      );
+    });
+  };
+
+  onPageReady(initBrandHoverCycle);
+</script>
+
 <style>
   .tl-wordmark {
+    --hdm-duration: 480ms;
     position: relative;
     display: inline-flex;
     align-items: center;
@@ -41,19 +162,289 @@ const { class: className, ariaLabel } = Astro.props;
     width: clamp(36px, 4vw, 48px);
     aspect-ratio: 1;
     color: var(--tl-ink);
+    /* Identity transforms prevent layout shifts on hover */
+    translate: 0 0;
+    rotate: 0deg;
+    scale: 1;
+    cursor: pointer;
   }
 
   .tl-wordmark svg {
     display: block;
     width: 100%;
-    height: auto;
+    height: 100%;
+    overflow: visible;
   }
 
   .tl-wordmark g {
     stroke: currentColor;
+    transform-origin: 256px 256px;
   }
 
-  .tl-wordmark circle {
-    fill: currentColor;
+  .tl-hdm-hull,
+  .tl-hdm-core,
+  .tl-hdm-rib {
+    transform-origin: 256px 256px;
+    translate: 0 0;
+    scale: 1 1;
+    transition:
+      translate var(--tl-motion-base) var(--tl-ease-emphasized),
+      scale var(--tl-motion-base) var(--tl-ease-emphasized),
+      opacity var(--tl-motion-base) var(--tl-ease-standard),
+      stroke-width var(--tl-motion-base) var(--tl-ease-standard);
+    will-change: transform, opacity;
+  }
+
+  /* =========================================================================
+     EASTER EGG LUMINESCENT PULSE MATRIX (8 Variations)
+     ========================================================================= */
+
+  /* -------------------------------------------------------------------------
+     1. Calibrated Glow (Level 2 · Baseline)
+     Resting opacity 0.72 -> Peak 1.0, Stroke 14px -> 17.5px
+     ------------------------------------------------------------------------- */
+  .tl-brand-emblem[data-motion="pulse-calibrated"] .tl-hdm-rib {
+    opacity: 0.72;
+  }
+
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-calibrated"] .tl-hdm-rib {
+    animation: hdm-pulse-calibrated-wave var(--hdm-duration) var(--tl-ease-standard) forwards;
+  }
+
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-calibrated"] .tl-hdm-rib-1 { animation-delay: calc(var(--hdm-duration) * 0.00); }
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-calibrated"] .tl-hdm-rib-2 { animation-delay: calc(var(--hdm-duration) * 0.08); }
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-calibrated"] .tl-hdm-rib-3 { animation-delay: calc(var(--hdm-duration) * 0.16); }
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-calibrated"] .tl-hdm-rib-4 { animation-delay: calc(var(--hdm-duration) * 0.24); }
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-calibrated"] .tl-hdm-rib-5 { animation-delay: calc(var(--hdm-duration) * 0.32); }
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-calibrated"] .tl-hdm-rib-6 { animation-delay: calc(var(--hdm-duration) * 0.40); }
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-calibrated"] .tl-hdm-rib-7 { animation-delay: calc(var(--hdm-duration) * 0.48); }
+
+  @keyframes hdm-pulse-calibrated-wave {
+    0% { opacity: 0.72; stroke-width: 14px; }
+    50% { opacity: 1; stroke-width: 17.5px; }
+    100% { opacity: 0.72; stroke-width: 14px; }
+  }
+
+  /* -------------------------------------------------------------------------
+     2. Bifocal Horizon Radiance (Equator Outward)
+     Starts at Equator (rib 4) and sweeps outward to both poles
+     ------------------------------------------------------------------------- */
+  .tl-brand-emblem[data-motion="pulse-horizon-out"] .tl-hdm-rib {
+    opacity: 0.68;
+  }
+
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-horizon-out"] .tl-hdm-equator {
+    scale: 1.05 1;
+  }
+
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-horizon-out"] .tl-hdm-rib {
+    animation: hdm-pulse-horizon-out-wave var(--hdm-duration) var(--tl-ease-standard) forwards;
+  }
+
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-horizon-out"] .tl-hdm-rib-4 { animation-delay: calc(var(--hdm-duration) * 0.00); }
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-horizon-out"] .tl-hdm-rib-3,
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-horizon-out"] .tl-hdm-rib-5 { animation-delay: calc(var(--hdm-duration) * 0.12); }
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-horizon-out"] .tl-hdm-rib-2,
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-horizon-out"] .tl-hdm-rib-6 { animation-delay: calc(var(--hdm-duration) * 0.24); }
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-horizon-out"] .tl-hdm-rib-1,
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-horizon-out"] .tl-hdm-rib-7 { animation-delay: calc(var(--hdm-duration) * 0.36); }
+
+  @keyframes hdm-pulse-horizon-out-wave {
+    0% { opacity: 0.68; stroke-width: 14px; }
+    50% { opacity: 1; stroke-width: 18.5px; }
+    100% { opacity: 0.68; stroke-width: 14px; }
+  }
+
+  /* -------------------------------------------------------------------------
+     3. Kinetic Surge (Level 3 · Energetic)
+     Resting opacity 0.52 -> Peak 1.0, Stroke 13.5px -> 20px
+     ------------------------------------------------------------------------- */
+  .tl-brand-emblem[data-motion="pulse-surge"] .tl-hdm-rib {
+    opacity: 0.52;
+  }
+
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-surge"] .tl-hdm-hull {
+    scale: 1.02;
+  }
+
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-surge"] .tl-hdm-rib {
+    animation: hdm-pulse-surge-wave var(--hdm-duration) var(--tl-ease-emphasized) forwards;
+  }
+
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-surge"] .tl-hdm-rib-1 { animation-delay: calc(var(--hdm-duration) * 0.00); }
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-surge"] .tl-hdm-rib-2 { animation-delay: calc(var(--hdm-duration) * 0.09); }
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-surge"] .tl-hdm-rib-3 { animation-delay: calc(var(--hdm-duration) * 0.18); }
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-surge"] .tl-hdm-rib-4 { animation-delay: calc(var(--hdm-duration) * 0.27); }
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-surge"] .tl-hdm-rib-5 { animation-delay: calc(var(--hdm-duration) * 0.36); }
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-surge"] .tl-hdm-rib-6 { animation-delay: calc(var(--hdm-duration) * 0.45); }
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-surge"] .tl-hdm-rib-7 { animation-delay: calc(var(--hdm-duration) * 0.54); }
+
+  @keyframes hdm-pulse-surge-wave {
+    0% { opacity: 0.52; stroke-width: 13.5px; }
+    45% { opacity: 1; stroke-width: 20px; }
+    100% { opacity: 0.52; stroke-width: 13.5px; }
+  }
+
+  /* -------------------------------------------------------------------------
+     4. Centripetal Inflow (Poles Inward)
+     Starts at poles (rib 1 & 7) and converges inward onto equator
+     ------------------------------------------------------------------------- */
+  .tl-brand-emblem[data-motion="pulse-converge-in"] .tl-hdm-rib {
+    opacity: 0.65;
+  }
+
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-converge-in"] .tl-hdm-rib {
+    animation: hdm-pulse-converge-wave var(--hdm-duration) var(--tl-ease-standard) forwards;
+  }
+
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-converge-in"] .tl-hdm-rib-1,
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-converge-in"] .tl-hdm-rib-7 { animation-delay: calc(var(--hdm-duration) * 0.00); }
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-converge-in"] .tl-hdm-rib-2,
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-converge-in"] .tl-hdm-rib-6 { animation-delay: calc(var(--hdm-duration) * 0.12); }
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-converge-in"] .tl-hdm-rib-3,
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-converge-in"] .tl-hdm-rib-5 { animation-delay: calc(var(--hdm-duration) * 0.24); }
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-converge-in"] .tl-hdm-rib-4 {
+    animation-name: hdm-pulse-converge-equator-wave;
+    animation-delay: calc(var(--hdm-duration) * 0.36);
+  }
+
+  @keyframes hdm-pulse-converge-wave {
+    0% { opacity: 0.65; stroke-width: 14px; }
+    50% { opacity: 1; stroke-width: 18px; }
+    100% { opacity: 0.65; stroke-width: 14px; }
+  }
+
+  @keyframes hdm-pulse-converge-equator-wave {
+    0% { opacity: 0.65; stroke-width: 14px; scale: 1 1; }
+    50% { opacity: 1; stroke-width: 21px; scale: 1.06 1; }
+    100% { opacity: 0.65; stroke-width: 14px; scale: 1 1; }
+  }
+
+  /* -------------------------------------------------------------------------
+     5. Whisper Shimmer (Level 1 · Subtle)
+     Resting opacity 0.88 -> Peak 1.0, Stroke 14px -> 15.5px
+     ------------------------------------------------------------------------- */
+  .tl-brand-emblem[data-motion="pulse-subtle"] .tl-hdm-rib {
+    opacity: 0.88;
+  }
+
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-subtle"] .tl-hdm-rib {
+    animation: hdm-pulse-subtle-wave var(--hdm-duration) var(--tl-ease-standard) forwards;
+  }
+
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-subtle"] .tl-hdm-rib-1 { animation-delay: calc(var(--hdm-duration) * 0.00); }
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-subtle"] .tl-hdm-rib-2 { animation-delay: calc(var(--hdm-duration) * 0.07); }
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-subtle"] .tl-hdm-rib-3 { animation-delay: calc(var(--hdm-duration) * 0.14); }
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-subtle"] .tl-hdm-rib-4 { animation-delay: calc(var(--hdm-duration) * 0.21); }
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-subtle"] .tl-hdm-rib-5 { animation-delay: calc(var(--hdm-duration) * 0.28); }
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-subtle"] .tl-hdm-rib-6 { animation-delay: calc(var(--hdm-duration) * 0.35); }
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-subtle"] .tl-hdm-rib-7 { animation-delay: calc(var(--hdm-duration) * 0.42); }
+
+  @keyframes hdm-pulse-subtle-wave {
+    0% { opacity: 0.88; stroke-width: 14px; }
+    50% { opacity: 1; stroke-width: 15.5px; }
+    100% { opacity: 0.88; stroke-width: 14px; }
+  }
+
+  /* -------------------------------------------------------------------------
+     6. Resonant Double-Echo (Harmonic Rebound)
+     Primary cascade followed by secondary harmonic echo
+     ------------------------------------------------------------------------- */
+  .tl-brand-emblem[data-motion="pulse-echo"] .tl-hdm-rib {
+    opacity: 0.70;
+  }
+
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-echo"] .tl-hdm-rib {
+    animation: hdm-pulse-echo-wave calc(var(--hdm-duration) * 1.25) var(--tl-ease-standard) forwards;
+  }
+
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-echo"] .tl-hdm-rib-1 { animation-delay: calc(var(--hdm-duration) * 0.00); }
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-echo"] .tl-hdm-rib-2 { animation-delay: calc(var(--hdm-duration) * 0.08); }
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-echo"] .tl-hdm-rib-3 { animation-delay: calc(var(--hdm-duration) * 0.16); }
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-echo"] .tl-hdm-rib-4 { animation-delay: calc(var(--hdm-duration) * 0.24); }
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-echo"] .tl-hdm-rib-5 { animation-delay: calc(var(--hdm-duration) * 0.32); }
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-echo"] .tl-hdm-rib-6 { animation-delay: calc(var(--hdm-duration) * 0.40); }
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-echo"] .tl-hdm-rib-7 { animation-delay: calc(var(--hdm-duration) * 0.48); }
+
+  @keyframes hdm-pulse-echo-wave {
+    0% { opacity: 0.70; stroke-width: 14px; }
+    30% { opacity: 1; stroke-width: 18px; }
+    52% { opacity: 0.74; stroke-width: 14px; }
+    74% { opacity: 0.94; stroke-width: 16.5px; }
+    100% { opacity: 0.70; stroke-width: 14px; }
+  }
+
+  /* -------------------------------------------------------------------------
+     7. High-Frequency Ion Scan (Snappy Laser)
+     Fast duration, tight stagger, crisp laser attack
+     ------------------------------------------------------------------------- */
+  .tl-brand-emblem[data-motion="pulse-ion-scan"] .tl-hdm-rib {
+    opacity: 0.74;
+  }
+
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-ion-scan"] .tl-hdm-rib {
+    animation: hdm-pulse-ion-wave calc(var(--hdm-duration) * 0.6) cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-ion-scan"] .tl-hdm-rib-1 { animation-delay: calc(var(--hdm-duration) * 0.00); }
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-ion-scan"] .tl-hdm-rib-2 { animation-delay: calc(var(--hdm-duration) * 0.04); }
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-ion-scan"] .tl-hdm-rib-3 { animation-delay: calc(var(--hdm-duration) * 0.08); }
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-ion-scan"] .tl-hdm-rib-4 { animation-delay: calc(var(--hdm-duration) * 0.12); }
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-ion-scan"] .tl-hdm-rib-5 { animation-delay: calc(var(--hdm-duration) * 0.16); }
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-ion-scan"] .tl-hdm-rib-6 { animation-delay: calc(var(--hdm-duration) * 0.20); }
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-ion-scan"] .tl-hdm-rib-7 { animation-delay: calc(var(--hdm-duration) * 0.24); }
+
+  @keyframes hdm-pulse-ion-wave {
+    0% { opacity: 0.74; stroke-width: 14px; }
+    40% { opacity: 1; stroke-width: 18.5px; }
+    100% { opacity: 0.74; stroke-width: 14px; }
+  }
+
+  /* -------------------------------------------------------------------------
+     8. Filament Flare (Level 4 · Maximum Incandescent)
+     Resting opacity 0.38 -> Peak 1.0, Stroke 13px -> 23px
+     ------------------------------------------------------------------------- */
+  .tl-brand-emblem[data-motion="pulse-filament-flare"] .tl-hdm-rib {
+    opacity: 0.38;
+  }
+
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-filament-flare"] .tl-hdm-hull {
+    scale: 1.03;
+    stroke-width: 16px;
+  }
+
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-filament-flare"] .tl-hdm-rib {
+    animation: hdm-pulse-flare-wave var(--hdm-duration) var(--tl-ease-emphasized) forwards;
+  }
+
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-filament-flare"] .tl-hdm-rib-1 { animation-delay: calc(var(--hdm-duration) * 0.00); }
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-filament-flare"] .tl-hdm-rib-2 { animation-delay: calc(var(--hdm-duration) * 0.09); }
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-filament-flare"] .tl-hdm-rib-3 { animation-delay: calc(var(--hdm-duration) * 0.18); }
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-filament-flare"] .tl-hdm-rib-4 { animation-delay: calc(var(--hdm-duration) * 0.27); }
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-filament-flare"] .tl-hdm-rib-5 { animation-delay: calc(var(--hdm-duration) * 0.36); }
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-filament-flare"] .tl-hdm-rib-6 { animation-delay: calc(var(--hdm-duration) * 0.45); }
+  :is(.tl-brand-emblem:hover, .tl-brand-emblem.is-hovered, :global(.tl-brand-link:hover) .tl-brand-emblem, :global(label:hover) .tl-brand-emblem)[data-motion="pulse-filament-flare"] .tl-hdm-rib-7 { animation-delay: calc(var(--hdm-duration) * 0.54); }
+
+  @keyframes hdm-pulse-flare-wave {
+    0% { opacity: 0.38; stroke-width: 13px; }
+    40% { opacity: 1; stroke-width: 23px; }
+    100% { opacity: 0.38; stroke-width: 13px; }
+  }
+
+  /* -------------------------------------------------------------------------
+     Accessibility: Strict Reduced Motion
+     ------------------------------------------------------------------------- */
+  @media (prefers-reduced-motion: reduce) {
+    .tl-brand-emblem,
+    .tl-hdm-hull,
+    .tl-hdm-core,
+    .tl-hdm-rib {
+      animation: none !important;
+      transition: none !important;
+      translate: 0 0 !important;
+      scale: 1 1 !important;
+      opacity: 1 !important;
+      stroke-width: 14px !important;
+    }
   }
 </style>

@@ -20,13 +20,9 @@ const page: EntityIndexPage = {
       label: "Latest first",
       title: "What has been noticed.",
       rows: view.observations.map((observation) => ({
-        kicker: observation.observed,
         title: observation.observation,
         href: observation.href,
         summary: observation.context,
-        meta: [observation.source, ...observation.tags.map((tag) => `#${tag}`)],
-        value: String(observation.links),
-        valueLabel: "links",
       })),
     },
   ],

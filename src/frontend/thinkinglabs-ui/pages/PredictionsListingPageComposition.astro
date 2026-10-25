@@ -20,29 +20,18 @@ const page: EntityIndexPage = {
       label: "Open",
       title: "Currently held.",
       rows: view.open.map((prediction) => ({
-        kicker: `${prediction.days}d`,
         title: prediction.title,
         href: prediction.href,
         summary: prediction.topic,
-        meta: [`resolves ${prediction.due}`, "open"],
-        value: prediction.conf.toFixed(2),
-        valueLabel: "confidence",
       })),
     },
     {
       label: "Resolved",
       title: "Already settled.",
       rows: view.resolved.map((prediction) => ({
-        kicker: prediction.outcome ?? "done",
         title: prediction.title,
         href: prediction.href,
         summary: prediction.topic,
-        meta: [
-          `resolved ${prediction.resolvedDate ?? prediction.due}`,
-          `was ${prediction.conf.toFixed(2)}`,
-        ],
-        value: prediction.outcome ?? "-",
-        valueLabel: "outcome",
       })),
     },
     {

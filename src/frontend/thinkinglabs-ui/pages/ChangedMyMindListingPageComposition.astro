@@ -20,13 +20,9 @@ const page: EntityIndexPage = {
       label: "Most recent",
       title: "What broke.",
       rows: view.flips.map((flip) => ({
-        kicker: flip.flippedOn,
         title: flip.title,
         href: flip.href,
         summary: flip.tipper,
-        meta: [`held ${flip.held}`, flip.topic],
-        value: `${flip.confThen.toFixed(2)} -> ${flip.confNow.toFixed(2)}`,
-        valueLabel: "confidence",
       })),
     },
   ],

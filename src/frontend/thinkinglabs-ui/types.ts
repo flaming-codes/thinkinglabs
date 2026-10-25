@@ -207,13 +207,9 @@ interface IndexStat {
 }
 
 interface EntityIndexRow {
-  kicker: string;
   title: string;
   href?: string | undefined;
   summary?: string | undefined;
-  meta?: string[] | undefined;
-  value?: string | undefined;
-  valueLabel?: string | undefined;
 }
 
 interface EntityIndexSection {

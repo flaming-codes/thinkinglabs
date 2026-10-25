@@ -34,19 +34,10 @@ const page: EntityIndexPage = {
     {
       label: "Reviewed first",
       title: "Claims on file.",
-      rows: claims.map((claim, index) => ({
-        kicker: String(index + 1).padStart(3, "0"),
+      rows: claims.map((claim) => ({
         title: claim.title,
         href: claim.href,
         summary: claim.tags.join(" / ") || claim.status,
-        meta: [
-          `status ${claim.status}`,
-          `reviewed ${claim.reviewed}`,
-          `${claim.evidence} ev`,
-          `${claim.opposing} opp`,
-        ],
-        value: claim.conf.toFixed(2),
-        valueLabel: "confidence",
       })),
     },
   ],

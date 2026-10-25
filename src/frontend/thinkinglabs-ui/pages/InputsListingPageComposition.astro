@@ -20,13 +20,9 @@ const page: EntityIndexPage = {
       label: "Latest first",
       title: "What shaped the system.",
       rows: view.inputs.map((input) => ({
-        kicker: input.kind,
         title: input.title,
         href: input.href,
         summary: input.note,
-        meta: [input.by, `read ${input.date}`, input.year],
-        value: String(input.influence),
-        valueLabel: "citations",
       })),
     },
   ],

@@ -1,18 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="thinkinglabs Thought Contours icon">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="thinkinglabs emblem icon">
   <rect width="512" height="512" rx="96" fill="#ffffff" />
-  <g fill="none" stroke="#07090d" stroke-linecap="round" stroke-linejoin="round">
-    <path
-      d="M144 144c64-56 176-48 224 16 40 56 24 144-40 192-64 40-176 40-216-24-40-56-24-136 32-184Z"
-      stroke-width="21"
-    />
-    <path
-      d="M184 184c40-32 112-32 144 8 40 40 16 96-24 120-40 32-112 32-144-8-32-40-16-88 24-120Z"
-      stroke-width="18"
-    />
-    <path
-      d="M224 232c24-16 56-16 72 8 16 16 8 48-16 64-24 8-56 8-72-8-16-24-8-48 16-64Z"
-      stroke-width="16"
-    />
+  <g fill="none" stroke="#07090d" stroke-width="14" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 116 168 A 140 140 0 0 1 396 168 V 344 A 140 140 0 0 1 116 344 Z" />
+    <path d="M 164 168 A 92 92 0 0 1 348 168" />
+    <path d="M 164 202 A 92 62 0 0 1 348 202" />
+    <path d="M 164 231 A 92 30 0 0 1 348 231" />
+    <path d="M 164 256 H 348" />
+    <path d="M 164 281 A 92 30 0 0 0 348 281" />
+    <path d="M 164 310 A 92 62 0 0 0 348 310" />
+    <path d="M 164 344 A 92 92 0 0 0 348 344" />
   </g>
-  <circle cx="256" cy="272" r="19" fill="#07090d" />
 </svg>

@@ -19,14 +19,10 @@ const page: EntityIndexPage = {
     {
       label: "Recently touched",
       title: "What is being built.",
-      rows: view.rows.map((project, index) => ({
-        kicker: String(index + 1).padStart(2, "0"),
+      rows: view.rows.map((project) => ({
         title: project.title,
         href: project.href,
         summary: project.deck,
-        meta: [`status ${project.state}`, `started ${project.started}`, `last ${project.last}`, project.stack],
-        value: project.state,
-        valueLabel: "state",
       })),
     },
   ],

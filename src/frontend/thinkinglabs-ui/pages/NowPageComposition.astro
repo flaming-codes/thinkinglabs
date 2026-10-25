@@ -11,14 +11,13 @@ const { now } = Astro.props;
 
 <HalfHeroLayout title="Now." heroSlug="now">
   <Fragment slot="deck">
-    <span class="text-[9px] font-semibold uppercase tracking-[0.14em] opacity-60">{now.season}</span>
     <p>{now.thesis}</p>
+    <p class="opacity-50">{now.season}</p>
   </Fragment>
 
   <section class="flex flex-col gap-6">
-    <header class="flex items-baseline justify-between gap-4">
-      <span class="text-[9px] font-semibold uppercase tracking-[0.14em]">Active threads</span>
-      <span class="opacity-40">{now.active.length} alive</span>
+    <header>
+      <h2 class="opacity-70">Active threads.</h2>
     </header>
 
     {
@@ -26,10 +25,6 @@ const { now } = Astro.props;
         <ul class="flex flex-col gap-7">
           {now.active.map((thread) => (
             <li class="flex flex-col gap-1">
-              <div class="flex items-baseline justify-between gap-4">
-                <span class="text-[9px] font-semibold uppercase tracking-[0.14em] opacity-40">{thread.kind}</span>
-                <span class="opacity-60">{Math.round(thread.pulse * 100)}% pulse</span>
-              </div>
               <h3 class="m-0">
                 {thread.href ? (
                   <a href={thread.href} class="no-underline">
@@ -40,7 +35,6 @@ const { now } = Astro.props;
                 )}
               </h3>
               <p class="italic opacity-70">“{thread.currentQ}”</p>
-              <p class="text-[9px] font-semibold uppercase tracking-[0.14em] opacity-40">since {thread.since}</p>
             </li>
           ))}
         </ul>
@@ -53,7 +47,9 @@ const { now } = Astro.props;
   {
     now.reading.length > 0 ? (
       <section class="flex flex-col gap-6">
-        <span class="text-[9px] font-semibold uppercase tracking-[0.14em]">Reading</span>
+        <header>
+          <h2 class="opacity-70">Reading.</h2>
+        </header>
         <ul class="flex flex-col gap-2 opacity-70">
           {now.reading.map((entry) => (
             <li>{entry}</li>
@@ -66,7 +62,9 @@ const { now } = Astro.props;
   {
     now.notReading.length > 0 ? (
       <section class="flex flex-col gap-6">
-        <span class="text-[9px] font-semibold uppercase tracking-[0.14em]">Not reading</span>
+        <header>
+          <h2 class="opacity-70">Not reading.</h2>
+        </header>
         <ul class="flex flex-col gap-2 opacity-50">
           {now.notReading.map((entry) => (
             <li class="line-through">{entry}</li>

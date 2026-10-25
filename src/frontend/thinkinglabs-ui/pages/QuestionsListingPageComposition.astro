@@ -20,13 +20,9 @@ const page: EntityIndexPage = {
       label: "Latest first",
       title: "What is unresolved.",
       rows: view.questions.map((question) => ({
-        kicker: question.asked,
         title: question.title,
         href: question.href,
         summary: question.deck,
-        meta: [`would resolve: ${question.wouldResolve}`, question.topic, ...question.related],
-        value: `${question.heat}/5`,
-        valueLabel: "heat",
       })),
     },
   ],

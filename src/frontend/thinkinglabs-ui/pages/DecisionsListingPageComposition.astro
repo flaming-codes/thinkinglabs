@@ -8,17 +8,9 @@ interface Props {
 
 const { view } = Astro.props;
 const row = (decision: DecisionRow) => ({
-  kicker: decision.date,
   title: decision.title,
   href: decision.href,
   summary: decision.summary,
-  meta: [
-    `status ${decision.state}`,
-    decision.review ? `review ${decision.review}` : "no scheduled review",
-    ...(decision.reversedBy ? [`reversed by ${decision.reversedBy}`] : []),
-  ],
-  value: decision.state,
-  valueLabel: "state",
 });
 
 const page: EntityIndexPage = {

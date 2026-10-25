@@ -20,7 +20,7 @@ const { links = PRIMARY_SITE_LINKS, revealBadge = true } = Astro.props;
   with the badge it animates.
 */}
 <aside
-  class="tl-nav-badge fixed rounded-full overflow-hidden aspect-square top-2 left-2 lg:left-auto lg:right-0 lg:top-0 z-20"
+  class="tl-nav-badge fixed rounded-full overflow-hidden aspect-square top-2 left-2 lg:left-auto z-20"
   data-reveal-badge={revealBadge ? "true" : "false"}
 >
   <input id="tl-nav" type="checkbox" class="tl-nav-toggle peer sr-only" data-tl-nav-checkbox />
@@ -299,10 +299,12 @@ const { links = PRIMARY_SITE_LINKS, revealBadge = true } = Astro.props;
     }
   }
 
-  /* Desktop: badge lives top-right on the page background, not over the
-     hero, so the logo uses the theme ink color throughout (black on light,
-     white on dark) and the white-start reveal is dropped. */
   @media (min-width: 64rem) {
+    .tl-nav-badge {
+      top: calc(0.5rem - 1.5px);
+      right: calc(0.5rem - 7.5px);
+    }
+
     .tl-nav-badge :global(.tl-nav-logo) {
       color: var(--tl-ink);
       animation: none;

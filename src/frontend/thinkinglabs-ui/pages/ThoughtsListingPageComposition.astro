@@ -28,19 +28,10 @@ const page: EntityIndexPage = {
     {
       label: "Last touched",
       title: "Open notebooks.",
-      rows: thoughts.map((thought, index) => ({
-        kicker: String(thoughts.length - index).padStart(3, "0"),
+      rows: thoughts.map((thought) => ({
         title: thought.title,
         href: thought.href,
         summary: thought.excerpt,
-        meta: [
-          `${thought.state.replace("-", " ")}`,
-          `touched ${thought.touched}`,
-          `${thought.minutes} min`,
-          `${thought.backlinks} backlinks`,
-        ],
-        value: thought.words.toLocaleString(),
-        valueLabel: "words",
       })),
     },
   ],
