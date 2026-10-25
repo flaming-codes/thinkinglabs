@@ -326,13 +326,13 @@
       },
       "kind": "function",
       "namespaces": ["value"],
-      "line": 23,
+      "line": 15,
       "column": 17,
       "declarations": [
         {
           "file": "src/lib/llms-full.ts",
           "kind": "function",
-          "line": 23,
+          "line": 15,
           "column": 17
         }
       ]
