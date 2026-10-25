@@ -34,8 +34,9 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          # Resolves to latest 22.x, satisfying the >=22.19.0 engine constraint.
+          # Resolves to latest 22.x, satisfying >=22.19.0 and Astro >=22.23.4.
           node-version: "22"
+          check-latest: true
           cache: pnpm
 
       # --frozen-lockfile ensures the install matches the committed lockfile exactly.
@@ -76,6 +77,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "22"
+          check-latest: true
           cache: pnpm
 
       - name: Install dependencies
