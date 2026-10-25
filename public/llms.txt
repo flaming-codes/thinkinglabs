@@ -57,8 +57,10 @@
 
 - [Contact JSON](/contact.json): Structured contact surface. (Auth: none)
 - [llms.txt](/llms.txt): Agent-readable surface index. (Auth: none)
+- [llms-full.txt](/llms-full.txt): Comprehensive single-context full-text ingestion corpus for AI models. (Auth: none)
 - [skill.md](/skill.md): Capability signaling for agents integrating with the public corpus. (Auth: none)
 - [agent-permissions.json](/agent-permissions.json): Automated-access policy, preferred entrypoints, and rate-limit guidance. (Auth: none)
+- [MCP server card (.well-known/mcp.json)](/.well-known/mcp.json): Machine-readable MCP server card and endpoint discovery. (Auth: none)
 - [Remote MCP endpoint](https://mcp.thinkinglabs.run/mcp): Streamable HTTP MCP server in stateless mode; exposes public resources and tools without cloning the repo. (Auth: none)
 
 ## Feeds

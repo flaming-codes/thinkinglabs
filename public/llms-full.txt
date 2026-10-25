@@ -1,0 +1,1377 @@
+# thinkinglabs — Full Knowledge Corpus
+
+> Personal thinking surface. Markdown source-of-truth at https://github.com/flaming-codes/thinkinglabs.
+> Complete single-turn ingestion document for AI models, coding agents, and contextual assistants.
+> All public claims, thoughts, decisions, projects, predictions, inputs, and observations are included below with full frontmatter metadata and markdown bodies.
+
+## Core Surfaces & Static Pages
+
+### thinkinglabs
+
+- **URL**: / (Markdown: /index.md)
+- **Description**: Site root and entry points.
+
+# thinkinglabs
+
+thinkinglabs is a public working surface generated from a markdown repository.
+
+The HTML site, JSON APIs, feeds, MCP resources, and `.md` page variants are derived from the same validated source tree.
+
+---
+
+### About
+
+- **URL**: /about (Markdown: /about.md)
+- **Description**: About this site and the author.
+
+# About
+
+thinkinglabs is a public working surface.
+
+Canonical public content pages, listings, and selected static pages have agent-readable Markdown siblings: append `.md` to the slashless page URL, or use `/index.md` for the homepage.
+
+Detail variants preserve the source markdown body. Listing and static variants are compact summaries with contract-validated envelopes over the same repository-backed system that feeds the web UI, JSON APIs, SQLite index, feeds, and MCP surfaces.
+
+---
+
+### For agents
+
+- **URL**: /agents (Markdown: /agents.md)
+- **Description**: MCP server, llms.txt, JSON APIs, and feed surfaces.
+
+# For agents
+
+Agent-readable surfaces include `/llms.txt`, `/api/<kind>.json`, public feed files, MCP resources, and `.md` page variants.
+
+Use `.md` variants when the target is a page-shaped representation and JSON or MCP when the target is structured query access.
+
+---
+
+### Brain diff
+
+- **URL**: /brain-diff (Markdown: /brain-diff.md)
+- **Description**: Substantive changes across tracked content.
+
+# Brain diff
+
+Brain diff feeds summarize substantive changes across tracked public content.
+
+---
+
+### Contact
+
+- **URL**: /contact (Markdown: /contact.md)
+- **Description**: Human-readable contact surface.
+
+# Contact
+
+The contact page is the human-readable contact surface. Structured contact data is available at `/contact.json`.
+
+---
+
+### Graph
+
+- **URL**: /graph (Markdown: /graph.md)
+- **Description**: Full-screen 3D rendering of the knowledge network.
+
+# Graph
+
+The graph page renders the public knowledge network. Use the collection APIs or MCP resources for structured graph-like traversal.
+
+---
+
+### Now
+
+- **URL**: /now (Markdown: /now.md)
+- **Description**: Current focus.
+
+# Now
+
+The now page summarizes current focus from public projects and recent inputs.
+
+---
+
+### Privacy
+
+- **URL**: /privacy (Markdown: /privacy.md)
+- **Description**: Privacy notes for the static site.
+
+# Privacy
+
+thinkinglabs is a static site generated from a public markdown repository. The deployed site does not need a production Node runtime.
+
+---
+
+### Prediction calibration
+
+- **URL**: /predictions/calibration (Markdown: /predictions/calibration.md)
+- **Description**: Stated confidence vs realized accuracy.
+
+# Prediction calibration
+
+The calibration page compares stated confidence against realized prediction outcomes.
+
+---
+
+## Claims
+
+> Atomic structured claims with confidence and evidence.
+
+### Agent harnesses absorb complexity that would otherwise require separate infrastructure scaffolding such as service meshes or orchestration engines.
+
+- **URL**: /claims/agent-harness-absorbs-complexity (Markdown: /claims/agent-harness-absorbs-complexity.md)
+- **Source**: content/claims/agent-harness-absorbs-complexity.md
+- **Metadata**: Date: 2026-05-10 | Status: active | Confidence: 0.85
+- **derived_from**: thoughts/agents-enable-radical-simplicity
+
+*(No body content; structured frontmatter-only entry)*
+
+---
+
+### An agent runtime allows a small set of well-written instructions to substitute for what previously required a small platform.
+
+- **URL**: /claims/agent-runtime-substitutes-for-platform (Markdown: /claims/agent-runtime-substitutes-for-platform.md)
+- **Source**: content/claims/agent-runtime-substitutes-for-platform.md
+- **Metadata**: Date: 2026-05-10 | Status: active | Confidence: 0.8
+- **derived_from**: thoughts/agents-enable-radical-simplicity
+
+*(No body content; structured frontmatter-only entry)*
+
+---
+
+### Agent-based systems collapse the surface area of complexity: the branching is real but requires no extra system to deploy, monitor, version, or onboard people to.
+
+- **URL**: /claims/agent-systems-collapse-surface-area (Markdown: /claims/agent-systems-collapse-surface-area.md)
+- **Source**: content/claims/agent-systems-collapse-surface-area.md
+- **Metadata**: Date: 2026-05-10 | Status: active | Confidence: 0.8
+- **derived_from**: thoughts/agents-enable-radical-simplicity
+
+*(No body content; structured frontmatter-only entry)*
+
+---
+
+### Shifting cost from infrastructure to writing well is a favorable trade-off.
+
+- **URL**: /claims/cost-shift-from-infra-to-writing-favorable (Markdown: /claims/cost-shift-from-infra-to-writing-favorable.md)
+- **Source**: content/claims/cost-shift-from-infra-to-writing-favorable.md
+- **Metadata**: Date: 2026-05-10 | Status: active | Confidence: 0.85
+- **derived_from**: thoughts/agents-enable-radical-simplicity
+
+*(No body content; structured frontmatter-only entry)*
+
+---
+
+### Decision logic that previously required state machines, config files, DSLs, or feature-flag services can now be expressed as a few paragraphs of natural-language instruction inside an agent harness.
+
+- **URL**: /claims/decision-logic-as-natural-language (Markdown: /claims/decision-logic-as-natural-language.md)
+- **Source**: content/claims/decision-logic-as-natural-language.md
+- **Metadata**: Date: 2026-05-10 | Status: active | Confidence: 0.8
+- **derived_from**: thoughts/agents-enable-radical-simplicity
+
+*(No body content; structured frontmatter-only entry)*
+
+---
+
+### In an agent-based system, the prompt simultaneously serves as the specification and the implementation.
+
+- **URL**: /claims/prompt-is-spec-is-implementation (Markdown: /claims/prompt-is-spec-is-implementation.md)
+- **Source**: content/claims/prompt-is-spec-is-implementation.md
+- **Metadata**: Date: 2026-05-10 | Status: active | Confidence: 0.75
+- **derived_from**: thoughts/agents-enable-radical-simplicity
+
+*(No body content; structured frontmatter-only entry)*
+
+---
+
+### Radical simplicity means fewer moving parts per unit of capability, not fewer features.
+
+- **URL**: /claims/radical-simplicity-fewer-parts-per-capability (Markdown: /claims/radical-simplicity-fewer-parts-per-capability.md)
+- **Source**: content/claims/radical-simplicity-fewer-parts-per-capability.md
+- **Metadata**: Date: 2026-05-10 | Status: active | Confidence: 0.9
+- **derived_from**: thoughts/agents-enable-radical-simplicity
+
+*(No body content; structured frontmatter-only entry)*
+
+---
+
+## Thoughts
+
+> Long-form prose, by recency.
+
+### The agent harness is the new IDE
+
+- **URL**: /thoughts/agent-harness-is-the-new-ide (Markdown: /thoughts/agent-harness-is-the-new-ide.md)
+- **Source**: content/thoughts/agent-harness-is-the-new-ide.md
+- **Metadata**: Tags: #agents #tools #development
+- **observations**: observations/agent-work-is-becoming-supervisory
+
+The agent harness is the new IDE.
+
+That sounds grandiose until I look at my own behavior. VS Code used to be the place where software work happened: the project tree, the terminal, search, type errors, tests, notes, diffs, habits. Now those surfaces still exist, but they have slipped behind the agent. The desktop apps for Codex and Claude Code have become the primary environment, and the editor has become an implementation detail.
+
+The important shift is not that an agent can write code. It is that the harness now holds the working context: the repository, the instructions, the shell, the browser, the review loop, the memory of what has been tried, and the ability to move from intention to patch to validation without forcing me to keep every intermediate state in my head. The old IDE optimized the human's direct manipulation of files. The new one optimizes delegation, inspection, and correction.
+
+This changes the shape of craft. I still care about the same things: readable code, tight feedback loops, tests that mean something, source-of-truth boundaries, reversible decisions. But I increasingly express that craft as constraints and reviews around an agentic runtime rather than as keystrokes inside an editor. The skill is moving up a layer.
+
+There is a strange intimacy to this. VS Code was where I lived with the code. Codex and Claude Code are where I now live with the work.
+
+---
+
+### Agent harnesses are state machines
+
+- **URL**: /thoughts/agent-harnesses-are-state-machines (Markdown: /thoughts/agent-harnesses-are-state-machines.md)
+- **Source**: content/thoughts/agent-harnesses-are-state-machines.md
+- **Metadata**: Tags: #agents #harnesses #state-machines #workflows
+- **observations**: observations/frontier-models-follow-complex-instructions
+
+I increasingly see a properly configured agent harness as a state machine.
+
+The states do not have to be encoded as a formal graph. They can live in prompts, skills, lifecycle hooks, quality gates, and tool permissions. But the shape is the same: the agent begins in one condition, inspects the world, decides which transition is legal, performs the next action, validates the result, and either advances, retries, escalates, or stops.
+
+I noticed this most clearly while setting up a harness for an internal prototypes repository, where the agent is responsible for effectively doing all the work around the prototype, not merely writing code inside an already-prepared environment. It checks whether the environment exists. It makes sure the user has GitHub available and is logged in. It creates and configures the app correctly. It runs the relevant setup, commits the result, pushes the branch, and leaves the team with something that can actually be inspected or continued.
+
+That sounds like convenience until you ask Codex to draw the state flow. Then the hidden machine becomes visible. The diagram was longer and more complex than I expected: a real workflow with preflight checks, branches, retries, missing-prerequisite paths, validation gates, and handoff points. What I had experienced as "the agent just handles the setup" was, underneath, a fairly elaborate operating procedure.
+
+The important part is that this procedure was not trapped inside some brittle orchestration service. It was expressed in the harness. The repository carried its own working protocol: what the agent should assume, what it must verify, which tools it may use, when it should stop, and what counts as done. The harness turned a messy human setup ritual into a reusable machine.
+
+This is why harness quality matters so much. A weak harness gives the model a vague destination and hopes capability fills in the path. A strong harness defines the path as a sequence of recoverable states. The frontier model still supplies judgment, language, code, and local adaptation, but it is not wandering through an empty field. It is moving through a designed workflow.
+
+As of this writing, models like GPT-5.5 and Claude Opus 4.7 are good enough at detailed instruction following that these natural-language state machines can be surprisingly deep. Skills make this even more interesting, because they let the top-level harness stay readable while moving domain-specific procedure into nested, task-specific instruction sets. The result is not just a smarter agent. It is an agent whose operational behavior can be shaped, versioned, reviewed, and improved like infrastructure.
+
+The team benefit is immediate. People can spin up prototypes without caring about most of the setup, and without every contributor having to rediscover the local ceremony. The harness becomes the place where the ceremony is captured once, made explicit, and handed to the agent.
+
+---
+
+### Agent harnesses will move onto the shelf
+
+- **URL**: /thoughts/agent-harnesses-will-move-onto-the-shelf (Markdown: /thoughts/agent-harnesses-will-move-onto-the-shelf.md)
+- **Source**: content/thoughts/agent-harnesses-will-move-onto-the-shelf.md
+- **Metadata**: Tags: #agents #harnesses #marketplaces
+- **inputs**: anthropic-claude-managed-agents, openai-workspace-agents-chatgpt
+- **observations**: observations/github-scaling-pressure-from-agent-generated-repos
+
+The next useful abstraction for agents is not another chat box. It is the shelf.
+
+Today, a serious agent is still something a team has to assemble: model, prompt, tools, MCP servers, runtime, permissions, secrets, memory, file system, cloud environment, evaluation loop, lifecycle rules, and a surface where the agent can be asked to work. That is a lot of scaffolding before the first useful task begins. It is also repetitive scaffolding. A "CMS and frontend agent using Next.js and PayloadCMS on DigitalOcean" should not need to be reinvented by every team that wants a site changed, migrated, audited, or extended.
+
+The obvious next move is to rent the harness, not merely call the model. A team asks for a job to be done, and the user's main agent, perhaps Claude or ChatGPT sitting in Slack, acts as broker. It inspects the request, the repository, the permissions, the budget, and the desired outcome, then selects a specialized agent with the right harness already attached. The billing unit might be tokens, execution time, completed subtasks, or some blended meter; the more important shift is that the operational package becomes portable.
+
+This is what the templatization of agent harnesses enables. Once an agent can be described as a stable bundle of instructions, skills, connectors, environment, policy, and quality gates, it can be versioned, compared, rented, improved, and swapped. The buyer does not want "access to a model." They want a known kind of work performed inside a known kind of runtime.
+
+Anthropic's Managed Agents and OpenAI's Workspace Agents do not yet amount to a public bazaar of rentable specialists. But they make the shape visible. The harness is becoming a product boundary. Once that boundary hardens, agents stop looking like bespoke internal automations and start looking like labor units that can be put on a shelf.
+
+---
+
+### Agent surfaces are feedback-loop shaped
+
+- **URL**: /thoughts/agent-surfaces-are-feedback-loop-shaped (Markdown: /thoughts/agent-surfaces-are-feedback-loop-shaped.md)
+- **Source**: content/thoughts/agent-surfaces-are-feedback-loop-shaped.md
+- **Metadata**: Tags: #agents #development #workflows
+
+Agent surfaces are feedback-loop shaped.
+
+Tagging Claude or Codex in a communication channel like Slack makes the most sense when the loop is almost embarrassingly short: I send a request, the agent replies with a confirmation, and the work either is done or is clearly queued somewhere else. The channel is useful because the interaction is lightweight, shared, and close to the place where the request naturally appears.
+
+As soon as the work needs more than one or two turns of correction, the center of gravity moves. A desktop app or CLI is still the better interface for iterative agent work because it gives the loop somewhere to live: context, files, diffs, logs, tests, failures, retries, and all the small course corrections that make the work real. Local development with agents enables the most sophisticated feedback loops because the agent is sitting inside the same environment as the artifact it is changing.
+
+Cloud agents sit between those poles. They are easier to manage across parallel work streams, which matters when several pieces can move independently, but they are slower and more distant because each stream has to spin up inside a virtual machine before it can become useful. That trade is often worth it for parallelism, but it is not the same thing as immediacy.
+
+The right surface is not "chat versus IDE versus cloud." It is the shortest loop that can still hold the work.
+
+---
+
+### Agents enable radical simplicity
+
+- **URL**: /thoughts/agents-enable-radical-simplicity (Markdown: /thoughts/agents-enable-radical-simplicity.md)
+- **Source**: content/thoughts/agents-enable-radical-simplicity.md
+- **Metadata**: Tags: #agents #simplicity #prompts #skills
+- **claims**: agent-harness-absorbs-complexity, decision-logic-as-natural-language, prompt-is-spec-is-implementation, radical-simplicity-fewer-parts-per-capability, agent-runtime-substitutes-for-platform, cost-shift-from-infra-to-writing-favorable, agent-systems-collapse-surface-area
+
+Agents enable radical simplicity.
+
+For an internal prototyping setup, I asked Codex to draw a flow diagram of an existing system already in use inside Wild. The diagram came back, and the thing that struck me was not the picture itself but what it revealed: the flows and decision trees inside that project are dense, branching, conditional. Real software-shaped complexity. None of it lives in a service mesh or an orchestration engine. It lives as prompts and skills inside that project's agent harness.
+
+The harness absorbs the complexity that would otherwise need its own scaffolding. Decision logic that used to require a state machine, a config file, a small DSL, or a feature-flag service is now a few paragraphs of natural-language instruction sitting next to the code it acts on. The branching is real, but the surface area collapses. There is no extra system to deploy, monitor, version, or onboard people to. The prompt is the spec is the implementation.
+
+This is what I mean by radical simplicity: not "fewer features," but fewer moving parts per unit of capability. The agent is the runtime that lets a small set of well-written instructions stand in for what used to demand a small platform. The cost moves from infrastructure to writing well, which is a trade I will take every time.
+
+---
+
+### Agents lift data journalism up the stack
+
+- **URL**: /thoughts/agents-make-forensic-journalism-more-ordinary (Markdown: /thoughts/agents-make-forensic-journalism-more-ordinary.md)
+- **Source**: content/thoughts/agents-make-forensic-journalism-more-ordinary.md
+- **Metadata**: Tags: #agents #journalism #data-analysis #deep-research
+
+Agents lift data journalism up the stack.
+
+The old frontier version of this craft is Christo Grozev and Bellingcat: journalism as adversarial data archaeology. In the Navalny investigation, Bellingcat moved through phone metadata, passenger manifests, leaked databases, social traces, vehicle registrations, geolocation, and pattern matching until a hidden state operation became legible. Their own [methodology write-up](https://www.bellingcat.com/resources/2020/12/14/navalny-fsb-methodology/) reads less like a conventional article than a forensic notebook: one dataset suggests a lead, another corroborates it, a suspicious travel pattern becomes a name, a name becomes a phone number, a phone number becomes a workplace, and eventually the outline of an assassination team appears. Meduza's [interview with Grozev](https://meduza.io/en/feature/2020/12/18/it-s-always-a-choice) makes the technical substrate explicit: Bellingcat used MySQL to filter call and data-usage records before manually mapping work-hour locations, then cross-checked records from multiple sources to guard against poisoned data.
+
+I do not know enough about newsroom staffing to make a confident claim about who used to do what, or how often journalists depended on software engineers, data teams, or self-taught technical fluency. That is not the point I can see clearly. The clearer point is the correlation between technical leverage and journalistic possibility. When an investigation depends on finding patterns in messy records, reconciling inconsistent files, querying metadata, reading hundreds or thousands of documents, or testing whether a hunch survives contact with the data, the available tooling changes the questions a journalist can practically ask.
+
+This is where frontier-model agents feel structurally important. They do not make journalistic judgment obsolete, and they do not make evidence less demanding. They change the level at which a journalist can work. Instead of spending attention on the incidental mechanics of the toolchain, a journalist can stay closer to the requirement: What would count as evidence? Which records need to agree? Where could the data be poisoned? What alternative explanations would weaken the story? What is missing? What would make this claim unfair?
+
+The agent becomes a technical collaborator inside that loop. It can help sketch a schema, clean a CSV, write a query, compare documents, cluster records, build a scraper, normalize dates, inspect PDFs, create a map, produce a timeline, test an anomaly, explain a statistical caveat, or write the small script needed to answer the next question. None of those acts is "the journalism" by itself. They are the scaffolding around the judgment. But lowering the cost of that scaffolding matters enormously, because more of the human attention can move up the stack.
+
+This is already visible in modest form. ProPublica [described using an LLM](https://www.propublica.org/article/using-ai-responsibly-for-reporting) to examine more than 3,400 National Science Foundation grant descriptions from Senator Ted Cruz's "woke" grants database, with reporters reviewing and confirming every detail before publication. The AI did not publish the story. It helped reporters generate leads and see patterns in a pile of text large enough to resist casual reading. OpenAI's [deep research](https://help.openai.com/en/articles/10500283-research-faq) points in the same direction for source synthesis: multi-step web research, citations, and analyst-style reporting over large bodies of material. [ChatGPT agent](https://help.openai.com/en/articles/11752874-chatgpt-agent) goes further by combining research with action: browser use, terminal work, code execution, API access, spreadsheets, and iterative collaboration.
+
+The interesting opportunity is not "AI writes the article." That is the least interesting and most dangerous version of the story. The interesting opportunity is that agentic engineering gives data-driven journalism a more fluid working surface. A journalist can begin with a question in ordinary language and move, with the agent, through research, files, code, queries, spreadsheets, and verification without constantly dropping down into the machinery. The work still has to become specific. It still has to produce receipts. But the path from question to test becomes shorter.
+
+Deep research is the reading room. Agentic engineering is the room with power tools.
+
+The discipline is to keep the agent in the role of technical collaborator. It can help operate on the journalist's data, but the claims still need provenance, reproduction, and editorial judgment.
+
+But that is a better bottleneck. The scarce skill shifts away from operating every piece of machinery by hand and toward asking sharper questions, designing better checks, weighing evidence, and understanding the public interest. Grozev's work showed what becomes possible when journalistic instinct meets forensic data skill. Agents do not replace that combination. They make it easier for more work to happen at that altitude.
+
+---
+
+### The harness makes agentic code hold up
+
+- **URL**: /thoughts/ai-code-output-is-not-software-progress (Markdown: /thoughts/ai-code-output-is-not-software-progress.md)
+- **Source**: content/thoughts/ai-code-output-is-not-software-progress.md
+- **Metadata**: Tags: #agents #harness #software #management #startups
+
+I think the hard part of agentic software engineering is not getting an agent to produce code. That part is becoming cheap. The hard part is getting an agent to produce changes that still belong to the same codebase after the fifth, tenth, or fiftieth patch.
+
+The naive workflow is almost designed to fail at that. Write a prompt, let the agent generate a large diff, run one review, maybe skim the tests, then merge if the output looks plausible. This can feel productive because the visible artifact is large. It can also be a near guarantee of many results that are technically impressive and structurally bad.
+
+The problem is that software work is not a factory problem where every additional unit is automatically evidence of health. A codebase is a living constraint system. Every new file, abstraction, dependency, generated helper, and half-understood integration enters that system and starts charging rent. If the process does not preserve the model of the system, agentic coding can create complexity faster than the team can understand it.
+
+This is where I think the agent harness becomes the key factor. The harness is not just a nicer prompt wrapper. It is the operating environment that raises the floor of the work: the standing instructions, the local skills, the repository-specific documentation, the quality gates, the review habits, the shell, the browser, the issue context, the conventions, and the accumulated memory of how this codebase wants to be changed.
+
+A good harness lets agents create a lot of change while keeping the codebase cohesive. It gives the agent more than a task. It gives it a way to behave inside the project. It tells the agent where truth lives, which patterns are local rather than generic, which files are generated, which commands matter, which abstractions are already trusted, and which kinds of cleverness are unwelcome.
+
+Without that environment, the agent is mostly acting from the prompt and its general model of software. That can be enough for isolated tasks. It is not enough for sustained engineering. Sustained engineering requires repeated contact with the local reality of the system. The agent has to learn, or be continuously reminded, that this repository has its own source-of-truth boundaries, naming habits, testing expectations, architectural decisions, and failure modes.
+
+I believe this is where small companies and startups are more exposed, in both directions. If they use a simplistic agent workflow, the over-complexity, drift, and hidden regressions show up quickly. The team is small, the codebase is changing fast, and there are fewer buffers between bad engineering behavior and customer-visible pain. A startup that uses agents to generate impressive piles of code nobody can reason about may not have enough time to discover the problem slowly.
+
+The same exposure can also make them better. If agentic software engineering has to work for the company to survive, the team has a strong reason to discover the process that actually works. It has to learn when to ask for exploration, when to ask for a small patch, when to split work across agents, when to run tests, when to stop and re-plan, when to delete, and when to reject a plausible implementation because it does not fit the system.
+
+Large enterprises often have a different feedback loop. I do not think the issue is that their engineers are worse. The issue is that inefficient agentic workflows can survive longer inside a successful organization. A team can count generated output as progress. A division can reward visible throughput. A platform group can normalize agent-produced complexity. Because the business is still carried by an existing product, platform, distribution advantage, or customer relationship, the cost may propagate slowly through architecture, review culture, dependency graphs, and staffing plans before it becomes impossible to ignore.
+
+The risk, then, is not simply "AI writes bad code." The risk is that an organization adopts a thin process for agentic work and then measures the output of that thin process as success. More pull requests, more generated files, more closed tickets, more prototypes: all of that can look like acceleration from a managerial distance. But if the harness is weak, the output may be weakening the codebase faster than it is improving the product.
+
+Good agentic engineering seems to require almost the opposite instinct. The leverage is not that an agent can write a large amount of code. The leverage is that a disciplined process can use agents to explore, compress, delete, test, document, and validate with less friction. The question is not "how much did the agent produce?" The question is "what burden did the system avoid, remove, or make clearer?"
+
+In my experience, the harness is what makes that bar realistic. A strong prompt matters, but the prompt alone is not the process. Skills matter because they encode repeatable local procedures. Deep integration of local documentation matters because it gives the agent the context that a senior engineer would otherwise carry in memory. Quality gates matter because they turn taste and correctness into recurring pressure rather than occasional hope.
+
+The companies that use agents well may not be the ones that generate the most code. They may be the ones that build the best environment around generation: enough instruction to constrain the work, enough documentation to ground it, enough skills to make good behavior repeatable, enough tests to catch drift, and enough review discipline to reject plausible nonsense.
+
+Startups are pushed toward that discipline by the possibility of vanishing. Enterprises, when they lack that immediate threat, may have to choose the discipline deliberately and earlier than their normal feedback loops require. In both cases, I think the real question is not whether the company is using AI to write code. It is whether the agentic process is strong enough for the code to hold up.
+
+---
+
+### App stores will evolve into agent markets
+
+- **URL**: /thoughts/app-stores-will-evolve-into-agent-markets (Markdown: /thoughts/app-stores-will-evolve-into-agent-markets.md)
+- **Source**: content/thoughts/app-stores-will-evolve-into-agent-markets.md
+- **Metadata**: Tags: #agents #app-stores #marketplaces
+- **inputs**: anthropic-claude-managed-agents, openai-workspace-agents-chatgpt
+
+The app store was the distribution primitive for software you owned, installed, and opened. The agent market will be the distribution primitive for work you delegate.
+
+That sounds like a small naming change, but it changes what is being sold. The old store sold an interface and a bundle of capabilities. The new one sells a configured worker: tools, permissions, runtime, taste, process knowledge, escalation behavior, and a billing model wrapped around execution. You do not download the "marketing calendar app." You rent the "marketing operations agent" for a launch week and let your primary assistant broker the handoff.
+
+The closest ancestor is not only the mobile app store. It is also the plugin marketplace, the SaaS integration catalog, the cloud marketplace, the automation template gallery, and the consulting bench. Agent markets compress those categories into a single object: a reusable work pattern with enough autonomy to be worth governing and enough specificity to be worth discovering.
+
+This is why the next agent distribution layer will care less about screenshots and more about trust. What data can this agent see? What tools can it call? Who authored the harness? Which outcomes has it completed? What does it cost when it runs for six hours? Can my organization pin a version, audit its actions, and revoke it without breaking everything else?
+
+There is no clean public agent app store yet from OpenAI or Anthropic. Still, Workspace Agents already point toward a team directory and templates; Managed Agents point toward packaged harnesses and environments. Put those motions together and the destination is hard to miss: app stores stop being catalogs of software surfaces and become catalogs of delegated execution.
+
+---
+
+### Design will be seed driven
+
+- **URL**: /thoughts/design-will-be-seed-driven (Markdown: /thoughts/design-will-be-seed-driven.md)
+- **Source**: content/thoughts/design-will-be-seed-driven.md
+- **Metadata**: Tags: #design #ai #design-systems #seeds #generative-design
+
+Design in the near future will be seed driven.
+
+Instead of defining every component, token, interaction, motion curve, and writing guideline manually, designers using AI will create a set of seed semantics: a detailed description of the design system and brand, with key definitions precise enough to generate from. That manifest becomes the seed. From it, the system creates tokens, components, motion, behavior, language, accessibility rules, and other guidelines.
+
+The seed then acts as the reference point for every future generation of that seed version. The output becomes exponential because each new screen, component, variant, prototype, deck, or product surface does not start from a blank prompt. It starts from a structured brand definition that already knows what "on brand" means.
+
+This preserves control over the core brand aesthetic and its deeper definition. The better the seed, the more aligned the generated work becomes. In that world, the quality of design process depends less on manually policing every artifact and more on improving the seed until generation becomes reliable.
+
+Seeds also imply versioning. Outputs need generation metadata attached to them: which seed version produced this, with which constraints, model, prompt, and transformation history. Without that lineage, generated design becomes impossible to audit, compare, or reproduce.
+
+This is a strong contrast to tools like Figma and other common design environments, which remain literal about design artifacts. They are excellent at arranging objects, but they do not treat design as a structured semantic data model first. Seed-driven design starts from the opposite assumption: the foundation is not the canvas, but the generative definition behind it.
+
+---
+
+### Expensive AI code review is not insane
+
+- **URL**: /thoughts/expensive-ai-code-review-is-not-insane (Markdown: /thoughts/expensive-ai-code-review-is-not-insane.md)
+- **Source**: content/thoughts/expensive-ai-code-review-is-not-insane.md
+- **Metadata**: Tags: #agents #code-review #pricing #software
+- **inputs**: anthropic-claude-code-review-pricing, openai-codex-pricing
+
+Anthropic estimates Claude Code Review at roughly $15 to $25 per PR. At first glance, that sounds insane.
+
+The comparison that makes it feel insane is Codex. OpenAI's Codex Pro tier starts at $100 per month, and for many day-to-day coding workflows the usage envelope can feel close to unlimited, especially next to a review product that might consume a meaningful fraction of that subscription on a single pull request. The instinctive reaction is: how can one review cost that much?
+
+But I think the reason is simple. A real review by a senior engineer, the kind of review that is actually worth its salt, is not a glance at the diff. It is ten to thirty minutes of attention, sometimes more: reading the change, reconstructing intent, checking edge cases, asking whether the local fix violates a distant invariant, and deciding which comments are worth spending another human's time on. The expensive part is not generating text. The expensive part is sustained judgment over a live codebase.
+
+Seen that way, $15 to $25 is not priced against tokens. It is priced against senior engineering attention. And against that benchmark, it is still cheaper than a human review, while being fully automated, non-blocking, and available in the background whenever the organization chooses to spend it.
+
+That does not make it a casual developer feature. This is big-enterprise economics: high-trust automation attached to expensive teams, expensive codebases, and expensive mistakes. But it also means the price is less outlandish than it first appears. If the review is genuinely good, the surprising part is not that it costs real money. The surprising part is that we briefly expected serious code review to be priced like autocomplete.
+
+---
+
+### OpenAI may want the social layer for humans and agents
+
+- **URL**: /thoughts/openai-hybrid-human-agent-social-infrastructure (Markdown: /thoughts/openai-hybrid-human-agent-social-infrastructure.md)
+- **Source**: content/thoughts/openai-hybrid-human-agent-social-infrastructure.md
+- **Metadata**: Tags: #openai #agents #social-infrastructure #platforms #identity
+- **inputs**: openai-codex-profiles-activity, openai-chatgpt-apps-directory, openai-agentic-commerce-protocol, openai-workspace-agents-chatgpt, moltbook-agent-social-network-research
+
+The profile signal is modest, but its texture is suggestive. A Codex user can now be rendered as a recognizable identity: named, pictured, handle-like, and accompanied by traces of activity, streaks, cumulative usage, and even plugin preferences. In isolation, this might amount to little more than the ordinary sediment of product maturity; many tools eventually accrete profile pages once their use becomes social, competitive, administrative, or shareable.
+
+The larger question is whether this is one tile in a much bigger floor. OpenAI has strong incentives to become the operating layer for human-agent interaction: the place where a person's intent, memory, permissions, subscriptions, apps, agents, purchases, collaborators, and work history are coordinated. Apple made the iPhone and App Store into a distribution and identity surface for mobile software. OpenAI could try to do something adjacent for agents: not only provide the intelligence, but own the layer where humans, personal agents, workplace agents, third-party apps, merchants, and other agents become legible to one another.
+
+"Social infrastructure" does not have to mean OpenAI launches a classic public feed. The more likely version is quieter: profiles, handles, agent cards, app and agent directories, shareable work artifacts, activity graphs, team and public identity, permissioned delegation, reputation signals, and request channels where a human can address an agent, an agent can represent a human, and another service can decide whether to trust the interaction. In that form, the social layer is less like Facebook and more like an address book, app store, operating system account, collaboration graph, and protocol gateway fused into one agentic surface.
+
+The thing I am watching for is whether the pieces begin to connect. ChatGPT as an assistant, Codex as a developer tool, Apps as an app directory, Workspace Agents as private enterprise automation, and commerce as product discovery could all remain separate product lines. But if OpenAI starts binding them together with persistent human profiles, agent identities, shareable artifacts, cross-user invocation, public or semi-public activity, reputation, provenance, and delegation, then the shape changes. The platform stops being merely a place where agents run and starts becoming the place where humans and agents recognize one another.
+
+I would put the probability around 50%. I am not convinced OpenAI will go all the way, because a social layer invites moderation, privacy, governance, impersonation, ranking, spam, and platform-politics problems that a model provider might prefer to leave to others. But the strategic pull is strong. The company that owns the trusted human-agent identity surface may own the default path through which agentic work, agentic commerce, and agent-to-agent coordination become ordinary.
+
+---
+
+### It is starting to feel strange when the work stops as I sleep
+
+- **URL**: /thoughts/the-work-should-not-stop-when-i-sleep (Markdown: /thoughts/the-work-should-not-stop-when-i-sleep.md)
+- **Source**: content/thoughts/the-work-should-not-stop-when-i-sleep.md
+- **Metadata**: Tags: #agents #autonomy #harnesses
+
+It is starting to feel strange when the work stops as I sleep.
+
+There is an old line about wealth that says you are not really rich unless your money earns while you are asleep. I dislike most of the atmosphere around that sentence: the status anxiety, the financialized self-help, the faint smell of someone trying to sell you a course. But after stripping all that away, there is a useful shape underneath it. Certain systems start to feel different once they can keep doing useful things after your attention has left the room.
+
+Agents are beginning to rhyme with that feeling. If every useful action requires me to sit there, approve the next step, paste the next command, watch the next test run, and decide the next branch, then the agent still feels close to an interface: powerful, useful, often impressive, but tethered to my continuous presence. The stranger feeling begins when the agent can accept a bounded job, carry context forward, make reversible progress, validate its own work, and come back with evidence.
+
+Sleep is a good test because it removes the comforting fiction of continuous supervision. While I am awake, even a fragile agent can feel autonomous because I am quietly holding the whole system together: noticing when it drifts, supplying missing context, approving tool calls, restarting failed processes, interpreting ambiguous errors. Overnight work exposes whether the harness actually contains the job. Does the agent have the repository, credentials, budget, permissions, tests, memory, stopping rules, escalation path, and review surface it needs? Or does it only look capable while a human is nearby to catch every dropped thread?
+
+The point is not that I should be working while asleep. It is almost the opposite. The point is to separate progress from vigilance. A good agentic setup should let me define the shape of acceptable work, go away, and return to something inspectable: a branch, a failing test with diagnosis, a draft, a queue of proposals, a narrowed question with the relevant context already gathered. Morning should not contain magic. It should contain receipts.
+
+Attended agents are already a core part of how I work, and I do not want to diminish that mode. Sitting with an agent, steering it, correcting it, and using it as an extension of attention is genuinely useful. But there is another mode beginning to come into view. We already accept background competence from CI, cron, monitors, queues, and deployment systems. Agents seem likely to join that family, but with more judgment and therefore a much stricter need for harness. An agent without overnight competence can still be excellent. It just belongs to a different rhythm of work.
+
+I do not think this is a definition yet. It is more of a taste forming in real time: once an agent can plausibly keep working while I sleep, it becomes harder not to expect that from the category.
+
+---
+
+## Projects
+
+> Active and dormant work, grouped by status.
+
+### Agent Harness
+
+- **URL**: /projects/agent-harness (Markdown: /projects/agent-harness.md)
+- **Source**: content/projects/agent-harness.md
+- **Metadata**: Status: alive | Tags: #agents #open-source #wild #typescript #cli #mcp #codex #claude #copilot #cursor
+- **related_thoughts**: agent-harness-is-the-new-ide
+
+Agent Harness is an open-source Made by Wild monorepo for managing AI agent configuration from one canonical `.harness/` directory. It treats prompts, skills, MCP server configs, subagents, commands, settings, lifecycle hooks, presets, and registries as source-controlled entities, then renders the provider-native outputs expected by Codex, Claude Code, GitHub Copilot, and Cursor.
+
+The core package, `@madebywild/agent-harness-framework`, is both a TypeScript library and the `harness` CLI. It handles workspace initialization, provider enablement, planning, validation, apply, watch mode, schema migration, registry pulls, third-party skill imports, and U-Haul migration from existing provider files such as `AGENTS.md`, `CLAUDE.md`, `.mcp.json`, and Copilot instructions. The model is deliberately close to shadcn: shared agent assets are copied into the project as editable source, not hidden behind opaque package imports.
+
+The supporting packages keep the boundaries explicit. `@madebywild/agent-harness-manifest` owns the Zod schemas and TypeScript types for manifests, lock files, overrides, registries, and generated indexes. `@madebywild/agent-harness-tui` provides the Ink and React terminal UI used when `harness` runs interactively, so the same engine can serve both direct commands and a guided setup flow.
+
+The repo is less about a single CLI command than about a source-of-truth contract. Canonical files live under `.harness/src/**`; generated artifacts land where each provider expects them: `AGENTS.md`, `CLAUDE.md`, `.github/copilot-instructions.md`, provider skill folders, MCP config files, subagent definitions, hook files, and Codex TOML state. Planning detects drift, collisions, unmanaged outputs, stale generated files, and schema mismatches before apply writes anything.
+
+What makes the project interesting to me is that it turns agent setup into infrastructure rather than folklore. As agents become the working surface for software development, the project-specific harness starts to matter as much as the editor configuration did. Agent Harness is the attempt to make that layer inspectable, portable, provider-aware, and owned by the repository.
+
+---
+
+### CRAN/E
+
+- **URL**: /projects/crane-app (Markdown: /projects/crane-app.md)
+- **Source**: content/projects/crane-app.md
+- **Metadata**: Status: shipped | Tags: #r #search #pwa #react-router #supabase #mcp #analytics
+
+CRAN/E is "The Comprehensive R Archive Network, Enhanced": a modern search and discovery surface for R packages and authors hosted on CRAN. It is not a package host. It is an interface layer over the archive, built because finding the right package should not require fighting the shape of the old CRAN website.
+
+The public app lives at [cran-e.com](https://cran-e.com) and is designed as a progressive web app. The current codebase is a TypeScript and React 19 application on React Router 7 with Vite, Tailwind CSS, Supabase, Arcjet, OpenTelemetry, Vitest, Playwright, Storybook, the Vercel AI SDK, Google Gemini, and embedding-backed search. It also has a Raycast extension ecosystem nearby, because package search belongs where developers are already moving.
+
+The core user experience is search, but the project has grown into a broader map of the R package ecosystem. Package pages pull together dependencies, relations, maintainers, authors, downloads, binaries, documentation, teams, insights, structured metadata, and FAQ data. Statistics pages track page trends, package downloads, package trends, and R releases, with some summary work delegated to Gemini.
+
+CRAN/E also exposes a read-only MCP server at `/api/mcp`. That matters because package discovery is no longer only a browser workflow. Agents should be able to ask the same structured questions that a person asks: find a package, inspect an author, search broadly, or look for related packages through stable `cran://` resources.
+
+The project is shipped and maintained, with versioned releases and dependency/security work still happening. The next version of the question is less "can CRAN be searched better?" and more "what does an agent-readable software ecosystem index make possible for working R programmers?"
+
+---
+
+### flaming.codes
+
+- **URL**: /projects/flaming-codes-web (Markdown: /projects/flaming-codes-web.md)
+- **Source**: content/projects/flaming-codes-web.md
+- **Metadata**: Status: alive | Tags: #web #writing #react-router #publishing #frontend #ai #internationalization
+
+flaming.codes is my long-running technical publishing surface: articles, tutorials, experiments, project notes, and a public profile wrapped into one site. It is also a web-platform playground, which means the implementation keeps changing as the edge of the frontend stack changes.
+
+The current tracked app is a React Router 7 and React 19 site using TypeScript, Tailwind CSS, Vite, Motion, Fuse.js, Satori/Resvg, and a Markdown pipeline built on Unified, Remark, and Rehype. Content is served from a static-file CMS under locale folders, with Markdown posts plus JSON previews, suggestions, categories, and addenda. The archive is substantial enough to make the system matter: the local English content index contains 125 posts, 21 categories, and the CMS spans 17 locale directories.
+
+The site has accumulated the kind of infrastructure that only appears when a personal site is used for years rather than launched once: fuzzy search, RSS, sitemap generation, generated Open Graph images, locale routing, RTL support, privacy-friendly analytics, and a homepage visual built from animated depth-aware flocking. Some content also records when AI tools were part of the writing or image workflow, because publishing experiments should leave an audit trail.
+
+There is a newer migration sitting beside the current app, aimed at Next.js 16 and PayloadCMS. That work is a sign of the project's present tense. flaming.codes is already shipped, but it is not finished in the museum sense. The question is how to preserve the publishing loop while giving the content model more room to grow.
+
+The site matters because it is not only a place where work is displayed. It is one of the places where the work happens: a durable archive, a testbed for modern web architecture, and a public record of what I was trying to understand at the time.
+
+---
+
+### Flamli
+
+- **URL**: /projects/flamli (Markdown: /projects/flamli.md)
+- **Source**: content/projects/flamli.md
+- **Metadata**: Status: alive | Tags: #agents #ai #deno #slack #automation #self-hosting
+
+Flamli is a self-hosted chat agent that treats Slack and Discord as the primary interface, not as notification sidecars. The interesting part is not that it can answer messages. The interesting part is that the agent runtime is built around identity, policy, memory, scheduling, and a deliberately constrained ability to change its own skills.
+
+The project runs on Deno 2 with TypeScript, Hono, the Vercel AI SDK, Ollama support, Slack Bolt, Zod, Deno KV, and optional Redis. Its HTTP surface is operational rather than decorative: health checks, readiness, and webhooks for Slack and Discord. Most of the real design lives behind that surface in adapter handling, caller-scoped state, scheduler dispatch, and the set of tools assembled for each agent turn.
+
+Flamli is also a test of how much agency can be made boring enough to trust. Mutation tools can write, delete, and roll back skills, but only through explicit policy gates. Terminal access exists, but is optional, non-interactive, and routed through a dedicated workdir. The scheduler can create recurring agent turns or shell commands, but persistence and dispatch are made visible rather than hidden inside a chat transcript.
+
+The current version is still more runtime than product. Slack Socket Mode is the main local testing path, Discord is webhook-based, state persists through Deno KV or Redis, and generated skills load dynamically from the `skills/` directory. The missing pieces are the pieces that should not be rushed: human approval UI for mutation-capable tools, richer progress streaming, more adapters, and a heavier secondary harness for code-changing work.
+
+What I want from Flamli is a chat agent that can become more useful without becoming slippery. It should be able to remember, schedule, inspect, and even alter its own capabilities, while leaving enough explicit structure that a human can still tell where permission ends.
+
+---
+
+### SvelteKit RuneLayer
+
+- **URL**: /projects/sveltekit-runelayer (Markdown: /projects/sveltekit-runelayer.md)
+- **Source**: content/projects/sveltekit-runelayer.md
+- **Metadata**: Status: alive | Tags: #sveltekit #svelte #cms #typescript #drizzle #libsql #better-auth #admin-ui #open-source
+
+SvelteKit RuneLayer is a CMS-as-a-package for SvelteKit apps. Instead of running as a separate service or asking the host app to move into a new framework, it lives inside the existing Node process and exposes the pieces a content-heavy app needs: schema-driven collections and globals, request-scoped query APIs, auth, persistence, file storage, hooks, and an admin UI.
+
+The project is published as `@flaming-codes/sveltekit-runelayer` and is still pre-v1. That matters because the package is already usable and tested, but the API should be expected to move while the platform hardens. The current work is less about proving that a Svelte admin can exist and more about deciding which CMS guarantees belong in the core contract.
+
+The architecture keeps the source of truth in TypeScript collection definitions. Those definitions drive generated Drizzle table shape, libsql-backed storage, access-controlled CRUD, admin rendering, globals, versions, uploads, and the host application's drizzle-kit migrations. Better Auth handles authentication, while RuneLayer wraps it in SvelteKit request handling, role checks, anti-spoofing headers, and deny-by-default access behavior.
+
+The example app in `apps/web` is part of the product, not a throwaway demo. It runs a marketing site and its package-owned admin on the same content model, with public pages, site chrome, pricing, docs, changelog content, seeded data, and admin editing all exercising the same runtime path. That keeps the package honest: authoring and rendering have to stay aligned.
+
+The interesting tension is Payload-shaped ambition inside a SvelteKit-native package boundary. RuneLayer intentionally borrows the useful CMS vocabulary: collections, globals, fields, access control, hooks, uploads, drafts, versions, and admin screens. But it has to translate that vocabulary into Svelte, SvelteKit, Drizzle, libsql, Better Auth, and host-managed migrations without quietly becoming a second application framework.
+
+What I want from RuneLayer is a boringly embeddable CMS layer for SvelteKit: enough structure that real content products can trust it, enough restraint that the host app remains the host app, and enough parity with established CMS patterns that choosing Svelte does not mean rebuilding the same authoring machinery from scratch.
+
+---
+
+### Thinking Labs
+
+- **URL**: /projects/thinkinglabs (Markdown: /projects/thinkinglabs.md)
+- **Source**: content/projects/thinkinglabs.md
+- **Metadata**: Status: alive | Tags: #knowledge #agents #astro #markdown #mcp #sqlite #validation
+
+Thinking Labs is a markdown-canonical personal knowledge and agentic-space site. The durable state is not a CMS, hosted database, or generated index. It is the `content/` tree: one markdown file per thought, claim, project, prediction, decision, question, post, input, or provenance event, with YAML frontmatter validated by kind-specific Zod schemas.
+
+Everything else is a projection of that source tree. Astro renders the public site and JSON routes from typed content collections. Offline builders derive `public/llms.txt`, JSON feeds, brain-diff feeds, and `dist/index.sqlite`, the local agent query layer. The MCP server reads the same corpus through a shared server factory, with both stdio and Streamable HTTP transports exposing fixed resources and tools for agents.
+
+The repo is also an experiment in useful background agency with a strong confirmation boundary. Scanners such as `dormant-flip`, `review-decisions`, `resolve-predictions`, `freshness-review`, and `triage-questions` enqueue deterministic proposals into a local queue. They do not mutate content directly; accepted changes flow back through `pnpm review-proposals`, where a human can accept, edit, reject, or defer.
+
+That makes the project less a static website than a small operating system for thinking in public. Schemas, ADRs, validation commands, and build artifacts are the guardrails. Markdown remains the thing that matters, but the surrounding surfaces let humans, browsers, feeds, and agents ask sharper questions of the same underlying material.
+
+---
+
+## Decisions
+
+> ADR-style public decisions.
+
+### Use Codex and Claude macOS apps as my primary engineering environment
+
+- **URL**: /decisions/use-codex-and-claude-apps-as-primary-engineering-environment (Markdown: /decisions/use-codex-and-claude-apps-as-primary-engineering-environment.md)
+- **Source**: content/decisions/use-codex-and-claude-apps-as-primary-engineering-environment.md
+- **Metadata**: Status: standing | Tags: #agents #tools #development
+- **related_claims**: claims/agent-harness-absorbs-complexity
+- **related_projects**: projects/agent-harness
+
+Codex and Claude's macOS apps are now my primary engineering environment.
+
+VS Code is still part of the loop, but mostly for direct file-related tasks: quick manual inspection, targeted edits, or work where I specifically want an editor surface. The center of gravity has shifted elsewhere.
+
+For most engineering work, I now prefer to start in Codex or Claude. Codex is the default when the task benefits from the immersive browser view, because it makes implementation, local verification, and UI inspection feel like one continuous workspace rather than separate tools I have to manually coordinate. Claude remains useful as another high-quality agentic engineering surface, especially when I want a different model's judgment or interaction style.
+
+The decision is less about brand loyalty than workflow shape. The thing I want to inhabit is no longer just a file tree plus terminal. It is the loop that moves from intent to context gathering, patch, test, browser inspection, correction, and handoff.
+
+---
+
+## Predictions
+
+> Falsifiable predictions, pending and resolved.
+
+### By 2027-10-01, at least 50% of professional software developers in a credible public developer survey will report that an agent desktop app, agent workbench, or open source equivalent is their primary coding environment rather than a traditional IDE.
+
+- **URL**: /predictions/agent-desktops-replace-ides-for-some-developers (Markdown: /predictions/agent-desktops-replace-ides-for-some-developers.md)
+- **Source**: content/predictions/agent-desktops-replace-ides-for-some-developers.md
+- **Metadata**: Status: pending | Confidence: 0.65 | Tags: #agents #tools #development
+- **evidence_at_time**: thoughts/agent-harness-is-the-new-ide
+
+The underlying bet is that Codex, Claude Code, and their open source equivalents are becoming the place where development work is coordinated, not merely tools invoked from inside an editor. For a meaningful minority of developers, the center of gravity will move from VS Code, JetBrains, Neovim, and similar IDEs to agent desktop apps or agent workbenches that hold the repository, shell, browser, tests, instructions, review loop, and task memory.
+
+For resolution, "primary coding environment" should mean the environment where the developer spends the largest share of hands-on software work time, even if they still open a traditional editor for occasional direct edits. A "credible public developer survey" can include sources such as Stack Overflow, JetBrains, GitHub, State of JS, State of AI Engineering, or another broadly cited industry survey with a transparent sample and methodology. If no credible survey asks this question directly by the resolution date, resolve as ambiguous rather than false.
+
+The prediction should resolve true if the threshold is met by desktop agent apps, terminal agent workbenches, local agent IDE replacements, or open source equivalents. It should resolve false if agent tools are widely used but remain mostly embedded inside traditional IDEs or terminals rather than replacing them as the working environment for at least 50% of surveyed professional developers.
+
+---
+
+### By 2027-05-14, at least one major AI assistant or cloud platform will launch a public or partner agent marketplace/directory where users can discover, install, rent, or invoke third-party or provider-curated agents, positioning agents as the next distribution layer after apps, plugins, and GPT-style stores.
+
+- **URL**: /predictions/agent-marketplaces-succeed-app-stores (Markdown: /predictions/agent-marketplaces-succeed-app-stores.md)
+- **Source**: content/predictions/agent-marketplaces-succeed-app-stores.md
+- **Metadata**: Status: pending | Confidence: 0.57 | Tags: #agents #app-stores #marketplaces
+- **evidence_at_time**: thoughts/app-stores-will-evolve-into-agent-markets, inputs/anthropic-claude-managed-agents, inputs/openai-workspace-agents-chatgpt
+
+This prediction is narrower than "people will make many agents." It requires a distribution layer that functions like an app store successor: discovery, install or invocation, ownership or publisher identity, some form of governance, and a path for recurring or metered use.
+
+The directory can live inside ChatGPT, Claude, a cloud marketplace, an enterprise assistant, or another comparable platform. It can begin as a curated partner shelf rather than a fully open marketplace, but it should include agents that are not merely private automations built inside a single customer's workspace. Templates alone do not qualify unless they can be selected and run as maintained agents with an identifiable publisher or provider.
+
+Resolve true if at least one major platform publicly offers such an agent catalog by the resolution date. Resolve false if the market remains limited to internal team directories, one-off GPTs, connector catalogs, prompt template galleries, or cloud services that expose APIs but not agent-shaped workers. Resolve ambiguous if providers announce the marketplace but do not make it available to any real customers before 2027-05-14.
+
+---
+
+### By 2027-02-01, at least one major AI platform will price off-the-shelf or rentable agents using an opaque blended unit such as credits, intelligence units, or agent capacity, where the customer-facing meter combines model choice, token use, tool calls, data access, execution speed, and runtime rather than exposing tokens or wall-clock time as the primary billable unit.
+
+- **URL**: /predictions/agent-pricing-shifts-to-intelligence-units (Markdown: /predictions/agent-pricing-shifts-to-intelligence-units.md)
+- **Source**: content/predictions/agent-pricing-shifts-to-intelligence-units.md
+- **Metadata**: Status: pending | Confidence: 0.7 | Tags: #agents #pricing #marketplaces
+- **evidence_at_time**: thoughts/agent-harnesses-will-move-onto-the-shelf, inputs/anthropic-claude-managed-agents, inputs/openai-workspace-agents-chatgpt
+
+This is a pricing corollary of the [rentable agent harnesses prediction](/predictions/rentable-agent-harnesses-become-available). If agents become off-the-shelf work units, the platform has an incentive to hide the mechanical bill of materials behind a product-shaped meter. The user does not want to choose between token buckets, tool-call prices, database query costs, model latency tiers, frontier-model surcharges, and execution runtime before asking for work. They want to spend some amount of capability.
+
+"Opaque blended unit" does not require the provider to literally use the word "intelligence." Credits, capacity, agent units, or another branded meter qualify if the public pricing page makes that unit the main thing a customer buys or spends, and if that unit clearly abstracts over several underlying cost drivers. A normal/fast/deep mode toggle can count as part of the blended unit if it affects the price or burn rate.
+
+Resolve true if a major AI platform publicly prices preconfigured or rentable agents this way by the resolution date. Resolve false if agent pricing remains primarily transparent pass-through pricing for tokens, wall-clock execution time, individual tool calls, or fixed subscriptions without a metered agent-consumption unit. Resolve ambiguous if providers use blended internal accounting but do not expose it clearly enough for customers to understand that agent work is being charged through a combined unit.
+
+---
+
+### By 2030-12-31, Art Brut and adjacent Outsider Art will have materially repriced as an investment target, with public market commentary linking its appeal to the scarcity of uncontrolled, visibly human making in a culture saturated by high-fidelity generative AI imagery.
+
+- **URL**: /predictions/art-brut-reprices-as-generative-ai-countermove (Markdown: /predictions/art-brut-reprices-as-generative-ai-countermove.md)
+- **Source**: content/predictions/art-brut-reprices-as-generative-ai-countermove.md
+- **Metadata**: Status: pending | Confidence: 0.6 | Tags: #art #art-brut #outsider-art #generative-ai #markets
+- **evidence_at_time**: inputs/art-brut-wikipedia, inputs/art-basel-ubs-global-art-market-report-2026, inputs/adobe-firefly-agentic-creative-control, inputs/hiscox-ai-generated-art-collector-concerns
+
+The prediction is that Art Brut will become newly valuable because it is almost perfectly positioned against the visual mood generative AI is producing: high fidelity, high control, endless finish, and a growing sameness of commandable beauty. When polished images are abundant, the scarce thing is not beauty. It is pressure. It is an object that appears to have arrived from a private necessity rather than from a production system.
+
+In that setting, Art Brut and adjacent Outsider Art become easier to understand as a counter-asset. They offer irregularity, compulsion, material presence, and a kind of authorship that is hard to fake without becoming theatrical. The market will not need to describe this only in anti-AI terms, but AI will be part of the weather: collectors will look for work that resists the suspicion of being procedurally optimized.
+
+The practical implication is that someone with discretionary money sitting passively in the bank would be better served becoming literate now: learn the artists, dealers, archives, museums, condition issues, provenance traps, and auction history before the category becomes too obvious. That does not mean buying blindly. It means building taste and market memory while the thesis is still early.
+
+Resolve true if, by the resolution date, Art Brut/Outsider Art shows at least three of the following signals: major art-market reports, auction houses, or wealth/collecting publications explicitly discuss the category as a growth or investment target; dedicated Art Brut/Outsider Art auctions or fair sections become more prominent at major market venues; multiple Art Brut/Outsider artists set materially higher public auction records than their 2025-2026 levels; at least one mainstream collecting guide frames Art Brut/Outsider Art as a response to AI-era questions of authenticity, human touch, or overproduction; or museums and blue-chip galleries create enough institutional attention that market commentary treats the category as newly repriced rather than merely historically interesting.
+
+Resolve false if Art Brut remains a niche collecting category with no clear repricing, no broader investment narrative, and no visible connection in market discourse to AI-era saturation or authenticity. Resolve ambiguous if institutional attention rises but prices do not, if prices rise only for one or two already-canonical names, or if the category becomes fashionable culturally without becoming meaningfully investable.
+
+---
+
+### By 2028-06-30, OpenAI will launch or publicly announce a ChatGPT/Codex-centered identity and interaction layer where humans, user-owned agents, and third-party apps or agents have persistent addressable identities and can discover, share, delegate to, or invoke one another inside OpenAI-owned surfaces.
+
+- **URL**: /predictions/openai-hybrid-human-agent-social-infrastructure (Markdown: /predictions/openai-hybrid-human-agent-social-infrastructure.md)
+- **Source**: content/predictions/openai-hybrid-human-agent-social-infrastructure.md
+- **Metadata**: Status: pending | Confidence: 0.5 | Tags: #openai #agents #social-infrastructure #platforms #identity
+- **evidence_at_time**: thoughts/openai-hybrid-human-agent-social-infrastructure, inputs/openai-codex-profiles-activity, inputs/openai-chatgpt-apps-directory, inputs/openai-agentic-commerce-protocol, inputs/openai-workspace-agents-chatgpt, inputs/moltbook-agent-social-network-research
+
+This is the calibration version of the longer [thought](/thoughts/openai-hybrid-human-agent-social-infrastructure). It resolves true if OpenAI publicly ships or announces a connected identity/interaction layer that goes beyond private account settings or a simple app directory.
+
+A qualifying launch should include persistent human profiles or handles plus at least two of: discoverable agent/app identities, cross-user or cross-organization agent/app invocation, shareable agentic work artifacts, public or semi-public activity/reputation/provenance signals, or explicit OpenAI platform language about coordinating human-agent or agent-agent interaction.
+
+Resolve false if ChatGPT, Codex, Apps, Workspace Agents, and commerce remain separate surfaces without a persistent human-agent social layer. Resolve ambiguous if the pattern appears only in private pilots or enterprise-only administration.
+
+---
+
+### By 2027-06-30, a recognizable agent resource layer will exist in which user-facing orchestrator agents act as human-to-agent-to-agents interfaces and delegate work to specialized remote worker agents or harnesses through A2A, an A2A-compatible protocol, or a directly comparable agent-to-agent contract.
+
+- **URL**: /predictions/orchestrator-worker-agent-resource-layer-by-mid-2027 (Markdown: /predictions/orchestrator-worker-agent-resource-layer-by-mid-2027.md)
+- **Source**: content/predictions/orchestrator-worker-agent-resource-layer-by-mid-2027.md
+- **Metadata**: Status: pending | Confidence: 0.6 | Tags: #agents #protocols #orchestration #harnesses
+- **evidence_at_time**: thoughts/agent-harnesses-will-move-onto-the-shelf, inputs/a2a-agent2agent-protocol, inputs/haai-human-to-agent-to-agents-interface-working-term, inputs/anthropic-claude-managed-agents, inputs/openai-workspace-agents-chatgpt
+
+The prediction is that agent systems will grow a new resource layer between the user's primary agent and the growing sea of specialist agents. The shape is a chain into a graph: human to orchestrator agent to worker agents. At the border are orchestrator agents: OpenClaw, Claude running on a user's machine, a managed ChatGPT workspace agent, Gemini or Copilot in an enterprise surface, or some similar agent that is trusted to represent a person's intent. These orchestrators become the HAAI, the human-to-agent-to-agents interface, not because they do all the work, but because they hold the relationship with the human while routing work to other agents.
+
+Inside the graph is the worker layer: specialized agents and harnesses that can perform known categories of work reliably enough to be selected, invoked, monitored, and swapped. This is the same motion as the earlier off-the-shelf harness prediction, but with more attention on topology. The harness becomes a rentable capability; the orchestrator becomes the routing and accountability surface.
+
+A2A is already a foundation for this because it describes agents discovering each other's capabilities, communicating as opaque systems, exchanging task state, and delegating work without collapsing every worker into a tool call. If that style of protocol becomes normal, then specialized agents start to look less like custom integrations and more like addressable resources in a graph.
+
+Resolve true if, by the resolution date, at least two major AI or cloud ecosystems publicly document or ship an agent layer where a user-facing orchestrator/client agent can discover, select, or delegate tasks to specialized remote agents through A2A, an A2A-compatible implementation, or a comparable open or documented agent-to-agent contract. A qualifying worker agent should be more than a function call or MCP tool: it should expose an agent identity or capability card, accept stateful task delegation, return progress or artifacts, and be usable without the orchestrator knowing its internal toolchain.
+
+Resolve false if the market remains mostly chat assistants calling tools, bespoke internal multi-agent systems, or manually wired agent templates with no broadly recognizable delegation/resource layer. Resolve ambiguous if the pattern exists only in closed pilots, if it is visible in one ecosystem but not enough to look like a layer, or if the terminology changes while the architecture is only partly present.
+
+---
+
+### By 2027-05-14, at least one major AI platform will offer rentable, preconfigured agent harnesses for specific professional task domains, priced by credits, token consumption, execution time, completed work units, or a mixture, so that a user or organization can launch a specialized task agent without building and operating the harness from scratch.
+
+- **URL**: /predictions/rentable-agent-harnesses-become-available (Markdown: /predictions/rentable-agent-harnesses-become-available.md)
+- **Source**: content/predictions/rentable-agent-harnesses-become-available.md
+- **Metadata**: Status: pending | Confidence: 0.62 | Tags: #agents #harnesses #marketplaces
+- **evidence_at_time**: thoughts/agent-harnesses-will-move-onto-the-shelf, inputs/anthropic-claude-managed-agents, inputs/openai-workspace-agents-chatgpt
+
+The prediction is about the productization of the harness, not merely the availability of better models or custom prompts. A qualifying offering should bundle several of the following into a reusable agent package: system instructions, tools, connectors or MCP servers, cloud execution environment, permissions, secrets handling, memory or state, evaluation or quality gates, and a task-specific workflow.
+
+"Major AI platform" includes OpenAI, Anthropic, Google, Microsoft, AWS, Meta, or another broadly adopted AI/cloud provider with credible enterprise distribution. The offering can be first-party, partner-provided, or marketplace-listed, but it must be usable by customers as an off-the-shelf specialist rather than as a tutorial for building their own agent loop.
+
+Resolve true if the platform lets customers select and run a preconfigured specialist agent for a domain such as software maintenance, CMS/frontend implementation, sales operations, finance reporting, security review, customer support, or data analysis, with metered pricing tied to usage or execution. Resolve false if agents remain mostly organization-internal custom builds, templates that still require substantial setup, or generic chat assistants without a rented harness boundary. Resolve ambiguous if the capability exists only in a private pilot with no public documentation by the resolution date.
+
+---
+
+## Inputs
+
+> External material that shaped thinking.
+
+### Agent2Agent (A2A) Protocol documentation
+
+- **URL**: /inputs/a2a-agent2agent-protocol (Markdown: /inputs/a2a-agent2agent-protocol.md)
+- **Source**: content/inputs/a2a-agent2agent-protocol.md
+- **Metadata**: Tags: #agents #protocols #orchestration #interoperability
+
+A2A is evidence that agent-to-agent communication is hardening into an explicit product and infrastructure boundary. Its core model separates a client agent, which acts on behalf of a user, from remote agent servers that publish capabilities and take on tasks without exposing their internal tools, memory, or execution details.
+
+This matters because it gives the imagined worker-agent layer a plausible protocol substrate. MCP makes tools and resources reachable by an agent; A2A makes other agents reachable as peers, specialists, or delegated workers.
+
+---
+
+### Adobe Firefly AI Assistant and agentic creative controls
+
+- **URL**: /inputs/adobe-firefly-agentic-creative-control (Markdown: /inputs/adobe-firefly-agentic-creative-control.md)
+- **Source**: content/inputs/adobe-firefly-agentic-creative-control.md
+- **Metadata**: Tags: #ai #design #generative-ai #art
+
+Adobe's 2026 Firefly announcement is a clear signal that generative image and design tools are moving toward high-fidelity, production-grade, controllable creative systems.
+
+If controlled synthetic finish becomes ordinary, the cultural premium may move toward work that feels difficult to imitate as a process: idiosyncratic, compulsive, materially specific, and not optimized for promptable taste.
+
+---
+
+### Demystifying evals for AI agents
+
+- **URL**: /inputs/anthropic-agent-evals (Markdown: /inputs/anthropic-agent-evals.md)
+- **Source**: content/inputs/anthropic-agent-evals.md
+- **Metadata**: Tags: #ai #agents #evals #verification
+
+The essay's validation axis draws from this: once an agent acts across many turns, the output is not enough. The discipline must inspect traces, intermediate decisions, final state, and the harness that made the run possible.
+
+---
+
+### Claude Code Review pricing
+
+- **URL**: /inputs/anthropic-claude-code-review-pricing (Markdown: /inputs/anthropic-claude-code-review-pricing.md)
+- **Source**: content/inputs/anthropic-claude-code-review-pricing.md
+- **Metadata**: Tags: #agents #code-review #pricing
+
+Anthropic's managed code review product prices automated PR review like a serious unit of engineering labor rather than like a cheap chat completion. The useful signal is the average cost band: high enough to shock individuals, but calibrated against the price of catching real defects in a codebase.
+
+---
+
+### Claude Managed Agents overview
+
+- **URL**: /inputs/anthropic-claude-managed-agents (Markdown: /inputs/anthropic-claude-managed-agents.md)
+- **Source**: content/inputs/anthropic-claude-managed-agents.md
+- **Metadata**: Tags: #agents #harnesses #marketplaces
+
+Anthropic's Managed Agents documentation is an early signal that agent harnesses are becoming productized units: not just model calls, but named agents, configured environments, tools, MCP servers, skills, sessions, state, and managed execution.
+
+---
+
+### Effective context engineering for AI agents
+
+- **URL**: /inputs/anthropic-context-engineering-agents (Markdown: /inputs/anthropic-context-engineering-agents.md)
+- **Source**: content/inputs/anthropic-context-engineering-agents.md
+- **Metadata**: Tags: #ai #agents #context-engineering #prompting
+
+This source sharpens the distinction between prompting as wording and prompting as operating a context system. In long-horizon agent work, the decisive skill is often deciding what the model sees, when it sees it, and how stale or noisy context is pruned.
+
+---
+
+### The Art Basel and UBS Global Art Market Report 2026
+
+- **URL**: /inputs/art-basel-ubs-global-art-market-report-2026 (Markdown: /inputs/art-basel-ubs-global-art-market-report-2026.md)
+- **Source**: content/inputs/art-basel-ubs-global-art-market-report-2026.md
+- **Metadata**: Tags: #art #markets #investing
+
+The 2026 Art Basel/UBS report provides the market backdrop: art remains a large asset and collecting market, but one that is uneven, status-sensitive, and periodically hungry for new categories of conviction.
+
+For a prediction about Art Brut becoming an investment target, the relevant premise is that collectors and dealers already operate inside a market capable of rotating attention, pricing narratives, and liquidity toward newly legible categories.
+
+---
+
+### Art brut
+
+- **URL**: /inputs/art-brut-wikipedia (Markdown: /inputs/art-brut-wikipedia.md)
+- **Source**: content/inputs/art-brut-wikipedia.md
+- **Metadata**: Tags: #art #art-brut #outsider-art
+
+Art Brut names a field whose value is partly tied to its refusal of polish, training, and official art-world legibility. The useful market intuition is not simply that these works are "raw", but that they sit at a cultural angle to professionalized aesthetic control.
+
+That angle may become more valuable as generative image systems make high-fidelity finish cheap, abundant, and increasingly programmable.
+
+---
+
+### Cheap Expertise: Mapping and Challenging Industry Perspectives in the Expert Data Gig Economy
+
+- **URL**: /inputs/cheap-expertise-expert-data-gig-economy (Markdown: /inputs/cheap-expertise-expert-data-gig-economy.md)
+- **Source**: content/inputs/cheap-expertise-expert-data-gig-economy.md
+- **Metadata**: Tags: #ai #labor #expertise #gig-economy
+
+The paper gives a precise name to a market that is otherwise scattered across platform copy: an expert data gig economy where professional judgment is brokered as training and evaluation signal for AI systems.
+
+---
+
+### AI Training Domains
+
+- **URL**: /inputs/dataannotation-ai-training-domains (Markdown: /inputs/dataannotation-ai-training-domains.md)
+- **Source**: content/inputs/dataannotation-ai-training-domains.md
+- **Metadata**: Tags: #ai #labor #expertise #gig-economy
+
+The domain list shows how broad the category has become: AI training is no longer only image labeling or generic text preference work, but a marketplace for many kinds of professional judgment.
+
+---
+
+### Use First Draft with Figma AI
+
+- **URL**: /inputs/figma-first-draft-style-controls (Markdown: /inputs/figma-first-draft-style-controls.md)
+- **Source**: content/inputs/figma-first-draft-style-controls.md
+- **Metadata**: Tags: #ai #design #prototyping #interfaces
+
+This is a small but important signpost: in visual prompting, text alone is too slow and too lossy. Sliders, thumbnails, selected elements, and parallel riffs are not decorations; they are part of the prompting medium.
+
+---
+
+### Figma Make
+
+- **URL**: /inputs/figma-make-ai-design-controls (Markdown: /inputs/figma-make-ai-design-controls.md)
+- **Source**: content/inputs/figma-make-ai-design-controls.md
+- **Metadata**: Tags: #ai #design #prototyping #interfaces
+
+Figma Make is evidence for the visual discipline: prompting becomes more powerful when paired with canvas selection, context attachment, editable plans, version branches, comments, and direct manipulation of the generated artifact.
+
+---
+
+### HAAI (human-to-agent-to-agents interface) as working term
+
+- **URL**: /inputs/haai-human-to-agent-to-agents-interface-working-term (Markdown: /inputs/haai-human-to-agent-to-agents-interface-working-term.md)
+- **Source**: content/inputs/haai-human-to-agent-to-agents-interface-working-term.md
+- **Metadata**: Tags: #agents #interfaces #orchestration
+
+HAAI is a working term for the chain where a person deals with an agentic system through an orchestrator agent, and that orchestrator then delegates parts of the work to other agents. It is short for human-to-agent-to-agents interface: not just a user talking to software, but a user talking to an agent that can instantiate, route, supervise, and reconcile work from further agents.
+
+In this frame, OpenClaw, Claude on a user's machine, a managed ChatGPT workspace agent, or a similar always-on personal/workplace orchestrator is not merely a chat interface. For a task like building a full-stack app, it becomes the first agent in a chain: the proxy for intent, authority, context, approval, and taste, which can spin up worker agents specialized through their harnesses and hold the relationship with the human while they do the delegated work.
+
+---
+
+### What is the future of AI-generated art?
+
+- **URL**: /inputs/hiscox-ai-generated-art-collector-concerns (Markdown: /inputs/hiscox-ai-generated-art-collector-concerns.md)
+- **Source**: content/inputs/hiscox-ai-generated-art-collector-concerns.md
+- **Metadata**: Tags: #ai #art #markets #authenticity
+
+The important signal is not that AI art has no market. It is that collectors are already asking whether an AI-generated object has enough authorship, scarcity, originality, and value durability to behave like art rather than like technical output.
+
+That anxiety creates room for an opposite thesis: works with unmistakable human pressure, marginality, and non-instrumental making may become easier for collectors to believe in.
+
+---
+
+### Interaction-Augmented Instruction: Modeling the Synergy of Prompts and Interactions in Human-GenAI Collaboration
+
+- **URL**: /inputs/interaction-augmented-instruction (Markdown: /inputs/interaction-augmented-instruction.md)
+- **Source**: content/inputs/interaction-augmented-instruction.md
+- **Metadata**: Tags: #ai #human-ai-interaction #interfaces #prompting
+
+This source supports the claim that visual and artifact-oriented prompting should not be reduced to chat. Pointing, selecting, brushing, editing, and manipulating controls can carry intent that is expensive or impossible to express cleanly in words.
+
+---
+
+### Work That Fits You
+
+- **URL**: /inputs/mercor-expert-ai-training-projects (Markdown: /inputs/mercor-expert-ai-training-projects.md)
+- **Source**: content/inputs/mercor-expert-ai-training-projects.md
+- **Metadata**: Tags: #ai #labor #expertise #gig-economy
+
+Mercor frames expert gig work as remote AI training grounded in professional background, with matching, short evaluations, and project-specific compensation.
+
+---
+
+### Guidelines for Human-AI Interaction
+
+- **URL**: /inputs/microsoft-human-ai-interaction-guidelines (Markdown: /inputs/microsoft-human-ai-interaction-guidelines.md)
+- **Source**: content/inputs/microsoft-human-ai-interaction-guidelines.md
+- **Metadata**: Tags: #ai #human-ai-interaction #interfaces #agents
+
+The guidelines are useful background for prompting disciplines because they treat AI interaction as a lifecycle, not a single exchange. A discipline needs different expectations for onboarding, correction, explanation, granular feedback, and long-term adaptation depending on what kind of work the agent is doing.
+
+---
+
+### Mixed Initiative Generative AI Interfaces
+
+- **URL**: /inputs/mixed-initiative-generative-ai-interfaces (Markdown: /inputs/mixed-initiative-generative-ai-interfaces.md)
+- **Source**: content/inputs/mixed-initiative-generative-ai-interfaces.md
+- **Metadata**: Tags: #ai #human-ai-interaction #creativity #interfaces
+
+The mixed-initiative frame gives historical depth to prompting disciplines. The question is not simply what the user types, but when the human steers, when the model proposes, when the system asks, and how the artifact evolves between them.
+
+---
+
+### "Humans welcome to observe": A First Look at the Agent Social Network Moltbook
+
+- **URL**: /inputs/moltbook-agent-social-network-research (Markdown: /inputs/moltbook-agent-social-network-research.md)
+- **Source**: content/inputs/moltbook-agent-social-network-research.md
+- **Metadata**: Tags: #agents #social-networks #governance #platforms
+
+Moltbook is not evidence that every agent social network will be useful or healthy. It is evidence that agent-native social surfaces are a real design space: agents can be given accounts, communities, posting loops, attention incentives, and moderation problems.
+
+For OpenAI, the lesson may be less "build a feed for agents" and more "own the safer, governed version of the interaction layer before chaotic third-party versions define the category."
+
+---
+
+### Buy it in ChatGPT: Instant Checkout and the Agentic Commerce Protocol
+
+- **URL**: /inputs/openai-agentic-commerce-protocol (Markdown: /inputs/openai-agentic-commerce-protocol.md)
+- **Source**: content/inputs/openai-agentic-commerce-protocol.md
+- **Metadata**: Tags: #openai #chatgpt #agents #commerce #protocols
+
+Agentic commerce is evidence that OpenAI is willing to make ChatGPT into an operational layer between users and outside institutions, not merely a recommendation engine. Merchants expose structured data and transaction flows; the assistant mediates discovery and purchasing intent.
+
+This matters for the social-infrastructure thesis because commerce is one of the places where identity, trust, permissions, representation, and delegation have to become explicit. A system that lets people, agents, and businesses transact together already needs some of the same connective tissue as a broader human-agent network.
+
+---
+
+### Introducing ChatGPT agent: bridging research and action
+
+- **URL**: /inputs/openai-chatgpt-agent (Markdown: /inputs/openai-chatgpt-agent.md)
+- **Source**: content/inputs/openai-chatgpt-agent.md
+- **Metadata**: Tags: #openai #agents #automation #interfaces
+
+This source helps distinguish action-oriented prompting from research or design prompting. Once the agent can act on the web or in connected apps, the discipline requires permissions, interruption, confirmations, takeover, and auditability.
+
+---
+
+### Introducing apps in ChatGPT and the new Apps SDK
+
+- **URL**: /inputs/openai-chatgpt-apps-directory (Markdown: /inputs/openai-chatgpt-apps-directory.md)
+- **Source**: content/inputs/openai-chatgpt-apps-directory.md
+- **Metadata**: Tags: #openai #chatgpt #apps #platforms
+
+The Apps SDK points toward ChatGPT as a distribution surface rather than only a model interface. Apps can appear inside conversations, carry interactive UI, and reach ChatGPT's user base without asking the user to leave the assistant.
+
+For the hybrid social-infrastructure prediction, the useful signal is not that OpenAI wants an app store in the old sense. It is that OpenAI is giving outside actors a way to become addressable participants inside the user's primary AI surface.
+
+---
+
+### Codex pricing
+
+- **URL**: /inputs/openai-codex-pricing (Markdown: /inputs/openai-codex-pricing.md)
+- **Source**: content/inputs/openai-codex-pricing.md
+- **Metadata**: Tags: #agents #codex #pricing
+
+OpenAI's Codex pricing page creates a sharp comparison point for automated review economics: a $100/month Pro seat can feel expansive for hands-on agentic coding, even though it is still governed by usage limits.
+
+---
+
+### Codex profile and activity surfaces
+
+- **URL**: /inputs/openai-codex-profiles-activity (Markdown: /inputs/openai-codex-profiles-activity.md)
+- **Source**: content/inputs/openai-codex-profiles-activity.md
+- **Metadata**: Tags: #openai #codex #identity #agents #profiles
+
+The Codex profile page is weak evidence on its own. Avatars, names, handles, streaks, and usage graphs can be ordinary product polish, especially in a tool where people want to understand quota and activity.
+
+The reason it is interesting is cumulative: once agentic work has public or semi-public identity, activity, plugin usage, streaks, and shareable status, it starts to resemble the primitive substrate of a network. Even if the first version is private, the product vocabulary is no longer only "settings"; it is closer to "presence."
+
+---
+
+### Introducing deep research
+
+- **URL**: /inputs/openai-deep-research (Markdown: /inputs/openai-deep-research.md)
+- **Source**: content/inputs/openai-deep-research.md
+- **Metadata**: Tags: #openai #research #agents #prompting
+
+Deep research is a concrete example of an asynchronous research discipline: the prompt launches a search trajectory, not merely a response. The human's job shifts toward scoping the question, auditing citations, and deciding whether the synthesis actually supports the conclusion.
+
+---
+
+### Evaluation best practices
+
+- **URL**: /inputs/openai-evaluation-best-practices (Markdown: /inputs/openai-evaluation-best-practices.md)
+- **Source**: content/inputs/openai-evaluation-best-practices.md
+- **Metadata**: Tags: #openai #ai #evals #verification
+
+The useful phrase for prompting disciplines is not in the wording of a prompt but in the discipline around it: success criteria, representative data, metrics, comparison, and continuous evaluation. That is the opposite of asking once and trusting the fluent answer.
+
+---
+
+### Introducing workspace agents in ChatGPT
+
+- **URL**: /inputs/openai-workspace-agents-chatgpt (Markdown: /inputs/openai-workspace-agents-chatgpt.md)
+- **Source**: content/inputs/openai-workspace-agents-chatgpt.md
+- **Metadata**: Tags: #agents #app-stores #marketplaces
+
+OpenAI's Workspace Agents announcement shows the same motion from the other side: agents as shared, reusable workplace objects that can be templated, governed, deployed into ChatGPT or Slack, measured, and billed through credits.
+
+---
+
+### Train the Next Generation of AI as a Freelancer
+
+- **URL**: /inputs/outlier-ai-expert-platform (Markdown: /inputs/outlier-ai-expert-platform.md)
+- **Source**: content/inputs/outlier-ai-expert-platform.md
+- **Metadata**: Tags: #ai #labor #expertise #gig-economy
+
+Outlier is a clear example of the broker pattern: experts create an account, are routed into project work, and provide human feedback on model behavior for frontier AI customers.
+
+---
+
+### Gig Workers Behind AI Face 'Unfair Working Conditions,' Oxford Report Finds
+
+- **URL**: /inputs/time-ai-gig-workers-fairwork (Markdown: /inputs/time-ai-gig-workers-fairwork.md)
+- **Source**: content/inputs/time-ai-gig-workers-fairwork.md
+- **Metadata**: Tags: #ai #labor #gig-economy #fairness
+
+The reporting is a reminder that the expert version of AI gig work inherits older cloudwork problems: opaque access, unpaid assessment labor, uneven pay, and weak worker protections.
+
+---
+
+## Observations
+
+> Short first-party notes about what seems to be happening.
+
+### Agent work is becoming supervisory: the scarce act is increasingly deciding what to ask, inspect, accept, or redirect, not typing the implementation.
+
+- **URL**: /observations/agent-work-is-becoming-supervisory (Markdown: /observations/agent-work-is-becoming-supervisory.md)
+- **Source**: content/observations/agent-work-is-becoming-supervisory.md
+- **Metadata**: Tags: #agents #workflows
+- **related_thoughts**: thoughts/agent-harness-is-the-new-ide
+- **related_projects**: projects/thinkinglabs
+
+The work still contains engineering judgment, but the high-friction motion has shifted. I spend more of the loop shaping the task boundary, reviewing diffs, and deciding whether the output deserves to become source.
+
+---
+
+### Frontier models such as GPT-5.5 and Claude Opus 4.7 are now good enough at detailed, complex instruction following that a well-structured harness can behave like a practical workflow engine.
+
+- **URL**: /observations/frontier-models-follow-complex-instructions (Markdown: /observations/frontier-models-follow-complex-instructions.md)
+- **Source**: content/observations/frontier-models-follow-complex-instructions.md
+- **Metadata**: Tags: #agents #frontier-models #harnesses #workflows
+- **related_thoughts**: thoughts/agent-harnesses-are-state-machines
+- **related_projects**: projects/agent-harness
+
+The model capability matters, but the harness is the multiplier. Detailed skills let broad instructions decompose into domain-specific operating procedures, so the agent can follow a long workflow without the top-level prompt becoming unreadable.
+
+---
+
+### GitHub has scaling pressure that can show up as a broken experience through intermittent errors, and agent-generated repository volume is one likely contributor.
+
+- **URL**: /observations/github-scaling-pressure-from-agent-generated-repos (Markdown: /observations/github-scaling-pressure-from-agent-generated-repos.md)
+- **Source**: content/observations/github-scaling-pressure-from-agent-generated-repos.md
+- **Metadata**: Tags: #agents #github #infrastructure #workflows
+- **related_thoughts**: thoughts/agent-harnesses-will-move-onto-the-shelf
+
+The failure mode is not just individual users creating more projects. Agents make repo creation cheap enough that experimentation, research scaffolding, and autonomous prototyping can produce a much larger tail of repositories, branches, issues, and automation events than the pre-agent workflow implied.
+
+---
+
+## Posts
+
+> Long-form evergreen posts with per-section freshness.
+
+### Prompting disciplines
+
+- **URL**: /posts/prompting-disciplines (Markdown: /posts/prompting-disciplines.md)
+- **Source**: content/posts/prompting-disciplines.md
+- **Metadata**: Tags: #ai #agents #prompting #interfaces #design
+- **related_claims**: prompt-is-spec-is-implementation
+- **related_thoughts**: agent-surfaces-are-feedback-loop-shaped, design-will-be-seed-driven, the-work-should-not-stop-when-i-sleep, agent-harness-is-the-new-ide
+- **inputs**: openai-deep-research, anthropic-context-engineering-agents, figma-make-ai-design-controls, figma-first-draft-style-controls, mixed-initiative-generative-ai-interfaces, interaction-augmented-instruction, adobe-firefly-agentic-creative-control
+
+Prompting is beginning to feel like too small a word for the thing it describes.
+
+It still suggests a fairly narrow scene: a person writes a better instruction into a text box, waits for a better answer, and repeats until the answer feels good enough. That scene still exists, and sometimes it is exactly the right scale. But it is no longer enough to describe what happens when an agent can search, inspect files, call tools, edit artifacts, run tests, generate variants, open browsers, spawn subagents, pause for approval, and return with a record of what changed.
+
+In those settings, the prompt is less like an isolated instruction and more like the first move in a working arrangement. The interesting question is not only what to say to the model. It is what kind of loop the human and the agent are entering together.
+
+That is the shape I have been calling prompting disciplines.
+
+A prompting discipline is a repeatable way of working with an agent that is shaped by the desired outcome, the domain's standards of proof, the speed of the feedback loop, and the interface through which human intent can be expressed. The same person may need to prompt like a casual chat user in one moment, a researcher in the next, a systems designer after that, and an art director later. Those are not merely different phrasings. They are different relationships between human judgment and machine capability.
+
+The distinction matters because the wrong discipline makes the work fail in recognizable ways. Visual work treated like a systems pipeline becomes slow, over-specified, and lifeless. Long-horizon systems work treated like a moodboard drifts into plausible nonsense. Research treated like chat becomes a confident answer without enough evidence.
+
+The practical skill, then, is choosing the right loop for the work.
+
+## The chat discipline {#chat-discipline last_verified="2026-07-01"}
+
+The chat discipline is the simplest and most familiar one.
+
+It is the discipline of stateless or lightly stateful chat apps: open ChatGPT, ask the thing in front of you, get a useful answer, and move on. The task is not deep research, durable automation, or complex delegation. It is everyday assistance for a topic at hand.
+
+"Quick" does not mean the thread has to be short. A chat session can become long, wandering, and full of context. The quickness is in the scope of the work. The user is not asking the agent to operate a harness, maintain a project, run a validation plan, or carry responsibility across a whole workflow. They are asking for a relevant answer, a transformation, a small explanation, a translation, a comparison, a draft, a suggestion, or a second set of eyes.
+
+This is why chat is so natural on mobile. The phone is already the device of passing context: a sign, a menu, a screenshot, a half-remembered question, a message that needs softening, a photo that needs interpreting, a phrase in another language, an image idea that should be made now rather than saved for later. The best chat interactions feel ephemeral in the right way. They resolve the little problem currently occupying attention.
+
+That does not make the chat discipline trivial. It has its own craft. The user has to supply just enough context, ask for the right level of answer, and notice when the question is becoming too large for the medium. The failure mode is scope creep: a small conversation quietly turns into a fake research project or a fake workstream, while the interface still behaves like a chat box.
+
+The chat discipline is useful precisely because it stays close to the surface of life. It is not the discipline for real day-to-day work automation. It is the discipline for getting unstuck, checking a thought, making a quick artifact, analyzing something in front of you, or letting a capable assistant handle a small cognitive errand before the focus shifts.
+
+## The research discipline {#research-discipline last_verified="2026-07-01"}
+
+Research is close to chat, but it has state.
+
+The research discipline begins with not knowing the answer. The human may know the question, the suspicion, the decision they are trying to support, or the shape of the uncertainty, but the outcome is not yet clear. In that sense it is closer to the visual discipline than the systems discipline: the work is exploratory, and the result has to be discovered rather than executed from a known spec.
+
+The loop is search, inspect, validate, reframe. The agent searches, brings back candidate sources, extracts claims, notices conflicts, and proposes a provisional map. The human reads enough of the evidence to challenge it, asks for missing views, rejects weak sources, changes the question, or pushes into a subtopic. The important motion is not "go away and return with the answer." It is a tighter sequence of evidence-gathering and evidence-critique.
+
+That makes research more durable than chat, but less autonomous than the systems discipline. A research thread should remember what has already been checked, which sources were trusted or rejected, what definitions are in play, and which uncertainties remain open. But orchestration still belongs to the human. The agent can suggest next searches, but the human decides whether the inquiry should broaden, narrow, stop, or change direction.
+
+[Deep research-style products](https://openai.com/index/introducing-deep-research/) point at this discipline, but the important feature is not only that the model can spend longer searching. It is that the work is evidence-shaped. The agent should expose what it found, where it found it, why it believes it, what might contradict it, and which parts still need manual inspection.
+
+The failure mode of research prompting is premature synthesis. The agent turns a messy evidence field into a clean answer too early, and the human receives fluency instead of understanding. A good research discipline keeps critique alive on both sides. The agent critiques the human's framing by surfacing counterexamples and missing distinctions. The human critiques the agent's evidence by inspecting sources, checking provenance, and refusing to let the answer outrun the material.
+
+Research is for market scans, technical comparisons, literature reviews, product exploration, policy questions, purchasing decisions, and any inquiry where the path matters because the answer is not self-validating. It can take five minutes or five hours, but its characteristic shape is not duration. It is stateful exploration under human orchestration.
+
+## The systems discipline {#systems-discipline last_verified="2026-07-01"}
+
+The systems discipline is the easiest one for me to trust with long horizons.
+
+It is also the least glamorous, because its natural rhythm is preparation rather than conversation. Before the agent does the important work, someone has to understand the state, create the inventory, clean the inputs, name the entities, define the fields, write the acceptance criteria, and build the validation surface. The work improves when the human stops trying to hold the whole system in their head and turns the domain into something inspectable.
+
+This is why systems-shaped agent work can run for hours when the harness is good. The agent is not being asked to find a pleasing answer by improvisation. It is being asked to operate inside a bounded system: read these sources, normalize these records, refactor these modules, migrate these files, derive these candidates, check them against this schema, produce this diff, run these tests, report these anomalies, and ask for help only at defined thresholds. The prompt launches the run, but the discipline lives in the preparation around it. During the run itself, orchestration mostly belongs to the agent.
+
+[Anthropic's context-engineering framing](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents) is useful here because it makes the shift explicit. As agents move into longer time horizons, prompt engineering becomes the management of the whole context state: instructions, tools, external data, message history, and the repeated pruning of what should remain visible. The important work is not only phrasing. It is custody over the context the agent is allowed to reason from.
+
+Validation and verification are central in this mode. A long-running agent should not return with a confident story about what it probably did. It should return with changed files, inventories, test output, failed cases, uncertain cases, assumptions it refused to make, and the exact places where human judgment is needed. The stronger the validation surface, the less the human needs to supervise moment by moment.
+
+Periodic review through subagents fits naturally here. A reviewer agent can inspect the current diff while the main agent continues, audit the plan against the requirements, or search for drift, regressions, and missing tests. Trust comes less from the model being careful in the abstract and more from a system that keeps pushing the work back through checks.
+
+This discipline covers software, data pipelines, migrations, indexing, knowledge bases, schemas, test suites, generated artifacts, agent state, and the harness itself. It is for any work where a large stateful system has to be changed under validation. The visible result can be surprisingly large, but the result is credible only when every step has somewhere to be verified.
+
+## The visual discipline {#visual-discipline last_verified="2026-07-01"}
+
+Visual work wants almost the opposite rhythm.
+
+If the systems discipline is slow, passive, and verification-heavy, the visual discipline is fast, tactile, and taste-heavy. The familiar pattern of "prompt, wait, inspect, prompt again" is still too thin for this kind of work. It treats visual intent as though it were a paragraph-shaped substance, when much of it is spatial, comparative, referential, and pre-verbal. Often I do not know what I want until I can see the version that is almost right.
+
+This is where the interface matters as much as the model. A useful visual agent should not only accept text. It should let me create four variants at once, pin a promising direction, drag a slider for spacing, lock typography, select only the hero section, brush over the part that feels wrong, fork a version, compare branches, blend two references, and keep the design system seed visible as a constraint. The text prompt becomes one channel in a richer control surface.
+
+The tools are already moving this way. [Figma Make](https://www.figma.com/make/) emphasizes prompt-to-prototype work with design context, canvas edits, annotations, version history, point-and-edit, Make kits, connectors, and plan mode. Figma's [First Draft controls](https://help.figma.com/hc/en-us/articles/23955143044247-Use-First-Draft-with-Figma-AI) make the same idea concrete: after a prompt creates a design, the user can preview themes and adjust color, border radius, spacing, and typography through controls. [Adobe Firefly's agentic creative direction](https://news.adobe.com/news/2026/04/adobe-new-creative-agent) points in the same direction, where conversation sits alongside precision adjustments, reference material, models, and persistent control.
+
+The visual discipline needs the shortest possible loop between human taste and agent generation. Not because taste is mystical, but because taste is high-bandwidth and hard to serialize. A designer can reject a direction in half a second for reasons that would take several weak paragraphs to explain. A slider, selection, thumbnail, or side-by-side comparison can carry intent more efficiently than another sentence. Research on [interaction-augmented instruction](https://arxiv.org/html/2510.26069v2) makes a related point in formal terms: text prompts are convenient, but fine-grained and referential intent often needs GUI interaction too.
+
+The failure mode of visual prompting is not only ugliness. It is premature convergence. One result arrives, the human adapts to it, and the design space collapses around whatever the model happened to sample first. A better visual discipline keeps alternatives alive longer and lets the human steer through a space of possibilities before committing to one artifact.
+
+The human role here is not spec owner. It is closer to art director, curator, editor, or taste filter. The agent's job is not to obey one perfect instruction, but to keep the design space cheap enough to explore.
+
+## Four loops, not one skill {#four-loops last_verified="2026-07-01"}
+
+These four disciplines are enough to show why "good prompting" is starting to feel too generic.
+
+In the chat discipline, the human keeps the task small and situated. The feedback loop is conversational because the artifact is often temporary: an answer, an interpretation, a small draft, a generated image, or a useful next thought. Progress is measured by whether the immediate situation becomes clearer.
+
+In the research discipline, the human keeps the inquiry honest. The feedback loop is search, inspect, validate, and reframe because the artifact is an evolving understanding. Progress is measured by whether the evidence field becomes clearer without collapsing too early into a polished answer.
+
+In the systems discipline, the human earns distance by front-loading structure. The better the inventory, spec, schema, validation plan, and review harness, the longer the agent can work without continuous steering. The feedback loop is slow because the artifact is cumulative. Progress has to be checked against durable constraints.
+
+In the visual discipline, the human earns quality by staying close. The shorter the loop between seeing, selecting, adjusting, and regenerating, the more precisely taste can enter the system. The feedback loop is fast because the artifact is exploratory. Progress depends on keeping possibilities alive long enough for judgment to sharpen.
+
+That contrast is the useful core of the concept for now. Prompting disciplines are not mainly about how to talk to the model. They are about arranging the conditions under which the model's work can become useful.
+
+Sometimes that means a chat that lasts two minutes and disappears from attention. Sometimes it means a research thread where the human keeps pulling the inquiry back to the evidence. Sometimes it means a careful spec and a machine that runs for hours. Sometimes it means a canvas that updates in seconds. The same word, prompting, covers all four, but the work underneath is already diverging.
+
+---
+
+### The all-domain gig economy
+
+- **URL**: /posts/the-all-domain-gig-economy (Markdown: /posts/the-all-domain-gig-economy.md)
+- **Source**: content/posts/the-all-domain-gig-economy.md
+- **Metadata**: Tags: #ai #labor #expertise #agents
+- **related_thoughts**: agent-surfaces-are-feedback-loop-shaped
+- **inputs**: cheap-expertise-expert-data-gig-economy, outlier-ai-expert-platform, dataannotation-ai-training-domains, mercor-expert-ai-training-projects, time-ai-gig-workers-fairwork
+
+There is a new kind of job growing in the side streets of the AI economy, not yet named cleanly enough to become visible. "Data annotation" makes it sound like someone drawing boxes around cars, "AI training" sounds too ceremonial, as though the worker has been invited into the laboratory, and "freelance expert work," while closer, still misses the machinery that gives the work its peculiar shape.
+
+The phrase I keep reaching for is the all-domain gig economy: a market in which almost any form of human expertise can be summoned, briefly and remotely, to correct, rank, challenge, or otherwise discipline an AI model.
+
+This is not the old crowdwork story with a little more jargon sprinkled on top, though that older layer still exists and the labor politics around it remain bleak in many places. The newer layer has a different appetite, one that wants lawyers to catch bad legal reasoning, doctors to inspect clinical answers, software engineers to judge generated code, translators to notice the sentence that sounds fluent only to someone who does not really speak the language, mathematicians to test proofs, accountants to flag a misapplied standard, and teachers, scientists, designers, analysts, journalists, and consultants to expose the ways a model can be wrong while sounding uncannily employable.
+
+On the screen, the task may look almost trivial, whether it asks someone to rank two answers, write a prompt that would make the model fail, correct a response, build a rubric, explain why an answer is unsafe or incomplete, or review another worker's judgment. But the purchased commodity is not keystrokes so much as discrimination: the trained ability to say, with reasons, that this answer is not merely awkward but wrong in a way the field recognizes.
+
+That is the quiet economic novelty: AI has not only created a market for data, but a market for intermittent expertise.
+
+## The broker layer {#broker-layer last_verified="2026-05-31"}
+
+The work usually does not appear as a clean contract between an AI lab and a professional, but through brokers. A person creates an account, proves enough competence to enter a pool, waits to be matched, and receives bursts of work when some customer suddenly needs exactly their slice of knowledge.
+
+[Outlier](https://outlier.ai/) describes itself as a Scale AI-operated platform connecting experts with leading AI companies to provide human feedback that improves language models. [DataAnnotation](https://dataannotation.tech/) advertises AI training domains that now range from coding and general writing to law, medicine, finance, accounting, chemistry, biology, physics, mathematics, and bilingual work. [Mercor](https://www.mercor.com/experts/) tells professionals they can review LLM outputs, create examples that teach models how experts think, and evaluate quality using clear standards.
+
+On the enterprise side, [Scale AI](https://scale.com/generative-ai-data-foundry), [Invisible Technologies](https://invisibletech.ai/ai-training), [Turing](https://www.turing.com/services/llm-frontier-knowledge-processing), [Toloka](https://toloka.ai/ru), [Surge AI](https://www.surgehq.ai/rlhf), and [Appen](https://www.appen.com/generative-ai) all sell versions of the same service: human expertise arranged into training data, evaluation, red-teaming, preference ranking, rubric writing, or benchmark construction.
+
+From the worker's side, this can feel less like a job than like being on a casting list, because a project appears when a lab needs better chemistry reasoning this week, multilingual safety judgments next week, or finance benchmark tasks before a model release. Then, without ceremony, it disappears.
+
+Demand is discontinuous, access is mediated, and the platform may know why a worker has no tasks while the worker knows only that the dashboard is quiet and that a credential can matter enormously one day and not at all the next.
+
+This is why "gig economy" is not merely decorative language: the platforms promise flexibility, remote work, and payment for output. They also inherit the old asymmetries of platform labor, including opaque allocation, unpaid qualification tests, weak recourse, sudden deactivation, inconsistent demand, and quality metrics the worker may never fully see.
+
+TIME's reporting on Oxford Fairwork research found that AI-related cloudwork platforms were still far from basic fair-work standards, with unpaid time spent looking for work, taking tests, and applying for tasks cutting into real wages. That matters because expert work may command higher rates than old microtasking without a better hourly number doing much to repair the structure around it.
+
+## Why this had to become all-domain {#why-all-domain last_verified="2026-05-31"}
+
+This market is expanding because general models have become broad enough to be wrong almost everywhere.
+
+When a model could barely answer a school exercise, generic feedback could carry a surprising amount of the burden, but now the failures are more local and therefore more expensive to see. A model can write a confident legal memo whose conclusion rests on a bad jurisdictional assumption, solve most of a math problem before smuggling in a false step, produce code that looks idiomatic while violating the local architecture, or summarize a medical scenario in a tone of calm usefulness while missing the clinical risk.
+
+The better the model becomes at surface plausibility, the more valuable it becomes to find people who can detect deep wrongness.
+
+That pressure makes the market all-domain almost by necessity, because AI labs do not only want a universal model that chats nicely. They want systems that can operate inside workflows such as coding, research, customer support, medicine, law, finance, education, operations, scientific discovery, logistics, design, and whatever else customers will pay to automate or accelerate.
+
+Each workflow carries local standards, tacit norms, edge cases, and professional failure modes, which means the model needs examples, evaluations, and corrections from people who know those standards from the inside.
+
+This is also why the line between evaluation and training starts to dissolve, since what looks, from the worker's side, like a judgment about one model response may later be folded back into the machinery that produces the next one.
+
+A hard benchmark question, a careful rubric, a correction, a preference ranking, or a red-team note begins as an attempt to measure or repair a failure, yet each can also become part of the material from which future behavior is learned, so the same act of judgment may begin as a test and end as a lesson.
+
+Robert Wolfe and Aayushi Dangol's 2026 paper ["Cheap Expertise"](https://arxiv.org/abs/2605.03295) gives the deeper shift a useful name, an expert data gig economy, and its argument is uncomfortable because it says plainly what the market prefers to keep softened by platform copy.
+
+Human expertise is being treated as an extractable resource, valuable insofar as it can improve the return on AI systems. The platforms are not only buying answers but the residue of professional formation: the ways a trained person notices, doubts, ranks, corrects, and explains.
+
+## The strange middle job {#strange-middle-job last_verified="2026-05-31"}
+
+The all-domain gig job sits in an awkward middle position, since it is not ordinary employment, not quite consulting because the client often does not want advice about its own business, and not teaching because the student is not a person and the lesson may be absorbed invisibly into a model. It is not quality assurance in the ordinary sense, because the thing under test may be a general-purpose system whose eventual uses are unknown, and it is not exactly piecework because the valuable piece is often a sliver of professional judgment that took years to acquire.
+
+For some people, this is genuinely useful work: a retired lawyer can review model answers from home, a programmer between jobs can evaluate generated code, a bilingual professional can turn linguistic judgment into flexible income, and a domain specialist in a low-opportunity region can access global demand without moving.
+
+Some advertised rates for highly credentialed work are high enough to matter even in rich labor markets, which is one reason the category should not be dismissed as merely exploitative or merely marginal.
+
+But the structure is precarious in a way that is not incidental, because the platform wants availability without obligation and the AI company wants expertise without hiring the expert. The worker gets flexibility without much predictability.
+
+Their output may improve systems that later compete with the profession that trained them, their name may not attach to the work, and their judgment becomes valuable precisely because it can be lifted out of the person and made to circulate.
+
+This is why the phenomenon is hard to place in the usual argument about AI and jobs, because it is not simply "AI will take all jobs," and it is not the sunnier counterclaim that "AI will create better jobs."
+
+The sequence is stranger: AI first turns work into evaluable fragments, then buys those fragments from people who still know how the work is supposed to go, then uses those fragments to make the model better at the job-shaped task.
+
+The first effect is not replacement, but decomposition.
+
+## Expertise as a callable resource {#callable-resource last_verified="2026-05-31"}
+
+If this grows, expertise becomes more liquid and less institutionally housed, because a hospital, law firm, university, bank, newsroom, or software company used to hold expertise inside employment, apprenticeship, review processes, archives, and professional norms. The all-domain gig economy pulls pieces of that expertise into a marketplace where they can be invoked by task.
+
+There is a liberating version of this story, because institutions are not always good stewards of talent. Some experts are underused, badly managed, geographically trapped, retired too early, or excluded by credential rituals that only loosely track ability.
+
+A brokered AI-training market can discover useful people and pay them for work that would otherwise have no buyer.
+
+There is also a corrosive version, and it is not hard to imagine. Institutions do not merely store expertise; they help make it through feedback loops, accountability, memory, peer challenge, standards of care, and consequences.
+
+A task platform can ask a doctor to judge a model answer without reproducing the social machinery that made the doctor careful, or ask a lawyer for a rubric while stripping it from the professional obligations that give legal judgment its gravity. It can ask a software engineer to correct generated code while detaching the task from maintenance, ownership, and the future cost of the decision.
+
+The market wants the signal without the institution, which means that sometimes it will be efficient and sometimes it will be a way of laundering institutional expertise into a cheaper, less accountable form.
+
+That is the core tension: the all-domain gig economy may expand access to skilled work while weakening the conditions under which skill remains skill, paying people for judgment while teaching companies to treat judgment as a consumable ingredient.
+
+## What happens next {#what-happens-next last_verified="2026-05-31"}
+
+The near future almost certainly contains more of this, not less, because frontier AI systems need higher-quality feedback as they move into higher-value tasks. Simple labels are not enough for models meant to reason through contracts, debug production systems, plan experiments, tutor students, draft financial analyses, or operate software.
+
+Synthetic data and AI graders will absorb some of the volume, but they do not eliminate the need for humans. They move humans to different points in the loop: auditors of hard cases, designers of environments, writers of rubrics, judges of edge conditions, and suppliers of examples that are difficult to fake.
+
+The work will move up the stack, so that a contributor who today compares two answers may tomorrow design a simulated workflow, specify what success looks like, and judge an agent's performance across multiple steps.
+
+The unit of labor shifts from "label this item" to "encode what competent work in this domain requires," which is a more powerful transaction and a more consequential one.
+
+This will affect more jobs than it currently seems to because most white-collar work contains some evaluable core; not the whole job, not the relationships, politics, trust, taste, liability, institutional memory, or embodied context. But enough of the work can be turned into cases, rubrics, examples, corrections, and pass-fail judgments that AI companies will keep buying expert fragments wherever models need to improve.
+
+The important question is not whether the all-domain gig economy exists, because it does, but whether it becomes a trapdoor under professional labor or a better interface between human judgment and machine capability.
+
+That depends on choices that are still open: whether workers are paid for qualification time, whether platforms explain allocation and quality decisions, whether experts retain any claim over reusable training artifacts, whether sensitive domains demand stronger accountability, whether professional communities notice that their knowledge is being extracted, and whether AI labs treat human feedback as disposable input or as skilled labor with obligations attached.
+
+For now, the market is young enough to look like a side hustle and important enough to be infrastructure, which is the strange part, because somewhere between the unreleased model and the polished product, a statistician is writing a trick question, a nurse is flagging a dangerous answer, a programmer is explaining why the patch is wrong, and a translator is saving a model from the false confidence of fluency.
+
+The future of work is not only being automated, but sampled.
+
+---
+
+### The site is the instrument
+
+- **URL**: /posts/the-site-is-the-instrument (Markdown: /posts/the-site-is-the-instrument.md)
+- **Source**: content/posts/the-site-is-the-instrument.md
+- **Metadata**: Tags: #systems #agents #writing #thinkinglabs
+
+Most personal sites begin with a question of presentation. What should the homepage say? Which work should be featured? How should the archive be arranged so a stranger understands the shape of a life in a few polite clicks?
+
+thinkinglabs began somewhere else. The first question was not what the site should look like, but where truth should live.
+
+That sounds severe for a small website. It is also the only question that made the rest of the design feel inevitable. If the web page is the source of truth, then everything important hides inside a renderer, a CMS, a dashboard, or a hosted database. If the database is the source of truth, then the history becomes hard to read, hard to review, and easy to quietly corrupt. If the notes app is the source of truth, then the public version is a performance after the fact.
+
+The answer here is deliberately plain: the source is a git repository full of markdown files. The website, the JSON feeds, the SQLite index, the MCP server, the Open Graph images, and the agent-readable `llms.txt` file are all projections from that source. They can be rebuilt. They can be wrong. They can be thrown away and regenerated. The markdown is the durable object.
+
+That one constraint gave the project its character. thinkinglabs is not quite a blog, not quite a portfolio, and not quite a knowledge base. It is closer to a public workbench: a place where claims can be made precise, predictions can be scored, decisions can be reversed, questions can remain open, and agents can read the same structure a human sees without scraping the furniture.
+
+## A site for being wrong carefully {#wrong-carefully last_verified="2026-05-09"}
+
+The phrase that kept returning during the build was "being wrong in public." Not as a gesture of theatrical humility, and not as a personal brand. More like an engineering requirement.
+
+A private belief can drift for years without ever encountering the world. A public prediction eventually has to resolve. A public claim can be contradicted. A public decision can be superseded by a better one. Once the system has a place for those reversals, the point of publishing changes. The goal is no longer to look consistently finished. The goal is to leave enough structure behind that later inspection is possible.
+
+That is why the repository has separate kinds instead of one undifferentiated stream of posts. A thought is allowed to be rough. A claim is not. A prediction needs a due date and a confidence value. A decision needs context, status, and possible reversal. A question needs enough shape that someone else, or someone else's agent, can decide whether an answer is useful. An input records the outside material that changed the work.
+
+The distinction matters because each object has a different failure mode. A thought fails when it becomes too expensive to write. A claim fails when it becomes too vague to test. A prediction fails when it never has to meet a date. A decision fails when nobody can reconstruct why it made sense at the time. A site that wants to support all of those objects has to make room for their different kinds of accountability.
+
+This is the quiet ambition of thinkinglabs: not to publish more, but to make the cost of returning to an old belief lower than the cost of forgetting it.
+
+## Markdown as the durable object {#markdown-durable-object last_verified="2026-05-09"}
+
+The architecture records are blunt about the storage decision. `content/<kind>/*.md` is canonical and sacred. Everything else is derived.
+
+That choice is not nostalgia for simple tools. It is a bet on auditability. Markdown in git has properties that are still annoyingly hard to beat: it can be searched with `rg`, edited in any plain text editor, reviewed in a pull request, bisected through history, copied without an export flow, and understood without a running application. The format does not know anything about the site. That is exactly why it can outlive the site.
+
+Each file carries YAML frontmatter validated by a per-kind Zod schema. The body stays prose. This is the compromise the system keeps making: structure where structure earns its keep, freedom where premature structure would make authoring brittle. A claim needs a confidence number. A post needs a title and dates. A thought mostly needs enough metadata to be found again.
+
+The derived SQLite index exists because agents and local tools need fast queries: full-text search, tags, typed links, and eventually semantic lookup. But the index is intentionally disposable. It is rebuilt into `dist/index.sqlite`; it is not the place where knowledge lives. A bug in an indexer can produce a bad view. It cannot corrupt the source.
+
+That boundary is the whole design in miniature. Let machines build useful surfaces. Do not let the useful surface become the source.
+
+## Agents should read better than they write {#agents-read-better last_verified="2026-05-09"}
+
+The project also exists because the audience for a website has changed. Some readers are still people with browsers. Some are language models, scripts, crawlers, and assistants trying to answer a narrower question than "what is on this page?"
+
+HTML is a fine surface for humans. It is a poor contract for agents. An agent should not have to infer that a large heading is a claim title, that a muted label is a confidence score, or that a card in a gallery corresponds to a content kind. It should not need to scrape a visual layout at all if the same repository can produce a structured surface.
+
+That is why thinkinglabs ships a small set of machine-readable entry points alongside the pages. `llms.txt` lists the public surfaces. `/api/<kind>.json` exposes collection data. The personal MCP server gives agents stable resource URIs such as `thinkinglabs://claims`, `thinkinglabs://predictions/calibration`, and `thinkinglabs://posts/{slug}`, and the remote endpoint exists so an external agent can connect without cloning the repository first.
+
+The important part is not the protocol fashion of the week. It is the direction of dependency. The machine surfaces are not a second product bolted onto the side of the website. They are sibling projections from the same markdown source. When the source changes, the pages and the agent views change together.
+
+That makes the site feel less like a publication and more like an operating surface. Humans get typography, whitespace, and a calm path through the material. Agents get stable names, typed objects, and JSON. Both are reading the same work.
+
+## The write gate {#write-gate last_verified="2026-05-09"}
+
+The project is full of agents, but it is not built on the fantasy that agents should quietly mutate the public record.
+
+Five background agents can scan the corpus: one notices dormant projects, one reviews decisions, one tries to resolve predictions, one flags stale post sections, and one triages submitted answers to questions. Their job is to propose. They enqueue typed proposals into `.proposal-queue.json`. They do not write to `content/`.
+
+That is not a lack of ambition. It is the ambition.
+
+The repo is a knowledge system, and a knowledge system is not improved by making corruption cheaper. The useful agentic pattern here is not "let the model do everything." It is "let the model notice more than I would notice unaided, then make the human confirmation step cheap enough that it actually happens."
+
+The review flow is intentionally ordinary: proposals appear, a human accepts, edits, rejects, defers, or merges, and only then does a handler patch the markdown. Rejections are remembered so the same suggestion does not return forever. Accepted AI-assisted effects can be recorded as provenance. The mechanism is small, but it encodes a larger preference: unattended agents should widen attention, not seize authority.
+
+This is also why the build pipeline matters. A content edit is not done because a file was saved. It is done when the schemas pass, the site builds, the feeds regenerate, the structured data checks out, the index rebuilds, and the tests still tell the same story. The local commands are part of the editorial process, not a separate engineering ritual.
+
+## The shape arrived in layers {#shape-arrived-in-layers last_verified="2026-05-09"}
+
+The shape did not arrive as a single revelation, and it would be false to describe it as though the design were waiting intact behind the curtain. It arrived in layers: first as a storage decision, then as a set of object kinds, then as a public surface that could be read by people without losing its usefulness to machines, and finally as a calmer visual language that stopped trying to explain the system and began to let the system be felt.
+
+What made the work feel quick, in retrospect, was not speed so much as accumulated constraint. Once markdown had become the durable source, once each kind of object had been given its own burden of evidence, once agents were allowed to notice without being allowed to silently rewrite, the remaining choices were no longer open in the vague and exhausting way early choices are open; they were narrower, more demanding, and easier to respect.
+
+There is a lesson in that sequence that I want to remember, because software often looks mysterious when the visible thing appears near the end, even though the visible thing is usually only the residue of decisions that have become precise enough to execute. The homepage is just the last surface to admit what the system already believes.
+
+The current visual language follows that belief. The landing page is a quiet gallery of object kinds rather than a hero section explaining the site to itself. The about page calls it a public working surface. The agents page describes the structured doors. The privacy page says, plainly, that the static site is not trying to observe its readers. Even the design system insists on restraint: fewer panels, more whitespace, less dashboard, more artifact.
+
+That restraint is not decoration. It is a way of keeping the metadata from becoming louder than the work.
+
+## What this first post is for {#first-post last_verified="2026-05-09"}
+
+This post is the first real post in `content/posts/`, which makes it both a beginning and a test object.
+
+It tests the post schema. It tests section freshness stamps. It gives the posts listing something true to count. It gives the build pipeline a real essay instead of a fixture. It gives the site a small origin story that can be linked, queried, indexed, and revisited when the architecture no longer feels obvious.
+
+More importantly, it records the reason this place exists before the place starts accumulating reasons of its own.
+
+thinkinglabs is a bet that a personal site can be more than a shelf for finished thoughts. It can be an instrument: something that makes a certain kind of work easier to do honestly. It can ask for confidence when I make a prediction, evidence when I make a claim, context when I make a decision, and a date when I say a section is still fresh. It can let agents help without letting them silently rewrite the record. It can make the public version close enough to the working version that publishing stops feeling like a second job.
+
+That is the hope, at least. The better test will come later, when some confident claim here turns out to be wrong, when a prediction resolves badly, when a decision reverses, when a section goes stale, or when an agent proposes a change I would have missed. The site will be doing its job if those moments feel less like embarrassment and more like maintenance.
+
+The first post, then, is not a ribbon cutting. It is a note taped to the bench: this is what the instrument was built to measure.
+
+---

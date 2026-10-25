@@ -27,6 +27,8 @@ const { links = PRIMARY_SITE_LINKS, revealBadge = true } = Astro.props;
   <label
     for="tl-nav"
     class="block cursor-pointer origin-top-right lg:scale-75"
+    tabindex="0"
+    role="button"
     aria-label="Open navigation"
     data-tl-nav-open-trigger
   >
@@ -42,6 +44,7 @@ const { links = PRIMARY_SITE_LINKS, revealBadge = true } = Astro.props;
         for="tl-nav"
         class="tl-nav-close-button"
         tabindex="0"
+        role="button"
         aria-label="Close navigation"
         data-tl-nav-close-trigger
       >
@@ -49,7 +52,7 @@ const { links = PRIMARY_SITE_LINKS, revealBadge = true } = Astro.props;
         <span class="tl-nav-close-mark" aria-hidden="true"></span>
       </label>
 
-      <nav>
+      <nav aria-label="Site navigation">
         <ul class="flex list-none flex-col gap-1 p-0 lg:items-end lg:text-right">
           {
             links.map((link) => (

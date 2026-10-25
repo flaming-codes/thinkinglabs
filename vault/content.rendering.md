@@ -5,7 +5,7 @@ desc: Astro pages and machine-readable surfaces render from typed content collec
 status: active
 owner: Tom Wild
 audience: [agents, engineering]
-last_verified: 2026-10-24
+last_verified: 2026-10-25
 ttl_days: 180
 layer: content
 code_refs:
@@ -21,13 +21,21 @@ code_refs:
     symbol: agentMetadataForContent
     kind: function
     namespace: value
+  - file: src/lib/llms-full.ts
+    symbol: generateLlmsFullTxt
+    kind: function
+    namespace: value
+  - file: src/frontend/thinkinglabs-ui/lib/webmcp.ts
+    symbol: initWebMcp
+    kind: function
+    namespace: value
 tags: [content, rendering, surfaces]
 ---
 
 # Rendering surfaces
 
-Astro pages, JSON APIs, Markdown route variants, feeds, `llms.txt`, and MCP
-resources are projections of source content and registries. The rendered site
+Astro pages, JSON APIs, Markdown route variants, feeds, `llms.txt`, `llms-full.txt`,
+and MCP resources are projections of source content and registries. The rendered site
 does not read `dist/index.sqlite`.
 
 New public pages or data surfaces should be represented in `SURFACES` when they
@@ -36,7 +44,15 @@ need to appear in navigation, `llms.txt`, or agent-facing inventories.
 Agent-facing derived metadata is centralized in `src/lib/agent-metadata.ts`.
 Do not hand-author token counts in frontmatter. JSON APIs, Markdown detail
 envelopes, MCP responses, and UI copy-for-AI affordances should reuse the
-shared helper and the `.md` route convention.
+shared helper and the `.md` route convention. The single-file `/llms-full.txt`
+corpus provides a unified Markdown ingestion surface generated from content.
+
+Browser agents in Chromium can discover client-side tools natively via WebMCP
+(`document.modelContext.registerTool`), exposing content search, markdown extraction,
+and contact preflighting with zero overhead on non-supporting runtimes.
+
+Offline PWA support is provided through `/offline`, precached shell assets in `sw.js`,
+and installable app manifest shortcuts.
 
 The static site keeps Astro's hash-based CSP enabled and keeps route CSS
 external with `build.inlineStylesheets: "never"`. Do not add

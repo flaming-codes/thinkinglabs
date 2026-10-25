@@ -23,6 +23,9 @@ const { title, heroImage, heroAlt } = Astro.props;
     sizes="(min-width: 768px) 75vw, 100vw"
     format="webp"
     quality={80}
+    loading="eager"
+    decoding="sync"
+    fetchpriority="high"
     class="tl-hero-media h-full w-full object-cover md:w-3/4"
   />
 

@@ -506,6 +506,14 @@ function websiteNode(site: string): WebSite {
     inLanguage: LANGUAGE,
     author: ref(personId(site)),
     publisher: ref(personId(site)),
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: `${site}claims?q={search_term_string}`,
+      },
+      query: "required name=search_term_string",
+    },
   } satisfies WebSite;
 }
 
@@ -515,6 +523,15 @@ function personNode(site: string): Person {
     "@id": personId(site),
     name: AUTHOR_NAME,
     url: canonicalUrl("/about", site),
+    jobTitle: "Systems Architect & Engineering Leader",
+    knowsAbout: [
+      "Artificial Intelligence",
+      "Model Context Protocol",
+      "Agent Architectures",
+      "Software Engineering",
+      "Knowledge Systems",
+    ],
+    sameAs: ["https://github.com/flaming-codes"],
   } satisfies Person;
 }
 

@@ -124,6 +124,12 @@ const TAIL_SURFACES: ReadonlyArray<Surface> = [
     section: "data",
   },
   {
+    title: "llms-full.txt",
+    url: "/llms-full.txt",
+    description: "Comprehensive single-context full-text ingestion corpus for AI models.",
+    section: "data",
+  },
+  {
     title: "skill.md",
     url: "/skill.md",
     description: "Capability signaling for agents integrating with the public corpus.",
@@ -133,6 +139,12 @@ const TAIL_SURFACES: ReadonlyArray<Surface> = [
     title: "agent-permissions.json",
     url: "/agent-permissions.json",
     description: "Automated-access policy, preferred entrypoints, and rate-limit guidance.",
+    section: "data",
+  },
+  {
+    title: "MCP server card (.well-known/mcp.json)",
+    url: "/.well-known/mcp.json",
+    description: "Machine-readable MCP server card and endpoint discovery.",
     section: "data",
   },
   {

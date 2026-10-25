@@ -83,7 +83,8 @@
     "tsx": "^4.23.15",
     "typescript": "^6.0.3",
     "unified": "^11.0.5",
-    "vite-plus": "1.4.0"
+    "vite-plus": "1.4.0",
+    "webmcp-types": "^0.1.10"
   },
   "engines": {
     "node": ">=22.19.0"

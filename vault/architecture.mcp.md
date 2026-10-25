@@ -5,7 +5,7 @@ desc: The stdio and HTTP transports share one MCP server factory and store.
 status: active
 owner: Tom Wild
 audience: [agents, engineering]
-last_verified: 2026-10-24
+last_verified: 2026-10-25
 ttl_days: 180
 layer: architecture
 code_refs:
@@ -26,6 +26,10 @@ Both MCP transports use `createThinkinglabsMcpServer`. Behavior shared by stdio
 and HTTP belongs in the factory or store. HTTP-only concerns such as CORS,
 body-size caps, DNS-rebinding protection, and rate limiting stay in the HTTP
 transport.
+
+MCP endpoints are advertised for zero-configuration discovery via
+`/.well-known/mcp.json`, `/.well-known/mcp/server-card.json`, `<link rel="mcp">`
+in the HTML head, and the `robots.txt` index directives.
 
 The MCP store prefers `dist/index.sqlite` and falls back to validated markdown
 through the index builder when the derived index is absent.

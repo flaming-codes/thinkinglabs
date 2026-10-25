@@ -1,11 +1,25 @@
-// Minimal service worker — required for PWA installability.
-// Strategy: stale-while-revalidate for same-origin GETs; network-first for navigations.
+// Service worker for thinkinglabs PWA installability and offline support.
+// Strategy: stale-while-revalidate for subresources; network-first with dedicated fallback for navigations.
 
-const CACHE_NAME = "thinkinglabs-v1";
-const OFFLINE_FALLBACK = "/";
+const CACHE_NAME = "thinkinglabs-v2";
+const OFFLINE_FALLBACK = "/offline";
+const PRECACHE_ASSETS = [
+  "/offline",
+  "/manifest.webmanifest",
+  "/favicon.svg",
+  "/pwa-64x64.png",
+  "/pwa-192x192.png",
+  "/pwa-512x512.png",
+  "/maskable-icon-512x512.png",
+];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(self.skipWaiting());
+  event.waitUntil(
+    caches
+      .open(CACHE_NAME)
+      .then((cache) => cache.addAll(PRECACHE_ASSETS))
+      .then(() => self.skipWaiting()),
+  );
 });
 
 self.addEventListener("activate", (event) => {
@@ -30,13 +44,20 @@ self.addEventListener("fetch", (event) => {
       (async () => {
         try {
           const fresh = await fetch(request);
-          const cache = await caches.open(CACHE_NAME);
-          cache.put(request, fresh.clone());
+          if (fresh.ok) {
+            const cache = await caches.open(CACHE_NAME);
+            cache.put(request, fresh.clone());
+          }
           return fresh;
         } catch {
           const cache = await caches.open(CACHE_NAME);
           const cached = await cache.match(request);
-          return cached ?? cache.match(OFFLINE_FALLBACK) ?? Response.error();
+          return (
+            cached ??
+            (await cache.match(OFFLINE_FALLBACK)) ??
+            (await cache.match("/")) ??
+            Response.error()
+          );
         }
       })(),
     );
@@ -47,13 +68,21 @@ self.addEventListener("fetch", (event) => {
     (async () => {
       const cache = await caches.open(CACHE_NAME);
       const cached = await cache.match(request);
-      const network = fetch(request)
+      const networkPromise = fetch(request)
         .then((response) => {
-          if (response.ok) cache.put(request, response.clone());
+          if (response && response.ok) {
+            cache.put(request, response.clone());
+          }
           return response;
         })
-        .catch(() => cached);
-      return cached ?? network;
+        .catch(() => null);
+
+      if (cached) {
+        event.waitUntil(networkPromise);
+        return cached;
+      }
+      const networkResponse = await networkPromise;
+      return networkResponse ?? Response.error();
     })(),
   );
 });

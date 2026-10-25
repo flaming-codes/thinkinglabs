@@ -77,7 +77,17 @@ describe("buildPageGraph", () => {
     expect(page).toBeDefined();
 
     expect(website?.["@id"]).toBe("https://example.com/#website");
+    expect(website?.potentialAction).toEqual({
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: "https://example.com/claims?q={search_term_string}",
+      },
+      query: "required name=search_term_string",
+    });
     expect(person?.["@id"]).toBe("https://example.com/#person");
+    expect(person?.jobTitle).toBe("Systems Architect & Engineering Leader");
+    expect(person?.sameAs).toEqual(["https://github.com/flaming-codes"]);
     expect(page?.url).toBe("https://example.com/about");
     expect(page?.name).toBe("About");
     expect(page?.description).toBe("Who I am.");

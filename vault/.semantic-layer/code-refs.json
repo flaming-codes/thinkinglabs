@@ -277,6 +277,27 @@
     {
       "note_id": "content.rendering",
       "ref": {
+        "file": "src/frontend/thinkinglabs-ui/lib/webmcp.ts",
+        "symbol": "initWebMcp",
+        "kind": "function",
+        "namespace": "value"
+      },
+      "kind": "function",
+      "namespaces": ["value"],
+      "line": 203,
+      "column": 17,
+      "declarations": [
+        {
+          "file": "src/frontend/thinkinglabs-ui/lib/webmcp.ts",
+          "kind": "function",
+          "line": 203,
+          "column": 17
+        }
+      ]
+    },
+    {
+      "note_id": "content.rendering",
+      "ref": {
         "file": "src/lib/agent-metadata.ts",
         "symbol": "agentMetadataForContent",
         "kind": "function",
@@ -298,6 +319,27 @@
     {
       "note_id": "content.rendering",
       "ref": {
+        "file": "src/lib/llms-full.ts",
+        "symbol": "generateLlmsFullTxt",
+        "kind": "function",
+        "namespace": "value"
+      },
+      "kind": "function",
+      "namespaces": ["value"],
+      "line": 23,
+      "column": 17,
+      "declarations": [
+        {
+          "file": "src/lib/llms-full.ts",
+          "kind": "function",
+          "line": 23,
+          "column": 17
+        }
+      ]
+    },
+    {
+      "note_id": "content.rendering",
+      "ref": {
         "file": "src/lib/surfaces.ts",
         "symbol": "SURFACES",
         "kind": "const",
@@ -305,13 +347,13 @@
       },
       "kind": "const",
       "namespaces": ["value"],
-      "line": 243,
+      "line": 255,
       "column": 14,
       "declarations": [
         {
           "file": "src/lib/surfaces.ts",
           "kind": "const",
-          "line": 243,
+          "line": 255,
           "column": 14
         }
       ]

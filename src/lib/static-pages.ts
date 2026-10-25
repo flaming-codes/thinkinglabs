@@ -1,0 +1,110 @@
+/** Canonical static markdown page definitions and bodies shared between routes and full-text generators. */
+export const STATIC_MARKDOWN_PAGES = [
+  {
+    route: "/",
+    markdownSlug: "index",
+    title: "thinkinglabs",
+    description: "Site root and entry points.",
+    body: [
+      "# thinkinglabs",
+      "",
+      "thinkinglabs is a public working surface generated from a markdown repository.",
+      "",
+      "The HTML site, JSON APIs, feeds, MCP resources, and `.md` page variants are derived from the same validated source tree.",
+    ].join("\n"),
+  },
+  {
+    route: "/about",
+    markdownSlug: "about",
+    title: "About",
+    description: "About this site and the author.",
+    body: [
+      "# About",
+      "",
+      "thinkinglabs is a public working surface.",
+      "",
+      "Canonical public content pages, listings, and selected static pages have agent-readable Markdown siblings: append `.md` to the slashless page URL, or use `/index.md` for the homepage.",
+      "",
+      "Detail variants preserve the source markdown body. Listing and static variants are compact summaries with contract-validated envelopes over the same repository-backed system that feeds the web UI, JSON APIs, SQLite index, feeds, and MCP surfaces.",
+    ].join("\n"),
+  },
+  {
+    route: "/agents",
+    markdownSlug: "agents",
+    title: "For agents",
+    description: "MCP server, llms.txt, JSON APIs, and feed surfaces.",
+    body: [
+      "# For agents",
+      "",
+      "Agent-readable surfaces include `/llms.txt`, `/api/<kind>.json`, public feed files, MCP resources, and `.md` page variants.",
+      "",
+      "Use `.md` variants when the target is a page-shaped representation and JSON or MCP when the target is structured query access.",
+    ].join("\n"),
+  },
+  {
+    route: "/brain-diff",
+    markdownSlug: "brain-diff",
+    title: "Brain diff",
+    description: "Substantive changes across tracked content.",
+    body: [
+      "# Brain diff",
+      "",
+      "Brain diff feeds summarize substantive changes across tracked public content.",
+    ].join("\n"),
+  },
+  {
+    route: "/contact",
+    markdownSlug: "contact",
+    title: "Contact",
+    description: "Human-readable contact surface.",
+    body: [
+      "# Contact",
+      "",
+      "The contact page is the human-readable contact surface. Structured contact data is available at `/contact.json`.",
+    ].join("\n"),
+  },
+  {
+    route: "/graph",
+    markdownSlug: "graph",
+    title: "Graph",
+    description: "Full-screen 3D rendering of the knowledge network.",
+    body: [
+      "# Graph",
+      "",
+      "The graph page renders the public knowledge network. Use the collection APIs or MCP resources for structured graph-like traversal.",
+    ].join("\n"),
+  },
+  {
+    route: "/now",
+    markdownSlug: "now",
+    title: "Now",
+    description: "Current focus.",
+    body: [
+      "# Now",
+      "",
+      "The now page summarizes current focus from public projects and recent inputs.",
+    ].join("\n"),
+  },
+  {
+    route: "/privacy",
+    markdownSlug: "privacy",
+    title: "Privacy",
+    description: "Privacy notes for the static site.",
+    body: [
+      "# Privacy",
+      "",
+      "thinkinglabs is a static site generated from a public markdown repository. The deployed site does not need a production Node runtime.",
+    ].join("\n"),
+  },
+  {
+    route: "/predictions/calibration",
+    markdownSlug: "predictions/calibration",
+    title: "Prediction calibration",
+    description: "Stated confidence vs realized accuracy.",
+    body: [
+      "# Prediction calibration",
+      "",
+      "The calibration page compares stated confidence against realized prediction outcomes.",
+    ].join("\n"),
+  },
+] as const;

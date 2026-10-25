@@ -1,0 +1,85 @@
+{
+  "$schema": "https://modelcontextprotocol.io/schemas/server-card.json",
+  "serverInfo": {
+    "name": "thinkinglabs-mcp",
+    "title": "thinkinglabs MCP server",
+    "version": "0.1.0",
+    "description": "Personal thinking surface and structured public operating layer. Exposes read-only views, atomic claims, thoughts, predictions, and curation tools."
+  },
+  "transport": {
+    "type": "streamable_http",
+    "endpoint": "https://mcp.thinkinglabs.run/mcp"
+  },
+  "capabilities": {
+    "tools": true,
+    "resources": true,
+    "prompts": false
+  },
+  "documentationUrl": "https://thinkinglabs.run/agents",
+  "llmsTxtUrl": "https://thinkinglabs.run/llms.txt",
+  "tools": [
+    {
+      "name": "query_view",
+      "title": "Query public view",
+      "description": "Filter one public view by free text, tags, and limit."
+    },
+    {
+      "name": "contact.precheck",
+      "title": "Precheck contact intent",
+      "description": "Check a proposed inquiry against the public contact policy before sending."
+    },
+    {
+      "name": "contact.send",
+      "title": "Prepare contact handoff",
+      "description": "Validate a message and return the public email handoff. The server does not send mail."
+    },
+    {
+      "name": "subscribe_brain_diff",
+      "title": "Subscribe to brain diff",
+      "description": "Return public feed URLs and optionally recent deterministic entries from git history."
+    },
+    {
+      "name": "question.submit",
+      "title": "Submit answer to open question",
+      "description": "Write a structured reader answer into the submissions queue for later triage."
+    }
+  ],
+  "resources": [
+    {
+      "uri": "thinkinglabs://thoughts",
+      "description": "Rough-draft prose; the unstructured side of the corpus."
+    },
+    {
+      "uri": "thinkinglabs://claims",
+      "description": "Atomic structured assertions with confidence in [0,1]."
+    },
+    {
+      "uri": "thinkinglabs://projects",
+      "description": "Active and archived projects with state and links."
+    },
+    {
+      "uri": "thinkinglabs://decisions",
+      "description": "Decisions made and the reversals that followed."
+    },
+    {
+      "uri": "thinkinglabs://predictions",
+      "description": "Dated predictions, all states."
+    },
+    {
+      "uri": "thinkinglabs://inputs",
+      "description": "Things I've read, watched, or listened to."
+    },
+    {
+      "uri": "thinkinglabs://observations",
+      "description": "Short first-party notes about the world."
+    },
+    {
+      "uri": "thinkinglabs://questions",
+      "description": "Open questions I'm tracking."
+    },
+    {
+      "uri": "thinkinglabs://current_focus",
+      "description": "What I'm actively working on right now."
+    }
+  ]
+}

@@ -43,6 +43,10 @@ const jsonLd = buildPageGraph({ site, url: canonical, title: titleMeta, descript
     {robots ? <meta name="robots" content={robots} /> : null}
     <link rel="canonical" href={canonical} />
     {markdownAlternate ? <link rel="alternate" type="text/markdown" href={markdownAlternate} /> : null}
+    <link rel="mcp" href="https://mcp.thinkinglabs.run/mcp" />
+    <link rel="service-desc" type="application/json" href={new URL("/.well-known/mcp.json", site).href} />
+    <link rel="help" type="text/markdown" title="LLMs.txt" href={new URL("/llms.txt", site).href} />
+    <link rel="help" type="text/markdown" title="LLMs-Full.txt" href={new URL("/llms-full.txt", site).href} />
     {feeds.map((feed) => <link rel="alternate" type={feed.type} title={feed.title} href={feed.href} />)}
     <meta property="og:type" content={ogType} />
     <meta property="og:site_name" content={SITE_NAME} />
@@ -65,6 +69,9 @@ const jsonLd = buildPageGraph({ site, url: canonical, title: titleMeta, descript
   <body data-tl-allow-scroll={allowScroll ? "true" : undefined}>
     <a href="#main-content" class="tl-skip-link">Skip to main content</a>
     <slot />
+    <script>
+      import "../frontend/thinkinglabs-ui/lib/webmcp.ts";
+    </script>
   </body>
 </html>
 

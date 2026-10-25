@@ -5,8 +5,9 @@ import { markdownUrlForRoute } from "../src/lib/agent-metadata.ts";
 import { loadContact } from "../src/lib/contact.ts";
 import { SECTION_ORDER, SECTION_TITLES, SURFACES } from "../src/lib/surfaces.ts";
 import { GITHUB_URL, SITE_NAME } from "../src/lib/site.ts";
+import { generateLlmsFullTxt } from "../src/lib/llms-full.ts";
 
-/** Generates `public/llms.txt` from the shared surfaces inventory; runs as a `prebuild` step so the file exists before astro copies `public/`. */
+/** Generates `public/llms.txt` and `public/llms-full.txt` from the shared surfaces inventory and content corpus; runs as a `prebuild` step so the files exist before astro copies `public/`. */
 function main(): void {
   loadContact();
   const sections = new Map<string, (typeof SURFACES)[number][]>();
@@ -34,6 +35,11 @@ function main(): void {
   const out = resolve(process.cwd(), "public/llms.txt");
   writeFileSync(out, lines.join("\n"));
   process.stdout.write(`wrote ${out}\n`);
+
+  const fullOut = resolve(process.cwd(), "public/llms-full.txt");
+  const fullContent = generateLlmsFullTxt();
+  writeFileSync(fullOut, fullContent);
+  process.stdout.write(`wrote ${fullOut}\n`);
 }
 
 function surfaceDescription(surface: (typeof SURFACES)[number]): string {

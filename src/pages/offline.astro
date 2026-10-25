@@ -1,0 +1,46 @@
+---
+import heroImage from "@/assets/hero.webp";
+import DetailPage from "../frontend/thinkinglabs-ui/components/DetailPage.astro";
+import ThinkinglabsUiPage from "../layouts/ThinkinglabsUiPage.astro";
+---
+
+<ThinkinglabsUiPage
+  title="Offline — thinkinglabs"
+  description="You are currently viewing thinkinglabs while offline."
+  robots="noindex"
+  allowScroll
+>
+  <DetailPage
+    title="Offline"
+    heroAlt="Thinking Labs offline view"
+    heroImage={heroImage}
+    metadata={[{ label: "PWA Offline Mode" }]}
+  >
+    <p>
+      You are currently browsing without an active network connection. Thinking Labs is an
+      offline-capable Progressive Web App; pages and resources you have already visited remain
+      cached and accessible on this device.
+    </p>
+    <p>
+      When your connection is restored, the page will automatically reconnect.
+    </p>
+    <section aria-labelledby="offline-cached-heading">
+      <h2 id="offline-cached-heading" class="text-sm font-semibold tracking-wide uppercase opacity-70">
+        Cached entrypoints
+      </h2>
+      <ul class="flex flex-col gap-2 mt-2 list-none p-0">
+        <li><a class="underline decoration-[var(--tl-link-underline)] underline-offset-[3px] hover:decoration-[var(--tl-ink)]" href="/">Home</a></li>
+        <li><a class="underline decoration-[var(--tl-link-underline)] underline-offset-[3px] hover:decoration-[var(--tl-ink)]" href="/thoughts">Thoughts</a></li>
+        <li><a class="underline decoration-[var(--tl-link-underline)] underline-offset-[3px] hover:decoration-[var(--tl-ink)]" href="/claims">Claims</a></li>
+        <li><a class="underline decoration-[var(--tl-link-underline)] underline-offset-[3px] hover:decoration-[var(--tl-ink)]" href="/now">Now</a></li>
+        <li><a class="underline decoration-[var(--tl-link-underline)] underline-offset-[3px] hover:decoration-[var(--tl-ink)]" href="/agents">For agents</a></li>
+      </ul>
+    </section>
+  </DetailPage>
+</ThinkinglabsUiPage>
+
+<script>
+  window.addEventListener("online", () => {
+    window.location.reload();
+  });
+</script>
