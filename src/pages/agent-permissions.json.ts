@@ -14,7 +14,7 @@ const permissions = {
     use_mcp_endpoint: true,
     submit_questions: true,
     send_contact_messages: false,
-    train_models: false,
+    train_models: true,
   },
   preferred_entrypoints: [
     "/llms.txt",
