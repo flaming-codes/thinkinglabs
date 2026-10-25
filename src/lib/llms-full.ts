@@ -4,20 +4,12 @@ import matter from "gray-matter";
 import { GITHUB_URL, SITE_NAME } from "./site.ts";
 import { KIND_REGISTRY, titleFor, type KindRegistryEntry } from "./registry.ts";
 import { STATIC_MARKDOWN_PAGES } from "./static-pages.ts";
-import type { Kind } from "../schemas/index.ts";
+import { KINDS, type Kind } from "../schemas/index.ts";
 
-const PUBLIC_FULL_KINDS: ReadonlyArray<Kind> = [
-  "claims",
-  "thoughts",
-  "projects",
-  "decisions",
-  "predictions",
-  "inputs",
-  "observations",
-  "posts",
-  "questions",
-  "changed-my-mind",
-];
+//! Derive public kinds dynamically from the single schemas/registry source of truth.
+const PUBLIC_FULL_KINDS: ReadonlyArray<Kind> = KINDS.filter(
+  (kind) => KIND_REGISTRY[kind].route !== null && kind !== "provenance",
+);
 
 /** Generates the full single-file text corpus adhering to the llmstxt.org specification. */
 export function generateLlmsFullTxt(repoRoot = process.cwd()): string {
